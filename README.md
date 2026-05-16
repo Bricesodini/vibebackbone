@@ -41,16 +41,17 @@ vibebackbone/
 │   ├── t-vbb-*/        # Transverse : Docker, Git, CI, deploiement (12)
 │   └── vibebackbone/   # Orchestrateur principal + PILOTAGE.md
 ├── prompts/             # 24 prompts de pilotage
-├── docs/                # Fichiers de pilotage générés localement
+├── docs/                # Fichiers de pilotage générés localement (gitignorés)
 │   ├── PROJECT_MODE.md  # Signal de mode (généré par `t-vbb-project-context-init`)
-│   ├── SESSION.md       # Session memory — gitignoré, local au projet
-│   ├── AUDIT_STATUS.md  # Audit dashboard — gitignoré, local au projet
-│   └── audits/          # Rapports d'audit — gitignorés, locaux au projet
-├── AGENTS.md            # Grammaire opérationnelle canonique (325 lignes)
-├── SYSTEM.md            # Comportement runtime Pi (146 lignes)
+│   ├── SESSION.md       # Session memory — local au projet
+│   ├── AUDIT_STATUS.md  # Audit dashboard — local au projet
+│   └── audits/          # Rapports d'audit — locaux au projet
+├── AGENTS.md            # Grammaire opérationnelle canonique
+├── SYSTEM.md            # Comportement runtime Pi
 ├── CLAUDE.md            # Point d'entree universel pour Claude Code / Cursor
+├── package.json         # Déclaration pi-package (skills + prompts)
 ├── .gitignore           # Ignore les artefacts de session locale
-└── .pi/                 # Configuration Pi
+└── .pi/                 # Configuration Pi (locale, gitignorée)
     ├── agents/          # Supervisor template
     └── taskplane.json   # Config taskplane
 ```
@@ -155,9 +156,10 @@ C'est tout. Les 57 skills sont disponibles pour tous vos agents, dans tous vos p
 - symlink les prompts Pi dans `~/.pi/agent/prompts/`
 - ajoute `AGENTS.md` et `SYSTEM.md` dans `~/.config/opencode/opencode.json`
 - génère des commandes prompt `~/.config/opencode/commands/vbb-*.md`
-- expose `skills/` et `prompts/` comme package Pi via `package.json`
 - **ne jamais écraser** les fichiers custom existants (sauf avec `--force-governance`)
 - les mises à jour se font via `git pull` (le symlink suit automatiquement)
+
+`package.json` à la racine déclare le repo comme package Pi (`pi install /path/to/vibebackbone`).
 
 ### Découverte par provider
 
@@ -225,7 +227,7 @@ codex "Lance la séquence [0→1→2→3]"
 
 ## Utiliser les prompts
 
-Les prompts sont des **points d’entrée de session** — pas des skills. Ils ne modifient pas le code directement ; ils cadrer la tâche avant que le skill approprié ne soit invoqué.
+Les prompts sont des **points d’entrée de session** — pas des skills. Ils ne modifient pas le code directement ; ils **cadrent** la tâche avant que le skill approprié ne soit invoqué.
 
 ### Claude Code
 
@@ -254,11 +256,13 @@ pi install /path/to/vibebackbone
 
 ### Codex
 
-Utilise le prompt Vibebackbone `structured-task` pour modifier `setup.sh`. Codex lit la bibliothèque référencée dans le bloc compilé `~/.codex/AGENTS.md`.
+Codex n'a pas de système de commandes `/vbb-*` natif. Il lit la bibliothèque de prompts référencée dans le bloc compilé `~/.codex/AGENTS.md` :
 
 ```
 ~/.agents/prompts/vibebackbone/
 ```
+
+Quand le contexte le demande, lis le prompt correspondant (ex: `structured-task.md`) et applique-le avant d'exécuter le skill.
 
 ---
 
