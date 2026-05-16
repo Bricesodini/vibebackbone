@@ -1,0 +1,14 @@
+# Local vibebackbone session & audit state (per-project runtime artifacts)
+docs/SESSION.md
+docs/AUDIT_STATUS.md
+docs/audits/*
+
+# Keep the directory structure (but not the runtime files)
+!docs/audits/.gitkeep
+
+# OS files
+**/.DS_Store
+
+# Pi local state (agent-specific, not for distribution)
+.pi/hippo-memory/
+.pi/taskplane.json
