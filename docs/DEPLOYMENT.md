@@ -27,16 +27,43 @@ C'est tout. Les 57 skills sont maintenant disponibles pour tous vos agents.
 
 ---
 
-## 2. Vérifier l'installation
+## 2. Ce que fait `setup.sh`
+
+| Action | Fichier cible | Provider |
+|--------|--------------|----------|
+| Symlink `skills/` | `~/.agents/skills/vibebackbone/` | Pi, OpenCode, Codex, Claude Code |
+| Patch settings | `~/.claude/settings.json` | Claude Code |
+| `@import` AGENTS.md | `~/.claude/CLAUDE.md` | Claude Code |
+| Symlink AGENTS.md | `~/.codex/AGENTS.md` | Codex |
+| Symlink AGENTS.md | `~/.pi/agent/AGENTS.md` | Pi |
+| Patch `instructions` | `~/.config/opencode/opencode.json` | OpenCode |
+
+> **Fichiers existants** : si `~/.codex/AGENTS.md` ou `~/.pi/agent/AGENTS.md` ont du contenu,
+> le script les laisse intacts et affiche la commande `ln -sf` à exécuter manuellement.
+
+## 3. Vérifier l'installation
 
 ```bash
+# Skills
 ls ~/.agents/skills/vibebackbone/
 # → liste des 57 skills : 0-vbb-scope-freeze, 1-vbb-conventions, 2-vbb-security, ...
+
+# Governance Claude Code
+grep "vibebackbone" ~/.claude/CLAUDE.md
+
+# Governance Codex
+ls -la ~/.codex/AGENTS.md
+
+# Governance Pi
+ls -la ~/.pi/agent/AGENTS.md
+
+# Governance OpenCode
+cat ~/.config/opencode/opencode.json
 ```
 
 ---
 
-## 3. Utilisation par agent
+## 4. Utilisation par agent
 
 ### Pi
 
@@ -73,7 +100,7 @@ Codex découvre automatiquement `~/.agents/skills/` — aucune configuration req
 
 ---
 
-## 4. Flux de travail standard
+## 5. Flux de travail standard
 
 ### Étape 1 — Classifier la tâche (triage)
 
@@ -128,7 +155,7 @@ Règle : ne jamais lancer [2] sans [0] + [1] `dependency-mapper`.
 
 ---
 
-## 5. Mise à jour
+## 6. Mise à jour
 
 ```bash
 cd ~/vibebackbone
@@ -140,7 +167,7 @@ Vérifier `CHANGELOG.md` pour les breaking changes entre versions majeures.
 
 ---
 
-## 6. Désinstallation
+## 7. Désinstallation
 
 ```bash
 bash ~/vibebackbone/setup.sh --uninstall
@@ -148,7 +175,7 @@ bash ~/vibebackbone/setup.sh --uninstall
 
 ---
 
-## 7. Escalade & Governance
+## 8. Escalade & Governance
 
 **Escalader si** :
 - Vulnérabilité de sécurité découverte
@@ -162,7 +189,7 @@ bash ~/vibebackbone/setup.sh --uninstall
 
 ---
 
-## 8. Troubleshooting
+## 9. Troubleshooting
 
 **"Skill not found"**
 → Vérifier que `setup.sh` a été exécuté : `ls ~/.agents/skills/vibebackbone/`
@@ -178,7 +205,7 @@ bash ~/vibebackbone/setup.sh --uninstall
 
 ---
 
-## 9. Support
+## 10. Support
 
 - **Issues** : https://github.com/bricesodini/vibebackbone/issues
 - **Discussions** : https://github.com/bricesodini/vibebackbone/discussions
