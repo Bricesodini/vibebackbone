@@ -1,0 +1,41 @@
+# vibebackbone session artifacts (local, gitignored)
+docs/SESSION.md
+docs/AUDIT_STATUS.md
+docs/audits/
+
+# Provider-specific config (local secrets, gitignored)
+.claude/settings.json
+.pi/hippo-memory/
+.codex/env.sh
+
+# Common development artifacts
+node_modules/
+*.pyc
+__pycache__/
+.venv/
+venv/
+dist/
+build/
+.egg-info/
+
+# Editor configuration
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Environment variables (secrets)
+.env
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Application-specific (customize as needed)
+# Examples:
+# logs/
+# temp/
+# cache/

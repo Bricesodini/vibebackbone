@@ -1,0 +1,26 @@
+{
+  "project_name": "vibebackbone-consumer",
+  "mode": "CONSUMER",
+  "provider": "pi",
+  "governance": "vibebackbone v1.0",
+  "entry_point": "SYSTEM.md",
+  "triage_reference": "AGENTS.md",
+  "skills_catalog": "README.md",
+  "agents": [
+    {
+      "name": "supervisor",
+      "role": "Audit coordinator and skill orchestrator",
+      "model": "claude-opus-4.7",
+      "skills_phases": [0, 1, 2, 3],
+      "planning_protocol": "enabled",
+      "risk_discipline": "escalate_above_p1",
+      "context_lvm_discipline": "budget_per_skill"
+    }
+  ],
+  "session": {
+    "memory_file": "docs/SESSION.md",
+    "dashboard_file": "docs/AUDIT_STATUS.md",
+    "audit_reports_dir": "docs/audits/"
+  },
+  "notes": "Edit this file to configure your Pi agents and skill routing"
+}
