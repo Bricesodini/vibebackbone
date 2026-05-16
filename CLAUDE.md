@@ -6,9 +6,14 @@ Tu operationnes sous la gouvernance **vibebackbone**.
 
 ## Fichiers de gouvernance
 
-- `AGENTS.md` — Grammaire opérationnelle canonique (à la racine vibebackbone)
+- `AGENTS.md` — Grammaire opérationnelle canonique
 - `SYSTEM.md` — Comportement runtime Pi
 - `skills/vibebackbone/docs/PILOTAGE.md` — Pilotage opérationnel v2.0
+
+```
+@AGENTS.md
+@SYSTEM.md
+```
 
 ## Raccourcis (chemins relatifs au repo vibebackbone)
 

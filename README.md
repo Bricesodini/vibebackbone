@@ -41,11 +41,11 @@ vibebackbone/
 │   ├── t-vbb-*/        # Transverse : Docker, Git, CI, deploiement (12)
 │   └── vibebackbone/   # Orchestrateur principal + PILOTAGE.md
 ├── prompts/             # 24 prompts de pilotage
-├── docs/                # Gouvernance vibebackbone du repo
-│   ├── PROJECT_MODE.md  # Mode distribution
-│   ├── SESSION.md       # Session memory (gitignoré)
-│   ├── AUDIT_STATUS.md  # Audit dashboard (gitignoré)
-│   └── audits/          # Rapports d'audit (gitignoré)
+├── docs/                # Fichiers de pilotage générés localement
+│   ├── PROJECT_MODE.md  # Signal de mode (généré par `t-vbb-project-context-init`)
+│   ├── SESSION.md       # Session memory — gitignoré, local au projet
+│   ├── AUDIT_STATUS.md  # Audit dashboard — gitignoré, local au projet
+│   └── audits/          # Rapports d'audit — gitignorés, locaux au projet
 ├── AGENTS.md            # Grammaire opérationnelle canonique (325 lignes)
 ├── SYSTEM.md            # Comportement runtime Pi (146 lignes)
 ├── CLAUDE.md            # Point d'entree universel pour Claude Code / Cursor
@@ -120,6 +120,15 @@ L'agent ne décide plus tout seul. Il suit une grammaire documentée, lisible et
 
 ---
 
+## Les quatre couches Vibebackbone
+
+- `skills/` : capacités actionnables spécialisées
+- `prompts/` : points d’entrée de session
+- `AGENTS.md` : gouvernance universelle
+- `SYSTEM.md` : comportement runtime
+
+---
+
 ## 🔧 Installation
 
 vibebackbone s'installe **une seule fois** dans `~/.agents/skills/` — le répertoire universel
@@ -136,18 +145,28 @@ bash ~/vibebackbone/setup.sh
 C'est tout. Les 57 skills sont disponibles pour tous vos agents, dans tous vos projets.
 
 **Ce que fait `setup.sh` :**
-- Crée un symlink `~/.agents/skills/vibebackbone → ~/vibebackbone/skills/`
-- Patche `~/.claude/settings.json` pour Claude Code (workaround issue [#31005](https://github.com/anthropics/claude-code/issues/31005))
-- Les mises à jour se font via `git pull` (le symlink suit automatiquement)
+- installe les skills dans `~/.agents/skills/vibebackbone`
+- installe les prompts dans `~/.agents/prompts/vibebackbone`
+- configure Claude Code pour lire `~/.agents/skills`
+- référence `AGENTS.md` et `SYSTEM.md` dans `~/.claude/CLAUDE.md`
+- génère des commandes prompt `~/.claude/commands/vbb-*.md`
+- génère `~/.codex/AGENTS.md` avec un bloc compilé AGENTS + SYSTEM + Prompt Library
+- crée les symlinks `~/.pi/agent/AGENTS.md` et `~/.pi/agent/SYSTEM.md`
+- symlink les prompts Pi dans `~/.pi/agent/prompts/`
+- ajoute `AGENTS.md` et `SYSTEM.md` dans `~/.config/opencode/opencode.json`
+- génère des commandes prompt `~/.config/opencode/commands/vbb-*.md`
+- expose `skills/` et `prompts/` comme package Pi via `package.json`
+- **ne jamais écraser** les fichiers custom existants (sauf avec `--force-governance`)
+- les mises à jour se font via `git pull` (le symlink suit automatiquement)
 
 ### Découverte par provider
 
-| Provider | Mécanisme | Configuration |
-|----------|-----------|---------------|
-| **Pi** | Auto (natif) | `~/.agents/skills/` — aucune action requise |
-| **OpenCode** | Auto (natif) | `~/.agents/skills/` — aucune action requise |
-| **Codex** | Auto (natif) | `~/.agents/skills/` — aucune action requise |
-| **Claude Code** | Via settings | `setup.sh` patche `~/.claude/settings.json` automatiquement |
+| Provider | Skills | Prompts | Gouvernance / runtime |
+|---|---|---|---|
+| **Claude Code** | `~/.agents/skills` via settings | `~/.claude/commands/vbb-*.md` | `~/.claude/CLAUDE.md` |
+| **Codex** | `~/.agents/skills` | `~/.agents/prompts/vibebackbone` referenced | `~/.codex/AGENTS.md` compiled |
+| **Pi** | `~/.agents/skills` + package Pi | `~/.pi/agent/prompts/*.md` + package Pi | `~/.pi/agent/AGENTS.md` + `SYSTEM.md` |
+| **OpenCode** | `~/.agents/skills` | `~/.config/opencode/commands/vbb-*.md` | `opencode.json > instructions[]` |
 
 ### Vérifier l'installation
 
@@ -200,6 +219,45 @@ opencode "Applique 1-vbb-tech-debt"
 ```bash
 codex "Audite la sécurité selon vibebackbone"
 codex "Lance la séquence [0→1→2→3]"
+```
+
+---
+
+## Utiliser les prompts
+
+Les prompts sont des **points d’entrée de session** — pas des skills. Ils ne modifient pas le code directement ; ils cadrer la tâche avant que le skill approprié ne soit invoqué.
+
+### Claude Code
+
+```txt
+/vbb-structured-task Implémente le déploiement des prompts
+/vbb-audit-task Audite setup.sh
+/vbb-session-handoff Prépare la clôture de session
+```
+
+### OpenCode
+
+```txt
+/vbb-structured-task Implémente le déploiement des prompts
+/vbb-release-check Prépare une vérification release
+```
+
+### Pi
+
+Les prompts sont installés dans `~/.pi/agent/prompts/` et exposés comme ressources Pi via `package.json`.
+
+Pour enregistrer le package :
+
+```bash
+pi install /path/to/vibebackbone
+```
+
+### Codex
+
+Utilise le prompt Vibebackbone `structured-task` pour modifier `setup.sh`. Codex lit la bibliothèque référencée dans le bloc compilé `~/.codex/AGENTS.md`.
+
+```
+~/.agents/prompts/vibebackbone/
 ```
 
 ---

@@ -1,0 +1,10 @@
+{
+  "name": "vibebackbone",
+  "version": "0.1.0",
+  "private": false,
+  "keywords": ["pi-package", "ai-agents", "skills", "prompts"],
+  "pi": {
+    "skills": ["./skills"],
+    "prompts": ["./prompts"]
+  }
+}

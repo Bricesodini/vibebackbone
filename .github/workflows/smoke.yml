@@ -1,0 +1,10 @@
+name: smoke
+on:
+  push:
+  pull_request:
+jobs:
+  install:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash tests/smoke-install.sh
