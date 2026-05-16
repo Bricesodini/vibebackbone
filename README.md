@@ -122,169 +122,91 @@ L'agent ne décide plus tout seul. Il suit une grammaire documentée, lisible et
 
 ## 🔧 Installation
 
-### Pi (natif)
-
-**Pi** lit automatiquement ce repo via `.pi/`. Aucune configuration manuelle nécessaire.
+vibebackbone s'installe **une seule fois** dans `~/.agents/skills/` — le répertoire universel
+auto-découvert par Pi, OpenCode et Codex. Claude Code est patché automatiquement.
 
 ```bash
-# 1. Cloner le repo dans votre workspace Pi
+# 1. Cloner vibebackbone
 git clone https://github.com/bricesodini/vibebackbone ~/vibebackbone
 
-# 2. Pi découvre automatiquement :
-#    - skills/ → catalogue de skills
-#    - AGENTS.md → grammaire opérationnelle
-#    - SYSTEM.md → comportement runtime
-#    - .pi/ → configuration Pi
+# 2. Installer les 57 skills globalement
+bash ~/vibebackbone/setup.sh
+```
 
-# 3. Utilisation directe :
+C'est tout. Les 57 skills sont disponibles pour tous vos agents, dans tous vos projets.
+
+**Ce que fait `setup.sh` :**
+- Crée un symlink `~/.agents/skills/vibebackbone → ~/vibebackbone/skills/`
+- Patche `~/.claude/settings.json` pour Claude Code (workaround issue [#31005](https://github.com/anthropics/claude-code/issues/31005))
+- Les mises à jour se font via `git pull` (le symlink suit automatiquement)
+
+### Découverte par provider
+
+| Provider | Mécanisme | Configuration |
+|----------|-----------|---------------|
+| **Pi** | Auto (natif) | `~/.agents/skills/` — aucune action requise |
+| **OpenCode** | Auto (natif) | `~/.agents/skills/` — aucune action requise |
+| **Codex** | Auto (natif) | `~/.agents/skills/` — aucune action requise |
+| **Claude Code** | Via settings | `setup.sh` patche `~/.claude/settings.json` automatiquement |
+
+### Vérifier l'installation
+
+```bash
+ls ~/.agents/skills/vibebackbone/
+# → 0-vbb-scope-freeze  1-vbb-conventions  2-vbb-security  3-vbb-risk-register  ...
+```
+
+### Mise à jour
+
+```bash
+cd ~/vibebackbone && git pull
+# Le symlink suit automatiquement — aucune réinstallation requise
+```
+
+---
+
+## 💬 Utilisation par agent
+
+### Pi
+
+```bash
 pi "Lance un audit de sécurité selon vibebackbone"
-pi "Applique le skill code-janitor sur ce projet"
+pi "Applique le skill conventions sur ce projet"
+pi "Génère un risk-register pour ce repo"
+
+# Ou via commande explicite
+/skill:2-vbb-security
+/skill:3-vbb-risk-register
 ```
 
-**Fichiers clés :** `AGENTS.md` + `SYSTEM.md` + `.pi/` → découverte auto
+### Claude Code
 
----
-
-### Claude Code (Anthropic)
-
-Claude Code lit automatiquement `CLAUDE.md` à la racine du projet cible.
+Après `setup.sh`, les skills sont disponibles directement :
 
 ```bash
-# 1. Dans votre projet cible, créer CLAUDE.md :
-cp chemin/vers/vibebackbone/CLAUDE.md ./CLAUDE.md
-
-# 2. Rendre les skills accessibles :
-ln -s chemin/vers/vibebackbone/skills ./skills-vbb
-
-# 3. Utilisation :
-claude "Lance un audit de securite selon vibebackbone"
+claude "Lance un audit de sécurité selon vibebackbone"
+claude "Applique le skill 1-vbb-conventions"
 ```
 
-**Fichiers clés :** `CLAUDE.md` (détection auto) + skills accessibles par chemin relatif
-
----
-
-### Codex (OpenAI — terminal)
-
-Codex utilise un fichier `.codex.md` ou des instructions en début de session.
+### OpenCode
 
 ```bash
-# 1. Dans votre projet cible, charger le contexte :
-cat chemin/vers/vibebackbone/AGENTS.md >> .codex.md
-
-# 2. Lier les skills :
-ln -s chemin/vers/vibebackbone/skills ./skills-vbb
-
-# 3. Utilisation :
-codex "Audite la securite de ce projet selon vibebackbone"
+opencode "Audite la sécurité de ce projet selon vibebackbone"
+opencode "Applique 1-vbb-tech-debt"
 ```
 
-**Alternative :** Copier `AGENTS.md` dans le fichier d'instructions système de Codex.
-
-**Fichiers clés :** `.codex.md` ou system prompt personnalisé + skills accessibles
-
----
-
-### OpenCode (local)
-
-OpenCode utilise `~/.opencode.md` (global) ou `.opencode.md` (projet).
+### Codex
 
 ```bash
-# 1. Config globale (tous les projets) :
-cat chemin/vers/vibebackbone/AGENTS.md >> ~/.opencode.md
-
-# 2. Config projet (projet spécifique) :
-cat chemin/vers/vibebackbone/AGENTS.md >> .opencode.md
-echo "skills_dir: chemin/vers/vibebackbone/skills" >> .opencode.md
-
-# 3. Utilisation :
-opencode "Audite la securite de ce projet selon vibebackbone"
+codex "Audite la sécurité selon vibebackbone"
+codex "Lance la séquence [0→1→2→3]"
 ```
-
-**Fichiers clés :** `~/.opencode.md` (global) ou `.opencode.md` (projet) + skills accessibles
-
----
-
-### Cursor
-
-Cursor utilise `.cursorrules` ou le dossier `.cursor/rules/`.
-
-```bash
-# 1. Dans votre projet cible :
-cp chemin/vers/vibebackbone/AGENTS.md .cursorrules
-
-# 2. Lier les skills (optionnel, Cursor peut naviguer) :
-ln -s chemin/vers/vibebackbone/skills skills-vbb
-
-# 3. Coller dans Cursor Chat :
-"Applique vibebackbone sur ce projet : audite la securite"
-```
-
-**Fichiers clés :** `.cursorrules` (détection auto)
-
----
-
-### Approche transversale (tous les agents)
-
-La méthode universelle qui fonctionne avec **n'importe quel agent LLM**, sans dépendre d'un fichier de config spécifique.
-
-```bash
-# 1. Cloner vibebackbone quelque part sur votre machine
-git clone https://github.com/bricesodini/vibebackbone ~/.vibebackbone
-
-# 2. Dans chaque nouveau projet, créer un alias ou script :
-echo "VIBE=~/.vibebackbone" >> .env
-
-# 3. Pour n'importe quel agent, le pattern est toujours le même :
-```
-
-**Le contrat universel** — à coller dans le contexte de n'importe quel agent :
-
-```
-Tu operationnes sous la gouvernance vibebackbone.
-Fichiers racine : chemin/vers/vibebackbone/AGENTS.md
-Comportement runtime : chemin/vers/vibebackbone/SYSTEM.md
-Catalogue skills : chemin/vers/vibebackbone/skills/
-Prompts : chemin/vers/vibebackbone/prompts/
-Pilotage : chemin/vers/vibebackbone/skills/vibebackbone/docs/PILOTAGE.md
-
-57 skills disponibles. Triage obligatoire avant action.
-```
-
-**Résumé des points d'entrée par agent :**
-
-| Agent | Fichier d'entrée | Mécanisme |
-|-------|-----------------|-----------|
-| **Pi** | `.pi/` + `AGENTS.md` + `SYSTEM.md` | Découverte automatique |
-| **Claude Code** | `CLAUDE.md` | Détection auto à la racine |
-| **Codex** | `.codex.md` ou system prompt | Injection manuelle |
-| **OpenCode** | `~/.opencode.md` ou `.opencode.md` | Injection globale ou projet |
-| **Cursor** | `.cursorrules` ou `.cursor/rules/` | Détection auto à la racine |
-| **GitHub Copilot** | `.github/copilot-instructions.md` | Instructions globales |
-| **Tous les autres** | Contrat universel (à coller en début de session) | Injection manuelle |
 
 ---
 
 ## Pourquoi "vibebackbone"?
 
 Parce que c'est l'épine dorsale (*backbone*) de vos *vibes* de développement. La colonne vertébrale qui fait tenir droit un projet quand tout le reste voudrait partir en cacahuète.
-
----
-
-## Démarrage rapide (30 secondes)
-
-```bash
-# 1. Clone
-git clone https://github.com/bricesodini/vibebackbone ~/.vibebackbone
-
-# 2. Dans votre projet, créez le point d'entree
-echo "VibeBackbone: ~/.vibebackbone" > CLAUDE.md     # Claude Code
-# ou
-cat ~/.vibebackbone/AGENTS.md > .cursorrules          # Cursor
-
-# 3. Utilisez
-pi "Applique vibebackbone sur ce projet"
-```
 
 ---
 
