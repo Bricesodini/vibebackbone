@@ -16,57 +16,26 @@ Tu operationnes sous la gouvernance **vibebackbone**.
 - Prompts : `prompts/` (24 templates)
 - Catalogue complet : `skills/0-vbb-guide/SKILL.md`
 
-## 🎯 Triage opérationnel (règle fondamentale)
+## Règle fondamentale
 
-**Avant toute action, classifier la tâche dans UNE des 4 voies :**
+Avant toute action, classer la tâche dans une voie :
 
-| Voie | Signaux | Approche |
-|------|---------|----------|
-| **RAPIDE** | Risque faible, pas de contrats, pas de multi-fichiers | Agir directement, zéro plan requis |
-| **STRUCTURÉE** | Contrats de données, multi-fichiers, plan avant modification | Lire PROJECT_MODE.md → lancer skill approprié → placer le plan |
-| **AUDIT** | Sécurité, intégrité données, réglementaire, prod | Exécuter séquence [0→1→2→3] canonique, générer rapports |
-| **CLÔTURE** | Fin de session, reprise d'une session antérieure | Lancer session-handoff, compacter contexte |
+1. **RAPIDE** — risque faible, action directe
+2. **STRUCTURÉE** — plan avant modification (contrats, multi-fichiers)
+3. **AUDIT** — séquence d'audit (sécurité, intégrité)
+4. **CLÔTURE** — handoff de session
 
-**Pour plus de détails** → [AGENTS.md § 3](AGENTS.md) (triage opérationnel complet)
+En cas de doute, lire `AGENTS.md` section 3 (Triage opérationnel).
 
-**Cas courants :**
-- Correction typo README → RAPIDE
-- Ajouter skill → STRUCTURÉE (skill = contrat, donc plan)
-- Vulnérabilité sécurité découverte → AUDIT
-- Fin de journée de travail → CLÔTURE
-
-## 📖 Lecture recommandée (par ordre)
-
-1. **Ce fichier** (CLAUDE.md) — vue générale
-2. **AGENTS.md § 3** — détail du triage et escalade
-3. **skills/0-vbb-guide/SKILL.md** — guide interactif des 57 skills
-4. **skills/vibebackbone/docs/PILOTAGE.md** — source de vérité opérationnelle complète
-
-## 🔧 Utilisation typique
+## Utilisation typique
 
 ```bash
-# 1. Classifier votre tâche (RAPIDE, STRUCTURÉE, AUDIT, ou CLÔTURE)
-# → Relire le tableau "Triage opérationnel" ci-dessus
-
-# 2. Si RAPIDE → agir directement
-#    Si autre voie → voir correspondances ci-dessous
-
-# 3. Lister les skills disponibles
+# Lister les skills disponibles
 ls skills/
 
-# 4. Appliquer un skill (exemple : audit de sécurité)
-cat skills/2-vbb-security/SKILL.md
-# Puis suivre les étapes INPUT CONTRACT → PROCESS → OUTPUT CONTRACT
+# Lire le guide
+cat skills/0-vbb-guide/SKILL.md
+
+# Choisir et appliquer un skill
+# Ex: cat skills/2-vbb-security/SKILL.md puis suivre les étapes
 ```
-
-## ⚡ Optimisations
-
-### Prompt caching (Claude / Claude Code)
-
-Les fichiers suivants sont excellents candidats pour prompt caching (valent la peine d'être réutilisés) :
-
-- **AGENTS.md** (325 lignes) — grammaire opérationnelle, stable
-- **SYSTEM.md** (146 lignes) — comportement runtime Pi, stable
-- **skills/vibebackbone/docs/PILOTAGE.md** (323 lignes) — source de vérité, stable
-
-Ces fichiers changent rarement et sont lus par de nombreux agents. Caching = économies contextuelles.
