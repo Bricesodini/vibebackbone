@@ -40,7 +40,7 @@ ls ~/.agents/skills/vibebackbone/
 
 ### Pi
 
-Pi découvre automatiquement `~/.agents/skills/` au démarrage.
+Pi découvre automatiquement `~/.agents/skills/` au démarrage — aucune configuration requise.
 
 ```bash
 pi "Lance un audit de sécurité selon vibebackbone"
@@ -54,25 +54,22 @@ pi "Génère un risk-register pour ce repo"
 
 ### Claude Code
 
-Ajouter dans `.claude/settings.json` de votre projet :
+Claude Code ne lit pas `~/.agents/skills/` nativement (issue [#31005](https://github.com/anthropics/claude-code/issues/31005)).
+`setup.sh` patche automatiquement `~/.claude/settings.json` pour y ajouter le chemin :
 
 ```json
-{
-  "skills": ["~/.agents/skills"]
-}
+{ "skills": ["~/.agents/skills"] }
 ```
 
-Ou globalement dans `~/.claude/settings.json`.
+Après `setup.sh`, les skills sont disponibles sans configuration supplémentaire.
 
-### OpenCode / Codex
+### OpenCode
 
-Référencer dans la config agent :
+OpenCode découvre automatiquement `~/.agents/skills/` — aucune configuration requise.
 
-```json
-{
-  "skills": ["~/.agents/skills"]
-}
-```
+### Codex
+
+Codex découvre automatiquement `~/.agents/skills/` — aucune configuration requise.
 
 ---
 
