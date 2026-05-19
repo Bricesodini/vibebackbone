@@ -58,3 +58,25 @@ Output format:
 - Action
 - Result
 - Open points
+
+---
+
+## Alignement protocole agentique
+
+**Phases correspondantes** : 01_INTAKE + 04_PLAN + 05_EXECUTION
+
+Ce prompt enchaîne cadrage, planification et exécution en une session. Adapté à la voie STRUCTURÉE.
+
+**Artefacts attendus** :
+- `docs/runs/YYYY-MM-DD_HHmm_slug/01_INTAKE.md` — objectif reformulé + classification STRUCTURÉE
+- `docs/runs/YYYY-MM-DD_HHmm_slug/04_FIX_PLAN.md` — plan produit avant exécution
+- `docs/runs/YYYY-MM-DD_HHmm_slug/05_PATCH_SUMMARY_RUN_01.md` — résumé des changements
+
+Créer ces trois fichiers dans le dossier de run. Si plusieurs runs : `05_PATCH_SUMMARY_RUN_02.md`, etc.
+
+**Audit optionnel** : si en cours d'exploration un risque inattendu apparaît (sécurité, données, conformité) → interrompre, créer une session `canonical/02-p-vbb-audit`, et reprendre après le verdict.
+
+**Handoff vers 06_REVIEW** :
+
+Après exécution, ne pas reviewer soi-même. Créer une nouvelle session avec `canonical/06-p-vbb-review`.
+Transmettre : `05_PATCH_SUMMARY_RUN_N.md` + liste des fichiers modifiés + points non résolus.

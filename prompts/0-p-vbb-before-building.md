@@ -91,3 +91,30 @@ dans SESSION.md et continuer.
 - **Readiness verdict** : READY / READY_WITH_CAVEATS / NOT_READY
 - **Blockers** : liste des points bloquants
 - **Next action** : commencer Wave 1, ou résoudre les blockers
+
+---
+
+## Alignement protocole agentique
+
+**Phases correspondantes** : 01_INTAKE (phases 1–2) + 04_PLAN (phase 5)
+
+Ce prompt couvre plusieurs phases en une session. Il est adapté aux contexts où la rapidité prime sur la séparation stricte des rôles.
+
+**Artefacts attendus** :
+- `docs/runs/YYYY-MM-DD_HHmm_slug/01_INTAKE.md` — reformulation + verdict readiness
+- `docs/runs/YYYY-MM-DD_HHmm_slug/04_FIX_PLAN.md` — plan produit en phase 5
+
+Créer ces fichiers à la fin de chaque phase correspondante.
+
+**Avertissement de contexte** : ce prompt orchestre 5 phases et plusieurs skills. Si le contexte LLM est limité (<128K tokens disponibles), préférer une exécution en deux sessions séparées : `canonical/01-p-vbb-intake` puis `canonical/04-p-vbb-plan`.
+
+**Handoff vers 05_EXECUTION** :
+
+Si verdict READY ou READY_WITH_CAVEATS :
+- Indiquer les runs prévus et le premier à exécuter
+- Lister les fichiers cibles
+- Documenter les risques acceptés
+
+Si verdict NOT_READY :
+- Lister les blockers et l'action requise pour chacun
+- Ne pas passer à l'exécution avant résolution

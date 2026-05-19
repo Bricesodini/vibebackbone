@@ -55,3 +55,27 @@ Output format:
   - ready to execute
   - waiting for confirmation
   - blocked by missing governance
+
+---
+
+## Alignement protocole agentique
+
+**Phase correspondante** : 04_PLAN
+
+Ce prompt produit un plan avant exécution. Il correspond à la phase 04 du protocole Vibebackbone.
+
+Si la tâche n'a pas encore été cadrée, lancer d'abord `canonical/01-p-vbb-intake` ou `0-p-vbb-triage`.
+
+**Artefact attendu** : `docs/runs/YYYY-MM-DD_HHmm_slug/04_FIX_PLAN.md`
+
+Créer ce fichier avec le plan produit. Nommer le dossier de run si absent.
+
+**Handoff vers 05_EXECUTION** :
+
+À la fin du plan, indiquer explicitement :
+- Les runs prévus (Run 01, Run 02...)
+- Le run à exécuter en premier
+- Les fichiers cibles
+- Les points de vigilance
+
+**Escalade** : si l'exploration révèle un risque inattendu → escalader vers `canonical/02-p-vbb-audit` avant d'exécuter.

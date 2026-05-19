@@ -49,3 +49,25 @@ Output format:
 - Action
 - Result
 - Escalation needed: yes/no
+
+---
+
+## Alignement protocole agentique
+
+**Phases correspondantes** : 01_INTAKE (implicite) + 05_EXECUTION
+
+Ce prompt enchaîne le cadrage et l'exécution en une seule session. Adapté à la voie RAPIDE uniquement.
+
+**Artefacts attendus** :
+- `docs/runs/YYYY-MM-DD_HHmm_slug/01_INTAKE.md` — objectif + classification RAPIDE (peut être minimal)
+- `docs/runs/YYYY-MM-DD_HHmm_slug/05_PATCH_SUMMARY_RUN_01.md` — résumé des changements
+
+Ces fichiers peuvent être courts. L'essentiel est qu'ils existent et soient nommés.
+
+**Handoff vers 07_CLOSEOUT** :
+
+En voie RAPIDE, la review est optionnelle. Après l'exécution :
+- Si changement minimal → passer directement à `canonical/07-p-vbb-closeout` ou `t-p-vbb-session-handoff`
+- Si changement sensible → créer une session `canonical/06-p-vbb-review`
+
+**Escalade obligatoire** : si en cours d'exécution le risque augmente (auth, données, prod, sécurité) → arrêter immédiatement, documenter dans le patch summary, créer une nouvelle session en voie STRUCTURÉE ou AUDIT.

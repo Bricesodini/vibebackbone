@@ -1,7 +1,7 @@
 <p align="center">
   <img src="assets/vibebackbone_logo.svg" alt="Vibebackbone" width="480"/>
   <br/>
-  <strong style="font-size: 1.4em;">57 skills · 24 prompts · 4 voies d'exécution · 1 grammaire partagée</strong>
+  <strong style="font-size: 1.4em;">57 skills · 31 prompts · 4 voies d'exécution · 7 phases agentiques</strong>
 </p>
 
 <p align="center">Le système d'orchestration pour agents IA qui transforme le chaos de développement en pilotage prévisible.</p>
@@ -40,7 +40,9 @@ vibebackbone/
 │   ├── 4-vbb-*/        # Phase 4 : Front-end UX/UI (10)
 │   ├── t-vbb-*/        # Transverse : Docker, Git, CI, deploiement (12)
 │   └── vibebackbone/   # Orchestrateur principal + PILOTAGE.md
-├── prompts/             # 24 prompts de pilotage
+├── prompts/             # 31 prompts (7 canoniques + 24 spécialisés + 1 router)
+│   ├── canonical/      # 7 prompts canoniques (un par phase 01–07)
+│   └── t-p-vbb-phase-router.md  # Matrice de décision Markdown
 ├── docs/                # Fichiers de pilotage générés localement (gitignorés)
 │   ├── PROJECT_MODE.md  # Signal de mode (généré par `t-vbb-project-context-init`)
 │   ├── SESSION.md       # Session memory — local au projet
@@ -73,9 +75,27 @@ Chaque skill est un fichier `SKILL.md` standardisé, indépendant, injectable da
 - `t-vbb-deploy-runtime/templates/deploy.sh` — script de déploiement Docker complet avec backup, rollback, healthcheck
 - `t-vbb-docker-generate/templates/nginx/` — reverse-proxy production-ready (nginx.conf + security-headers.conf)
 
-### Les 24 prompts
+### Les 31 prompts — architecture en 3 couches
 
-Des templates de session prêts à l'emploi couvrant tout le cycle :
+Les prompts sont organisés en **trois couches complémentaires** :
+
+```
+prompts/
+├── canonical/                       ← 7 prompts génériques (un par phase agentique)
+│                                      01-intake · 02-audit · 03-decision · 04-plan
+│                                      05-execution · 06-review · 07-closeout
+├── (racine)                         ← 24 prompts spécialisés (domaine ou contexte précis)
+└── t-p-vbb-phase-router.md          ← Matrice de décision Markdown
+```
+
+**Règle d'usage** :
+- Utiliser les **canoniques** par défaut (multi-LLM, génériques).
+- Utiliser les **spécialisés** quand le domaine est précis (sécurité, DB, Docker…).
+- Consulter le **router** en cas de doute.
+
+Détails : [`PROMPTS_ARCHITECTURE.md`](PROMPTS_ARCHITECTURE.md).
+
+**Les 24 prompts spécialisés** :
 
 | Phase | Prompts |
 |-------|---------|
@@ -127,6 +147,28 @@ L'agent ne décide plus tout seul. Il suit une grammaire documentée, lisible et
 - `prompts/` : points d’entrée de session
 - `AGENTS.md` : gouvernance universelle
 - `SYSTEM.md` : comportement runtime
+
+---
+
+## 📚 Documentation
+
+**Pour humains (pédagogique)** :
+- **[`GUIDE.md`](GUIDE.md)** — Guide complet : cas d'usages, pilotage au quotidien, anti-patterns, cheatsheet
+- **[`PROMPTS_ARCHITECTURE.md`](PROMPTS_ARCHITECTURE.md)** — Architecture des 3 couches de prompts
+
+**Point de départ opérationnel** :
+- **[`docs/PILOTAGE.md`](docs/PILOTAGE.md)** — Guide opérationnel : les 4 voies, triage, escalade, cascades verdict
+- **[`docs/INDEX.md`](docs/INDEX.md)** — Carte de navigation du dépôt pour agents et humains
+
+**Protocole agentique complet** :
+- **[`docs/AGENTIC_RUN_PROTOCOL.md`](docs/AGENTIC_RUN_PROTOCOL.md)** — 7 phases (INTAKE → AUDIT → DECISION → PLAN → EXECUTION → REVIEW → CLOSEOUT)
+- **[`docs/SESSION_RULES.md`](docs/SESSION_RULES.md)** — Quand rester dans la même session, quand en créer une nouvelle
+- **[`docs/MEMORY_AND_HANDOFF.md`](docs/MEMORY_AND_HANDOFF.md)** — Mémoire officielle (artefacts persistants) vs contexte conversationnel
+- **[`docs/templates/`](docs/templates/)** — 7 templates d'artefacts pour chaque phase
+
+**Gouvernance** :
+- **[`AGENTS.md`](AGENTS.md)** — Grammaire opérationnelle canonique
+- **[`SYSTEM.md`](SYSTEM.md)** — Comportement runtime
 
 ---
 

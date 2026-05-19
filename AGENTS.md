@@ -15,12 +15,21 @@ Ce fichier définit la grammaire opérationnelle canonique vibebackbone pour ce 
 
 Ordre de référence :
 
-1. `docs/PILOTAGE.md` → logique opérationnelle canonique du projet
+1. `docs/PILOTAGE.md` → **point d’entrée canonique du pilotage** (voies, triage, règles d’escalade)
+   - Pour détail complet : voir `skills/vibebackbone/docs/PILOTAGE.md` (listes de skills, exemples, cascades verdict)
 2. `docs/PROJECT_MODE.md` → signal de mode du repo
-3. `docs/SESSION.md` → mémoire de reprise
-4. `docs/AUDIT_STATUS.md` → tableau de bord des audits
-5. `docs/audits/` → rapports horodatés d’audit
-6. code, commentaires, notes ad hoc → sources secondaires
+3. `docs/SESSION.md` → mémoire de reprise (gitignoré, local)
+4. `docs/AUDIT_STATUS.md` → tableau de bord des audits (gitignoré, miroir de docs/audits/)
+5. `docs/audits/` → rapports horodatés d’audit (versionés)
+6. `docs/runs/` → artefacts persistants de runs (versionés)
+7. code, commentaires, notes ad hoc → sources secondaires
+
+**Ressources annexes** (non hiérarchiques) :
+- `docs/INDEX.md` → carte de navigation du dépôt
+- `docs/AGENTIC_RUN_PROTOCOL.md` → formalisation des 7 phases
+- `docs/SESSION_RULES.md` → règles de session (quand rester, quand changer)
+- `docs/MEMORY_AND_HANDOFF.md` → mémoire officielle et transitions
+- `docs/templates/` → templates d’artefacts de run
 
 Règles :
 
