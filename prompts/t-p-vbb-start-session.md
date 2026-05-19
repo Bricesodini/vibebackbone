@@ -15,8 +15,8 @@ Consignes :
 
 - `docs/PILOTAGE.md` est la source de vérité du routage.
 - Lire en priorité, si présents :
-  - `docs/SESSION.md`
   - `docs/CONTEXT.md`
+  - `docs/SESSION.md`
   - `docs/AUDIT_STATUS.md`
   - `docs/PROJECT_MODE.md`
 - Si `0-vbb-pilotage` est disponible, l’utiliser comme miroir de la logique de routage avant d’inférer la voie.

@@ -55,6 +55,7 @@ Avant de clôturer, lire l'ensemble des artefacts de la session :
 Lire aussi :
 - `docs/AUDIT_STATUS.md` — état actuel des audits
 - `docs/SESSION.md` — état de reprise (si disponible)
+- `docs/CONTEXT.md` — MOC / routeur central persistant (mise à jour obligatoire)
 
 ---
 
@@ -109,12 +110,28 @@ Si des points ouverts ou des risques existent :
 
 **Obligatoire** :
 1. Mettre à jour `docs/SESSION.md` (vider si session terminée, noter l'état si reprise prévue)
+2. Mettre à jour `docs/CONTEXT.md` avec les éléments synthétiques suivants (uniquement) :
+   - **Statut** : verdict du run (succès, partiel, escalade)
+   - **Lien vers run** : `[YYYY-MM-DD_HHmm_slug](runs/YYYY-MM-DD_HHmm_slug/07_CLOSEOUT.md)`
+   - **Décisions actives** : si une décision a été prise, ajouter le lien vers `03_DECISION_RECORD.md`
+   - **Points ouverts** : si des points ouverts subsistent, les ajouter à la section correspondante de CONTEXT.md
+   - **Prochaine action** : type et objectif de la prochaine session recommandée
+
+   **Interdictions** :
+   - ❌ Ne PAS recopier le contenu du closeout dans CONTEXT.md
+   - ❌ Ne PAS transformer CONTEXT.md en narration longue
+
+   **Vérification de liens** : avant d'enregistrer, vérifier que chaque lien ajouté dans CONTEXT.md pointe vers un fichier existant et, si possible, vers une section stable (ancre P0).
 
 **Conditionnel** :
-2. Mettre à jour `docs/AUDIT_STATUS.md` uniquement si la session a produit un rapport d'audit (`02_AUDIT_REPORT.md`) ou révélé de nouveaux risques
+3. Mettre à jour `docs/AUDIT_STATUS.md` uniquement si la session a produit un rapport d'audit (`02_AUDIT_REPORT.md`) ou révélé de nouveaux risques
 
 **Optionnel** :
 - Ajouter des notes dans `docs/AUDIT_STATUS.md` sur les risques restants
+
+**Comportement pour les tâches RAPIDES** :
+- Si un `07_CLOSEOUT.md` formel est produit → `docs/CONTEXT.md` doit être mis à jour (même règle)
+- Si la tâche RAPIDE ne produit pas de closeout formel → ne pas créer d'entrée lourde dans CONTEXT.md ; une mise à jour légère reste possible à la discrétion de l'agent
 
 ### Étape 7 — Produire l'artefact
 
@@ -128,6 +145,7 @@ Créer le fichier `07_CLOSEOUT.md` dans `docs/runs/`.
 
 **Mises à jour obligatoires** :
 - `docs/SESSION.md` — vider ou noter l'état final
+- `docs/CONTEXT.md` — mise à jour synthétique (statut, lien, décisions, points ouverts, prochaine action)
 - `docs/AUDIT_STATUS.md` — si nouveaux audits ou risques
 
 **Structure minimale** :
@@ -209,7 +227,7 @@ docs/runs/[slug]/
 - Ne pas modifier le code ou les fichiers du projet
 - Ne pas relancer un audit dans la même session
 - Ne pas rouvrir des décisions déjà prises
-- Mettre à jour obligatoirement `docs/SESSION.md` et `docs/AUDIT_STATUS.md`
+- Mettre à jour obligatoirement `docs/SESSION.md`, `docs/CONTEXT.md` et `docs/AUDIT_STATUS.md` (si applicable)
 
 ---
 
@@ -221,6 +239,8 @@ docs/runs/[slug]/
 - ❌ Rouvrir le scope de la session
 - ❌ Inventer des artefacts manquants (noter leur absence)
 - ❌ Laisser `docs/SESSION.md` sans mise à jour
+- ❌ Laisser `docs/CONTEXT.md` sans mise à jour lors d'un closeout formel
+- ❌ Dupliquer le contenu du closeout dans CONTEXT.md
 
 ---
 
@@ -235,7 +255,10 @@ Le CLOSEOUT est complet si :
 - ✅ Les points ouverts sont listés
 - ✅ La prochaine session est identifiée (si nécessaire)
 - ✅ `docs/SESSION.md` est mis à jour
+- ✅ `docs/CONTEXT.md` est mis à jour (statut, lien, décisions, points ouverts, prochaine action)
 - ✅ `docs/AUDIT_STATUS.md` est mis à jour (si applicable)
+- ✅ Aucune duplication du closeout dans CONTEXT.md
+- ✅ Les liens ajoutés dans CONTEXT.md pointent vers des fichiers existants
 - ✅ L'artefact `07_CLOSEOUT.md` est créé dans `docs/runs/`
 
 ---

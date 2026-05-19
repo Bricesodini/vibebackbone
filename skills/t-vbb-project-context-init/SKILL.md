@@ -64,9 +64,9 @@ Règles absolues :
 
 Créer ou vérifier le scaffold canonique suivant :
 
+- `docs/CONTEXT.md`
 - `docs/PROJECT_MODE.md`
 - `docs/PILOTAGE.md`
-- `docs/CONTEXT.md`
 - `docs/SESSION.md`
 - `docs/AUDIT_STATUS.md`
 - `docs/audits/`
@@ -119,9 +119,9 @@ La sortie doit contenir :
 
 Si des fichiers ont été créés ou proposés, la sortie doit mentionner explicitement :
 
+- `docs/CONTEXT.md`
 - `docs/PROJECT_MODE.md`
 - `docs/PILOTAGE.md`
-- `docs/CONTEXT.md`
 - `docs/SESSION.md`
 - `docs/AUDIT_STATUS.md`
 - `docs/audits/`

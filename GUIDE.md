@@ -39,6 +39,7 @@ Ce guide est un compagnon **pédagogique** du `README.md`. Le README dit *ce qu'
 | Document | Pour quoi |
 |----------|-----------|
 | `README.md` | Quoi, pourquoi, installation rapide |
+| `docs/CONTEXT.md` | MOC / routeur central persistant (premier fichier à lire au démarrage) |
 | `AGENTS.md` | Grammaire opérationnelle canonique (lue par les agents) |
 | `SYSTEM.md` | Comportement runtime (lu par Pi) |
 | `docs/PILOTAGE.md` | Règles de triage et d'escalade (référence) |
@@ -514,9 +515,10 @@ Il produit aussi `07_CLOSEOUT.md` dans le dossier de run si une session formelle
 **À la reprise** (nouvelle session) :
 
 L'agent **lit automatiquement** :
-1. `docs/PROJECT_MODE.md` (le projet est-il sur les rails ?)
-2. `docs/SESSION.md` (où en étions-nous ?)
-3. `docs/AUDIT_STATUS.md` (quels risques connus ?)
+1. `docs/CONTEXT.md` (carte du contexte projet, premier fichier à lire)
+2. `docs/PROJECT_MODE.md` (le projet est-il sur les rails ?)
+3. `docs/SESSION.md` (où en étions-nous ?)
+4. `docs/AUDIT_STATUS.md` (quels risques connus ?)
 
 Il vous propose de **reprendre sur les actions en suspens** sans vous reposer les questions auxquelles vous avez déjà répondu.
 
@@ -889,10 +891,11 @@ REVIEW → EXECUTION      ✅ Obligatoire (si modifs)
 
 | Fichier | Rôle |
 |---------|------|
+| `docs/CONTEXT.md` | MOC / routeur central persistant (premier fichier à lire, versionné) |
 | `AGENTS.md` | Grammaire (lue par les agents) |
 | `SYSTEM.md` | Runtime Pi |
 | `docs/PROJECT_MODE.md` | Signal de mode du repo |
-| `docs/SESSION.md` | Mémoire de reprise (gitignoré) |
+| `docs/SESSION.md` | Brouillon local éphémère (gitignoré) |
 | `docs/AUDIT_STATUS.md` | Tableau de bord audits |
 | `docs/PILOTAGE.md` | Référence triage |
 | `docs/AGENTIC_RUN_PROTOCOL.md` | Référence 7 phases |
@@ -917,6 +920,7 @@ REVIEW → EXECUTION      ✅ Obligatoire (si modifs)
 ### Vous voulez approfondir
 
 - **Comprendre l'architecture des prompts** → `PROMPTS_ARCHITECTURE.md`
+- **Lire le routeur central de contexte** → `docs/CONTEXT.md`
 - **Lire le protocole 7 phases formel** → `docs/AGENTIC_RUN_PROTOCOL.md`
 - **Voir les règles de session** → `docs/SESSION_RULES.md`
 - **Voir le catalogue des 57 skills** → `skills/0-vbb-guide/SKILL.md`

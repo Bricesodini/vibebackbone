@@ -43,9 +43,10 @@ vibebackbone/
 ├── prompts/             # 31 prompts (7 canoniques + 24 spécialisés + 1 router)
 │   ├── canonical/      # 7 prompts canoniques (un par phase 01–07)
 │   └── t-p-vbb-phase-router.md  # Matrice de décision Markdown
-├── docs/                # Fichiers de pilotage générés localement (gitignorés)
+├── docs/                # Fichiers de pilotage
+│   ├── CONTEXT.md       # MOC / routeur central persistant (premier fichier à lire, versionné)
 │   ├── PROJECT_MODE.md  # Signal de mode (généré par `t-vbb-project-context-init`)
-│   ├── SESSION.md       # Session memory — local au projet
+│   ├── SESSION.md       # Brouillon local éphémère (gitignoré)
 │   ├── AUDIT_STATUS.md  # Audit dashboard — local au projet
 │   └── audits/          # Rapports d'audit — locaux au projet
 ├── AGENTS.md            # Grammaire opérationnelle canonique
@@ -157,6 +158,7 @@ L'agent ne décide plus tout seul. Il suit une grammaire documentée, lisible et
 - **[`PROMPTS_ARCHITECTURE.md`](PROMPTS_ARCHITECTURE.md)** — Architecture des 3 couches de prompts
 
 **Point de départ opérationnel** :
+- **[`docs/CONTEXT.md`](docs/CONTEXT.md)** — MOC / routeur central persistant, premier fichier à lire au démarrage
 - **[`docs/PILOTAGE.md`](docs/PILOTAGE.md)** — Guide opérationnel : les 4 voies, triage, escalade, cascades verdict
 - **[`docs/INDEX.md`](docs/INDEX.md)** — Carte de navigation du dépôt pour agents et humains
 

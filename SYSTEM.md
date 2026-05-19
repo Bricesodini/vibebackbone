@@ -38,6 +38,7 @@ If the repository contains vibebackbone governance files, follow them before act
 
 Key files to honor first:
 
+- `docs/CONTEXT.md`
 - `docs/PILOTAGE.md`
 - `docs/PROJECT_MODE.md`
 - `docs/SESSION.md`

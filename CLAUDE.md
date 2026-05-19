@@ -6,6 +6,7 @@ Tu operationnes sous la gouvernance **vibebackbone**.
 
 ## Fichiers de gouvernance
 
+- `docs/CONTEXT.md` — MOC / routeur central persistant (lire en premier)
 - `AGENTS.md` — Grammaire opérationnelle canonique
 - `SYSTEM.md` — Comportement runtime Pi
 - `skills/vibebackbone/docs/PILOTAGE.md` — Pilotage opérationnel v2.0
