@@ -1,5 +1,12 @@
-# Root docs/ governance (per-project runtime artifacts — not for distribution)
-docs/
+# docs/ — distribution-grade artifacts are tracked; only true local state is ignored.
+# Rationale: see docs/MEMORY_AND_HANDOFF.md (mémoire officielle vs conversation).
+
+# Local session memory (per-machine, never versioned — gitignored by design)
+docs/SESSION.md
+docs/SESSION.*.md
+
+# Local-only overlay subfolder (anything user-specific or sensitive)
+docs/local/
 
 # Pi local state (agent-specific, not for distribution)
 .pi/

@@ -1,0 +1,55 @@
+---
+run_id: "<YYYY-MM-DD_HHmm_slug>"
+phase: "01_INTAKE"
+voie: "<RAPIDE|STRUCTUREE|AUDIT|CLOTURE>"
+status: "<READY|PARTIAL|BLOCKED|UNKNOWN>"
+agent: "<claude-code|codex|pi|opencode>"
+started_at: "<YYYY-MM-DDTHH:MM:SSZ>"
+ended_at: "<YYYY-MM-DDTHH:MM:SSZ>"
+next_phase: "<02_AUDIT|03_DECISION|04_PLAN|05_EXECUTION|07_CLOSEOUT|null>"
+artifacts_consumed: []
+artifacts_produced:
+  - "01_INTAKE.md"
+---
+
+# 01_INTAKE — <slug>
+
+## Demande reçue
+
+> <citation brute de la demande utilisateur>
+
+## Reformulation
+
+<reformulation claire en 1 à 3 phrases>
+
+## Scope
+
+### Dans le périmètre
+- <...>
+
+### Hors périmètre
+- <...>
+
+### Dépendances détectées
+- <équipe / service / donnée / autre run>
+
+## Classification du risque
+
+- **Niveau** : `FAIBLE` | `MODÉRÉ` | `ÉLEVÉ`
+- **Justification** : <pourquoi ce niveau>
+
+## Voie recommandée
+
+- **Voie** : `<voie>`
+- **Justification** : <pourquoi cette voie>
+
+## Handoff vers `<next_phase>`
+
+- **Entrées à lire pour la phase suivante** :
+  - <fichiers, docs, artefacts>
+- **Points de vigilance** :
+  - <risques, hypothèses, ambiguïtés non levées>
+
+## Notes
+
+<facultatif — toute information utile non couverte ci-dessus>
