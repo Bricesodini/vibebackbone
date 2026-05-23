@@ -3,7 +3,7 @@ context_role: moc-central
 phase: transverse
 status: active
 run_id: permanent
-updated: 2026-05-19
+updated: 2026-05-23
 ---
 
 # CONTEXT.md — MOC / Routeur central persistant
@@ -20,19 +20,22 @@ updated: 2026-05-19
 
 ## Contexte actif
 
-- **Voie** : STRUCTURÉE — intégration documentaire (MOC / routeur central)
-- **Run** : `2026-05-19_1000_moc-context-strategy` — Création de CONTEXT.md
+- **Voie** : RAPIDE — hygiène documentaire (Lot F+G)
+- **Run** : `2026-05-23_2100_hygiene-lot-f-g` — PR #6 en cours
 - **Phase** : 07 (CLOSEOUT) ✅ Complété
-- **Prochaine action** : aucun chantier ouvert — maintenance usuelle
+- **Prochaine action** : merge `feat/artifact-loop-closure` → main
 
 ## Runs récents
 
 | Date | Run | Statut | Lien |
 |------|-----|--------|------|
+| 2026-05-23 | hygiene-lot-f-g | ✅ Complet | [closeout](runs/2026-05-23_2100_hygiene-lot-f-g/07_CLOSEOUT.md) |
+| 2026-05-23 | phase2-contracts-lot-5b | ✅ Complet | [closeout](runs/2026-05-23_2000_phase2-contracts-lot-5b/07_CLOSEOUT.md) |
+| 2026-05-23 | bootstrap-project-client-lot-e | ✅ Complet | [closeout](runs/2026-05-23_1900_bootstrap-project-client-lot-e/07_CLOSEOUT.md) |
+| 2026-05-23 | artifact-verify-lot-c | ✅ Complet | [closeout](runs/2026-05-23_1800_artifact-verify-lot-c/07_CLOSEOUT.md) |
+| 2026-05-23 | contracts-artifact-schema-lot-b-d | ✅ Complet | [closeout](runs/2026-05-23_1700_contracts-artifact-schema-lot-b-d/07_CLOSEOUT.md) |
+| 2026-05-23 | artifact-infra-lot-a | ✅ Complet | [closeout](runs/2026-05-23_1600_artifact-infra-lot-a/07_CLOSEOUT.md) |
 | 2026-05-19 | moc-context-strategy | ✅ Complet | [closeout](runs/2026-05-19_1000_moc-context-strategy/07_CLOSEOUT.md) |
-| 2026-05-18 | prompts-agentic-migration | ✅ Complet | [closeout](runs/2026-05-18_2300_prompts-agentic-migration/07_CLOSEOUT.md) |
-| 2026-05-18 | run05-test-cases | ✅ Patch | — |
-| 2026-05-18 | reformat-agentic-protocol | ✅ Complété | — |
 
 ## Décisions actives
 
@@ -51,7 +54,7 @@ updated: 2026-05-19
 | Rép | Contenu |
 |-----|---------|
 | `docs/` | Gouvernance, runs, audits → [INDEX.md](INDEX.md) |
-| `skills/` | 57 skills standards → [skills/](../skills/) |
+| `skills/` | 58 skills · 22 CONTRACT.yaml indexés → [skills/](../skills/) |
 | `prompts/` | 24 prompts de session → [prompts/](../prompts/) |
 
 ## Points ouverts

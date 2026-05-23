@@ -43,7 +43,7 @@ mode mécaniquement vérifiable est l'objet du plan d'artefacts en cours
 |-------|------------------|---------------|
 | `0-vbb-scope-freeze` | `PARTIAL` | Aucun `docs/SCOPE.md` figé sur le repo ; verdict correct |
 | `0-vbb-audit-readiness` | `BLOCKED` | Blocking gate sur `scope-freeze` (attendu `PASS`, reçu `PARTIAL`) — comportement documenté |
-| `1-vbb-adr` | `PARTIAL` | Aucune décision formelle archivée dans `docs/ADRs/` |
+| `1-vbb-adr` | `PARTIAL` | Aucune décision formelle archivée dans `docs/adr/` |
 | `t-vbb-commit-ready` | `PARTIAL` | Pas de pre-commit gate active (livré en PR #3) |
 | `t-vbb-impact-analyzer` | `PARTIAL` | Pas d'analyse d'impact en cours |
 | `t-vbb-mode-transition-gate` | `BLOCKED` | Blocking gate sur scope clarity — propagé depuis `scope-freeze` |

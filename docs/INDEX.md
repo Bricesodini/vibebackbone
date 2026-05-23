@@ -71,4 +71,4 @@ updated: 2026-05-23
 | Architecture des prompts (3 couches) | [`../PROMPTS_ARCHITECTURE.md`](../PROMPTS_ARCHITECTURE.md) |
 | Déploiement | [`DEPLOYMENT.md`](DEPLOYMENT.md) |
 | Troubleshooting | [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) |
-| Runtime des contrats — doc | [`vbb-contract-runtime.md`](vbb-contract-runtime.md) |
+| Runtime des contrats — doc | [`archive/vbb-contract-runtime.md`](archive/vbb-contract-runtime.md) |
