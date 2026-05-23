@@ -1,0 +1,92 @@
+id: t-vbb-session-handoff
+version: "0.3"
+type: prompt_skill
+formalization_level: declarative
+
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+
+compatibility:
+  runtime_required: false
+  agents:
+    - claude-code
+    - codex
+    - pi
+    - opencode
+
+inputs:
+  required:
+    - session_context
+  optional:
+    - docs/SESSION.md
+    - docs/CONTEXT.md
+    - docs/AUDIT_STATUS.md
+    - git_history
+
+outputs:
+  required:
+    - status
+    - summary
+    - next_action
+  statuses:
+    - PASS
+    - PARTIAL
+    - FAIL
+    - BLOCKED
+  artifact:
+    path_pattern: "docs/runs/{run_id}/07_CLOSEOUT.md"
+    template: "docs/templates/07_CLOSEOUT.md.template"
+    must_exist_after_run: true
+    kind: phase_artifact
+    frontmatter_required:
+      - run_id
+      - phase
+      - voie
+      - status
+      - agent
+      - started_at
+      - ended_at
+      - artifacts_consumed
+      - artifacts_produced
+  secondary_artifacts:
+    - path_pattern: "docs/SESSION.md"
+      kind: persistent_state_update
+      must_exist_after_run: true
+      # docs/SESSION.md is gitignored (per-machine handoff state), but the
+      # skill is still expected to produce it locally for the next session.
+
+gates:
+  before: []
+  success:
+    - id: session_updated
+      output_must_contain:
+        - docs/SESSION.md
+    - id: next_step_present
+      output_must_contain:
+        - NEXT STEP
+
+events: {}
+
+routing:
+  phase_scope:
+    - closeout
+    - handoff
+  triggers:
+    - session handoff
+    - fin de session
+    - où on en était
+    - reprise de session
+
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+
+state_policy:
+  persistent: true
+  allowed_fields:
+    - session_date
+    - files_touched
+    - decisions_made
+    - open_questions
+    - next_step

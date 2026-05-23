@@ -1,0 +1,99 @@
+id: t-vbb-impact-analyzer
+version: "0.3"
+type: prompt_skill
+formalization_level: declarative
+
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+
+compatibility:
+  runtime_required: false
+  agents:
+    - claude-code
+    - codex
+    - pi
+    - opencode
+
+inputs:
+  required:
+    - proposed_change
+  optional:
+    - docs/ARCHITECTURE.md
+    - docs/RELATIONS.md
+    - docs/PROJECT_MODE.md
+
+outputs:
+  required:
+    - status
+    - summary
+    - findings
+    - classification
+    - next_action
+  statuses:
+    - PASS
+    - PARTIAL
+    - FAIL
+    - BLOCKED
+  classification:
+    - NON_BREAKING
+    - BREAKING
+    - CONDITIONAL
+  artifact:
+    path_pattern: "docs/runs/{run_id}/02_AUDIT.md"
+    template: "docs/templates/02_AUDIT.md.template"
+    must_exist_after_run: true
+    kind: phase_artifact
+    frontmatter_required:
+      - run_id
+      - phase
+      - voie
+      - status
+      - agent
+      - started_at
+      - ended_at
+      - next_phase
+      - artifacts_consumed
+      - artifacts_produced
+  secondary_artifacts:
+    - path_pattern: "docs/audits/impact-analysis-{YYYYMMDD-HHMM}.md"
+      kind: audit_report
+      must_exist_after_run: true
+    - path_pattern: "docs/AUDIT_STATUS.md"
+      kind: persistent_state_update
+      must_exist_after_run: true
+
+gates:
+  before: []
+  success:
+    - id: classification_present
+      output_must_contain:
+        - NON_BREAKING
+        - BREAKING
+        - CONDITIONAL
+
+events:
+  on_blocked:
+    - skill: t-vbb-mode-transition-gate
+      reason: "Impact trop flou pour une transition"
+
+routing:
+  phase_scope:
+    - phase_1
+    - audit
+  triggers:
+    - impact
+    - impact analyzer
+    - qu'est-ce que ça casse
+    - propagation du changement
+
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+
+state_policy:
+  persistent: false
+  allowed_fields:
+    - change_analysed
+    - classification
+    - dependencies_found

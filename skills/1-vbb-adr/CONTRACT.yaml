@@ -1,0 +1,89 @@
+id: 1-vbb-adr
+version: "0.3"
+type: prompt_skill
+formalization_level: declarative
+
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+
+compatibility:
+  runtime_required: false
+  agents:
+    - claude-code
+    - codex
+    - pi
+    - opencode
+
+inputs:
+  required:
+    - decision_context
+    - repo_access
+  optional:
+    - alternatives
+    - constraints
+    - docs/DECISIONS.md
+    - docs/ARCHITECTURE.md
+
+outputs:
+  required:
+    - status
+    - summary
+    - next_action
+    - adr_file
+    - index_updated
+  statuses:
+    - PASS
+    - PARTIAL
+    - FAIL
+    - BLOCKED
+  artifact:
+    path_pattern: "docs/adr/{nnnn}-{slug}.md"
+    must_exist_after_run: true
+    kind: ADR
+    # ADRs use their own canonical structure defined in SKILL.md, not the
+    # docs/runs/ phase-artifact frontmatter. No frontmatter_required here
+    # because the ADR header is Markdown-formatted (Date, Statut, Décideur)
+    # rather than YAML frontmatter.
+  secondary_artifacts:
+    - path_pattern: "docs/DECISIONS.md"
+      kind: persistent_state_update
+      must_exist_after_run: true
+
+gates:
+  before: []
+  success:
+    - id: adr_created
+      output_must_contain:
+        - docs/adr/
+    - id: index_updated
+      output_must_contain:
+        - docs/DECISIONS.md
+
+events:
+  on_success:
+    - skill: t-vbb-session-handoff
+      reason: "Enregistrer la décision dans la session"
+
+routing:
+  phase_scope:
+    - phase_1
+    - governance
+  triggers:
+    - ADR
+    - architecture decision
+    - decision record
+    - choix technique
+    - justification de design
+
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+
+state_policy:
+  persistent: true
+  allowed_fields:
+    - adr_number
+    - title
+    - status
+    - consequences

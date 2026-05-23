@@ -96,20 +96,25 @@ Règles absolues :
 
 ## OUTPUT CONTRACT
 
-Assurer l’existence de `docs/audits/`.
+### Artefact principal (phase artifact)
 
-Écrire UN rapport Markdown dans :
-`docs/audits/impact-analysis-{YYYYMMDD-HHMM}.md`
+- **Chemin** : `docs/runs/{run_id}/02_AUDIT.md`
+- **Template** : [`docs/templates/02_AUDIT.md.template`](../../docs/templates/02_AUDIT.md.template)
+- **Kind** : `phase_artifact`
+- **Frontmatter requis** : `run_id`, `phase=02_AUDIT`, `voie`, `status`, `agent`, `started_at`, `ended_at`, `next_phase`, `artifacts_consumed`, `artifacts_produced`
 
-Puis mettre à jour `docs/AUDIT_STATUS.md`.
+### Artefacts secondaires
 
-Le rapport doit contenir :
+- **Rapport horodaté** (`kind: audit_report`) : `docs/audits/impact-analysis-{YYYYMMDD-HHMM}.md` (s'assurer que `docs/audits/` existe).
+- **Mise à jour persistante** (`kind: persistent_state_update`) : ligne `impact-analyzer` dans `docs/AUDIT_STATUS.md`.
+
+### Contenu du rapport (sections obligatoires)
 
 - changement analysé
 - impact direct
 - impact indirect
 - impact externe
-- classification finale
+- classification finale (`NON_BREAKING` | `BREAKING` | `CONDITIONAL`)
 - zones `UNKNOWN`
 
 ## VERDICT RULES

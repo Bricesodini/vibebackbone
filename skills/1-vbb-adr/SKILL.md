@@ -249,13 +249,23 @@ Si la nouvelle ADR en remplace une ancienne :
 
 ## OUTPUT CONTRACT
 
-Écrire le fichier ADR dans : `docs/adr/{NNNN}-{slug}.md`
-Où `{slug}` est le titre en lowercase, mots séparés par des tirets.
+### Artefact principal (ADR)
 
-Mettre à jour `docs/DECISIONS.md`.
+- **Chemin** : `docs/adr/{nnnn}-{slug}.md`
+- **Kind** : `ADR`
+- **Format** : voir « FORMAT CANONIQUE D'UNE ADR » ci-dessus (Markdown structuré avec en-tête `**Date**`, `**Statut**`, `**Décideur(s)**` — pas de frontmatter YAML)
+- **Slug** : titre en lowercase, mots séparés par des tirets
+- **Numérotation** : 4 chiffres, incrémental (`0001`, `0002`…)
 
-Ne PAS écrire dans `docs/audits/` (les ADR ne sont pas des rapports d'audit).
-Ne PAS mettre à jour `docs/AUDIT_STATUS.md`.
+### Artefact secondaire
+
+- **Index** (`kind: persistent_state_update`) : `docs/DECISIONS.md`
+
+### Exclusions explicites
+
+- **NE PAS** écrire dans `docs/audits/` — les ADR ne sont pas des rapports d'audit.
+- **NE PAS** mettre à jour `docs/AUDIT_STATUS.md`.
+- **NE PAS** produire d'artefact `docs/runs/{run_id}/0X_*.md` — l'ADR est un livrable persistant, pas un artefact de phase.
 
 ## VERDICT RULES
 

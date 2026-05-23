@@ -102,26 +102,38 @@ Règles absolues :
 
 ## OUTPUT CONTRACT
 
-Le résultat doit contenir :
+### Artefact principal (phase artifact)
 
-## Change Set
+- **Chemin** : `docs/runs/{run_id}/07_CLOSEOUT.md`
+- **Template** : [`docs/templates/07_CLOSEOUT.md.template`](../../docs/templates/07_CLOSEOUT.md.template)
+- **Kind** : `phase_artifact`
+- **Frontmatter requis** : `run_id`, `phase=07_CLOSEOUT`, `voie`, `status`, `agent`, `started_at`, `ended_at`, `artifacts_consumed`, `artifacts_produced`
 
-## Commit Readiness
+Le skill ajoute (ou met à jour) dans ce closeout une section
+**`## Suggested Commit Message`** structurée. Si le closeout n'existe pas,
+le skill le crée à partir du template.
 
-## Coherence Check
+### Sections obligatoires du résultat
 
-## Remaining Risks
+- `## Change Set`
+- `## Commit Readiness`
+- `## Coherence Check`
+- `## Remaining Risks`
+- `## Suggested Commit Message`
+- `## Next Action`
 
-## Suggested Commit Message
-
-## Next Action
-
-Le document doit préciser :
+### Contenu attendu
 
 - les fichiers ou zones modifiés
 - ce qui est prêt à commit
 - ce qui manque encore avant commit
 - si un handoff de session séparé est nécessaire
+
+### Hook commit-ready (à venir en PR #3 / Lot C)
+
+Une vérification mécanique refusera le `git commit` si l'artefact
+`docs/runs/{run_id}/07_CLOSEOUT.md` n'existe pas ou si son frontmatter
+est incomplet. Non livré dans la présente PR.
 
 ## VERDICT RULES
 

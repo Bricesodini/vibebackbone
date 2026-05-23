@@ -1,0 +1,76 @@
+id: t-vbb-status-report
+version: "0.3"
+type: prompt_skill
+formalization_level: declarative
+
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+
+compatibility:
+  runtime_required: false
+  agents:
+    - claude-code
+    - codex
+    - pi
+    - opencode
+
+inputs:
+  required:
+    - source_artifacts
+  optional:
+    - context
+    - scope
+
+outputs:
+  required:
+    - status
+    - summary
+    - findings
+    - next_action
+  statuses:
+    - PASS
+    - PARTIAL
+    - FAIL
+    - BLOCKED
+  # Status-report produces an inline, conversational status report and does
+  # not own a file artifact. Its output is typically embedded in the active
+  # 07_CLOSEOUT.md by whichever skill chains it (session-handoff,
+  # mode-transition-gate). Explicit null = intentional, not omission.
+  artifact: null
+
+gates:
+  before: []
+  success:
+    - id: summary_required
+      output_must_contain:
+        - summary
+    - id: findings_present
+      output_must_contain:
+        - findings
+
+events:
+  on_success:
+    - skill: t-vbb-session-handoff
+      reason: "Préparer la reprise de session"
+  on_partial:
+    - skill: t-vbb-mode-transition-gate
+      reason: "Signaler conditions résiduelles"
+
+routing:
+  phase_scope:
+    - closeout
+  triggers:
+    - status
+    - rapport
+    - bilan
+
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+
+state_policy:
+  persistent: false
+  allowed_fields:
+    - report_date
+    - source_artifacts

@@ -117,21 +117,26 @@ Règles absolues :
 
 ## OUTPUT CONTRACT
 
-Assurer l’existence de `docs/audits/`.
+### Artefact principal (phase artifact)
 
-Écrire UN rapport Markdown dans :
-`docs/audits/mode-transition-{YYYYMMDD-HHMM}.md`
+- **Chemin** : `docs/runs/{run_id}/02_AUDIT.md`
+- **Template** : [`docs/templates/02_AUDIT.md.template`](../../docs/templates/02_AUDIT.md.template)
+- **Kind** : `phase_artifact`
+- **Frontmatter requis** : `run_id`, `phase=02_AUDIT`, `voie`, `status`, `agent`, `started_at`, `ended_at`, `next_phase`, `artifacts_consumed`, `artifacts_produced`
 
-Puis mettre à jour `docs/AUDIT_STATUS.md`.
+### Artefacts secondaires
 
-Le rapport doit inclure :
+- **Rapport horodaté** (`kind: audit_report`) : `docs/audits/mode-transition-{YYYYMMDD-HHMM}.md` (s'assurer que `docs/audits/` existe).
+- **Mise à jour persistante** (`kind: persistent_state_update`) : ligne `mode-transition` dans `docs/AUDIT_STATUS.md`.
+
+### Contenu du rapport (sections obligatoires)
 
 - synthèse exécutive
 - domaine par domaine : état, evidence, gaps
 - P0 bloquants
 - P1 conditionnels
 - P2 planifiables
-- verdict final
+- verdict final (`GO` | `GO_WITH_CONDITIONS` | `NO_GO` | `UNKNOWN`)
 - rappel que `docs/PROJECT_MODE.md` ne doit pas être mis à jour automatiquement
 
 ## VERDICT RULES

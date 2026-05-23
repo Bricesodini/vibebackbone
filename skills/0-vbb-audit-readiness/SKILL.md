@@ -106,17 +106,25 @@ Vérifier uniquement les 6 domaines suivants :
 
 ## OUTPUT CONTRACT
 
-Le rapport doit :
+### Artefact principal (phase artifact)
 
-- suivre le template Vibebackbone standard
-- être écrit dans `docs/audits/audit-readiness-{YYYYMMDD-HHMM}.md`
-- mettre à jour `docs/AUDIT_STATUS.md` ligne `audit-readiness`
-- inclure :
-  - la synthèse exécutive
-  - le verdict global
-  - les findings par domaine A→F
-  - les actions correctives recommandées
-  - les UNKNOWN / manques d’évidence
+- **Chemin** : `docs/runs/{run_id}/02_AUDIT.md`
+- **Template** : [`docs/templates/02_AUDIT.md.template`](../../docs/templates/02_AUDIT.md.template)
+- **Kind** : `phase_artifact`
+- **Frontmatter requis** : `run_id`, `phase=02_AUDIT`, `voie`, `status`, `agent`, `started_at`, `ended_at`, `next_phase`, `artifacts_consumed`, `artifacts_produced`
+
+### Artefacts secondaires
+
+- **Rapport horodaté** (`kind: audit_report`) : `docs/audits/audit-readiness-{YYYYMMDD-HHMM}.md`
+- **Mise à jour persistante** (`kind: persistent_state_update`) : ligne `audit-readiness` dans `docs/AUDIT_STATUS.md`
+
+### Contenu du rapport (sections obligatoires)
+
+- la synthèse exécutive
+- le verdict global
+- les findings par domaine A→F
+- les actions correctives recommandées
+- les UNKNOWN / manques d'évidence
 
 ## VERDICT RULES
 
