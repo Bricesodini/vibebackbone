@@ -1,7 +1,7 @@
 ---
 run_id: "2026-05-19_1000_moc-context-strategy"
 phase: "07_CLOSEOUT"
-voie: "STRUCTUREE"
+voie: "CLOTURE"
 status: "READY"
 agent: "claude-code"
 started_at: "2026-05-19T10:00:00Z"

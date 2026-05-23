@@ -1,7 +1,7 @@
 ---
 run_id: "2026-05-23_1700_contracts-artifact-schema-lot-b-d"
 phase: "07_CLOSEOUT"
-voie: "STRUCTUREE"
+voie: "CLOTURE"
 status: "READY"
 agent: "claude-code"
 started_at: "2026-05-23T17:00:00Z"
@@ -33,6 +33,11 @@ artifacts_produced:
 ---
 
 # 07_CLOSEOUT — contracts-artifact-schema-lot-b-d
+
+> **Note de correction R-006** — la voie a été reclassée `CLOTURE` le 2026-05-23
+> dans le cadre de la correction R-006 (PR #3). Les phases intermédiaires (01..06)
+> n'ont pas été matérialisées lors du run d'origine ; backfiller de faux artefacts
+> aurait créé un faux historique. Ce closeout est autoporteur.
 
 ## Résultat
 

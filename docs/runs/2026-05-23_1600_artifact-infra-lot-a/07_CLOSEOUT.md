@@ -1,7 +1,7 @@
 ---
 run_id: "2026-05-23_1600_artifact-infra-lot-a"
 phase: "07_CLOSEOUT"
-voie: "STRUCTUREE"
+voie: "CLOTURE"
 status: "READY"
 agent: "claude-code"
 started_at: "2026-05-23T16:00:00Z"
