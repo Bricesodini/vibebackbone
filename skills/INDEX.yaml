@@ -1,0 +1,30 @@
+version: 0.1
+type: vbb_skill_contract_index
+
+skills:
+  - id: 0-vbb-scope-freeze
+    contract: ./0-vbb-scope-freeze/CONTRACT.yaml
+
+  - id: 0-vbb-audit-readiness
+    contract: ./0-vbb-audit-readiness/CONTRACT.yaml
+
+  - id: t-vbb-commit-ready
+    contract: ./t-vbb-commit-ready/CONTRACT.yaml
+
+  - id: t-vbb-impact-analyzer
+    contract: ./t-vbb-impact-analyzer/CONTRACT.yaml
+
+  - id: t-vbb-mode-transition-gate
+    contract: ./t-vbb-mode-transition-gate/CONTRACT.yaml
+
+  - id: t-vbb-session-handoff
+    contract: ./t-vbb-session-handoff/CONTRACT.yaml
+
+  - id: t-vbb-status-report
+    contract: ./t-vbb-status-report/CONTRACT.yaml
+
+  - id: 1-vbb-adr
+    contract: ./1-vbb-adr/CONTRACT.yaml
+
+  - id: t-vbb-project-context-init
+    contract: ./t-vbb-project-context-init/CONTRACT.yaml
