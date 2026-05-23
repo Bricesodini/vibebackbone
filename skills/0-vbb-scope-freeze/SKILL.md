@@ -97,17 +97,27 @@ Vérifier uniquement les points suivants :
 
 ## OUTPUT CONTRACT
 
-Le rapport doit :
+### Artefact principal (phase artifact)
 
-- suivre le template Vibebackbone standard
-- être écrit dans `docs/audits/scope-freeze-{YYYYMMDD-HHMM}.md`
-- mettre à jour `docs/AUDIT_STATUS.md` ligne `scope-freeze`
-- inclure :
-  - synthèse exécutive
-  - verdict global
-  - findings par dimension
-  - actions correctives recommandées
-  - UNKNOWN / manques d’évidence
+- **Chemin** : `docs/runs/{run_id}/02_AUDIT.md`
+- **Template** : [`docs/templates/02_AUDIT.md.template`](../../docs/templates/02_AUDIT.md.template)
+- **Kind** : `phase_artifact`
+- **Frontmatter requis** : `run_id`, `phase=02_AUDIT`, `voie`, `status`, `agent`, `started_at`, `ended_at`, `next_phase`, `artifacts_consumed`, `artifacts_produced`
+
+### Artefacts secondaires
+
+- **Rapport horodaté** (`kind: audit_report`) : `docs/audits/scope-freeze-{YYYYMMDD-HHMM}.md`
+- **Mise à jour persistante** (`kind: persistent_state_update`) : ligne `scope-freeze` dans `docs/AUDIT_STATUS.md`
+
+### Contenu du rapport (sections obligatoires)
+
+- synthèse exécutive
+- verdict global
+- findings par dimension
+- actions correctives recommandées
+- UNKNOWN / manques d'évidence
+
+### Cas BLOCKED
 
 Si le verdict est `BLOCKED`, proposer ce template minimal :
 

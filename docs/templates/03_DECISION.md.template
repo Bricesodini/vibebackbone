@@ -1,0 +1,62 @@
+---
+run_id: "<YYYY-MM-DD_HHmm_slug>"
+phase: "03_DECISION"
+voie: "<RAPIDE|STRUCTUREE|AUDIT|CLOTURE>"
+status: "<READY|PARTIAL|BLOCKED|UNKNOWN>"
+agent: "<claude-code|codex|pi|opencode>"
+started_at: "<YYYY-MM-DDTHH:MM:SSZ>"
+ended_at: "<YYYY-MM-DDTHH:MM:SSZ>"
+next_phase: "<04_PLAN|07_CLOSEOUT|null>"
+artifacts_consumed:
+  - "01_INTAKE.md"
+  - "<02_AUDIT.md si applicable>"
+artifacts_produced:
+  - "03_DECISION.md"
+---
+
+# 03_DECISION — <slug>
+
+## Question à trancher
+
+<formulation claire et unique>
+
+## Options envisagées
+
+### Option A — <nom>
+- **Description** : <...>
+- **Coût / effort** : <...>
+- **Risques** : <...>
+- **Réversibilité** : <facile | moyenne | difficile>
+
+### Option B — <nom>
+- **Description** : <...>
+- **Coût / effort** : <...>
+- **Risques** : <...>
+- **Réversibilité** : <facile | moyenne | difficile>
+
+## Critères d'arbitrage
+
+- <critère 1 (poids)>
+- <critère 2 (poids)>
+- <critère 3 (poids)>
+
+## Verdict
+
+- **Décision retenue** : Option <X>
+- **Statut** : `GO` | `CONDITIONAL_GO` | `NO_GO` | `DEFERRED`
+- **Conditions de validité** : <le cas échéant>
+
+## Justification
+
+<2 à 4 phrases ; pourquoi cette option l'emporte selon les critères>
+
+## Conséquences attendues
+
+- **Court terme** : <...>
+- **Moyen terme** : <...>
+- **Hypothèses à valider** : <...>
+
+## Handoff vers `<next_phase>`
+
+- **À planifier** : <...>
+- **À surveiller** : <...>

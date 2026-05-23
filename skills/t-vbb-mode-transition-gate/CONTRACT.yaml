@@ -1,0 +1,100 @@
+id: t-vbb-mode-transition-gate
+version: "0.3"
+type: prompt_skill
+formalization_level: declarative
+
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+
+compatibility:
+  runtime_required: false
+  agents:
+    - claude-code
+    - codex
+    - pi
+    - opencode
+
+inputs:
+  required:
+    - repo_access
+    - project_mode
+  optional:
+    - docs/PROJECT_MODE.md
+    - docs/AUDIT_STATUS.md
+    - release_target
+
+outputs:
+  required:
+    - status
+    - summary
+    - findings
+    - next_action
+  statuses:
+    - PASS
+    - PARTIAL
+    - FAIL
+    - BLOCKED
+  artifact:
+    path_pattern: "docs/runs/{run_id}/02_AUDIT.md"
+    template: "docs/templates/02_AUDIT.md.template"
+    must_exist_after_run: true
+    kind: phase_artifact
+    frontmatter_required:
+      - run_id
+      - phase
+      - voie
+      - status
+      - agent
+      - started_at
+      - ended_at
+      - next_phase
+      - artifacts_consumed
+      - artifacts_produced
+  secondary_artifacts:
+    - path_pattern: "docs/audits/mode-transition-{YYYYMMDD-HHMM}.md"
+      kind: audit_report
+      must_exist_after_run: true
+    - path_pattern: "docs/AUDIT_STATUS.md"
+      kind: persistent_state_update
+      must_exist_after_run: true
+
+gates:
+  before:
+    - id: scope_must_be_clear
+      skill: 0-vbb-scope-freeze
+      blocking: true
+      expected_status: PASS
+
+  success:
+    - id: verdict_present
+      output_must_contain:
+        - GO
+        - GO_WITH_CONDITIONS
+        - NO_GO
+        - UNKNOWN
+
+events: {}
+
+routing:
+  phase_scope:
+    - closeout
+    - transition
+  triggers:
+    - mode transition
+    - passage prod
+    - go live
+    - DEV to PROD
+    - release gate
+
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+
+state_policy:
+  persistent: false
+  allowed_fields:
+    - current_mode
+    - target_mode
+    - blockers
+    - conditions

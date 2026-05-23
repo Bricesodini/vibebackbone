@@ -1,0 +1,55 @@
+---
+run_id: "<YYYY-MM-DD_HHmm_slug>"
+phase: "07_CLOSEOUT"
+voie: "<RAPIDE|STRUCTUREE|AUDIT|CLOTURE>"
+status: "<READY|PARTIAL|BLOCKED|UNKNOWN>"
+agent: "<claude-code|codex|pi|opencode>"
+started_at: "<YYYY-MM-DDTHH:MM:SSZ>"
+ended_at: "<YYYY-MM-DDTHH:MM:SSZ>"
+next_phase: null
+artifacts_consumed:
+  - "01_INTAKE.md"
+  - "<phases intermédiaires effectivement produites>"
+artifacts_produced:
+  - "07_CLOSEOUT.md"
+---
+
+# 07_CLOSEOUT — <slug>
+
+## Résultat
+
+<en 1-2 phrases : qu'est-ce que ce run a livré ?>
+
+## Décisions prises
+
+- <décision majeure 1>
+- <décision majeure 2>
+
+## Artefacts livrés
+
+| Phase | Fichier | Statut |
+|-------|---------|--------|
+| 01_INTAKE | `docs/runs/<slug>/01_INTAKE.md` | `READY` |
+| <0X_PHASE> | `docs/runs/<slug>/0X_*.md` | `<status>` |
+| 07_CLOSEOUT | `docs/runs/<slug>/07_CLOSEOUT.md` | `READY` |
+
+## Points ouverts
+
+- <ce qui reste à faire, à arbitrer, à surveiller>
+
+## Risques résiduels
+
+- <ce qui peut casser et où regarder en premier>
+
+## État pour la prochaine session
+
+- **Branche** : <nom>
+- **Dernier commit** : <hash / message>
+- **Première action concrète à reprendre** : <...>
+- **Fichiers à charger en priorité** : <...>
+
+## Mise à jour des artefacts agrégés
+
+- [ ] `docs/CONTEXT.md` § Runs récents mis à jour
+- [ ] `docs/AUDIT_STATUS.md` mis à jour si voie AUDIT
+- [ ] `docs/SESSION.md` (local) mis à jour si transition de session

@@ -19,7 +19,7 @@ prévaut.
 
 # PILOTAGE OPÉRATIONNEL - vibebackbone
 
-**Version :** 2.0 | **Date :** 2026-05-13 | **Auteur :** Brice × Claude × Codex
+**Version :** 2.1 | **Date :** 2026-05-23 | **Auteur :** Brice × Claude × Codex
 **Statut :** Couche opérationnelle canonique - complète la base sans la modifier
 
 ---
@@ -58,7 +58,7 @@ Le pilotage doit rester lisible, stable et compatible avec Pi :
 1. `1-vbb-code-janitor`
 2. `1-vbb-conventions`
 3. `1-vbb-formatter`
-4. `1-p-vbb-tech-debt`
+4. `1-vbb-tech-debt`
 5. `1-vbb-monolith-detector`
 6. `1-vbb-logic-duplication-detector`
 7. `1-vbb-pattern-inconsistency-detector`
@@ -89,7 +89,7 @@ Le pilotage doit rester lisible, stable et compatible avec Pi :
 
 ### Phase 3
 
-1. `3-p-vbb-risk-register`
+1. `3-vbb-risk-register`
 
 ### Transverses
 
@@ -97,12 +97,13 @@ Le pilotage doit rester lisible, stable et compatible avec Pi :
 2. `t-vbb-project-context-init`
 3. `t-vbb-mode-transition-gate`
 4. `t-vbb-test-coverage-mapper`
-5. `t-p-vbb-session-handoff`
+5. `t-vbb-session-handoff`
 6. `t-vbb-commit-ready`
 7. `t-vbb-docker-audit`
 8. `t-vbb-docker-generate`
 9. `t-vbb-anti-slop-gate`
-10. `t-p-vbb-git-sync`
+10. `t-vbb-git-sync`
+11. `t-vbb-status-report`
 
 ### Phase 4
 
@@ -149,7 +150,7 @@ quand ces fichiers existent et sont pertinents.
 
 - `t-vbb-dependency-mapper`
 - `t-vbb-impact-analyzer`
-- `1-p-vbb-tech-debt`
+- `1-vbb-tech-debt`
 - `1-vbb-monolith-detector`
 - `1-vbb-logic-duplication-detector`
 - `1-vbb-pattern-inconsistency-detector`
@@ -191,7 +192,7 @@ CI/CD, légal, consolidation finale, couverture de tests critique, déploiement 
 - `2-vbb-performance`
 - `2-vbb-accessibility`
 - `2-vbb-analytics`
-- `3-p-vbb-risk-register`
+- `3-vbb-risk-register`
 - `t-vbb-test-coverage-mapper`
 - `t-vbb-docker-audit`
 - `t-vbb-docker-generate`
@@ -213,14 +214,14 @@ synchronisation git finale.
 
 **Skills naturels :**
 
-- `t-p-vbb-session-handoff`
+- `t-vbb-session-handoff`
 - `t-vbb-commit-ready`
-- `t-p-vbb-git-sync`
+- `t-vbb-git-sync`
 
 **Note :** Le cycle de clôture typique est :
-1. `t-p-vbb-session-handoff` → compresser le contexte
+1. `t-vbb-session-handoff` → compresser le contexte
 2. `t-vbb-commit-ready` → préparer le commit package
-3. `t-p-vbb-git-sync` → exécuter le cycle git (commit, push, merge main)
+3. `t-vbb-git-sync` → exécuter le cycle git (commit, push, merge main)
 
 ---
 
@@ -287,9 +288,9 @@ Cette règle est la traduction opérationnelle du principe vibebackbone :
 | Voie | Skills vibebackbone |
 | --- | --- |
 | **Rapide** | `1-vbb-doc-harmonizer`, `1-vbb-code-janitor` (passe légère), `t-vbb-anti-slop-gate` (contrôle qualité rapide), `t-vbb-commit-ready` |
-| **Structurée** | `t-vbb-dependency-mapper`, `t-vbb-impact-analyzer`, `1-p-vbb-tech-debt`, `1-vbb-monolith-detector`, `1-vbb-logic-duplication-detector`, `1-vbb-pattern-inconsistency-detector`, `1-vbb-error-handling-auditor`, `1-vbb-premature-abstraction-detector`, `1-vbb-test-mirage-detector`, `1-vbb-conventions`, `1-vbb-formatter`, `1-vbb-intent-decomposer`, `1-vbb-code-doc-coherence-auditor`, `1-vbb-code-doc-gap-integrator`, `1-vbb-api-contract-designer`, `1-vbb-adr`, `4-vbb-product-changelog`, `t-vbb-project-context-init`, `t-vbb-mode-transition-gate` |
-| **Audit** | `0-vbb-audit-readiness`, `0-vbb-scope-freeze`, `2-vbb-security`, `2-vbb-systemic-risk`, `2-vbb-data-integrity`, `2-vbb-db-robustness`, `2-vbb-ops`, `2-vbb-ci`, `2-vbb-legal`, `2-vbb-api-auditor`, `2-vbb-spec-validator`, `2-vbb-performance`, `2-vbb-accessibility`, `2-vbb-analytics`, `3-p-vbb-risk-register`, `t-vbb-test-coverage-mapper`, `t-vbb-docker-audit`, `t-vbb-docker-generate`, `t-vbb-deploy-runtime` |
-| **Clôture** | `t-p-vbb-session-handoff`, `t-vbb-commit-ready`, `t-p-vbb-git-sync` |
+| **Structurée** | `t-vbb-dependency-mapper`, `t-vbb-impact-analyzer`, `1-vbb-tech-debt`, `1-vbb-monolith-detector`, `1-vbb-logic-duplication-detector`, `1-vbb-pattern-inconsistency-detector`, `1-vbb-error-handling-auditor`, `1-vbb-premature-abstraction-detector`, `1-vbb-test-mirage-detector`, `1-vbb-conventions`, `1-vbb-formatter`, `1-vbb-intent-decomposer`, `1-vbb-code-doc-coherence-auditor`, `1-vbb-code-doc-gap-integrator`, `1-vbb-api-contract-designer`, `1-vbb-adr`, `4-vbb-product-changelog`, `t-vbb-project-context-init`, `t-vbb-mode-transition-gate` |
+| **Audit** | `0-vbb-audit-readiness`, `0-vbb-scope-freeze`, `2-vbb-security`, `2-vbb-systemic-risk`, `2-vbb-data-integrity`, `2-vbb-db-robustness`, `2-vbb-ops`, `2-vbb-ci`, `2-vbb-legal`, `2-vbb-api-auditor`, `2-vbb-spec-validator`, `2-vbb-performance`, `2-vbb-accessibility`, `2-vbb-analytics`, `3-vbb-risk-register`, `t-vbb-test-coverage-mapper`, `t-vbb-docker-audit`, `t-vbb-docker-generate`, `t-vbb-deploy-runtime` |
+| **Clôture** | `t-vbb-session-handoff`, `t-vbb-commit-ready`, `t-vbb-git-sync` |
 
 ---
 
@@ -320,4 +321,24 @@ Chaque agent applique ensuite ses propres mécanismes d'exécution dans la voie 
 
 ---
 
-_vibebackbone Pilotage v2.0 - Brice × Claude × Codex · 2026-05-13_
+---
+
+## Couverture CONTRACT.yaml
+
+| Périmètre | Indexés | Total | Source |
+|-----------|---------|-------|--------|
+| Phase 0 | 2 | 5 | `skills/INDEX.yaml` |
+| Phase 1 | 1 | 16 | `skills/INDEX.yaml` |
+| Phase 2 | 12 | 12 | `skills/INDEX.yaml` |
+| Phase 3 | 1 | 1 | `skills/INDEX.yaml` |
+| Phase 4 | 0 | 10 | — |
+| Transverses | 6 | 13 | `skills/INDEX.yaml` |
+| **Total** | **22** | **58** | — |
+
+Progression : **22/58 skills ont un CONTRACT.yaml v0.3** (état 2026-05-23).
+Linter : `python3 tools/vbb-contract-lint.py` — 0 erreur.
+Extension : voir PR #6+ pour les phases 1, 4 et transverses restants.
+
+---
+
+_vibebackbone Pilotage v2.1 - Brice × Claude × Codex · 2026-05-23_

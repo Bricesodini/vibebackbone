@@ -1,14 +1,14 @@
 ---
 name: t-vbb-project-context-init
 description: |
-  Initializes or verifies the canonical Vibebackbone documentation scaffold for a project.
-  Creates or updates the minimal docs/ frame required for shared operation across agents,
-  including PROJECT_MODE, PILOTAGE, CONTEXT, SESSION, AUDIT_STATUS, and docs/audits/.
-  Never changes application code. Prefer create-or-update over destructive replacement.
-version: "2.0"
+  Bootstraps vibebackbone governance in a target project that has none.
+  Creates docs/{PROJECT_MODE,CONTEXT,AUDIT_STATUS,INDEX}.md, docs/runs/,
+  docs/audits/, docs/adr/, docs/templates/ (7 phase templates) and updates
+  .gitignore. Idempotent — skips files that already exist unless --overwrite.
+version: "1.0"
 phase: transverse
 token_budget: low
-subagent_eligible: false
+subagent_eligible: true
 mode_sensitive: false
 ---
 
@@ -16,123 +16,129 @@ mode_sensitive: false
 
 Référence standard : `0-vbb-standard`
 
-Lire `docs/PILOTAGE.md` d’abord si le fichier existe déjà.
-
 ## ROLE & POSTURE
 
-Tu initialises le cadre documentaire canonique qui permet aux agents Vibebackbone de travailler avec les mêmes règles.
+Tu es un bootstrapper de gouvernance vibebackbone.
 
-Tu ne modifies PAS le code applicatif.
-Tu ne remplaces PAS destructivement des documents existants.
-Tu préfères :
+Ton rôle est de préparer un projet existant pour fonctionner sous VBB :
+créer les fichiers de gouvernance manquants, configurer `.gitignore`,
+copier les templates de phase.
 
-- create-or-update
-- placeholders explicites
-- compatibilité avec le cadre Vibebackbone existant
+Tu ne modifies PAS le code du projet.
+Tu ne supprimes PAS de fichiers existants.
+Tu ne forces PAS la réécriture sans confirmation explicite.
 
 Règles absolues :
 
-- NO application code changes
-- NO destructive overwrites
-- Prefer create-or-update over replace
-- Keep compatibility with `docs/PILOTAGE.md`
-- UNKNOWN autorisé si certaines informations projet manquent
+- Idempotent : skip si le fichier existe déjà (sauf `--overwrite` explicite).
+- Non destructeur : si `.git/hooks/pre-commit` existe, ne pas écraser sans `--overwrite`.
+- Evidence required : signaler clairement les fichiers créés, skippés, en erreur.
 
 ## INPUT CONTRACT
 
 **Requis :**
 
-- [ ] Accès au répertoire racine du projet
+- [ ] Accès au repo cible (répertoire courant ou chemin explicite)
 
 **Optionnels :**
 
-- [ ] Nom du projet
-- [ ] Mode initial DEV ou PROD
-- [ ] Stack principale
-- [ ] Finalité / description courte du projet
-- [ ] Docs existantes à conserver ou fusionner
-
-**Sources acceptées :** repo local, docs existantes, description textuelle, README
+- [ ] Nom du projet (pour renseigner `docs/CONTEXT.md`)
+- [ ] Mode initial (`DEV` ou `PROD`, défaut : `DEV`)
+- [ ] Flag `--overwrite` pour forcer la réécriture des fichiers existants
+- [ ] Flag `--dry-run` pour prévisualiser sans écriture
 
 ## BLOCKING CONDITIONS
 
-- Si le repo root n’est pas accessible → STOP. Message : "Impossible d’initialiser le cadre Vibebackbone sans accès au dépôt."
-- Si des docs existantes contiennent déjà la vérité projet → ne pas les écraser ; les mettre à jour ou les préserver.
-- Si mode, stack ou finalité sont inconnus → créer le scaffold avec placeholders explicites et le signaler dans la sortie.
+- Si `tools/vbb-project-init.py` est introuvable → STOP.
+  Message : « L'outil tools/vbb-project-init.py est absent. Vérifier l'installation VBB. »
+- Si le répertoire cible n'existe pas → STOP. Demander la confirmation du chemin.
+- Si le projet est déjà complètement sur VBB rails (tous les fichiers présents) →
+  signaler que c'est déjà initialisé, proposer `--overwrite` pour mise à jour.
 
 ## SCOPE
 
-Créer ou vérifier le scaffold canonique suivant :
-
-- `docs/CONTEXT.md`
-- `docs/PROJECT_MODE.md`
-- `docs/PILOTAGE.md`
-- `docs/SESSION.md`
-- `docs/AUDIT_STATUS.md`
-- `docs/audits/`
-
-Créer aussi si nécessaire, ou au moins proposer, selon le projet :
-
-- `docs/ARCHITECTURE.md`
-- `docs/RELATIONS.md`
-
 ### Inclus
 
-- création du dossier `docs/`
-- création du dossier `docs/audits/`
-- vérification de la présence des docs canoniques
-- création de placeholders explicites si les informations manquent
-- compatibilité avec le pilotage Vibebackbone
+- création de `docs/PROJECT_MODE.md`
+- création de `docs/CONTEXT.md` (avec nom du projet)
+- création de `docs/AUDIT_STATUS.md` (squelette)
+- création de `docs/INDEX.md`
+- création de `docs/runs/README.md` (copié depuis VBB)
+- création de `docs/audits/README.md`
+- création de `docs/adr/README.md`
+- copie de `docs/templates/*.md.template` (7 templates de phase)
+- mise à jour de `.gitignore` (entrées SESSION.md)
+- copie optionnelle de `scripts/install-vbb-pre-commit.sh`
 
 ### Exclus
 
-- modification du code source
-- refactor repo
-- création de features
-- remplissage spéculatif de la vérité projet
+- modification du code du projet
+- modification de la configuration CI/CD existante
+- création d'un run d'initialisation dans le projet cible
+- suppression ou remplacement de fichiers de gouvernance existants sans flag explicite
 
 ## PROCESS
 
-1. Déterminer l’identité minimale du projet :
-   - nom
-   - mode initial
-   - stack
-   - finalité courte
-2. Créer `docs/` si absent.
-3. Créer `docs/audits/` si absent.
-4. Vérifier les docs canoniques :
-   - créer si absentes
-   - mettre à jour si présentes mais incomplètes
-5. Si `docs/PILOTAGE.md` est absent, le créer à partir du contenu canonique.
-6. Si le projet a déjà une vérité documentaire, préserver et intégrer au lieu d’écraser.
-7. Signaler les placeholders restant à compléter.
+1. Vérifier que `tools/vbb-project-init.py` est accessible.
+2. Vérifier si le projet est déjà sur VBB rails :
+   - `ls docs/PROJECT_MODE.md docs/CONTEXT.md docs/AUDIT_STATUS.md` → si tout existe → PARTIAL (mise à jour partielle possible).
+3. Lancer le dry-run pour prévisualiser :
+   ```bash
+   python3 tools/vbb-project-init.py --target-dir <chemin> --dry-run
+   ```
+4. Présenter le résumé à l'utilisateur (fichiers qui seraient créés / skippés).
+5. Si l'utilisateur confirme, lancer l'initialisation réelle :
+   ```bash
+   python3 tools/vbb-project-init.py \
+     --target-dir <chemin> \
+     --project-name "<Nom du projet>" \
+     --mode DEV
+   ```
+6. Vérifier les fichiers créés et signaler les skips.
+7. Guider l'utilisateur pour compléter `docs/CONTEXT.md` :
+   - Description du projet
+   - Stack principale
+   - Mode opératoire attendu
+8. Signaler que le pre-commit hook est disponible :
+   ```bash
+   bash scripts/install-vbb-pre-commit.sh
+   ```
+   (ou utiliser `--install-hook` pour le faire automatiquement)
+9. Produire le `07_CLOSEOUT.md` du run d'initialisation.
 
 ## OUTPUT CONTRACT
 
-La sortie doit contenir :
+### Artefact principal (phase artifact)
 
-- ce qui a été créé
-- ce qui a été mis à jour
-- ce qui a été laissé intact
-- les informations projet encore manquantes
-- les placeholders restant à compléter
+- **Chemin** : `docs/runs/{run_id}/07_CLOSEOUT.md`
+- **Template** : [`docs/templates/07_CLOSEOUT.md.template`](../../docs/templates/07_CLOSEOUT.md.template)
+- **Kind** : `phase_artifact`
+- **Frontmatter requis** : `run_id`, `phase=07_CLOSEOUT`, `voie`, `status`, `agent`, `started_at`, `ended_at`, `artifacts_consumed`, `artifacts_produced`
 
-Si des fichiers ont été créés ou proposés, la sortie doit mentionner explicitement :
+### Artefacts secondaires
 
-- `docs/CONTEXT.md`
-- `docs/PROJECT_MODE.md`
-- `docs/PILOTAGE.md`
-- `docs/SESSION.md`
-- `docs/AUDIT_STATUS.md`
-- `docs/audits/`
+- **`docs/PROJECT_MODE.md`** (`kind: persistent_state_update`) — créé si absent.
+- **`docs/CONTEXT.md`** (`kind: persistent_state_update`) — créé si absent.
+- **`docs/AUDIT_STATUS.md`** (`kind: persistent_state_update`) — créé si absent.
+
+### Contenu attendu de la sortie
+
+- liste des fichiers créés
+- liste des fichiers skippés (déjà existants)
+- éventuelles erreurs
+- prochaine étape : compléter `docs/CONTEXT.md`
 
 ## VERDICT RULES
 
-- `READY`
-  - scaffold canonique présent ou correctement initialisé
+- `PASS`
+  - au moins les fichiers core créés (`PROJECT_MODE.md`, `CONTEXT.md`, `AUDIT_STATUS.md`)
+  - `.gitignore` mis à jour
 - `PARTIAL`
-  - scaffold présent mais plusieurs placeholders restent à compléter
+  - certains fichiers skippés (existants) mais core OK
+  - templates manquants (source VBB non trouvée) mais gouvernance de base créée
 - `BLOCKED`
-  - initialisation impossible sans accès repo ou sans préserver une vérité existante conflictuelle
+  - outil `vbb-project-init.py` introuvable
+  - répertoire cible inaccessible
+  - erreurs d'écriture système
 - `UNKNOWN`
-  - utilisé seulement si l’état documentaire visible est trop incomplet pour conclure proprement
+  - état du projet indéterminable avant exécution

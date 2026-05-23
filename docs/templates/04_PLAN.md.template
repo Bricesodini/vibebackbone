@@ -1,0 +1,52 @@
+---
+run_id: "<YYYY-MM-DD_HHmm_slug>"
+phase: "04_PLAN"
+voie: "<RAPIDE|STRUCTUREE|AUDIT|CLOTURE>"
+status: "<READY|PARTIAL|BLOCKED|UNKNOWN>"
+agent: "<claude-code|codex|pi|opencode>"
+started_at: "<YYYY-MM-DDTHH:MM:SSZ>"
+ended_at: "<YYYY-MM-DDTHH:MM:SSZ>"
+next_phase: "<05_EXECUTION|07_CLOSEOUT|null>"
+artifacts_consumed:
+  - "01_INTAKE.md"
+  - "<02_AUDIT.md si applicable>"
+  - "<03_DECISION.md si applicable>"
+artifacts_produced:
+  - "04_PLAN.md"
+---
+
+# 04_PLAN — <slug>
+
+## Objectif
+
+<résultat attendu en une phrase>
+
+## Pré-conditions
+
+- <état du repo, accès, dépendances avant de commencer>
+
+## Étapes ordonnées
+
+| # | Action | Fichiers cibles | Validation | Rollback |
+|---|--------|-----------------|------------|----------|
+| 1 | <...> | <chemins> | <comment vérifier> | <comment annuler> |
+| 2 | <...> | <chemins> | <...> | <...> |
+
+## Critères d'acceptation (Definition of Done)
+
+- [ ] <critère 1>
+- [ ] <critère 2>
+- [ ] <critère 3>
+
+## Plan de rollback global
+
+<comment revenir à l'état initial si l'exécution échoue à mi-parcours>
+
+## Risques identifiés
+
+- <risque + mitigation>
+
+## Handoff vers `<next_phase>`
+
+- **Première action concrète** : <...>
+- **Points de vigilance** : <...>

@@ -1,0 +1,103 @@
+id: t-vbb-project-context-init
+version: "0.3"
+type: prompt_skill
+formalization_level: declarative
+
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+
+compatibility:
+  runtime_required: false
+  agents:
+    - claude-code
+    - codex
+    - pi
+    - opencode
+
+inputs:
+  required:
+    - target_project_dir
+  optional:
+    - project_name
+    - initial_mode
+    - overwrite_flag
+    - dry_run_flag
+
+outputs:
+  required:
+    - status
+    - summary
+    - files_created
+    - files_skipped
+    - next_action
+  statuses:
+    - PASS
+    - PARTIAL
+    - FAIL
+    - BLOCKED
+  artifact:
+    path_pattern: "docs/runs/{run_id}/07_CLOSEOUT.md"
+    template: "docs/templates/07_CLOSEOUT.md.template"
+    must_exist_after_run: true
+    kind: phase_artifact
+    frontmatter_required:
+      - run_id
+      - phase
+      - voie
+      - status
+      - agent
+      - started_at
+      - ended_at
+      - artifacts_consumed
+      - artifacts_produced
+  secondary_artifacts:
+    - path_pattern: "docs/PROJECT_MODE.md"
+      kind: persistent_state_update
+      must_exist_after_run: true
+    - path_pattern: "docs/CONTEXT.md"
+      kind: persistent_state_update
+      must_exist_after_run: true
+    - path_pattern: "docs/AUDIT_STATUS.md"
+      kind: persistent_state_update
+      must_exist_after_run: true
+
+gates:
+  before: []
+  success:
+    - id: files_created_reported
+      output_must_contain:
+        - files_created
+    - id: next_steps_present
+      output_must_contain:
+        - next_action
+
+events:
+  on_success:
+    - skill: t-vbb-session-handoff
+      reason: "Produire le handoff après initialisation du projet"
+
+routing:
+  phase_scope:
+    - bootstrap
+    - init
+    - onboarding
+  triggers:
+    - project init
+    - bootstrap vibebackbone
+    - initialiser vbb
+    - onboard project
+    - setup governance
+    - projet vierge
+
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+
+state_policy:
+  persistent: false
+  allowed_fields:
+    - target_dir
+    - project_name
+    - files_created_count
+    - files_skipped_count

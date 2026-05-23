@@ -91,18 +91,20 @@ Tu privilégies la prochaine action concrète.
 
 ## OUTPUT CONTRACT
 
-Mettre à jour :
+### Artefact principal (phase artifact)
 
-- `docs/SESSION.md`
+- **Chemin** : `docs/runs/{run_id}/07_CLOSEOUT.md`
+- **Template** : [`docs/templates/07_CLOSEOUT.md.template`](../../docs/templates/07_CLOSEOUT.md.template)
+- **Kind** : `phase_artifact`
+- **Frontmatter requis** : `run_id`, `phase=07_CLOSEOUT`, `voie`, `status`, `agent`, `started_at`, `ended_at`, `artifacts_consumed`, `artifacts_produced`
 
-Le document doit rester court et contenir au minimum :
+Le closeout est la mémoire officielle versionnée de fin de run.
 
-- contexte courant
-- ce qui a été fait
-- décisions prises
-- questions ouvertes
-- fichiers / zones touchés
-- prochaine étape explicite
+### Artefact secondaire
+
+- **Mémoire locale** (`kind: persistent_state_update`) : `docs/SESSION.md`
+  - gitignored par design (per-machine handoff state, voir [`docs/MEMORY_AND_HANDOFF.md`](../../docs/MEMORY_AND_HANDOFF.md))
+  - doit rester court : contexte courant, ce qui a été fait, décisions prises, questions ouvertes, fichiers / zones touchés, **prochaine étape explicite**
 
 ## VERDICT RULES
 

@@ -1,0 +1,50 @@
+---
+run_id: "<YYYY-MM-DD_HHmm_slug>"
+phase: "06_REVIEW"
+voie: "<RAPIDE|STRUCTUREE|AUDIT|CLOTURE>"
+status: "<READY|PARTIAL|BLOCKED|UNKNOWN>"
+agent: "<claude-code|codex|pi|opencode>"
+started_at: "<YYYY-MM-DDTHH:MM:SSZ>"
+ended_at: "<YYYY-MM-DDTHH:MM:SSZ>"
+next_phase: "<07_CLOSEOUT|null>"
+artifacts_consumed:
+  - "05_EXECUTION.md"
+artifacts_produced:
+  - "06_REVIEW.md"
+---
+
+# 06_REVIEW — <slug>
+
+## Périmètre relu
+
+<rappel concis de ce qui a été exécuté en 05>
+
+## Checklist Definition of Done
+
+- [ ] <critère 04_PLAN.md repris>
+- [ ] <...>
+- [ ] <...>
+
+## Points conformes
+
+- <ce qui est en ordre>
+
+## Points à corriger
+
+| Sévérité | Constat | Action requise | Bloquant clôture ? |
+|----------|---------|----------------|--------------------|
+| `BLOCKER|HIGH|MEDIUM|LOW` | <...> | <...> | `oui|non` |
+
+## Risques de régression
+
+- <...>
+
+## Verdict de clôture
+
+- **GO / NO-GO** : `GO` | `NO_GO` | `CONDITIONAL_GO`
+- **Conditions** : <le cas échéant>
+
+## Handoff vers `07_CLOSEOUT`
+
+- **Résultat à acter** : <...>
+- **Points ouverts à reporter** : <...>

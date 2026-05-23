@@ -1,0 +1,49 @@
+---
+run_id: "<YYYY-MM-DD_HHmm_slug>"
+phase: "02_AUDIT"
+voie: "<RAPIDE|STRUCTUREE|AUDIT|CLOTURE>"
+status: "<READY|PARTIAL|BLOCKED|UNKNOWN>"
+agent: "<claude-code|codex|pi|opencode>"
+started_at: "<YYYY-MM-DDTHH:MM:SSZ>"
+ended_at: "<YYYY-MM-DDTHH:MM:SSZ>"
+next_phase: "<03_DECISION|07_CLOSEOUT|null>"
+artifacts_consumed:
+  - "01_INTAKE.md"
+artifacts_produced:
+  - "02_AUDIT.md"
+  - "<docs/audits/<skill>-<YYYYMMDD-HHMM>.md si applicable>"
+---
+
+# 02_AUDIT — <slug>
+
+## Périmètre audité
+
+<rappel concis du périmètre fixé en 01_INTAKE>
+
+## Méthode
+
+<sources lues, outils utilisés, dimensions inspectées>
+
+## Findings
+
+| # | Dimension | Sévérité | Evidence | Verdict |
+|---|-----------|----------|----------|---------|
+| 1 | <dimension> | `BLOCKER|HIGH|MEDIUM|LOW|INFO` | <chemin:ligne ou citation> | <constat> |
+
+## Verdict global
+
+- **Statut** : `READY` | `PARTIAL` | `BLOCKED` | `UNKNOWN`
+- **Justification** : <résumé en 2-3 phrases>
+
+## Manques d'évidence / UNKNOWN
+
+- <ce qui n'a pas pu être conclu et pourquoi>
+
+## Recommandations
+
+- <actions correctives ordonnées par priorité, sans patch>
+
+## Handoff vers `<next_phase>`
+
+- **Décisions à arbitrer** : <...>
+- **Points de vigilance** : <...>

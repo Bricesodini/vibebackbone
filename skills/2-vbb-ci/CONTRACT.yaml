@@ -1,0 +1,95 @@
+id: 2-vbb-ci
+version: "0.3"
+type: prompt_skill
+formalization_level: declarative
+
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+
+compatibility:
+  runtime_required: false
+  agents:
+    - claude-code
+    - codex
+    - pi
+    - opencode
+
+inputs:
+  required:
+    - project_repo
+  optional:
+    - docs/PROJECT_MODE.md
+    - docs/AUDIT_STATUS.md
+    - docs/CONTEXT.md
+
+outputs:
+  required:
+    - status
+    - summary
+    - findings
+    - next_action
+  statuses:
+    - PASS
+    - PARTIAL
+    - FAIL
+    - BLOCKED
+  artifact:
+    path_pattern: "docs/runs/{run_id}/02_AUDIT.md"
+    template: "docs/templates/02_AUDIT.md.template"
+    must_exist_after_run: true
+    kind: phase_artifact
+    frontmatter_required:
+      - run_id
+      - phase
+      - voie
+      - status
+      - agent
+      - started_at
+      - ended_at
+      - next_phase
+      - artifacts_consumed
+      - artifacts_produced
+  secondary_artifacts:
+    - path_pattern: "docs/audits/ci-baseline-{YYYYMMDD-HHMM}.md"
+      kind: audit_report
+      must_exist_after_run: true
+    - path_pattern: "docs/AUDIT_STATUS.md"
+      kind: persistent_state_update
+      must_exist_after_run: true
+
+gates:
+  before: []
+  success:
+    - id: findings_present
+      output_must_contain:
+        - findings
+    - id: status_present
+      output_must_contain:
+        - status
+
+events:
+  on_success:
+    - skill: t-vbb-status-report
+      reason: "Émettre un rapport condensé post-audit"
+
+routing:
+  phase_scope:
+    - audit
+    - phase_2
+  triggers:
+    - CI audit
+    - pipeline audit
+    - CI/CD
+    - intégration continue
+
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+
+state_policy:
+  persistent: false
+  allowed_fields:
+    - findings_count
+    - severity_distribution
+    - verdict

@@ -1,0 +1,69 @@
+version: 0.1
+type: vbb_skill_contract_index
+
+skills:
+  - id: 0-vbb-scope-freeze
+    contract: ./0-vbb-scope-freeze/CONTRACT.yaml
+
+  - id: 0-vbb-audit-readiness
+    contract: ./0-vbb-audit-readiness/CONTRACT.yaml
+
+  - id: t-vbb-commit-ready
+    contract: ./t-vbb-commit-ready/CONTRACT.yaml
+
+  - id: t-vbb-impact-analyzer
+    contract: ./t-vbb-impact-analyzer/CONTRACT.yaml
+
+  - id: t-vbb-mode-transition-gate
+    contract: ./t-vbb-mode-transition-gate/CONTRACT.yaml
+
+  - id: t-vbb-session-handoff
+    contract: ./t-vbb-session-handoff/CONTRACT.yaml
+
+  - id: t-vbb-status-report
+    contract: ./t-vbb-status-report/CONTRACT.yaml
+
+  - id: 1-vbb-adr
+    contract: ./1-vbb-adr/CONTRACT.yaml
+
+  - id: t-vbb-project-context-init
+    contract: ./t-vbb-project-context-init/CONTRACT.yaml
+
+  - id: 2-vbb-accessibility
+    contract: ./2-vbb-accessibility/CONTRACT.yaml
+
+  - id: 2-vbb-analytics
+    contract: ./2-vbb-analytics/CONTRACT.yaml
+
+  - id: 2-vbb-api-auditor
+    contract: ./2-vbb-api-auditor/CONTRACT.yaml
+
+  - id: 2-vbb-ci
+    contract: ./2-vbb-ci/CONTRACT.yaml
+
+  - id: 2-vbb-data-integrity
+    contract: ./2-vbb-data-integrity/CONTRACT.yaml
+
+  - id: 2-vbb-db-robustness
+    contract: ./2-vbb-db-robustness/CONTRACT.yaml
+
+  - id: 2-vbb-legal
+    contract: ./2-vbb-legal/CONTRACT.yaml
+
+  - id: 2-vbb-ops
+    contract: ./2-vbb-ops/CONTRACT.yaml
+
+  - id: 2-vbb-performance
+    contract: ./2-vbb-performance/CONTRACT.yaml
+
+  - id: 2-vbb-security
+    contract: ./2-vbb-security/CONTRACT.yaml
+
+  - id: 2-vbb-spec-validator
+    contract: ./2-vbb-spec-validator/CONTRACT.yaml
+
+  - id: 2-vbb-systemic-risk
+    contract: ./2-vbb-systemic-risk/CONTRACT.yaml
+
+  - id: 3-vbb-risk-register
+    contract: ./3-vbb-risk-register/CONTRACT.yaml

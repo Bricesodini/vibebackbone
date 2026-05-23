@@ -1,0 +1,53 @@
+---
+run_id: "<YYYY-MM-DD_HHmm_slug>"
+phase: "05_EXECUTION"
+voie: "<RAPIDE|STRUCTUREE|AUDIT|CLOTURE>"
+status: "<READY|PARTIAL|BLOCKED|UNKNOWN>"
+agent: "<claude-code|codex|pi|opencode>"
+started_at: "<YYYY-MM-DDTHH:MM:SSZ>"
+ended_at: "<YYYY-MM-DDTHH:MM:SSZ>"
+next_phase: "<06_REVIEW|07_CLOSEOUT|null>"
+artifacts_consumed:
+  - "04_PLAN.md"
+artifacts_produced:
+  - "05_EXECUTION.md"
+---
+
+# 05_EXECUTION — <slug>
+
+## Résumé
+
+<en 1-2 phrases, ce qui a effectivement été fait>
+
+## Actions effectuées
+
+| # | Étape du plan | Statut | Diff résumé |
+|---|---------------|--------|-------------|
+| 1 | <étape> | `DONE|SKIPPED|FAILED` | <fichiers touchés / lignes> |
+| 2 | <...> | <...> | <...> |
+
+## Écarts au plan
+
+| Étape | Type d'écart | Raison | Décision prise |
+|-------|--------------|--------|----------------|
+| <#> | `scope` / `méthode` / `ordre` / `annulation` | <...> | <...> |
+
+## Tests / validations passées
+
+- [ ] <test 1>
+- [ ] <test 2>
+
+## Issues rencontrées
+
+- <description courte + résolution ou contournement>
+
+## Fichiers modifiés
+
+```
+<liste plate des chemins touchés, un par ligne>
+```
+
+## Handoff vers `<next_phase>`
+
+- **À vérifier en review** : <...>
+- **Points de vigilance** : <...>
