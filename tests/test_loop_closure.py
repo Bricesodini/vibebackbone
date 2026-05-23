@@ -1,0 +1,330 @@
+#!/usr/bin/env python3
+"""
+Tests for tools/vbb-loop-closure-check.py
+
+Positive tests (exit 0):
+  1. RAPIDE  : 01_INTAKE + 05_EXECUTION + 07_CLOSEOUT
+  2. STRUCTUREE : 01_INTAKE + 04_PLAN + 05_EXECUTION + 07_CLOSEOUT
+  3. AUDIT   : 01_INTAKE + 02_AUDIT + 03_DECISION + 07_CLOSEOUT
+  4. CLOTURE : 07_CLOSEOUT only (no 01_INTAKE)
+
+Negative tests (exit 1):
+  5. Missing 07_CLOSEOUT
+  6. Missing required phase for voie (STRUCTUREE without 04_PLAN)
+  7. Missing 01_INTAKE for non-CLOTURE voie
+  8. Frontmatter missing required field
+  9. Frontmatter placeholder not replaced
+  10. Run directory not found
+  11. Invalid voie value
+
+Usage:
+    python3 tests/test_loop_closure.py
+"""
+
+import sys
+import subprocess
+import tempfile
+import textwrap
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).parent.parent.resolve()
+TOOL = REPO_ROOT / "tools" / "vbb-loop-closure-check.py"
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+_VALID_FM = textwrap.dedent("""\
+    ---
+    run_id: "{run_id}"
+    phase: "{phase}"
+    voie: "{voie}"
+    status: "READY"
+    agent: "claude-code"
+    started_at: "2026-05-23T10:00:00Z"
+    ended_at: "2026-05-23T10:30:00Z"
+    next_phase: null
+    artifacts_consumed: []
+    artifacts_produced: []
+    ---
+
+    # {phase}
+""")
+
+
+def _make_artifact(path: Path, run_id: str, phase: str, voie: str) -> None:
+    path.write_text(_VALID_FM.format(run_id=run_id, phase=phase, voie=voie))
+
+
+def _run(run_id: str, runs_dir: Path):
+    """Invoke vbb-loop-closure-check.py and return (returncode, stdout, stderr)."""
+    result = subprocess.run(
+        [sys.executable, str(TOOL), run_id, "--runs-dir", str(runs_dir)],
+        capture_output=True,
+        text=True,
+    )
+    return result.returncode, result.stdout, result.stderr
+
+
+# ---------------------------------------------------------------------------
+# Test runner
+# ---------------------------------------------------------------------------
+
+_passed = 0
+_failed = 0
+
+
+def test(name: str, fn) -> None:
+    global _passed, _failed
+    try:
+        fn()
+        print(f"  ✓ {name}")
+        _passed += 1
+    except AssertionError as exc:
+        print(f"  ✗ {name}: {exc}")
+        _failed += 1
+
+
+# ---------------------------------------------------------------------------
+# Positive tests
+# ---------------------------------------------------------------------------
+
+def _test_rapide_complete():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2026-01-01_1000_rapide"
+        d.mkdir()
+        rid = "2026-01-01_1000_rapide"
+        for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "RAPIDE")
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 0, f"Expected exit 0, got {rc}\n{out}"
+        assert "PASS" in out, f"Expected PASS in output\n{out}"
+
+
+def _test_structuree_complete():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2026-01-01_1000_struct"
+        d.mkdir()
+        rid = "2026-01-01_1000_struct"
+        for phase in ["01_INTAKE", "04_PLAN", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "STRUCTUREE")
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 0, f"Expected exit 0, got {rc}\n{out}"
+        assert "PASS" in out
+
+
+def _test_audit_complete():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2026-01-01_1000_audit"
+        d.mkdir()
+        rid = "2026-01-01_1000_audit"
+        for phase in ["01_INTAKE", "02_AUDIT", "03_DECISION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "AUDIT")
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 0, f"Expected exit 0, got {rc}\n{out}"
+        assert "PASS" in out
+
+
+def _test_cloture_complete():
+    """CLOTURE voie: only 07_CLOSEOUT required, no 01_INTAKE."""
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2026-01-01_1000_cloture"
+        d.mkdir()
+        rid = "2026-01-01_1000_cloture"
+        _make_artifact(d / "07_CLOSEOUT.md", rid, "07_CLOSEOUT", "CLOTURE")
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 0, f"Expected exit 0, got {rc}\n{out}"
+        assert "PASS" in out
+
+
+# ---------------------------------------------------------------------------
+# Negative tests
+# ---------------------------------------------------------------------------
+
+def _test_missing_closeout():
+    """RAPIDE run missing 07_CLOSEOUT → FAIL."""
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2026-01-01_1000_no-closeout"
+        d.mkdir()
+        rid = "2026-01-01_1000_no-closeout"
+        _make_artifact(d / "01_INTAKE.md", rid, "01_INTAKE", "RAPIDE")
+        _make_artifact(d / "05_EXECUTION.md", rid, "05_EXECUTION", "RAPIDE")
+        # 07_CLOSEOUT.md intentionally absent
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 1, f"Expected exit 1, got {rc}"
+        assert "FAIL" in out, f"Expected FAIL in output\n{out}"
+        assert "07_CLOSEOUT" in out, f"Expected '07_CLOSEOUT' mentioned\n{out}"
+
+
+def _test_missing_required_phase():
+    """STRUCTUREE run missing 04_PLAN → FAIL with 04_PLAN in error."""
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2026-01-01_1000_no-plan"
+        d.mkdir()
+        rid = "2026-01-01_1000_no-plan"
+        # 04_PLAN intentionally absent
+        for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "STRUCTUREE")
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 1, f"Expected exit 1, got {rc}"
+        assert "FAIL" in out, f"Expected FAIL\n{out}"
+        assert "04_PLAN" in out, f"Expected '04_PLAN' in error output\n{out}"
+
+
+def _test_missing_intake_non_cloture():
+    """RAPIDE run without 01_INTAKE → FAIL even if 07_CLOSEOUT exists."""
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2026-01-01_1000_no-intake"
+        d.mkdir()
+        rid = "2026-01-01_1000_no-intake"
+        # 07_CLOSEOUT has voie=RAPIDE — not CLOTURE, so 01_INTAKE is required
+        _make_artifact(d / "05_EXECUTION.md", rid, "05_EXECUTION", "RAPIDE")
+        _make_artifact(d / "07_CLOSEOUT.md", rid, "07_CLOSEOUT", "RAPIDE")
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 1, f"Expected exit 1, got {rc}"
+        assert "FAIL" in out
+        assert "01_INTAKE" in out, f"Expected '01_INTAKE' in error\n{out}"
+
+
+def _test_missing_frontmatter_field():
+    """07_CLOSEOUT.md missing required field 'status' → FAIL."""
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2026-01-01_1000_bad-fm"
+        d.mkdir()
+        rid = "2026-01-01_1000_bad-fm"
+        _make_artifact(d / "01_INTAKE.md", rid, "01_INTAKE", "RAPIDE")
+        _make_artifact(d / "05_EXECUTION.md", rid, "05_EXECUTION", "RAPIDE")
+        # closeout without 'status'
+        bad = textwrap.dedent(f"""\
+            ---
+            run_id: "{rid}"
+            phase: "07_CLOSEOUT"
+            voie: "RAPIDE"
+            agent: "claude-code"
+            started_at: "2026-05-23T10:00:00Z"
+            ended_at: "2026-05-23T10:30:00Z"
+            artifacts_produced: []
+            ---
+
+            # Closeout
+        """)
+        (d / "07_CLOSEOUT.md").write_text(bad)
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 1, f"Expected exit 1, got {rc}"
+        assert "FAIL" in out
+        assert "status" in out, f"Expected 'status' mentioned in error\n{out}"
+
+
+def _test_placeholder_not_replaced():
+    """07_CLOSEOUT.md with <placeholder> values → FAIL."""
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2026-01-01_1000_placeholder"
+        d.mkdir()
+        rid = "2026-01-01_1000_placeholder"
+        placeholder = textwrap.dedent("""\
+            ---
+            run_id: "<run_id>"
+            phase: "07_CLOSEOUT"
+            voie: "CLOTURE"
+            status: "READY"
+            agent: "claude-code"
+            started_at: "<ISO8601>"
+            ended_at: "<ISO8601>"
+            artifacts_produced: []
+            ---
+
+            # Closeout
+        """)
+        (d / "07_CLOSEOUT.md").write_text(placeholder)
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 1, f"Expected exit 1, got {rc}"
+        assert "FAIL" in out
+        assert "placeholder" in out, f"Expected 'placeholder' in error\n{out}"
+
+
+def _test_run_not_found():
+    """Non-existent run_id → FAIL immediately."""
+    with tempfile.TemporaryDirectory() as tmp:
+        rc, out, _ = _run("nonexistent-run-id", Path(tmp))
+        assert rc == 1, f"Expected exit 1, got {rc}"
+        assert "FAIL" in out
+
+
+def _test_invalid_voie():
+    """01_INTAKE with unknown voie value → FAIL."""
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2026-01-01_1000_bad-voie"
+        d.mkdir()
+        rid = "2026-01-01_1000_bad-voie"
+        bad_voie = textwrap.dedent(f"""\
+            ---
+            run_id: "{rid}"
+            phase: "01_INTAKE"
+            voie: "INVENTED"
+            status: "READY"
+            agent: "claude-code"
+            started_at: "2026-05-23T10:00:00Z"
+            ended_at: "2026-05-23T10:30:00Z"
+            artifacts_produced: []
+            ---
+
+            # Intake
+        """)
+        (d / "01_INTAKE.md").write_text(bad_voie)
+        _make_artifact(d / "07_CLOSEOUT.md", rid, "07_CLOSEOUT", "RAPIDE")
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 1, f"Expected exit 1, got {rc}"
+        assert "FAIL" in out
+        assert "INVENTED" in out, f"Expected bad voie value in error\n{out}"
+
+
+# ---------------------------------------------------------------------------
+# Dogfood: PR #3 run must pass its own check
+# ---------------------------------------------------------------------------
+
+def _test_pr3_run_passes():
+    """The PR #3 run artifact set must satisfy the closure invariant."""
+    rc, out, _ = _run(
+        "2026-05-23_1800_artifact-verify-lot-c",
+        REPO_ROOT / "docs" / "runs",
+    )
+    assert rc == 0, f"PR #3 run should pass the loop-closure check\n{out}"
+    assert "PASS" in out
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+def main() -> int:
+    print("=== VBB Loop Closure Check — Test Suite ===")
+    print()
+    print("Positive tests:")
+    test("RAPIDE run — all 3 phases present", _test_rapide_complete)
+    test("STRUCTUREE run — all 4 phases present", _test_structuree_complete)
+    test("AUDIT run — all 4 phases present", _test_audit_complete)
+    test("CLOTURE run — only 07_CLOSEOUT required", _test_cloture_complete)
+
+    print()
+    print("Negative tests:")
+    test("Missing 07_CLOSEOUT → FAIL", _test_missing_closeout)
+    test("STRUCTUREE missing 04_PLAN → FAIL with phase name in output", _test_missing_required_phase)
+    test("Non-CLOTURE run without 01_INTAKE → FAIL", _test_missing_intake_non_cloture)
+    test("Artifact missing required frontmatter field → FAIL", _test_missing_frontmatter_field)
+    test("Artifact with <placeholder> values → FAIL", _test_placeholder_not_replaced)
+    test("Run directory not found → FAIL", _test_run_not_found)
+    test("Unknown voie value → FAIL", _test_invalid_voie)
+
+    print()
+    print("Dogfood:")
+    test("PR #3 run passes its own loop-closure check", _test_pr3_run_passes)
+
+    print()
+    total = _passed + _failed
+    print(f"Results: {_passed}/{total} passed, {_failed} failed")
+
+    return 0 if _failed == 0 else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -96,9 +96,15 @@ Règles absolues :
    - audits touchés
    - fichiers de pilotage touchés
    - incohérences ou oublis manifestes
-4. Identifier les éléments qui empêchent un commit propre.
-5. Rédiger un message de commit conventionnel adapté au change set.
-6. Si le contexte de session doit aussi être compressé pour reprise, signaler explicitement que `t-vbb-session-handoff` doit être chaîné ensuite.
+4. **Vérifier l’invariant de clôture** (obligatoire si un run actif est détecté) :
+   ```bash
+   python3 tools/vbb-loop-closure-check.py "${VBB_RUN_ID:-$(ls -t docs/runs/ | head -1)}"
+   ```
+   - Si exit ≠ 0 → status = `BLOCKED`. Ne pas produire de message de commit.
+   - Corriger les artefacts manquants, puis relancer.
+5. Identifier les éléments qui empêchent un commit propre.
+6. Rédiger un message de commit conventionnel adapté au change set.
+7. Si le contexte de session doit aussi être compressé pour reprise, signaler explicitement que `t-vbb-session-handoff` doit être chaîné ensuite.
 
 ## OUTPUT CONTRACT
 
@@ -129,11 +135,18 @@ le skill le crée à partir du template.
 - ce qui manque encore avant commit
 - si un handoff de session séparé est nécessaire
 
-### Hook commit-ready (à venir en PR #3 / Lot C)
+### Vérification mécanique (activée — PR #3)
 
-Une vérification mécanique refusera le `git commit` si l'artefact
-`docs/runs/{run_id}/07_CLOSEOUT.md` n'existe pas ou si son frontmatter
-est incomplet. Non livré dans la présente PR.
+`tools/vbb-loop-closure-check.py` vérifie l'invariant de clôture avant commit :
+
+- Lit la voie depuis `01_INTAKE.md` du run actif.
+- Vérifie la présence et le frontmatter de chaque phase obligatoire selon la voie.
+- Exit 0 → PASS. Exit 1 → BLOCKED : refuser le commit, corriger les artefacts.
+
+Pour activer comme pre-commit git hook :
+```bash
+bash scripts/install-vbb-pre-commit.sh
+```
 
 ## VERDICT RULES
 

@@ -51,8 +51,9 @@ outputs:
       - artifacts_consumed
       - artifacts_produced
     # commit-ready writes a "Suggested Commit Message" section into the
-    # closeout. The closeout must exist at end of run. PR #3 (Lot C) will
-    # add a hook that blocks the actual git commit if this artefact is missing.
+    # closeout. The closeout must exist at end of run.
+    # PR #3 (Lot C): tools/vbb-loop-closure-check.py enforces this invariant.
+    # Install git hook: bash scripts/install-vbb-pre-commit.sh
 
 gates:
   before: []
