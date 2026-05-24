@@ -15,6 +15,7 @@ Scenario:
      completely separate from the temp project.
 
 Usage:
+    pytest tests/test_portability.py -q
     python3 tests/test_portability.py
 """
 
@@ -41,21 +42,6 @@ def _run(tool: Path, args: list, cwd=None):
         cwd=str(cwd) if cwd else None,
     )
     return result.returncode, result.stdout, result.stderr
-
-
-_passed = 0
-_failed = 0
-
-
-def test(name: str, fn) -> None:
-    global _passed, _failed
-    try:
-        fn()
-        print(f"  ✓ {name}")
-        _passed += 1
-    except AssertionError as exc:
-        print(f"  ✗ {name}: {exc}")
-        _failed += 1
 
 
 # ---------------------------------------------------------------------------
@@ -145,7 +131,7 @@ def _write_run(base: Path, run_id: str) -> None:
 # Tests
 # ---------------------------------------------------------------------------
 
-def _test_init_creates_governance_files():
+def test_init_creates_governance_files():
     """vbb-project-init creates governance files in a fresh external project."""
     with tempfile.TemporaryDirectory() as tmp:
         rc, out, err = _run(INIT_TOOL, ["--target-dir", tmp, "--project-name", "SmokeProj"])
@@ -157,7 +143,7 @@ def _test_init_creates_governance_files():
         assert (Path(tmp) / "docs" / "runs" / "README.md").exists(), "runs/README.md missing"
 
 
-def _test_loop_closure_passes_outside_vbb():
+def test_loop_closure_passes_outside_vbb():
     """loop-closure-check passes on a valid RAPIDE run in a fresh external project."""
     with tempfile.TemporaryDirectory() as tmp:
         # Init governance
@@ -175,7 +161,7 @@ def _test_loop_closure_passes_outside_vbb():
         assert "PASS" in out, f"Expected PASS in output\n{out}"
 
 
-def _test_loop_closure_fails_missing_closeout():
+def test_loop_closure_fails_missing_closeout():
     """loop-closure-check fails when 07_CLOSEOUT is absent in external project."""
     with tempfile.TemporaryDirectory() as tmp:
         run_id = "2026-05-23_2000_portability-smoke-bad"
@@ -192,7 +178,7 @@ def _test_loop_closure_fails_missing_closeout():
         assert rc != 0, f"Expected non-zero exit for missing closeout\n{out}\n{err}"
 
 
-def _test_loop_closure_fails_missing_execution():
+def test_loop_closure_fails_missing_execution():
     """loop-closure-check fails when 05_EXECUTION is absent (RAPIDE requires it)."""
     with tempfile.TemporaryDirectory() as tmp:
         run_id = "2026-05-23_2000_portability-smoke-no-exec"
@@ -212,7 +198,7 @@ def _test_loop_closure_fails_missing_execution():
         assert rc != 0, f"Expected non-zero exit for missing 05_EXECUTION\n{out}\n{err}"
 
 
-def _test_init_idempotent_outside_vbb():
+def test_init_idempotent_outside_vbb():
     """Running vbb-project-init twice on an external project is idempotent."""
     with tempfile.TemporaryDirectory() as tmp:
         rc1, _, _ = _run(INIT_TOOL, ["--target-dir", tmp])
@@ -226,7 +212,7 @@ def _test_init_idempotent_outside_vbb():
         )
 
 
-def _test_init_dry_run_outside_vbb():
+def test_init_dry_run_outside_vbb():
     """--dry-run on fresh external dir writes nothing."""
     with tempfile.TemporaryDirectory() as tmp:
         rc, out, _ = _run(INIT_TOOL, ["--target-dir", tmp, "--dry-run"])
@@ -238,31 +224,23 @@ def _test_init_dry_run_outside_vbb():
             f"--dry-run should print intended actions\n{out}"
         )
 
-
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
-
-def main() -> int:
-    print("=== VBB Portability Smoke Test ===")
-    print()
-
-    print("Project init (external project):")
-    test("vbb-project-init creates governance files", _test_init_creates_governance_files)
-    test("vbb-project-init is idempotent outside VBB", _test_init_idempotent_outside_vbb)
-    test("vbb-project-init --dry-run writes nothing", _test_init_dry_run_outside_vbb)
-
-    print()
-    print("Loop closure (external project):")
-    test("loop-closure-check PASS on valid RAPIDE run", _test_loop_closure_passes_outside_vbb)
-    test("loop-closure-check FAIL when 07_CLOSEOUT missing", _test_loop_closure_fails_missing_closeout)
-    test("loop-closure-check FAIL when 05_EXECUTION missing", _test_loop_closure_fails_missing_execution)
-
-    print()
-    total = _passed + _failed
-    print(f"Results: {_passed}/{total} passed, {_failed} failed")
-    return 0 if _failed == 0 else 1
-
+# --- Direct execution fallback ---
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        import pytest
+        sys.exit(pytest.main([__file__, "-q"]))
+    except ImportError:
+        passed = failed = 0
+        for _name, _fn in sorted(globals().items()):
+            if _name.startswith("test_") and callable(_fn):
+                try:
+                    _fn()
+                    print("  PASS " + _name)
+                    passed += 1
+                except AssertionError as _e:
+                    print("  FAIL " + _name + ": " + str(_e))
+                    failed += 1
+        total = passed + failed
+        print("Results: %d/%d passed, %d failed" % (passed, total, failed))
+        sys.exit(0 if failed == 0 else 1)

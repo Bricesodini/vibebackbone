@@ -31,22 +31,22 @@ You validate skill design and skill consistency.
 
 ## INPUT CONTRACT
 
-**Requis :**
+**Required:**
 
-- [ ] Un `SKILL.md` à créer, adapter ou valider
+- [ ] A `SKILL.md` to create, adapt, or validate
 
-**Optionnels :**
+**Optional:**
 
-- [ ] Un skill existant
-- [ ] Un besoin fonctionnel à transformer en skill
-- [ ] Une comparaison entre version Claude / Codex / Pi
+- [ ] An existing skill
+- [ ] A functional need to transform into a skill
+- [ ] A comparison between Claude / Codex / Pi versions
 
-**Sources acceptées :** contenu collé, chemin de fichier, description textuelle
+**Accepted sources:** pasted content, file path, textual description
 
 ## BLOCKING CONDITIONS
 
-- Si aucun skill ni besoin de skill n’est fourni → STOP. Message : "Aucun skill à normaliser ou à valider."
-- Si la demande concerne un audit de repo et non un skill → STOP. Message : "Cette ressource définit les standards des skills, pas l’audit d’un projet."
+- If no skill or skill need is provided → STOP. Message: "No skill to normalize or validate."
+- If the request concerns a repo audit rather than a skill → STOP. Message: "This resource defines skill standards, not project auditing."
 
 ## SCOPE
 
@@ -62,27 +62,27 @@ This skill defines:
 - absolute rules
 - Pi-oriented routing description quality
 
-### Sections optionnelles (pour skills d'exécution)
+### Optional sections (for execution skills)
 
-- `SUPPORT BOUNDARY` — liste explicite des cas supportés et non supportés
+- `SUPPORT BOUNDARY` — explicit list of supported and unsupported cases
 
-Format canonique de SUPPORT BOUNDARY :
+Canonical SUPPORT BOUNDARY format:
 
 ```markdown
 ## SUPPORT BOUNDARY
 
-Supporté :
-- <cas supporté 1>
-- <cas supporté 2>
+Supported:
+- <supported case 1>
+- <supported case 2>
 
-Non supporté (refuser explicitement) :
-- <cas non supporté 1> → <raison>
-- <cas non supporté 2> → <raison>
+Not supported (refuse explicitly):
+- <unsupported case 1> → <reason>
+- <unsupported case 2> → <reason>
 ```
 
-Règle : tout skill qui écrit dans le repo (phase 1, transverse exécution)
-devrait inclure cette section. Les skills de lecture seule (phase 0, 2, 3)
-sont exemptés — leur scope est naturellement borné par leur rôle d'audit.
+Rule: any skill that writes to the repo (phase 1, transverse execution)
+should include this section. Read-only skills (phase 0, 2, 3)
+are exempt — their scope is naturally bounded by their audit role.
 
 ## PROCESS
 

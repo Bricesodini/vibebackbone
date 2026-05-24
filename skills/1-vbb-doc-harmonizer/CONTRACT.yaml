@@ -1,0 +1,63 @@
+id: 1-vbb-doc-harmonizer
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  optional:
+  - docs/CONTEXT.md
+  - docs/INDEX.md
+  - scope_filter
+outputs:
+  required:
+  - status
+  - summary
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact: null
+gates:
+  before: []
+  success:
+  - id: docs_reconciled
+    output_must_contain:
+    - harmonized
+  after: []
+events:
+  on_success:
+  - skill: t-vbb-commit-ready
+    reason: Docs harmonized → prepare commit
+  on_partial:
+  - skill: t-vbb-session-handoff
+    reason: Harmonisation partielle → handoff
+routing:
+  phase_scope:
+  - phase_1
+  triggers:
+  - doc harmonizer
+  - documentation
+  - doc compression
+  - context reduction
+  - markdown cleanup
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - files_harmonized
+  - files_removed

@@ -1,107 +1,97 @@
 id: 0-vbb-audit-readiness
-version: "0.3"
+version: '0.3'
 type: prompt_skill
 formalization_level: declarative
-
 entrypoint:
   kind: markdown_prompt
   path: SKILL.md
-
 compatibility:
   runtime_required: false
   agents:
-    - claude-code
-    - codex
-    - pi
-    - opencode
-
+  - claude-code
+  - codex
+  - pi
+  - opencode
 inputs:
   required:
-    - repo_root_access
+  - repo_root_access
   optional:
-    - README.md
-    - docs/PROJECT_MODE.md
-    - docs/AUDIT_STATUS.md
-    - scope_freeze_report
-
+  - README.md
+  - docs/PROJECT_MODE.md
+  - docs/AUDIT_STATUS.md
+  - scope_freeze_report
 outputs:
   required:
-    - status
-    - summary
-    - findings
-    - actions
-    - next_action
+  - status
+  - summary
+  - findings
+  - actions
+  - next_action
   statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact:
+    path_pattern: docs/runs/{run_id}/02_AUDIT.md
+    template: docs/templates/02_AUDIT.md.template
+    must_exist_after_run: true
+    kind: phase_artifact
+    frontmatter_required:
+    - run_id
+    - phase
+    - voie
+    - status
+    - agent
+    - started_at
+    - ended_at
+    - next_phase
+    - artifacts_consumed
+    - artifacts_produced
+  secondary_artifacts:
+  - path_pattern: docs/audits/audit-readiness-{YYYYMMDD-HHMM}.md
+    kind: audit_report
+    must_exist_after_run: true
+  - path_pattern: docs/AUDIT_STATUS.md
+    kind: persistent_state_update
+    must_exist_after_run: true
+gates:
+  before:
+  - id: scope_must_be_frozen
+    skill: 0-vbb-scope-freeze
+    blocking: true
+    expected_status: PASS
+  success:
+  - id: verdict_present
+    output_must_contain:
     - PASS
     - PARTIAL
     - FAIL
     - BLOCKED
-  artifact:
-    path_pattern: "docs/runs/{run_id}/02_AUDIT.md"
-    template: "docs/templates/02_AUDIT.md.template"
-    must_exist_after_run: true
-    kind: phase_artifact
-    frontmatter_required:
-      - run_id
-      - phase
-      - voie
-      - status
-      - agent
-      - started_at
-      - ended_at
-      - next_phase
-      - artifacts_consumed
-      - artifacts_produced
-  secondary_artifacts:
-    - path_pattern: "docs/audits/audit-readiness-{YYYYMMDD-HHMM}.md"
-      kind: audit_report
-      must_exist_after_run: true
-    - path_pattern: "docs/AUDIT_STATUS.md"
-      kind: persistent_state_update
-      must_exist_after_run: true
-
-gates:
-  before:
-    - id: scope_must_be_frozen
-      skill: 0-vbb-scope-freeze
-      blocking: true
-      expected_status: PASS
-
-  success:
-    - id: verdict_present
-      output_must_contain:
-        - PASS
-        - PARTIAL
-        - FAIL
-        - BLOCKED
-
 events:
   on_blocked:
-    - skill: t-vbb-mode-transition-gate
-      reason: "Scope pas assez clair pour auditer"
+  - skill: t-vbb-mode-transition-gate
+    reason: Scope unclear for audit
   on_success:
-    - skill: t-vbb-status-report
-      reason: "Émettre le rapport d'audit"
-
+  - skill: t-vbb-status-report
+    reason: Emit condensed audit report
 routing:
   phase_scope:
-    - phase_0
-    - audit
-    - validation
+  - phase_0
+  - audit
+  - validation
   triggers:
-    - audit readiness
-    - pré-audit
-    - gatekeeper
-    - can we audit
-    - auditabilité
-
+  - audit readiness
+  - pré-audit
+  - gatekeeper
+  - can we audit
+  - auditabilité
 limits:
   max_gate_depth: 2
   circular_dependencies: forbidden
-
 state_policy:
   persistent: false
   allowed_fields:
-    - last_audit_date
-    - verdict
-    - blockers
+  - last_audit_date
+  - verdict
+  - blockers

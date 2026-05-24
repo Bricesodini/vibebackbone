@@ -1,0 +1,93 @@
+id: 1-vbb-code-doc-gap-integrator
+version: "0.3"
+type: prompt_skill
+formalization_level: declarative
+
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+
+compatibility:
+  runtime_required: false
+  agents:
+    - claude-code
+    - codex
+    - pi
+    - opencode
+
+inputs:
+  required:
+    - repo_access
+  optional:
+    - docs/PROJECT_MODE.md
+    - gap_report
+    - mode_preference
+    - scope_filter
+
+outputs:
+  required:
+    - status
+    - summary
+    - gap_map
+    - files_created
+    - next_action
+  statuses:
+    - PASS
+    - PARTIAL
+    - FAIL
+    - BLOCKED
+  artifact: null
+
+gates:
+  before:
+    - id: repo_accessible
+      expected_status: PASS
+      blocking: true
+      reason: "Cannot scan an inaccessible repo"
+    - id: repo_has_source_code
+      expected_status: PASS
+      blocking: true
+      reason: "No source code — nothing to document"
+    - id: repo_not_empty
+      expected_status: PASS
+      blocking: true
+      reason: "Repo too embryonic for productive gap analysis"
+  success:
+    - id: gaps_filled
+      output_must_contain:
+        - gap_map
+        - files_created
+  after: []
+
+events:
+  on_blocked:
+    - skill: 1-vbb-doc-harmonizer
+      reason: "Doc↔doc harmonization request → redirect to harmonizer"
+  on_partial:
+    - skill: 1-vbb-doc-harmonizer
+      reason: "Partial gap fill → audit remaining doc coherence"
+  on_success:
+    - skill: t-vbb-commit-ready
+      reason: "Documentation files created → prepare commit"
+
+routing:
+  phase_scope:
+    - phase_1
+  triggers:
+    - code doc gap
+    - missing documentation
+    - doc gap
+    - feature documentation
+    - undocumented code
+    - documentable units
+
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+
+state_policy:
+  persistent: false
+  allowed_fields:
+    - gap_count
+    - files_created_count
+    - mode_used

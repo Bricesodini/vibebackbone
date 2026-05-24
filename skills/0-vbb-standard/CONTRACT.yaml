@@ -1,0 +1,50 @@
+id: 0-vbb-standard
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  optional:
+  - skill_id
+  - phase_context
+outputs:
+  required:
+  - status
+  - summary
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact: null
+gates:
+  before: []
+  success: []
+  after: []
+events: {}
+routing:
+  phase_scope:
+  - transverse
+  triggers:
+  - standard
+  - reference standard
+  - skill reference
+  - skill standard
+limits:
+  max_gate_depth: 1
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields: []

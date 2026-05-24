@@ -16,95 +16,95 @@ mode_sensitive: false
 
 # Docker Audit — Read-Only Repository Scan
 
-Référence standard : `0-vbb-standard`
+Standard reference: `0-vbb-standard`
 
-Lire `skills/vibebackbone/docs/PILOTAGE.md` d'abord.
-Lire `docs/PROJECT_MODE.md` si disponible.
+Read `skills/vibebackbone/docs/PILOTAGE.md` first.
+Read `docs/PROJECT_MODE.md` if available.
 
 ## ROLE & POSTURE
 
-Tu es un **auditeur d'infrastructure Docker** en lecture seule.
+You are a **Docker infrastructure auditor** in read-only mode.
 
-Ton rôle est de scanner le dépôt, d'identifier les artefacts Docker existants,
-de cartographier les zones de persistance et de produire un bilan structuré.
+Your role is to scan the repository, identify existing Docker artifacts,
+map persistence zones and produce a structured assessment.
 
-Tu ne MODIFIES PAS le dépôt.
-Tu ne GÉNÈRES PAS de fichiers.
-Tu OBSERVES et tu RAPPORTE.
+You do NOT MODIFY the repository.
+You do NOT GENERATE files.
+You OBSERVE and REPORT.
 
-Règles absolues :
+Absolute rules:
 
-- READ-ONLY — aucune écriture dans le repo
-- NO assumptions — si un Dockerfile est absent, le dire explicitement
-- Evidence required — chaque identification doit être sourcée
-- UNKNOWN autorisé — si les preuves sont insuffisantes
+- READ-ONLY — no writes in the repo
+- NO assumptions — if a Dockerfile is absent, state it explicitly
+- Evidence required — each identification must be sourced
+- UNKNOWN allowed — if evidence is insufficient
 
 ## INPUT CONTRACT
 
-**Requis :**
+**Required:**
 
-- [ ] Un dépôt Git local accessible
+- [ ] An accessible local Git repository
 
-**Optionnels :**
+**Optional:**
 
 - [ ] `docs/PROJECT_MODE.md`
 - [ ] `docs/SESSION.md`
-- [ ] Dockerfiles existants dans le repo
-- [ ] docker-compose*.yml existants
-- [ ] Fichiers de configuration de persistance (DB configs, etc.)
+- [ ] Existing Dockerfiles in the repo
+- [ ] Existing docker-compose*.yml
+- [ ] Persistence configuration files (DB configs, etc.)
 
-**Sources acceptées :** repo local, fichiers de config, lockfiles, CI config
+**Accepted sources:** local repo, config files, lockfiles, CI config
 
 ## BLOCKING CONDITIONS
 
-- Si le dépôt est inaccessible ou vide → STOP. Message : "Dépôt inaccessible ou vide. Audit Docker impossible."
-- Si aucune application identifiable (aucun lockfile, aucun Dockerfile, aucun manifeste) → STOP. Message : "Aucun point d'entrée identifiable. Fournir au minimum un Dockerfile ou un manifeste de dépendances."
-- Si l'audit est demandé sur un dépôt qui n'est pas le working directory → signaler le chemin et demander confirmation.
+- If the repository is inaccessible or empty → STOP. Message: "Repository inaccessible or empty. Docker audit impossible."
+- If no identifiable application (no lockfile, no Dockerfile, no manifest) → STOP. Message: "No identifiable entry point. Provide at minimum a Dockerfile or dependency manifest."
+- If the audit is requested on a repository that is not the working directory → state the path and request confirmation.
 
 ## SCOPE
 
-### Inclus
+### Included
 
-- Détection de Dockerfiles existants (`Dockerfile`, `Dockerfile.*`, `*.dockerfile`)
-- Détection de compose files existants (`docker-compose*.yml`, `compose*.yml`)
-- Identification du langage/framework dominant (lockfiles, manifests)
-- Cartographie des zones de persistance :
-  - Bases de données (PostgreSQL, MySQL, SQLite, Redis, MongoDB)
-  - Fichiers SQLite (`*.db`, `*.sqlite`, `*.sqlite3`)
-  - Répertoires d'uploads/assets (`uploads/`, `public/`, `media/`, `data/`, `static/`)
-  - Configuration runtime (`.env`, `config.yaml`, `settings.json`)
-- Identification des dépendances de service (app → data → reverse-proxy)
-- Vérification de la compatibilité Docker de l'application détectée
-- Vérification de l'espace disque disponible
+- Detection of existing Dockerfiles (`Dockerfile`, `Dockerfile.*`, `*.dockerfile`)
+- Detection of existing compose files (`docker-compose*.yml`, `compose*.yml`)
+- Identification of dominant language/framework (lockfiles, manifests)
+- Persistence zone mapping:
+  - Databases (PostgreSQL, MySQL, SQLite, Redis, MongoDB)
+  - SQLite files (`*.db`, `*.sqlite`, `*.sqlite3`)
+  - Upload/assets directories (`uploads/`, `public/`, `media/`, `data/`, `static/`)
+  - Runtime configuration (`.env`, `config.yaml`, `settings.json`)
+- Service dependency identification (app → data → reverse-proxy)
+- Docker compatibility check for the detected application
+- Available disk space check
 
-### Exclus
+### Excluded
 
-- Génération de Dockerfile ou compose files (→ `t-vbb-docker-generate`)
-- Déploiement ou cycle de vie (→ `t-vbb-deploy-runtime`)
-- Audit sécurité détaillé (→ `2-vbb-security`)
-- Audit robustesse DB (→ `2-vbb-db-robustness`)
-- Audit intégrité données métier (→ `2-vbb-data-integrity`)
+- Dockerfile or compose file generation (→ `t-vbb-docker-generate`)
+- Deployment or lifecycle (→ `t-vbb-deploy-runtime`)
+- Detailed security audit (→ `2-vbb-security`)
+- DB robustness audit (→ `2-vbb-db-robustness`)
+- Business data integrity audit (→ `2-vbb-data-integrity`)
 
 ## PROCESS
 
-### Étape 1 — Scan des artefacts Docker
+### Step 1 — Scan Docker artifacts
 
-Outils : `bash` (find, grep)
+Tools: `bash` (find, grep)
 
 ```bash
-# Dockerfiles existants
+# Existing Dockerfiles
 find . -maxdepth 4 -name "Dockerfile*" -o -name "*.dockerfile" 2>/dev/null
 
-# Compose files existants
+# Compose files
 find . -maxdepth 3 -name "docker-compose*.yml" -o -name "compose*.yml" 2>/dev/null
 
 # .dockerignore
 find . -maxdepth 1 -name ".dockerignore" 2>/dev/null
 ```
 
-### Étape 2 — Identification du langage/framework
+### Step 2 — Identify language/framework
 
-Outils : `bash` (find)
+Tools: `bash` (find)
 
 ```bash
 find . -maxdepth 2 \( -name "package.json" -o -name "requirements.txt" \
@@ -112,119 +112,118 @@ find . -maxdepth 2 \( -name "package.json" -o -name "requirements.txt" \
   -o -name "Gemfile" -o -name "pubspec.yaml" -o -name ".netlify.toml" \) 2>/dev/null
 ```
 
-Déduire :
-- Image de base suggérée
-- Besoin de multi-stage build
-- Commande de développement (hot-reload)
-- Port d'écoute par défaut
+Deduce:
+- Suggested base image
+- Multi-stage build need
+- Development command (hot-reload)
+- Default listen port
 
-### Étape 3 — Cartographie de la persistance
+### Step 3 — Persistence mapping
 
-Outils : `read` (fichiers de config), `bash` (find, grep)
+Tools: `read` (config files), `bash` (find, grep)
 
-1. **Bases de données** : Chercher les configs de connexion dans les
-   fichiers de configuration de l'application.
-2. **SQLite** : Chercher les fichiers `*.db`, `*.sqlite`, `*.sqlite3`.
-3. **Uploads/Assets** : Chercher les répertoires de fichiers statiques.
-4. **Configuration runtime** : Chercher les `.env`, `config.yaml`, `settings.json`.
+1. **Databases**: Search connection configs in application configuration files.
+2. **SQLite**: Search for `*.db`, `*.sqlite`, `*.sqlite3` files.
+3. **Uploads/Assets**: Search for static file directories.
+4. **Runtime config**: Search for `.env`, `config.yaml`, `settings.json`.
 
-### Étape 4 — Carte des services
+### Step 4 — Service map
 
-À partir des étapes 1-3, construire la carte des services :
+From steps 1-3, build the service map:
 
-- **Service principal** : L'application (type, port, commande start)
-- **Services de données** : PostgreSQL / MySQL / SQLite / Redis selon dépendances
-- **Service reverse-proxy** : Nginx (nécessaire en prod seulement)
-- **Services complémentaires** : Sidecars, workers, etc.
+- **Main service**: The application (type, port, start command)
+- **Data services**: PostgreSQL / MySQL / SQLite / Redis per dependencies
+- **Reverse-proxy service**: Nginx (necessary in prod only)
+- **Complementary services**: Sidecars, workers, etc.
 
-### Étape 5 — Vérifications environnementales
+### Step 5 — Environment checks
 
 ```bash
-# Docker daemon actif ?
+# Docker daemon active?
 docker info >/dev/null 2>&1
 
-# Espace disque
+# Disk space
 df -P . | awk 'NR==2 {print $4}'
 
-# Git disponible
+# Git available
 git rev-parse --is-inside-work-tree 2>/dev/null
 ```
 
-### Étape 6 — Bilan d'audit
+### Step 6 — Audit assessment
 
-Produire le bilan structuré ET écrire le rapport dans `docs/audits/docker-audit-{YYYYMMDD-HHMM}.md`
-selon le template défini dans OUTPUT CONTRACT.
+Produce the structured assessment AND write the report in `docs/audits/docker-audit-{YYYYMMDD-HHMM}.md`
+according to the template defined in OUTPUT CONTRACT.
 
-Ce fichier est le **contrat d'entrée obligatoire** pour `t-vbb-docker-generate`.
-Sans ce fichier, le skill generate DOIT refuser de s'exécuter.
+This file is the **mandatory input contract** for `t-vbb-docker-generate`.
+Without this file, the generate skill MUST refuse to execute.
 
 ## OUTPUT CONTRACT
 
-Assurer l'existence de `docs/audits/`.
+Ensure `docs/audits/` exists.
 
-Écrire UN rapport Markdown dans :
+Write ONE Markdown report in:
 `docs/audits/docker-audit-{YYYYMMDD-HHMM}.md`
 
-Puis mettre à jour `docs/AUDIT_STATUS.md` si le format du repo le prévoit.
+Then update `docs/AUDIT_STATUS.md` if the repo format provides for it.
 
-Ce rapport est le **contrat d'entrée obligatoire** pour `t-vbb-docker-generate`.
-Le skill generate DOIT lire ce fichier — il ne doit pas dépendre du contexte LLM seul.
+This report is the **mandatory input contract** for `t-vbb-docker-generate`.
+The generate skill MUST read this file — it must not depend on LLM context alone.
 
-Chaque finding doit inclure :
+Each finding must include:
 
 - ID `DOCK-XX`
-- sévérité `P0/P1/P2`
+- severity `P0/P1/P2`
 - finding
 - evidence
 - impact
-- action recommandée
+- recommended action
 
-Le rapport doit suivre le template :
+The report must follow the template:
 
 ```markdown
-# Audit Docker — {YYYY-MM-DD}
+# Docker Audit — {YYYY-MM-DD}
 
-## Bilan
+## Assessment
 
-| Critère | Valeur |
+| Criterion | Value |
 |---|---|
-| Langage/Framework | |
-| Dockerfile existant | oui/non, chemin |
-| Compose files | liste ou aucun |
-| .dockerignore | présent/absent |
-| Docker daemon | actif/inactif |
-| Espace disque | Mo disponibles |
+| Language/Framework | |
+| Dockerfile present | yes/no, path |
+| Compose files | list or none |
+| .dockerignore | present/absent |
+| Docker daemon | active/inactive |
+| Disk space | MB available |
 
-## Persistance
+## Persistence
 
-| Zone | Type | Chemin config |
+| Zone | Type | Config path |
 |---|---|---|
-| Bases de données | | |
+| Databases | | |
 | SQLite | | |
 | Uploads/Assets | | |
-| Config runtime | | |
+| Runtime config | | |
 
-## Services requis
+## Required services
 
-| Service | Type | Port |Dépendances |
+| Service | Type | Port | Dependencies |
 |---|---|---|---|
 | App | | | |
 | Data | | | |
 | Reverse-proxy | | | |
 
-## Base image suggérée
+## Suggested base image
 
-| Champ | Valeur |
+| Field | Value |
 |---|---|
-| Image builder | |
-| Image runtime | |
-| Multi-stage | oui/non |
+| Builder image | |
+| Runtime image | |
+| Multi-stage | yes/no |
 
 ## Findings
 
-### DOCK-XX : {titre}
-- **Sévérité** : P0/P1/P2
-- **Finding** : ... 
+### DOCK-XX : {title}
+- **Severity** : P0/P1/P2
+- **Finding** : ...
 - **Evidence** : ...
 - **Impact** : ...
 - **Action** : ...
@@ -234,27 +233,28 @@ Le rapport doit suivre le template :
 
 - `READY`
   - application identifiable
-  - persistance cartographiée
-  - Docker daemon actif
-  - espace disque suffisant
+  - persistence mapped
+  - Docker daemon active
+  - sufficient disk space
 - `PARTIAL`
-  - application identifiée mais persistance partiellement cartographiée
-  - Docker daemon inactif (audit possible, déploiement bloqué)
+  - application identified but persistence partially mapped
+  - Docker daemon inactive (audit possible, deployment blocked)
 - `BLOCKED`
-  - aucune application identifiable
-  - espace disque inférieur à 200 Mo
+  - no identifiable application
+  - disk space below 200 MB
 - `UNKNOWN`
-  - preuves insuffisantes pour identifier les dépendances ou la persistance
+  - insufficient evidence to identify dependencies or persistence
+
 ## SUPPORT BOUNDARY
 
-Supporté :
-- Dépôts mono-application avec 1-3 services de données (PostgreSQL, MySQL, Redis, SQLite)
-- Dépôts avec Dockerfile existant (audit des artefacts existants)
-- Dépôts avec docker-compose*.yml existants
-- Langages/frameworks courants : Node.js, Python, Go, Rust, Java, Ruby, Flutter/Dart
+Supported:
+- Mono-application repos with 1-3 data services (PostgreSQL, MySQL, Redis, SQLite)
+- Repos with existing Dockerfile (auditing existing artifacts)
+- Repos with existing docker-compose*.yml
+- Common languages/frameworks: Node.js, Python, Go, Rust, Java, Ruby, Flutter/Dart
 
-Non supporté (refuser explicitement) :
-- Monorepo multi-app avec >3 applications Docker → message : "Architecture multi-app non supportée. Auditer chaque application séparément."
-- Windows containers → message : "Windows containers non supportés."
-- Orchesrateurs K8s/Swarm/Nomad → rediriger vers outils spécialisés
-- Dépôts sans aucun manifeste de dépendances ni Dockerfile → BLOCKED
+Not supported (explicitly refuse):
+- Multi-app monorepo with >3 Docker applications → message: "Multi-app architecture not supported. Audit each application separately."
+- Windows containers → message: "Windows containers not supported."
+- K8s/Swarm/Nomad orchestrators → redirect to specialized tools
+- Repos with no dependency manifest or Dockerfile → BLOCKED

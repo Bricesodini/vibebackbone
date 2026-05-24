@@ -1,0 +1,64 @@
+id: 1-vbb-monolith-detector
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  optional:
+  - entry_points
+  - scope_filter
+  - docs/ARCHITECTURE.md
+outputs:
+  required:
+  - status
+  - summary
+  - findings
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact: null
+gates:
+  before: []
+  success:
+  - id: monolith_reported
+    output_must_contain:
+    - findings
+  after: []
+events:
+  on_partial:
+  - skill: 1-vbb-tech-debt
+    reason: Monolith detected → diagnose tech debt
+  on_success:
+  - skill: t-vbb-session-handoff
+    reason: Monolith evaluated → record findings
+routing:
+  phase_scope:
+  - phase_1
+  triggers:
+  - monolith
+  - monolithic
+  - coupling
+  - god object
+  - big ball of mud
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - monolith_count
+  - coupling_score

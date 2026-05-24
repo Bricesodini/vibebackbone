@@ -1,0 +1,74 @@
+id: t-vbb-docker-generate
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  - docker_audit_report
+  optional:
+  - environment_config
+  - port_config
+  - base_image_preference
+outputs:
+  required:
+  - status
+  - summary
+  - generated_files
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact: null
+gates:
+  before:
+  - id: docker_audit_done
+    expected_status: PASS
+    blocking: true
+    reason: Docker generation requires prior audit from t-vbb-docker-audit
+  success:
+  - id: files_generated
+    output_must_contain:
+    - generated_files
+  after: []
+events:
+  on_blocked:
+  - skill: t-vbb-docker-audit
+    reason: No docker audit → run docker audit first
+  on_partial:
+  - skill: t-vbb-docker-audit
+    reason: Partial generation → re-audit for missing config
+  on_success:
+  - skill: t-vbb-commit-ready
+    reason: Docker files generated → prepare commit
+routing:
+  phase_scope:
+  - transverse
+  triggers:
+  - docker generate
+  - dockerfile creation
+  - compose file generation
+  - multi-environment docker
+  - dev staging prod
+  - containerization
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - dockerfile_count
+  - compose_count
+  - env_template_count

@@ -1,0 +1,86 @@
+id: 1-vbb-test-mirage-detector
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  optional:
+  - docs/PROJECT_MODE.md
+  - test_framework
+  - priority_modules
+  - t-vbb-test-coverage-mapper report
+outputs:
+  required:
+  - status
+  - summary
+  - findings
+  - confidence_score
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact:
+    path_pattern: docs/audits/test-mirage-{date}-*.md
+    must_exist_after_run: false
+    kind: audit_report
+gates:
+  before:
+  - id: repo_accessible
+    expected_status: PASS
+    blocking: true
+    reason: Cannot audit tests without repo access
+  - id: tests_exist
+    expected_status: PASS
+    blocking: true
+    reason: No tests to audit — use t-vbb-test-coverage-mapper first
+  success:
+  - id: mirage_reported
+    output_must_contain:
+    - findings
+    - confidence_score
+  after: []
+events:
+  on_blocked:
+  - skill: t-vbb-test-coverage-mapper
+    reason: No tests found → map coverage gaps first
+  on_partial:
+  - skill: 1-vbb-tech-debt
+    reason: Mirage tests indicate tech debt in test suite
+  on_success:
+  - skill: t-vbb-session-handoff
+    reason: Mirage audit complete → record handoff
+routing:
+  phase_scope:
+  - phase_1
+  triggers:
+  - test mirage
+  - false confidence
+  - mock tautology
+  - happy path only
+  - test quality
+  - useless tests
+  - coverage illusion
+  - green tests no safety
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - mirage_count
+  - weak_count
+  - safe_count
+  - confidence_ratio

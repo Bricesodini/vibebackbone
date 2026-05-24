@@ -1,0 +1,64 @@
+id: 1-vbb-error-handling-auditor
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  optional:
+  - scope_filter
+  - error_patterns
+  - language_filter
+outputs:
+  required:
+  - status
+  - summary
+  - findings
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact: null
+gates:
+  before: []
+  success:
+  - id: findings_reported
+    output_must_contain:
+    - findings
+  after: []
+events:
+  on_partial:
+  - skill: 3-vbb-risk-register
+    reason: Critical errors detected → register in risk register
+  on_success:
+  - skill: t-vbb-session-handoff
+    reason: Error audit complete → record findings
+routing:
+  phase_scope:
+  - phase_1
+  triggers:
+  - error handling
+  - error audit
+  - exception handling
+  - error patterns
+  - resilience
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - finding_count
+  - unhandled_count

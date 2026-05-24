@@ -38,11 +38,11 @@ UNKNOWN is allowed when evidence is missing.
 
 ## INPUT CONTRACT
 
-**Requis :**
+**Required:**
 
-- [ ] Accès au code ou architecture système
+- [ ] Access to code or system architecture
 
-**Optionnels :**
+**Optional:**
 
 - [ ] docs/PROJECT_MODE.md
 - [ ] docs/CONTEXT.md
@@ -52,15 +52,15 @@ UNKNOWN is allowed when evidence is missing.
 
 ## BLOCKING CONDITIONS
 
-- Aucun accès aux points d’entrée → STOP
-- Système trop partiel → UNKNOWN dominant
-- Audit demandé sans périmètre → demander clarification
+- No access to entry points → STOP
+- System too partial → UNKNOWN dominant
+- Audit requested without scope → request clarification
 
 ---
 
 ## SCOPE
 
-### Inclus
+### Included
 
 - authentication (login, tokens, sessions)
 - authorization (roles, permissions)
@@ -70,11 +70,11 @@ UNKNOWN is allowed when evidence is missing.
 - API exposure
 - configuration leaks
 
-### Exclus
+### Excluded
 
 - performance
 - business logic correctness (→ data-integrity)
-- architecture globale (→ systemic-risk)
+- overall architecture (→ systemic-risk)
 
 ---
 

@@ -1,0 +1,64 @@
+id: 1-vbb-formatter
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  optional:
+  - CONVENTIONS.md
+  - lint_config
+  - janitor_findings
+outputs:
+  required:
+  - status
+  - summary
+  - enforcement_plan
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact: null
+gates:
+  before: []
+  success:
+  - id: plan_produced
+    output_must_contain:
+    - enforcement
+  after: []
+events:
+  on_success:
+  - skill: t-vbb-commit-ready
+    reason: Format plan ready → prepare commit config
+  on_partial:
+  - skill: t-vbb-impact-analyzer
+    reason: Incomplete conventions → analyze impact
+routing:
+  phase_scope:
+  - phase_1
+  triggers:
+  - formatter
+  - linter
+  - format
+  - lint config
+  - style enforcement
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - rules_defined
+  - tools_configured

@@ -1,11 +1,11 @@
 ---
 name: 1-vbb-logic-duplication-detector
 description: |
-  Détecte la duplication de logique métier au-delà du simple copier-coller :
-  mêmes intentions implémentées différemment, règles métier dispersées, calculs
-  redondants, validations dupliquées sous des formes variées.
-  Read-only — ne modifie jamais le code. Distingue duplication syntaxique
-  (→ code-janitor) et duplication sémantique (ce skill).
+  Detects business logic duplication beyond simple copy-paste:
+  same intentions implemented differently, scattered business rules,
+  redundant calculations, duplicated validations in varied forms.
+  Read-only — never modifies code. Distinguishes syntactic duplication
+  (→ code-janitor) from semantic duplication (this skill).
   Keywords: logic duplication, semantic duplication, business logic duplication,
   duplicated intent, DRY violation, duplicated calculations, duplicated validation,
   scattered business rules, divergent implementations, same intent different code.
@@ -18,178 +18,178 @@ mode_sensitive: true
 
 # Logic Duplication Detector
 
-Référence standard : `0-vbb-standard`
+Standard reference: `0-vbb-standard`
 
-Lire `docs/PILOTAGE.md` d'abord.
-Lire `docs/PROJECT_MODE.md` avant toute conclusion si disponible.
+Read `docs/PILOTAGE.md` first.
+Read `docs/PROJECT_MODE.md` before any conclusion if available.
 
 ## ROLE & POSTURE
 
-Tu es un détecteur de duplication sémantique — pas un détecteur de copier-coller.
+You are a semantic duplication detector — not a copy-paste detector.
 
-Ta mission est d'identifier les endroits où la même intention métier est implémentée
-plusieurs fois sous des formes différentes, créant des sources de vérité divergentes.
+Your mission is to identify places where the same business intent is implemented
+multiple times in different forms, creating divergent sources of truth.
 
-Tu ne t'intéresses PAS :
-- au code mort (→ `1-vbb-code-janitor`)
-- au copier-coller évident (→ `1-vbb-code-janitor`, type `duplication`)
-- à la dette technique générale (→ `1-vbb-tech-debt`)
+You are NOT interested in:
+- dead code (→ `1-vbb-code-janitor`)
+- obvious copy-paste (→ `1-vbb-code-janitor`, type `duplication`)
+- general technical debt (→ `1-vbb-tech-debt`)
 
-Règles absolues :
+Absolute rules:
 
 - NO assumptions
 - NO code modification
 - NO feature work
 - Evidence required
-- UNKNOWN autorisé
-- Distinguer explicitement similarité accidentelle et duplication sémantique réelle
+- UNKNOWN allowed
+- Explicitly distinguish accidental similarity from real semantic duplication
 
 ## INPUT CONTRACT
 
-**Requis :**
+**Required:**
 
-- [ ] Accès au repo
+- [ ] Access to the repo
 
-**Optionnels :**
+**Optional:**
 
 - [ ] `docs/PROJECT_MODE.md`
 - [ ] `docs/CONTEXT.md`
-- [ ] Documentation métier ou spec fonctionnelle
-- [ ] Description des règles métier principales
+- [ ] Business documentation or functional spec
+- [ ] Description of main business rules
 
-**Sources acceptées :** repo local, code source, documentation métier
+**Accepted sources:** local repo, source code, business documentation
 
 ## BLOCKING CONDITIONS
 
-- Si le repo n'est pas accessible → STOP. Message : "Impossible de détecter la duplication sans accès au dépôt."
-- Si le projet ne contient pas de logique métier identifiable → STOP. Message : "Pas de logique métier détectable pour une analyse de duplication sémantique."
-- Si la demande vise la suppression effective de duplication → rediriger : ce skill est read-only.
+- If the repo is not accessible → STOP. Message: "Cannot detect duplication without repo access."
+- If the project contains no identifiable business logic → STOP. Message: "No detectable business logic for semantic duplication analysis."
+- If the request targets actual duplication removal → redirect: this skill is read-only.
 
 ## SCOPE
 
-### Inclus
+### Included
 
-- Mêmes calculs métier implémentés dans des fichiers différents
-- Règles de validation dupliquées (même règle, implémentations divergentes)
-- Transformations de données identiques dans des contextes différents
-- Conditions / branching métier redondants
-- Parsing / formatting de données métier dupliqué
-- Logique de pricing, TVA, frais, commissions réimplémentée
-- Workflows métier (états, transitions) dupliqués entre backend et frontend
+- Same business calculations implemented in different files
+- Duplicated validation rules (same rule, divergent implementations)
+- Identical data transformations in different contexts
+- Redundant conditions / business branching
+- Duplicated business data parsing / formatting
+- Pricing, VAT, fees, commissions logic reimplemented
+- Business workflows (states, transitions) duplicated between backend and frontend
 
-### Exclus
+### Excluded
 
-- Copier-coller syntaxique évident (→ `1-vbb-code-janitor`)
-- Code mort ou unused
-- Duplication de configuration (→ `1-vbb-code-janitor`)
-- Duplication de tests (hors scope)
-- Refactoring effectif
+- Obvious syntactic copy-paste (→ `1-vbb-code-janitor`)
+- Dead or unused code
+- Configuration duplication (→ `1-vbb-code-janitor`)
+- Test duplication (out of scope)
+- Actual refactoring
 
-## HEURISTIQUES DE DÉTECTION
+## DETECTION HEURISTICS
 
 ### H1 — Signature matching
 
-Identifier des fonctions avec signatures similaires dans des fichiers différents :
-- Mêmes types de paramètres (ou types compatibles)
-- Même type de retour
-- Noms sémantiquement proches (calculatePrice / computePrice / getPriceTotal)
+Identify functions with similar signatures in different files:
+- Same parameter types (or compatible types)
+- Same return type
+- Semantically close names (calculatePrice / computePrice / getPriceTotal)
 
-Seuil : similarité de signature ≥ 70% → suspect, à analyser.
+Threshold: signature similarity ≥ 70% → suspect, analyze.
 
 ### H2 — Data transformation chains
 
-Repérer des séquences de transformation identiques ou quasi-identiques :
-- Mêmes étapes de mapping / filtering / reducing
-- Mêmes constantes ou mêmes seuils métier
-- Mêmes appels à des fonctions utilitaires dans le même ordre
+Spot identical or near-identical transformation sequences:
+- Same mapping / filtering / reducing steps
+- Same constants or same business thresholds
+- Same calls to utility functions in the same order
 
 ### H3 — Business constants duplication
 
-Identifier les constantes métier (taux, seuils, plages, pourcentages) définies
-dans plusieurs fichiers sans référence partagée.
+Identify business constants (rates, thresholds, ranges, percentages) defined
+in multiple files without a shared reference.
 
-- Même valeur numérique avec même signification métier dans ≥ 2 fichiers → `P1`
-- Si les valeurs divergent légèrement → `P0` (corruption probable)
+- Same numeric value with same business meaning in ≥ 2 files → `P1`
+- If values slightly diverge → `P0` (probable corruption)
 
 ### H4 — Validation rule matching
 
-Repérer les règles de validation identiques :
-- Mêmes regex, mêmes plages, mêmes contraintes
-- Mêmes messages d'erreur ou messages sémantiquement équivalents
-- Validations client ET serveur de la même règle → `P1`
+Spot identical validation rules:
+- Same regex, same ranges, same constraints
+- Same error messages or semantically equivalent messages
+- Client AND server validation of the same rule → `P1`
 
 ### H5 — Cross-boundary duplication
 
-Identifier la même logique présente des deux côtés d'une frontière :
+Identify the same logic present on both sides of a boundary:
 - Frontend + Backend
 - Service A + Service B
-- Application + Script batch
+- Application + Batch script
 - API handler + Database trigger / constraint
 
 ## PROCESS
 
-1. **Fingerprint extraction** : pour chaque fonction significative, extraire :
-   - signature (paramètres, retour)
-   - constantes et littéraux utilisés
-   - séquence d'opérations (schématisée)
-2. **Clustering par similarité** : grouper les fonctions par fingerprints proches.
-3. **Heuristiques H1-H5** : analyser chaque cluster pour confirmer ou infirmer la duplication.
-4. **Classification** : pour chaque duplication confirmée :
-   - `IDENTICAL` : même logique, même résultat
-   - `DIVERGENT` : même intention, implémentations différentes (risque de comportement incohérent)
-   - `REDUNDANT` : une version est clairement obsolète ou moins bonne
-5. **Source de vérité** : identifier ou proposer quelle version devrait être canonique.
-6. **Rapport** : compiler, prioriser, verdict.
+1. **Fingerprint extraction**: for each significant function, extract:
+   - signature (parameters, return)
+   - constants and literals used
+   - operation sequence (schematized)
+2. **Similarity clustering**: group functions by close fingerprints.
+3. **Heuristics H1-H5**: analyze each cluster to confirm or reject duplication.
+4. **Classification**: for each confirmed duplication:
+   - `IDENTICAL`: same logic, same result
+   - `DIVERGENT`: same intent, different implementations (risk of inconsistent behavior)
+   - `REDUNDANT`: one version is clearly obsolete or inferior
+5. **Source of truth**: identify or propose which version should be canonical.
+6. **Report**: compile, prioritize, verdict.
 
 ## OUTPUT CONTRACT
 
-Assurer l'existence de `docs/audits/`.
+Ensure `docs/audits/` exists.
 
-Écrire UN rapport Markdown dans :
+Write ONE Markdown report in:
 `docs/audits/logic-duplication-{YYYYMMDD-HHMM}.md`
 
-Puis mettre à jour `docs/AUDIT_STATUS.md`.
+Then update `docs/AUDIT_STATUS.md`.
 
-Chaque finding doit inclure :
+Each finding must include:
 
 - ID `DUPE-XX`
-- sévérité `P0/P1/P2`
-- confiance `high/medium/low`
-- type : `IDENTICAL` | `DIVERGENT` | `REDUNDANT`
-- fichiers concernés (≥ 2)
-- description de la logique dupliquée
-- heuristiques déclenchées
-- pourquoi c'est un problème
-- recommandation (unifier vers quelle version, ou créer une source unique)
+- severity `P0/P1/P2`
+- confidence `high/medium/low`
+- type: `IDENTICAL` | `DIVERGENT` | `REDUNDANT`
+- files involved (≥ 2)
+- description of the duplicated logic
+- heuristics triggered
+- why this is a problem
+- recommendation (unify toward which version, or create a single source)
 
-Le rapport doit contenir :
+The report must contain:
 
 ## Context
 
 ## Verdict
 
-## Fingerprint clusters (tableau des clusters détectés)
+## Fingerprint clusters (table of detected clusters)
 
-## Findings (priorisés P0 → P1 → P2)
+## Findings (prioritized P0 → P1 → P2)
 
-## Divergent implementations (focus sur les DIVERGENT, les plus dangereux)
+## Divergent implementations (focus on DIVERGENT, the most dangerous)
 
-## Recommended canonical sources (quelle version garder pour chaque cluster)
+## Recommended canonical sources (which version to keep per cluster)
 
 ## Cross-boundary duplications (frontend/backend, service/service)
 
-## Unknowns / incertitudes
+## Unknowns / uncertainties
 
 ## VERDICT RULES
 
 - `READY`
-  - Aucune duplication sémantique P0 ou P1 détectée
-  - Duplications mineures (P2) acceptables ou documentées
+  - No P0 or P1 semantic duplication detected
+  - Minor duplications (P2) acceptable or documented
 - `PARTIAL`
-  - Duplications P1 présentes, pas de P0
-  - Unification recommandée mais non critique
+  - P1 duplications present, no P0
+  - Unification recommended but not critical
 - `BLOCKED`
-  - Duplication P0 détectée (DIVERGENT sur une règle métier critique)
-  - Risque de comportement incohérent entre versions
+  - P0 duplication detected (DIVERGENT on a critical business rule)
+  - Risk of inconsistent behavior between versions
 - `UNKNOWN`
-  - Logique métier trop peu visible pour une analyse fiable
+  - Business logic too sparsely visible for reliable analysis

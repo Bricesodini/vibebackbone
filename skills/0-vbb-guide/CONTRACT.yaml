@@ -1,0 +1,54 @@
+id: 0-vbb-guide
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  optional:
+  - skill_filter
+  - phase_filter
+outputs:
+  required:
+  - status
+  - summary
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact: null
+gates:
+  before: []
+  success: []
+  after: []
+events:
+  on_success:
+  - skill: t-vbb-session-handoff
+    reason: Guide consulted → record action
+routing:
+  phase_scope:
+  - transverse
+  triggers:
+  - skill guide
+  - skill catalogue
+  - skill catalog
+  - guide
+  - catalogue skills
+limits:
+  max_gate_depth: 1
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields: []

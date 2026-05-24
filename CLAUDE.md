@@ -1,47 +1,47 @@
 # CLAUDE.md — vibebackbone
 
-Tu operationnes sous la gouvernance **vibebackbone**.
+You operate under **vibebackbone** governance.
 
-**vibebackbone = 57 skills · 24 prompts · 4 voies (rapide, structurée, audit, clôture)**
+**vibebackbone = 62 skills · 32 prompts · 4 routes (FAST, STRUCTURED, AUDIT, CLOSEOUT)**
 
-## Fichiers de gouvernance
+## Governance files
 
-- `docs/CONTEXT.md` — MOC / routeur central persistant (lire en premier)
-- `AGENTS.md` — Grammaire opérationnelle canonique
-- `SYSTEM.md` — Comportement runtime Pi
-- `skills/vibebackbone/docs/PILOTAGE.md` — Pilotage opérationnel v2.0
+- `docs/CONTEXT.md` — MOC / persistent central router (read first)
+- `AGENTS.md` — Canonical operational grammar
+- `SYSTEM.md` — Pi runtime behavior
+- `docs/PILOTAGE.md` — Operational piloting v2.0
 
 ```
 @AGENTS.md
 @SYSTEM.md
 ```
 
-## Raccourcis (chemins relatifs au repo vibebackbone)
+## Shortcuts (paths relative to vibebackbone repo)
 
-- Skills : `skills/` (57 dossiers, chacun contient un SKILL.md)
-- Prompts : `prompts/` (24 templates)
-- Catalogue complet : `skills/0-vbb-guide/SKILL.md`
+- Skills: `skills/` (62 dirs, each contains SKILL.md)
+- Prompts: `prompts/` (32 templates)
+- Full catalog: `skills/0-vbb-guide/SKILL.md`
 
-## Règle fondamentale
+## Fundamental rule
 
-Avant toute action, classer la tâche dans une voie :
+Before any action, classify the task into a route:
 
-1. **RAPIDE** — risque faible, action directe
-2. **STRUCTURÉE** — plan avant modification (contrats, multi-fichiers)
-3. **AUDIT** — séquence d'audit (sécurité, intégrité)
-4. **CLÔTURE** — handoff de session
+1. **FAST** — low risk, direct action (ZERO: activity log only, MINIMAL: patch summary only, STANDARD: full cycle)
+2. **STRUCTURED** — plan before modification (contracts, multi-file)
+3. **AUDIT** — audit sequence (security, integrity)
+4. **CLOSEOUT** — session handoff
 
-En cas de doute, lire `AGENTS.md` section 3 (Triage opérationnel).
+If in doubt, read `AGENTS.md` section 1 (Mandatory triage).
 
-## Utilisation typique
+## Typical usage
 
 ```bash
-# Lister les skills disponibles
+# List available skills
 ls skills/
 
-# Lire le guide
+# Read the guide
 cat skills/0-vbb-guide/SKILL.md
 
-# Choisir et appliquer un skill
-# Ex: cat skills/2-vbb-security/SKILL.md puis suivre les étapes
+# Choose and apply a skill
+# e.g. cat skills/2-vbb-security/SKILL.md then follow the steps
 ```

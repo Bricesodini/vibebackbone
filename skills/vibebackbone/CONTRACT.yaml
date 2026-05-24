@@ -1,0 +1,99 @@
+id: vibebackbone
+version: "0.3"
+type: prompt_skill
+formalization_level: declarative
+
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+
+compatibility:
+  runtime_required: false
+  agents:
+    - claude-code
+    - codex
+    - pi
+    - opencode
+
+inputs:
+  required:
+    - user_request
+  optional:
+    - docs/CONTEXT.md
+    - docs/SESSION.md
+    - docs/AUDIT_STATUS.md
+    - docs/PROJECT_MODE.md
+    - docs/PILOTAGE.md
+
+outputs:
+  required:
+    - route
+    - justification
+    - required_context
+    - next_action
+  statuses:
+    - PASS
+    - PARTIAL
+    - FAIL
+    - BLOCKED
+  artifact: null
+
+gates:
+  before:
+    - id: vbb_project_or_explicit_request
+      expected_status: PASS
+      blocking: true
+      reason: "This workflow assumes a Vibebackbone project or an explicit request to apply its rules"
+    - id: sufficient_context
+      expected_status: PASS
+      blocking: true
+      reason: "Insufficient context to route properly — provide precise request or baseline docs"
+  success:
+    - id: route_decided
+      output_must_contain:
+        - route
+        - next_action
+  after: []
+
+events:
+  on_blocked:
+    - skill: 0-vbb-guide
+      reason: "Not a VBB project or unclear → offer guide for onboarding"
+  on_partial:
+    - skill: 0-vbb-pilotage
+      reason: "Partial routing → consult full pilotage for deeper triage"
+  on_success:
+    - skill: t-vbb-session-handoff
+      reason: "Routing complete → handoff for execution"
+
+routing:
+  phase_scope:
+    - transverse
+  triggers:
+    - triage
+    - pilotage
+    - routing
+    - orchestration
+    - workflow selection
+    - execution path
+    - structured path
+    - fast path
+    - audit path
+    - handoff
+
+limits:
+  max_gate_depth: 1
+  circular_dependencies: forbidden
+  no_direct_code_modification: true
+
+state_policy:
+  persistent: false
+  defer_to:
+    - docs/CONTEXT.md
+    - docs/AUDIT_STATUS.md
+    - docs/ACTIVITY_LOG.md
+    - docs/runs/
+  no_parallel_truth: true
+  allowed_fields:
+    - route_selected
+    - skill_sequence

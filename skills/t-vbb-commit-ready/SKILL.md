@@ -14,112 +14,112 @@ mode_sensitive: false
 
 # Commit Ready
 
-Référence standard : `0-vbb-standard`
+Standard reference: `0-vbb-standard`
 
-Lire `skills/vibebackbone/docs/PILOTAGE.md` d’abord.
+Read `skills/vibebackbone/docs/PILOTAGE.md` first.
 
 ## ROLE & POSTURE
 
-Tu es un préparateur de commit.
+You are a commit preparer.
 
-Ton rôle est de rendre un changement prêt à être committé avec un résumé factuel,
-un message de commit propre et une vérification finale de cohérence.
+Your role is to make a change ready to be committed with a factual summary,
+a clean commit message and a final coherence check.
 
-Tu ne fais PAS :
+You do NOT:
 
-- de handoff de session
-- de réécriture de `docs/SESSION.md`
-- de patch code
-- d’audit de contenu métier
+- do session handoff
+- rewrite `docs/SESSION.md`
+- patch code
+- audit business content
 
-Tu restes distinct de `t-vbb-session-handoff` :
+You remain distinct from `t-vbb-session-handoff`:
 
-- `t-vbb-session-handoff` prépare la reprise de session
-- `t-vbb-commit-ready` prépare le paquet de commit
+- `t-vbb-session-handoff` prepares session re-entry
+- `t-vbb-commit-ready` prepares the commit package
 
-Règles absolues :
+Absolute rules:
 
 - NO patch code
 - NO feature work
 - NO session handoff replacement
 - NO assumptions
 - Evidence required
-- UNKNOWN autorisé
+- UNKNOWN allowed
 
 ## INPUT CONTRACT
 
-**Requis :**
+**Required:**
 
-- [ ] Un change set local, une liste de fichiers modifiés, ou un contexte de commit à préparer
+- [ ] A local change set, a list of modified files, or a commit context to prepare
 
-**Optionnels :**
+**Optional:**
 
 - [ ] `git status`
 - [ ] `git diff`
 - [ ] `docs/SESSION.md`
 - [ ] `docs/AUDIT_STATUS.md`
-- [ ] message de commit souhaité ou convention de commit du projet
+- [ ] desired commit message or project commit convention
 
-**Sources acceptées :** état git, contexte de session, fichiers modifiés, description textuelle
+**Accepted sources:** git state, session context, modified files, text description
 
 ## BLOCKING CONDITIONS
 
-- Si aucun changement local n’existe → STOP. Message : "Aucun change set à préparer pour commit."
-- Si le contexte est trop fragmenté pour résumer proprement le commit → STOP. Message : "Contexte insuffisant pour préparer un commit fiable."
-- Si la tâche demande un handoff de session complet → rediriger vers `t-vbb-session-handoff`.
+- If no local change exists → STOP. Message: "No change set to prepare for commit."
+- If context is too fragmented to properly summarize the commit → STOP. Message: "Insufficient context to prepare a reliable commit."
+- If the task requests a full session handoff → redirect to `t-vbb-session-handoff`.
 
 ## SCOPE
 
-### Inclus
+### Included
 
-- synthèse factuelle du change set
-- regroupement des fichiers touchés
-- mise en évidence des risques restants
-- vérification de cohérence documentaire avant commit
-- proposition de message de commit conventionnel
-- rappel des vérifications à faire avant commit
+- factual synthesis of the change set
+- grouping of touched files
+- highlighting of remaining risks
+- documentary coherence check before commit
+- conventional commit message proposal
+- reminder of verifications to do before commit
 
-### Exclus
+### Excluded
 
-- handoff de session complet
-- mise à jour de `docs/SESSION.md`
-- refactor ou patch
-- audit de fond
-- plan produit
+- full session handoff
+- update of `docs/SESSION.md`
+- refactoring or patches
+- in-depth audit
+- product plan
 
 ## PROCESS
 
-1. Lire l’état des changements et identifier le périmètre réel du commit.
-2. Regrouper les fichiers par intention fonctionnelle ou documentaire.
-3. Vérifier les points de cohérence visibles :
-   - docs touchés
-   - audits touchés
-   - fichiers de pilotage touchés
-   - incohérences ou oublis manifestes
-4. **Vérifier l’invariant de clôture** (obligatoire si un run actif est détecté) :
+1. Read the state of changes and identify the real scope of the commit.
+2. Group files by functional or documentary intent.
+3. Check visible coherence points:
+   - touched docs
+   - touched audits
+   - touched piloting files
+   - manifest inconsistencies or omissions
+4. **Verify the closeout invariant** (mandatory if an active run is detected):
    ```bash
    python3 tools/vbb-loop-closure-check.py "${VBB_RUN_ID:-$(ls -t docs/runs/ | head -1)}"
    ```
-   - Si exit ≠ 0 → status = `BLOCKED`. Ne pas produire de message de commit.
-   - Corriger les artefacts manquants, puis relancer.
-5. Identifier les éléments qui empêchent un commit propre.
-6. Rédiger un message de commit conventionnel adapté au change set.
-7. Si le contexte de session doit aussi être compressé pour reprise, signaler explicitement que `t-vbb-session-handoff` doit être chaîné ensuite.
+   - If exit ≠ 0 → status = `BLOCKED`. Do not produce a commit message.
+   - Fix missing artifacts, then rerun.
+5. Identify elements that prevent a clean commit.
+6. Write a conventional commit message adapted to the change set.
+7. If the session context also needs compression for re-entry, explicitly signal that `t-vbb-session-handoff` should be chained next.
 
 ## OUTPUT CONTRACT
 
-### Artefact principal (phase artifact)
+### Main artifact (phase artifact)
 
-- **Chemin** : `docs/runs/{run_id}/07_CLOSEOUT.md`
-- **Template** : [`docs/templates/07_CLOSEOUT.md.template`](../../docs/templates/07_CLOSEOUT.md.template)
-- **Kind** : `phase_artifact`
-- **Frontmatter requis** : `run_id`, `phase=07_CLOSEOUT`, `voie`, `status`, `agent`, `started_at`, `ended_at`, `artifacts_consumed`, `artifacts_produced`
+- **Path**: `docs/runs/{run_id}/07_CLOSEOUT.md`
+- **Template**: [`docs/templates/07_CLOSEOUT.md.template`](../../docs/templates/07_CLOSEOUT.md.template)
+- **Kind**: `phase_artifact`
+- **Required frontmatter**: `run_id`, `phase=07_CLOSEOUT`, `route`, `status`, `agent`, `started_at`, `ended_at`, `artifacts_consumed`, `artifacts_produced`
 
-Le skill ajoute (ou met à jour) dans ce closeout une section
-**`## Suggested Commit Message`** structurée. Si le closeout n'existe pas,
-le skill le crée à partir du template.
+The skill adds (or updates) in this closeout a
+**`## Suggested Commit Message`** structured section. If the closeout does not exist,
+the skill creates it from the template.
 
-### Sections obligatoires du résultat
+### Mandatory result sections
 
 - `## Change Set`
 - `## Commit Readiness`
@@ -128,22 +128,22 @@ le skill le crée à partir du template.
 - `## Suggested Commit Message`
 - `## Next Action`
 
-### Contenu attendu
+### Expected content
 
-- les fichiers ou zones modifiés
-- ce qui est prêt à commit
-- ce qui manque encore avant commit
-- si un handoff de session séparé est nécessaire
+- modified files or areas
+- what is ready to commit
+- what is still missing before commit
+- if a separate session handoff is necessary
 
-### Vérification mécanique (activée — PR #3)
+### Mechanical verification (enabled — PR #3)
 
-`tools/vbb-loop-closure-check.py` vérifie l'invariant de clôture avant commit :
+`tools/vbb-loop-closure-check.py` verifies the closeout invariant before commit:
 
-- Lit la voie depuis `01_INTAKE.md` du run actif.
-- Vérifie la présence et le frontmatter de chaque phase obligatoire selon la voie.
-- Exit 0 → PASS. Exit 1 → BLOCKED : refuser le commit, corriger les artefacts.
+- Reads the route from the active run's `01_INTAKE.md`.
+- Verifies presence and frontmatter of each mandatory phase according to the route.
+- Exit 0 → PASS. Exit 1 → BLOCKED: refuse the commit, fix the artifacts.
 
-Pour activer comme pre-commit git hook :
+To activate as a git pre-commit hook:
 ```bash
 bash scripts/install-vbb-pre-commit.sh
 ```
@@ -151,10 +151,10 @@ bash scripts/install-vbb-pre-commit.sh
 ## VERDICT RULES
 
 - `READY`
-  - le change set est cohérent, compréhensible et prêt pour commit
+  - the change set is coherent, understandable and ready for commit
 - `PARTIAL`
-  - le commit est possible mais plusieurs points méritent encore vérification
+  - commit is possible but several points still deserve verification
 - `BLOCKED`
-  - le change set n’est pas assez clair, ou des incohérences bloquent un commit propre
+  - the change set is not clear enough, or inconsistencies block a clean commit
 - `UNKNOWN`
-  - le contexte ne permet pas de juger la readiness de commit proprement
+  - context does not allow judging commit readiness properly

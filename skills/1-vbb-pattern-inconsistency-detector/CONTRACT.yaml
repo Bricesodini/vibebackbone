@@ -1,0 +1,84 @@
+id: 1-vbb-pattern-inconsistency-detector
+version: "0.3"
+type: prompt_skill
+formalization_level: declarative
+
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+
+compatibility:
+  runtime_required: false
+  agents:
+    - claude-code
+    - codex
+    - pi
+    - opencode
+
+inputs:
+  required:
+    - repo_access
+  optional:
+    - docs/PROJECT_MODE.md
+    - scope_filter
+    - convention_overrides
+
+outputs:
+  required:
+    - status
+    - summary
+    - findings
+    - inconsistency_map
+    - next_action
+  statuses:
+    - PASS
+    - PARTIAL
+    - FAIL
+    - BLOCKED
+  artifact:
+    path_pattern: "docs/audits/pattern-inconsistency-{date}-*.md"
+    must_exist_after_run: false
+    kind: audit_report
+
+gates:
+  before:
+    - id: repo_accessible
+      expected_status: PASS
+      blocking: true
+      reason: "Cannot detect pattern inconsistencies without repo access"
+  success:
+    - id: inconsistency_reported
+      output_must_contain:
+        - findings
+        - inconsistency_map
+  after: []
+
+events:
+  on_partial:
+    - skill: 1-vbb-conventions
+      reason: "Pattern inconsistencies found → apply conventions skill"
+  on_success:
+    - skill: t-vbb-session-handoff
+      reason: "Pattern audit complete → record handoff"
+
+routing:
+  phase_scope:
+    - phase_1
+  triggers:
+    - pattern inconsistency
+    - pattern drift
+    - coding style inconsistency
+    - mixed conventions
+    - minority divergence
+    - approach fragmentation
+    - multiple conventions
+
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+
+state_policy:
+  persistent: false
+  allowed_fields:
+    - inconsistency_count
+    - canonical_pattern

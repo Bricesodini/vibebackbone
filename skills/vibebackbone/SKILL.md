@@ -14,7 +14,7 @@ mode_sensitive: false
 
 # Vibebackbone Orchestrator
 
-Référence standard : `0-vbb-standard`
+Standard reference: `0-vbb-standard`
 
 ## ROLE & POSTURE
 
@@ -44,11 +44,11 @@ Always:
 
 ## INPUT CONTRACT
 
-**Requis :**
+**Required:**
 
 - [ ] Une demande utilisateur
 
-**Optionnels :**
+**Optional:**
 
 - [ ] `docs/SESSION.md`
 - [ ] `docs/CONTEXT.md`
@@ -60,8 +60,8 @@ Always:
 
 ## BLOCKING CONDITIONS
 
-- Si le projet n’est manifestement pas Vibebackbone et qu’aucune demande explicite d’appliquer Vibebackbone n’est formulée → STOP. Message : "Ce workflow suppose un projet Vibebackbone ou une demande explicite d’y appliquer ses règles."
-- Si la tâche dépend fortement d’un état projet invisible et qu’aucun contexte minimal n’est fourni → STOP. Message : "Contexte insuffisant pour router proprement la tâche. Fournir la demande précise ou les docs de base."
+- Si le projet n’est manifestement pas Vibebackbone et qu’aucune demande explicite d’appliquer Vibebackbone n’est formulée → STOP. Message : "This workflow assumes un projet Vibebackbone ou une demande explicite d’y appliquer ses règles."
+- Si la tâche dépend fortement d’un état projet invisible et qu’aucun contexte minimal n’est fourni → STOP. Message : "Contexte insuffisant pour router proprement la tâche. Provide the request précise ou les docs de base."
 
 ## SCOPE
 

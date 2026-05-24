@@ -58,6 +58,36 @@ FORCE_GOVERNANCE=false
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
 
+# Compute a relative path from $1 (base directory) to $2 (target).
+# Both args must be absolute paths.
+relpath() {
+  local base="$1" target="$2"
+  # Use python for correctness (handles edge cases on macOS)
+  if command -v python3 &>/dev/null; then
+    python3 -c "import os; print(os.path.relpath('$target', '$base'))"
+  else
+    # Fallback: use perl or absolute path
+    echo "$target"
+  fi
+}
+
+_is_vbb_symlink() {
+  # Check if a symlink points to a vibebackbone source path,
+  # regardless of whether the target is absolute or relative.
+  local link="$1"
+  local expected_abs="$2"  # absolute path to source (e.g. $PROMPTS_SRC)
+  [ -L "$link" ] || return 1
+  local target
+  target="$(readlink "$link")"
+  # Direct absolute match
+  [ "$target" = "$expected_abs" ] && return 0
+  # Resolve relative link to absolute for comparison
+  local resolved
+  resolved="$(cd "$(dirname "$link")" && cd "$(dirname "$target")" && pwd)/$(basename "$target")" 2>/dev/null || return 1
+  [ "$resolved" = "$expected_abs" ] && return 0
+  return 1
+}
+
 needs_python() {
   if ! command -v python3 &>/dev/null; then
     echo "⚠  python3 not found — skipping operation that requires JSON/block editing"
@@ -78,15 +108,25 @@ backup_file() {
 # Symlink helper: respects FORCE_GOVERNANCE
 symlink_if_absent() {
   local src="$1" dst="$2" label="$3"
-  if [ -L "$dst" ] && [ "$(readlink "$dst")" = "$src" ]; then
-    echo "✓ $label: already linked"
-    return 0
+  if [ -L "$dst" ]; then
+    local current
+    current="$(readlink "$dst")"
+    # Accept both absolute and relative forms of the same target
+    if [ "$current" = "$src" ]; then
+      echo "✓ $label: already linked"
+      return 0
+    fi
+    local resolved_current
+    resolved_current="$(cd "$(dirname "$dst")" && cd "$(dirname "$current")" && pwd)/$(basename "$current")" 2>/dev/null || true
+    if [ "$resolved_current" = "$src" ]; then
+      echo "✓ $label: already linked (relative)"
+      return 0
+    fi
   fi
   if [ -e "$dst" ] && [ ! -L "$dst" ]; then
     if [ "$FORCE_GOVERNANCE" = true ]; then
       backup_file "$dst"
-      rm -f "$dst"
-      ln -s "$src" "$dst"
+      ln -sfn "$src" "$dst"
       echo "✓ $label: backed up and symlinked"
     else
       echo "⚠ $label: existing custom file skipped (use --force-governance to override)"
@@ -94,7 +134,7 @@ symlink_if_absent() {
     return 0
   fi
   if [ ! -e "$dst" ]; then
-    ln -s "$src" "$dst"
+    ln -sfn "$src" "$dst"
     echo "✓ $label: symlink created"
   fi
 }
@@ -168,7 +208,7 @@ uninstall() {
   fi
 
   # 2. Prompts universal symlink
-  if [ -L "$PROMPTS_LINK" ] && [ "$(readlink "$PROMPTS_LINK")" = "$PROMPTS_SRC" ]; then
+  if _is_vbb_symlink "$PROMPTS_LINK" "$PROMPTS_SRC"; then
     rm "$PROMPTS_LINK"
     echo "✓ Removed $PROMPTS_LINK"
   fi
@@ -238,11 +278,11 @@ PY
   fi
 
   # 7. Pi symlinks — AGENTS + SYSTEM + prompts
-  if [ -L "$PI_AGENTS" ] && [ "$(readlink "$PI_AGENTS")" = "$AGENTS_SRC" ]; then
+  if _is_vbb_symlink "$PI_AGENTS" "$AGENTS_SRC"; then
     rm "$PI_AGENTS"
     echo "✓ Removed $PI_AGENTS"
   fi
-  if [ -L "$PI_SYSTEM" ] && [ "$(readlink "$PI_SYSTEM")" = "$SYSTEM_SRC" ]; then
+  if _is_vbb_symlink "$PI_SYSTEM" "$SYSTEM_SRC"; then
     rm "$PI_SYSTEM"
     echo "✓ Removed $PI_SYSTEM"
   fi
@@ -329,26 +369,29 @@ echo ""
 
 mkdir -p "$GLOBAL_SKILLS"
 [ -L "$LINK_NAME" ] && rm "$LINK_NAME"
-ln -s "$SKILLS_SRC" "$LINK_NAME"
+SKILLS_REL="$(relpath "$GLOBAL_SKILLS" "$SKILLS_SRC")"
+ln -sfn "$SKILLS_REL" "$LINK_NAME"
 echo "✓ ~/.agents/skills/vibebackbone → skills symlink (Pi, OpenCode, Codex)"
 
 # ── 2. Universal prompts symlink ─────────────────────────────────────────────
 if [ "$PROMPTS_AVAILABLE" = true ]; then
   mkdir -p "$GLOBAL_PROMPTS"
-  if [ -L "$PROMPTS_LINK" ] && [ "$(readlink "$PROMPTS_LINK")" = "$PROMPTS_SRC" ]; then
+  if [ -L "$PROMPTS_LINK" ] && [ "$(readlink "$PROMPTS_LINK")" = "$PROMPTS_SRC" -o "$(readlink "$PROMPTS_LINK")" = "$(relpath "$GLOBAL_PROMPTS" "$PROMPTS_SRC")" ]; then
     echo "✓ Prompts: ~/.agents/prompts/vibebackbone already linked"
   elif [ -e "$PROMPTS_LINK" ] && [ ! -L "$PROMPTS_LINK" ]; then
     if [ "$FORCE_GOVERNANCE" = true ]; then
       backup_file "$PROMPTS_LINK"
       rm -rf "$PROMPTS_LINK"
-      ln -s "$PROMPTS_SRC" "$PROMPTS_LINK"
+      PROMPTS_REL="$(relpath "$GLOBAL_PROMPTS" "$PROMPTS_SRC")"
+      ln -sfn "$PROMPTS_REL" "$PROMPTS_LINK"
       echo "✓ Prompts: ~/.agents/prompts/vibebackbone backed up and symlinked"
     else
       echo "⚠ Prompts: existing custom ~/.agents/prompts/vibebackbone skipped"
     fi
   else
     [ -L "$PROMPTS_LINK" ] && rm "$PROMPTS_LINK"
-    ln -s "$PROMPTS_SRC" "$PROMPTS_LINK"
+    PROMPTS_REL="$(relpath "$GLOBAL_PROMPTS" "$PROMPTS_SRC")"
+    ln -sfn "$PROMPTS_REL" "$PROMPTS_LINK"
     echo "✓ Prompts: ~/.agents/prompts/vibebackbone symlinked"
   fi
 fi
@@ -481,7 +524,8 @@ if os.path.exists(path):
         sys.exit(0)
     else:
         if force:
-            backup_path = f"{path}.backup.{os.popen('date +%Y%m%d-%H%M%S').read().strip()}"
+            from datetime import datetime as _dt
+            backup_path = f"{path}.backup.{_dt.now().strftime('%Y%m%d-%H%M%S')}"
             import shutil
             shutil.copy(path, backup_path)
             print(f"✓ Codex: backup created at {backup_path}")
@@ -526,8 +570,7 @@ if [ "$PROMPTS_AVAILABLE" = true ]; then
     if [ -e "$dst" ] && [ ! -L "$dst" ]; then
       if [ "$FORCE_GOVERNANCE" = true ]; then
         backup_file "$dst"
-        rm -f "$dst"
-        ln -s "$src" "$dst"
+        ln -sfn "$src" "$dst"
         PI_PROMPTS_OK=$((PI_PROMPTS_OK + 1))
       else
         echo "⚠ Pi prompts: existing custom $name skipped"
@@ -536,7 +579,7 @@ if [ "$PROMPTS_AVAILABLE" = true ]; then
       continue
     fi
     if [ ! -e "$dst" ]; then
-      ln -s "$src" "$dst"
+      ln -sfn "$src" "$dst"
       PI_PROMPTS_OK=$((PI_PROMPTS_OK + 1))
     fi
   done

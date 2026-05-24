@@ -1,94 +1,111 @@
 id: 3-vbb-risk-register
-version: "0.3"
+version: '0.3'
 type: prompt_skill
 formalization_level: declarative
-
 entrypoint:
   kind: markdown_prompt
   path: SKILL.md
-
 compatibility:
   runtime_required: false
   agents:
-    - claude-code
-    - codex
-    - pi
-    - opencode
-
+  - claude-code
+  - codex
+  - pi
+  - opencode
+verdict_mapping:
+  READY: PASS
+  PARTIAL: PARTIAL
+  BLOCKED: FAIL
+  UNKNOWN: PARTIAL
+constraints:
+  no_new_findings: true
+  role: consolidator
+  description: Performs no new audit — compiles, deduplicates and prioritizes existing
+    findings only
 inputs:
   required:
-    - project_repo
+  - audit_reports_access
   optional:
-    - docs/PROJECT_MODE.md
-    - docs/AUDIT_STATUS.md
-    - docs/CONTEXT.md
-
+  - docs/PROJECT_MODE.md
+  - docs/AUDIT_STATUS.md
+  - docs/CONTEXT.md
+  - recent_audit_reports
+  - documented_decisions
+blocking_conditions:
+- condition: no_audit_directory_access
+  action: STOP
+  message: Cannot compile risk register without access to audit reports
+- condition: no_reports_present
+  action: STOP
+  message: No reports available to consolidate
+- condition: reports_too_heterogeneous
+  action: PARTIAL
+  message: Reports too heterogeneous to reconcile properly — conclude with strong
+    UNKNOWN component
 outputs:
   required:
-    - status
-    - summary
-    - findings
-    - next_action
+  - status
+  - summary
+  - findings
+  - next_action
   statuses:
-    - PASS
-    - PARTIAL
-    - FAIL
-    - BLOCKED
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
   artifact:
-    path_pattern: "docs/runs/{run_id}/03_DECISION.md"
-    template: "docs/templates/03_DECISION.md.template"
+    path_pattern: docs/runs/{run_id}/03_DECISION.md
+    template: docs/templates/03_DECISION.md.template
     must_exist_after_run: true
     kind: phase_artifact
     frontmatter_required:
-      - run_id
-      - phase
-      - voie
-      - status
-      - agent
-      - started_at
-      - ended_at
-      - next_phase
-      - artifacts_consumed
-      - artifacts_produced
+    - run_id
+    - phase
+    - voie
+    - status
+    - agent
+    - started_at
+    - ended_at
+    - next_phase
+    - artifacts_consumed
+    - artifacts_produced
   secondary_artifacts:
-    - path_pattern: "docs/audits/risk-register-{YYYYMMDD-HHMM}.md"
-      kind: audit_report
-      must_exist_after_run: true
-    - path_pattern: "docs/AUDIT_STATUS.md"
-      kind: persistent_state_update
-      must_exist_after_run: true
-
+  - path_pattern: docs/audits/risk-register-{YYYYMMDD-HHMM}.md
+    kind: audit_report
+    must_exist_after_run: true
+  - path_pattern: docs/AUDIT_STATUS.md
+    kind: persistent_state_update
+    must_exist_after_run: true
 gates:
   before: []
   success:
-    - id: findings_present
-      output_must_contain:
-        - findings
-    - id: status_present
-      output_must_contain:
-        - status
-
+  - id: findings_present
+    output_must_contain:
+    - findings
+  - id: status_present
+    output_must_contain:
+    - status
 events:
   on_success:
-    - skill: t-vbb-status-report
-      reason: "Émettre un rapport condensé post-audit"
-
+  - skill: t-vbb-status-report
+    reason: Emit condensed post-audit report
 routing:
   phase_scope:
-    - audit
-    - phase_2
+  - consolidation
+  - phase_3
   triggers:
-    - risk register
-    - registre des risques
-    - risk consolidation
-
+  - risk register
+  - registre des risques
+  - risk consolidation
+  excludes:
+  - new_audit_analysis
+  - new_findings
 limits:
   max_gate_depth: 2
   circular_dependencies: forbidden
-
 state_policy:
   persistent: false
   allowed_fields:
-    - findings_count
-    - severity_distribution
-    - verdict
+  - findings_count
+  - severity_distribution
+  - verdict

@@ -1,0 +1,67 @@
+id: t-vbb-anti-slop-gate
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  optional:
+  - CONVENTIONS.md
+  - lint_config
+  - test_config
+outputs:
+  required:
+  - status
+  - summary
+  - findings
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact: null
+gates:
+  before: []
+  success:
+  - id: slop_reported
+    output_must_contain:
+    - slop
+    - findings
+  after: []
+events:
+  on_partial:
+  - skill: t-vbb-impact-analyzer
+    reason: Slop detected → analyze impact before correction
+  on_success:
+  - skill: t-vbb-commit-ready
+    reason: No slop → ready for commit
+routing:
+  phase_scope:
+  - transverse
+  - phase_1
+  triggers:
+  - slop
+  - quality gate
+  - dead code
+  - style drift
+  - unused imports
+  - anti-slop
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - slop_count
+  - languages_checked

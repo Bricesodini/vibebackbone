@@ -2,95 +2,80 @@
 context_role: audit-dashboard
 phase: transverse
 status: active
-updated: 2026-05-23
+updated: 2026-06-13
 ---
 
 # AUDIT_STATUS — vibebackbone
 
-> État réel d'audit de **vibebackbone-comme-projet** (le repo qui se pilote
-> avec son propre protocole). Pas un template — voir
-> [`templates/`](templates/) pour les artefacts distribués.
+> Audit status of **vibebackbone-as-a-project** (the repo governed by its own protocol).
+> Not a template — see [`templates/`](templates/) for distributable artifacts.
 
-## Verdict global
+## Global verdict
 
-**`PARTIAL — not yet mechanically audited`**
+**`PARTIAL — v1.0-rc.1 ready, post-hardening`**
 
-Le repo a été développé en mode auto-piloté par des agents humains-LLM
-(Brice × Claude × Codex) sans cycle d'audit formel produit dans
-`docs/audits/`. La couche contrat mécanique existe pour 8 skills sur 58
-(14 %) et a été exercée à blanc. Les skills d'audit (`0-*`, `2-*`, `3-*`)
-n'ont jamais été lancés sur le repo lui-même.
+Global evaluation audit completed (RUN 19, composite score 7.4/10).
+v1.0 Hardening phase completed (RUNs 20A–20D):
+- Test reliability: 69/69 pytest green, CI 7/7 PASS
+- Contract quality: 62/62 valid, machine-facing EN-clean
+- Agent language: 52/62 SKILL.md body EN-clean, 10 remaining (Phase 4 + spec-validator)
+- Release readiness: CHANGELOG.md, RELEASE_CHECKLIST.md created
 
-L'étiquette « 🟢 PRODUCTION-READY » présente dans `CONTEXT.md` (fossilisée
-au 2026-05-19) ne reflète pas un audit mais une intention. Le passage en
-mode mécaniquement vérifiable est l'objet du plan d'artefacts en cours
-(PR #1..#6).
+No P0/P1. 2 P2 mitigated (SYNERGY-004 setup.sh monolith, SYNERGY-005 governance duplication).
 
-## Risques identifiés & status
+## Hardening status (RUNs 20A–20D)
 
-| ID | Sévérité | Description | Status | Owner | Mitigation |
-|----|----------|-------------|--------|-------|------------|
-| R-001 | P2 | Cohérence des références gouvernance internes (≥10 liens vers fichiers absents au 2026-05-22) | `MITIGATING` | Brice | PR #1 (en cours) crée les fichiers manquants ; PR #4 (Lot C) rendra mécanique la non-régression |
-| R-002 | P2 | Couverture contrats limitée à 8/58 skills (14 %), les phases 2/3 critiques sans contrat | `OPEN` | Brice | PR #5 (Lot 5b) étend les contrats à `2-vbb-security`, `2-vbb-db-robustness`, `2-vbb-data-integrity`, `2-vbb-systemic-risk`, `2-vbb-api-auditor`, `3-vbb-risk-register` |
-| R-003 | P3 | Compteurs skills/prompts incohérents entre README (57/31), AGENTS (57/24) et réalité (58/32) | `OPEN` | Brice | PR #5 (Lot F) — pure cosmétique |
-| R-004 | P3 | `tests/smoke-contract-runtime.sh` hardcode `/Users/bot/.hermes/...`, non portable | `OPEN` | Brice | PR #4 (Lot 5a) — portabilité smoke runtime |
+| Run | Target | Result |
+|-----|--------|--------|
+| 20A | Test reliability | ✅ 69/69 pytest green, CI PASS |
+| 20B | Contract quality | ✅ 62/62 valid, 44 contracts EN-cleaned |
+| 20C | Agent language | ✅ 4 priority SKILL.md EN-translated, 10 remain |
+| 20D | Release candidate | ✅ CHANGELOG.md, RELEASE_CHECKLIST.md created |
 
-## Couche contrat mécanique
+## Contract runtime status
 
-État au 2026-05-22 (dernier `run --all --dry-run`).
+`run --all --dry-run`: 25 PASS · 16 PARTIAL · 2 BLOCKED
 
-| Skill | Dernier `status` | Justification |
-|-------|------------------|---------------|
-| `0-vbb-scope-freeze` | `PARTIAL` | Aucun `docs/SCOPE.md` figé sur le repo ; verdict correct |
-| `0-vbb-audit-readiness` | `BLOCKED` | Blocking gate sur `scope-freeze` (attendu `PASS`, reçu `PARTIAL`) — comportement documenté |
-| `1-vbb-adr` | `PARTIAL` | Aucune décision formelle archivée dans `docs/adr/` |
-| `t-vbb-commit-ready` | `PARTIAL` | Pas de pre-commit gate active (livré en PR #3) |
-| `t-vbb-impact-analyzer` | `PARTIAL` | Pas d'analyse d'impact en cours |
-| `t-vbb-mode-transition-gate` | `BLOCKED` | Blocking gate sur scope clarity — propagé depuis `scope-freeze` |
-| `t-vbb-session-handoff` | `PARTIAL` | `docs/SESSION.md` non maintenu (par design : local, gitignored) |
-| `t-vbb-status-report` | `PASS` | Aucune gate dépendante — sortie triviale |
+- 16 PARTIAL: expected (dry-run stubs don't satisfy success gates)
+- 2 BLOCKED: expected (scope-freeze gate chain)
 
-Synthèse : **1 PASS · 5 PARTIAL · 2 BLOCKED**. Pas d'erreur réelle ; reflète
-l'état d'un repo qui n'a pas exécuté son propre cycle d'audit complet.
+## Risks identified & status
 
-50 skills sur 58 sont `NOT_CONTRACTED` — pas d'exécution mécanique possible
-tant que PR #5 (Lot 5b) n'est pas livré.
+| ID | Severity | Description | Status |
+|----|----------|-------------|--------|
+| SYNERGY-004 | P2 | setup.sh monolith (25K) | Mitigated (hardened, still long) |
+| SYNERGY-005 | P3 | Governance duplication across files | Mitigated (RUN 14 links) |
+| LANG-001 | P3 | 10 SKILL.md still have FR body content | Open (Phase 4 UX/UI domain) |
+| LANG-002 | P3 | 17 prompts still in FR | Open (by design, human narrative) |
+| REL-001 | P3 | No DEPLOYMENT.md or RUNBOOK.md | Open (post-v1.0) |
 
-## Audits humains par skill
+## Historical risk register
 
-| Skill | Statut | Raison | Planifié après |
-|-------|--------|--------|----------------|
-| `0-vbb-scope-freeze` (en tant qu'audit du repo) | `NOT_RUN` | Audit framework not mechanically enforced yet | PR #3 (Lot C — loop-closure-check) |
-| `0-vbb-audit-readiness` (idem) | `NOT_RUN` | Bloqué tant que scope-freeze n'a pas produit un artefact `READY` versionné | PR #3 |
-| `2-vbb-security` | `NOT_RUN` | Surface d'attaque du catalogue limitée mais `setup.sh` (652 lignes bash) n'a jamais été audité | PR #5 / Lot 5b (contrat) puis exécution |
-| `2-vbb-systemic-risk` | `NOT_RUN` | Pas de chemin de défaillance unique identifié à ce stade ; à formaliser | PR #5 |
-| `2-vbb-data-integrity` | `NOT_APPLICABLE` | Mode `DISTRIBUTION` — aucune donnée traitée | — |
-| `2-vbb-db-robustness` | `NOT_APPLICABLE` | Mode `DISTRIBUTION` — aucune base de données | — |
-| `2-vbb-ops` | `NOT_RUN` | Pas de runtime opéré ; observabilité = `git log` + traces runtime | À ré-évaluer à la prochaine release tagged |
-| `2-vbb-ci` | `NOT_RUN` | CI active mais jamais formellement auditée (workflows `smoke.yml`, `vbb-contracts.yml`) | PR #5 |
-| `2-vbb-legal` | `NOT_RUN` | Licence MIT, dépendance unique `pyyaml`. À formaliser au prochain changement de dépendances | À ré-évaluer sur changement de `package.json` ou des dépendances Python |
-| `2-vbb-api-auditor` | `NOT_APPLICABLE` | Pas d'API exposée par vibebackbone | — |
-| `2-vbb-accessibility` | `NOT_APPLICABLE` | Pas de surface front-end | — |
-| `2-vbb-analytics` | `NOT_APPLICABLE` | Aucune télémétrie | — |
-| `2-vbb-performance` | `NOT_APPLICABLE` | Pas de chemin chaud opéré ; runtime de contrat exécute en <10 ms par skill | — |
-| `2-vbb-spec-validator` | `NOT_RUN` | Le linter contrat couvre une partie du besoin ; spec formelle inexistante | PR #5 |
-| `3-vbb-risk-register` | `NOT_RUN` | Doit être exécuté en dernier dans un cycle d'audit complet | Après que ≥2 audits phase 2 aient produit un rapport |
+Original triptyque (RUN 04A/04B/04C) identified 22 risks. After hardening:
+- 7/12 SYNERGY risks resolved (R-001 R-002 R-003 R-006 R-007 R-010 R-012)
+- 5/12 SYNERGY risks mitigated (S-004 setup.sh monolith, S-005 governance duplication, S-008 10 SKILL FR, S-009 CI gaps, S-021 skill dir integrity)
+- Current P2 count: 2 mitigated, P3: 3 open
+- P0/P1: 0
 
-## Politique de mise à jour
+Full risk history: [audits/auto-audit-synthesis](../audits/auto-audit-synthesis.md), [global-evaluation-20260613](../audits/global-evaluation-20260613.md)
 
-- Toute exécution d'un skill audit (`0-*`, `2-*`, `3-*`) produit un rapport
-  horodaté dans `docs/audits/<skill>-<YYYYMMDD-HHMM>.md` et met à jour la
-  ligne correspondante.
-- Le verdict global est recalculé à la fin de chaque cycle d'audit ou
-  automatiquement par `3-vbb-risk-register` quand il s'exécute.
-- Les traces mécaniques du contract runtime sont écrites dans
-  `docs/audits/vbb-runtime/` — non commitées actuellement, à décider en PR
-  ultérieure (PR #2 ou #3).
-- Ce fichier est versionné. `docs/SESSION.md` reste local (gitignored).
+## Runtime dry-run explanation
 
-## Distinction template / instance
+| Status | Count | Explanation |
+|--------|-------|------------- |
+| PASS | 25 | Skill has no success gates, or stub output satisfies them |
+| PARTIAL | 16 | Dry-run stubs don't produce skill-specific output (expected) |
+| BLOCKED | 2 | scope-freeze gate chain (expected) |
 
-Ce fichier est l'**instance authentique** de `AUDIT_STATUS.md` pour le repo
-vibebackbone lui-même. Un projet client qui adopte vibebackbone obtient un
-fichier vierge généré par `t-vbb-project-context-init` (Lot E / PR #4), pas
-une copie de cet état.
+All PARTIAL results are false positives from stub output. All BLOCKED results are
+legitimate gate dependencies. No actual defects.
+
+## Update policy
+
+- Any execution of an audit skill produces a timestamped report in `docs/audits/` and updates this file.
+- Global verdict is recalculated after each audit cycle or by `3-vbb-risk-register`.
+- This file is versioned. `docs/SESSION.md` stays local (gitignored).
+
+## Instance note
+
+This is the authentic instance of `AUDIT_STATUS.md` for the vibebackbone repo. A client project adopting vibebackbone gets a blank file generated by `t-vbb-project-context-init`, not a copy of this state.

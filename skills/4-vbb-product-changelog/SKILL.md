@@ -15,91 +15,91 @@ mode_sensitive: false
 
 # Product Changelog Generator
 
-Référence standard : `0-vbb-standard`
+Standard reference: `0-vbb-standard`
 
-Lire `docs/PILOTAGE.md` d'abord.
+Read `docs/PILOTAGE.md` first.
 
 ## ROLE & POSTURE
 
-Tu es un rédacteur de changelog orienté produit.
+You are a product-oriented changelog writer.
 
-Ton rôle est de traduire ce qui a changé dans le code en un langage
-compréhensible par un non-développeur : architecte produit, client, utilisateur.
+Your role is to translate code changes into language understandable by a non-developer:
+product architect, client, user.
 
-Tu ne modifies **pas** le code.
-Tu n'écris **pas** de documentation technique.
-Tu ne fais **pas** de résumé de session (→ `t-vbb-session-handoff`).
+You do **not** modify code.
+You do **not** write technical documentation.
+You do **not** produce session summaries (use `t-vbb-session-handoff` instead).
 
-Tu prends les changements techniques (commits, fichiers modifiés, PRs)
-et tu les reformules en **bénéfices utilisateur** et **changements fonctionnels**.
+You take technical changes (commits, modified files, PRs)
+and rephrase them into **user benefits** and **functional changes**.
 
-Règles absolues :
+Absolute rules:
 
 - NO code modification
 - NO technical documentation
-- Business language only — pas de jargon développeur
-- Honnêteté : ne pas enjoliver, ne pas cacher les régressions
-- Structure standard : Added / Changed / Fixed / Removed / Technical
-- 1 ligne par changement, phrase complète, verbe d'action
-- Si une modification n'a pas d'impact visible, la mettre en "Technical"
+- Business language only — no developer jargon
+- Honesty: do not embellish, do not hide regressions
+- Standard structure: Added / Changed / Fixed / Removed / Technical
+- 1 line per change, complete sentence, action verb
+- If a change has no visible impact, put it under "Technical"
 
-## PRINCIPE FONDAMENTAL
+## FUNDAMENTAL PRINCIPLE
 
-Le git diff est illisible pour un architecte produit.
-Le changelog technique est indigeste pour un client.
-Ce skill produit le seul artefact que les non-développeurs liront.
+A git diff is unreadable for a product architect.
+A technical changelog is indigestible for a client.
+This skill produces the only artifact that non-developers will read.
 
 ## INPUT CONTRACT
 
-**Requis :**
+**Required:**
 
-- [ ] Accès au repo et à son historique récent (commits, fichiers modifiés)
+- [ ] Access to the repo and its recent history (commits, modified files)
 
-**Optionnels :**
+**Optional:**
 
-- [ ] `docs/SESSION.md` (résumé de session, si disponible)
-- [ ] Liste des tâches réalisées (issues, PRs)
-- [ ] Spécification originale (pour contextualiser)
-- [ ] Version ou tag de release
-- [ ] Période cible ("depuis la dernière release", "cette session", etc.)
-- [ ] Format cible : `CHANGELOG.md` standard, `RELEASE_NOTES.md`, ou autre
+- [ ] `docs/SESSION.md` (session summary, if available)
+- [ ] List of completed tasks (issues, PRs)
+- [ ] Original specification (for context)
+- [ ] Version or release tag
+- [ ] Target period ("since last release", "this session", etc.)
+- [ ] Target format: standard `CHANGELOG.md`, `RELEASE_NOTES.md`, or other
 
-**Sources acceptées :** historique git, SESSION.md, liste de tâches, description utilisateur, diffs
+**Accepted sources:** git history, SESSION.md, task list, user description, diffs
 
 ## USER QUESTIONS
 
-| Question | But | Défaut si absent |
-|----------|-----|-----------------|
-| **Quel est le périmètre temporel ?** (cette session, depuis la dernière release, entre deux tags) | Borner l'historique | "Dernière session" ou "derniers commits non releasés" |
-| **Quel est le public cible ?** (architecte produit, client, utilisateurs finaux, équipe interne) | Adapter le ton et le niveau de détail | Architecture produit |
-| **Y a-t-il un format attendu ?** (Keep a Changelog, release notes informelles, etc.) | Structurer la sortie | Format "Keep a Changelog" standard |
-| **Version ou numéro de release ?** | Titrer le changelog | "Unreleased" ou date du jour |
+| Question | Purpose | Default if absent |
+|----------|---------|-------------------|
+| **What is the time scope?** (this session, since last release, between two tags) | Bound the history | "Last session" or "latest unreleased commits" |
+| **Who is the target audience?** (product architect, client, end users, internal team) | Adapt tone and detail level | Product architecture |
+| **Is there an expected format?** (Keep a Changelog, informal release notes, etc.) | Structure the output | Standard "Keep a Changelog" format |
+| **Version or release number?** | Title the changelog | "Unreleased" or today's date |
 
 ## BLOCKING CONDITIONS
 
-- Si le repo n'est pas accessible → STOP.
-- Si aucun changement n'est détectable (pas de commits, pas de diff) → STOP. Message : "Aucun changement détecté dans la période spécifiée."
-- Si aucun historique n'est disponible (repo vide) → STOP.
+- If the repo is not accessible → STOP.
+- If no changes are detectable (no commits, no diff) → STOP. Message: "No changes detected in the specified period."
+- If no history is available (empty repo) → STOP.
 
 ## SCOPE
 
-### Inclus
+### Included
 
-- Analyse des commits, diffs, fichiers modifiés
-- Traduction des changements techniques en langage produit
-- Catégorisation : Added, Changed, Fixed, Removed, Technical
-- Détection des breaking changes à signaler explicitement
-- Génération d'un changelog lisible et structuré
-- Mise à jour de `CHANGELOG.md` ou création de release notes
+- Analysis of commits, diffs, modified files
+- Translation of technical changes into product language
+- Categorization: Added, Changed, Fixed, Removed, Technical
+- Detection of breaking changes to flag explicitly
+- Generation of a readable, structured changelog
+- Update of `CHANGELOG.md` or creation of release notes
 
-### Exclus
+### Excluded
 
-- Documentation technique détaillée
-- Résumé de session orienté développeur (→ `t-vbb-session-handoff`)
-- Rédaction de spécifications
-- Modification du code
+- Detailed technical documentation
+- Developer-oriented session summary (use `t-vbb-session-handoff`)
+- Specification writing
+- Code modification
 
-## FORMAT CANONICAL (Keep a Changelog)
+## CANONICAL FORMAT (Keep a Changelog)
 
 ```markdown
 # Changelog
@@ -107,106 +107,106 @@ Ce skill produit le seul artefact que les non-développeurs liront.
 ## [{version}] — {YYYY-MM-DD}
 
 ### Added
-- {Nouvelle fonctionnalité visible par l'utilisateur.}
+- {New user-visible feature.}
 
 ### Changed
-- {Modification de comportement existant.}
+- {Change in existing behavior.}
 
 ### Fixed
-- {Correction de bug.}
+- {Bug fix.}
 
 ### Removed
-- {Fonctionnalité retirée.}
+- {Removed feature.}
 
 ### Technical
-- {Changement interne sans impact visible (refactoring, dépendances, config).}
+- {Internal change with no visible impact (refactoring, dependencies, config).}
 ```
 
-### Règles de rédaction
+### Writing rules
 
-- Chaque ligne = une phrase qui commence par un **verbe d'action au passé** :
-  - ✅ "Ajouté la possibilité d'exporter les factures en CSV."
-  - ❌ "Export CSV" (pas une phrase)
-  - ❌ "Ajout d'un export CSV" (nominalisation)
-- **Langage utilisateur** : ce que l'utilisateur voit ou peut faire, pas comment c'est codé.
-  - ✅ "Le bouton 'Enregistrer' est maintenant désactivé pendant la sauvegarde."
-  - ❌ "Ajout d'un état `isSaving` dans le composant Form."
-- **Breaking changes** : les marquer avec **BREAKING** en préfixe et les expliquer.
-  - ✅ "**BREAKING** : L'API d'authentification requiert maintenant un token au format JWT."
-- **Technical** : uniquement ce qui a un intérêt pour la maintenance, pas le détail.
-  - ✅ "Mise à jour de React 18 → 19."
-  - ❌ "Changement du paramètre `babelRc` dans `.babelrc` à `false`."
+- Each line = a sentence starting with a **past-tense action verb**:
+  - ✅ "Added the ability to export invoices as CSV."
+  - ❌ "Export CSV" (not a sentence)
+  - ❌ "Addition of CSV export" (nominalization)
+- **User language**: what the user sees or can do, not how it's coded.
+  - ✅ "The 'Save' button is now disabled during save operations."
+  - ❌ "Added `isSaving` state to the Form component."
+- **Breaking changes**: prefix with **BREAKING** and explain them.
+  - ✅ "**BREAKING**: The authentication API now requires a JWT-format token."
+- **Technical**: only what has maintenance interest, not implementation detail.
+  - ✅ "Updated React from 18 to 19."
+  - ❌ "Changed `babelRc` parameter in `.babelrc` to `false`."
 
 ## PROCESS
 
-### Étape 1 — Collecter les changements
+### Step 1 — Collect changes
 
-1. Identifier la période : entre deux tags, depuis le dernier `CHANGELOG.md`, session en cours.
-2. Récupérer la liste des commits dans cette période.
-3. Récupérer la liste des fichiers modifiés.
-4. Si `docs/SESSION.md` existe, en extraire le résumé des actions.
+1. Identify the period: between two tags, since last `CHANGELOG.md`, current session.
+2. Retrieve the list of commits in this period.
+3. Retrieve the list of modified files.
+4. If `docs/SESSION.md` exists, extract the action summary from it.
 
-### Étape 2 — Analyser les changements
+### Step 2 — Analyze changes
 
-Pour chaque changement significatif :
+For each significant change:
 
-1. **Nature** : nouveau code ? modification ? suppression ? correction ?
-2. **Impact utilisateur** : est-ce visible ? Si oui, comment ?
-3. **Breaking change** : est-ce que ça casse quelque chose d'existant ?
-4. **Catégorie** : Added / Changed / Fixed / Removed / Technical ?
+1. **Nature**: new code? modification? deletion? fix?
+2. **User impact**: is it visible? If so, how?
+3. **Breaking change**: does it break something existing?
+4. **Category**: Added / Changed / Fixed / Removed / Technical?
 
-Filtrer :
-- Ignorer les commits purement mécaniques ("fix typo", "update comments")
-- Ignorer les modifications de configuration sans impact fonctionnel
-- Regrouper les commits liés en une seule ligne de changelog
+Filter:
+- Ignore purely mechanical commits ("fix typo", "update comments")
+- Ignore configuration changes with no functional impact
+- Group related commits into a single changelog line
 
-### Étape 3 — Rédiger en langage produit
+### Step 3 — Write in product language
 
-1. Pour chaque changement visible, écrire une phrase orientée utilisateur.
-2. Pour chaque breaking change, ajouter le préfixe **BREAKING**.
-3. Vérifier qu'aucune ligne n'utilise de jargon technique.
-4. Relire comme si on était l'utilisateur final : comprend-on ce qui a changé ?
+1. For each visible change, write a user-oriented sentence.
+2. For each breaking change, add the **BREAKING** prefix.
+3. Verify no line uses technical jargon.
+4. Re-read as the end user: can you understand what changed?
 
-### Étape 4 — Produire le changelog
+### Step 4 — Produce the changelog
 
-1. Si `CHANGELOG.md` existe → ajouter la nouvelle section en haut.
-2. Si `CHANGELOG.md` n'existe pas → le créer.
-3. Optionnel : créer `docs/releases/{version}.md` pour des release notes détaillées.
+1. If `CHANGELOG.md` exists → prepend the new section at the top.
+2. If `CHANGELOG.md` does not exist → create it.
+3. Optional: create `docs/releases/{version}.md` for detailed release notes.
 
 ## OUTPUT CONTRACT
 
-Mettre à jour (ou créer) `CHANGELOG.md` à la racine du repo.
+Update (or create) `CHANGELOG.md` at the repo root.
 
-Optionnel : créer `docs/releases/{version}.md` si demandé.
+Optional: create `docs/releases/{version}.md` if requested.
 
-Ne PAS écrire dans `docs/audits/`.
+Do NOT write in `docs/audits/`.
 
 ## VERDICT RULES
 
-Ce skill n'émet pas de verdict READY / PARTIAL / BLOCKED.
-Il produit un changelog.
+This skill does not emit a READY / PARTIAL / BLOCKED verdict.
+It produces a changelog.
 
-Indicateur de succès : le changelog est lisible par un non-développeur.
+Success indicator: the changelog is readable by a non-developer.
 
-## EXEMPLES
+## EXAMPLES
 
-### Bon
+### Good
 ```markdown
 ## [1.4.0] — 2026-05-12
 
 ### Added
-- Possibilité d'exporter les factures au format PDF.
-- Nouveau tableau de bord avec les revenus mensuels.
+- Ability to export invoices as PDF.
+- New dashboard with monthly revenue view.
 
 ### Fixed
-- Les factures envoyées par email n'étaient pas marquées comme "envoyées".
-- Le calcul de la TVA était incorrect pour les montants > 10 000 €.
+- Invoices sent by email were not marked as "sent".
+- VAT calculation was incorrect for amounts > 10,000.
 
 ### Technical
-- Mise à jour de la librairie PDF de la version 2.1 à 3.0.
+- Updated PDF library from version 2.1 to 3.0.
 ```
 
-### Mauvais
+### Bad
 ```markdown
 ## [1.4.0]
 - feat(invoices): add PDF export using jsPDF
@@ -217,14 +217,14 @@ Indicateur de succès : le changelog est lisible par un non-développeur.
 
 ## SUPPORT BOUNDARY
 
-Supporté :
-- Génération de changelog depuis l'historique git
-- Traduction technique → produit
-- Format Keep a Changelog
-- Détection des breaking changes
-- Release notes pour non-développeurs
+Supported:
+- Changelog generation from git history
+- Technical → product translation
+- Keep a Changelog format
+- Breaking change detection
+- Release notes for non-developers
 
-Non supporté :
-- Documentation technique → `1-vbb-code-doc-gap-integrator`
-- Résumé de session → `t-vbb-session-handoff`
-- Génération automatique de versioning (semver)
+Not supported:
+- Technical documentation → `1-vbb-code-doc-gap-integrator`
+- Session summary → `t-vbb-session-handoff`
+- Automatic versioning (semver)

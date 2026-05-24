@@ -1,6 +1,7 @@
 # GUIDE — Piloter vibebackbone au quotidien
 
 **Version** : 1.0 · **Date** : 2026-05-18 · **Public** : humains (devs, leads, PM)
+**Couche** : L3 — référence, pas chargé au boot. Charger via `tools/vbb-index.py search` ou skill `0-vbb-guide`.
 
 Ce guide est un compagnon **pédagogique** du `README.md`. Le README dit *ce qu'est* vibebackbone. Ce guide dit *comment l'utiliser pour de vrai*, avec des cas d'usages concrets, des dialogues réalistes avec un agent, et les pièges à éviter.
 
@@ -79,13 +80,13 @@ Une grammaire à **quatre composants**, qu'on injecte dans le contexte de l'agen
 └─────────────────────────────────────────────────────────┘
                           ↓
 ┌─────────────────────────────────────────────────────────┐
-│  31 PROMPTS                                             │
+│  32 PROMPTS                                             │
 │  7 canoniques (un par phase) + 24 spécialisés           │
 │  + 1 router Markdown pour choisir                       │
 └─────────────────────────────────────────────────────────┘
                           ↓
 ┌─────────────────────────────────────────────────────────┐
-│  57 SKILLS                                              │
+│  58 SKILLS                                              │
 │  Unités de capacité injectables, chacune avec un        │
 │  SKILL.md standardisé                                   │
 └─────────────────────────────────────────────────────────┘
@@ -112,14 +113,35 @@ Si vous ne devez retenir qu'une chose, c'est ça.
 
 ### 3.1 Les 4 voies — comment trier une tâche
 
-| Voie | Quand | Sessions | Exemples |
-|------|-------|----------|----------|
-| **RAPIDE** | Risque faible, action locale et réversible | 1 | Fix typo, renommer variable, ajuster un message |
-| **STRUCTURÉE** | Touche contrat de données, multi-fichiers, ou auth | 4–6 | Validation de formulaire avec cohérence DB |
-| **AUDIT** | Sécurité, intégrité données, conformité, risque systémique | 7–9 | Pré-déploiement, vérif RGPD, audit XSS |
-| **CLÔTURE** | Fin de session, pause longue, transmission | 1 | Handoff de fin de journée |
+| Voie | Quand | Sessions | Artefacts | Exemples |
+|------|-------|----------|-----------|----------|
+| **RAPIDE** | Risque faible, action locale et réversible | 1 | 01 + 05 + 07 | Fix typo, renommer variable, ajuster un message |
+| **STRUCTURÉE** | Touche contrat de données, multi-fichiers, ou auth | 4–6 | 01 + 04 + 05 + 07 | Validation de formulaire avec cohérence DB |
+| **AUDIT** | Sécurité, intégrité données, conformité, risque systémique | 7–9 | 01 + 02 + 03 + 07 | Pré-déploiement, vérif RGPD, audit XSS |
+| **CLÔTURE** | Fin de session, pause longue, transmission | 1 | 07 | Handoff de fin de journée |
 
-**Triage en 4 questions** (dans cet ordre) :
+#### Niveaux de la voie RAPIDE
+
+La voie RAPIDE dispose de 3 niveaux internes pour réduire la friction :
+
+| Niveau | Quand | Artefacts requis | Traçabilité |
+|--------|-------|------------------|-------------|
+| **RAPIDE-ZERO** | Micro-tâche sûre, ≤ 3 fichiers, zéro risque | Aucun `docs/runs/` | `docs/ACTIVITY_LOG.md` uniquement |
+| **RAPIDE-MINIMAL** | Petite tâche non triviale | `05_PATCH_SUMMARY` | Activity Log + patch summary |
+| **RAPIDE STANDARD** | Workflow RAPIDE classique | 01 + 05 + 07 | Cycle complet |
+
+**Conditions d'éligibilité RAPIDE-ZERO** (toutes doivent être vraies) :
+- Risque faible (aucun impact runtime)
+- Pas de sécurité impliquée
+- Pas de base de données impliquée
+- Pas de migration
+- Pas d'impact architecture
+- Pas de contrat impacté
+- Idéalement ≤ 3 fichiers modifiés
+
+Si une condition n'est pas remplie → **RAPIDE-MINIMAL** (si ≤ 5 fichiers) ou **RAPIDE STANDARD** / **STRUCTURÉE**.
+
+**Triage en 4 questions** (dans cet ouitre) :
 
 ```
 1. Touche données / auth / état prod ?       → STRUCTURÉE
@@ -165,7 +187,7 @@ prompts/
 │   ├── 02-p-vbb-audit.md
 │   ├── ...
 │   └── 07-p-vbb-closeout.md
-├── (racine)                          ← 24 prompts spécialisés
+├── (racine)                          ← 24 prompts spécialisés + 1 router
 │   ├── 0-p-vbb-triage.md
 │   ├── 1-p-vbb-quick-task.md
 │   ├── 2-p-vbb-security-pipeline.md
@@ -181,7 +203,7 @@ prompts/
 
 Détails : voir `PROMPTS_ARCHITECTURE.md`.
 
-### 3.4 Les 57 skills
+### 3.4 Les 62 skills
 
 Un **skill** est une unité de capacité réutilisable, packagée comme un dossier avec un `SKILL.md` standardisé. Exemples : `2-vbb-security`, `1-vbb-tech-debt`, `t-vbb-deploy-runtime`.
 
@@ -217,8 +239,8 @@ bash setup.sh
 
 | Couche | Cible | Quoi |
 |--------|-------|------|
-| **Skills** | `~/.agents/skills/vibebackbone` | Les 57 skills (lecture universelle) |
-| **Prompts** | `~/.agents/prompts/vibebackbone` | Les 24 prompts (symlink universel) |
+| **Skills** | `~/.agents/skills/vibebackbone` | Les 62 skills (lecture universelle) |
+| **Prompts** | `~/.agents/prompts/vibebackbone` | Les 24 prompts spécialisés + 1 router (symlink universel) |
 | **AGENTS.md** | Par provider | Grammaire opérationnelle |
 | **SYSTEM.md** | Par provider | Comportement runtime |
 
@@ -783,14 +805,14 @@ Si l'un de ces signaux manque, l'agent ne suit pas la grammaire — relancez ave
 
 ---
 
-### Q4 — "Pourquoi tant de prompts ? 31 c'est beaucoup."
+### Q4 — "Pourquoi tant de prompts ? 32 c'est beaucoup."
 
 C'est l'arbitrage hybride documenté dans `PROMPTS_ARCHITECTURE.md` :
 - **7 canoniques** suffisent pour 80 % des cas.
 - **24 spécialisés** existent pour les contextes précis (sécurité, DB, Docker…).
 - **1 router** vous aide à choisir.
 
-Vous n'avez **pas besoin de connaître les 31**. Vous utilisez le router en cas de doute.
+Vous n'avez **pas besoin de connaître les 32**. Vous utilisez le router en cas de doute.
 
 ---
 
@@ -923,7 +945,7 @@ REVIEW → EXECUTION      ✅ Obligatoire (si modifs)
 - **Lire le routeur central de contexte** → `docs/CONTEXT.md`
 - **Lire le protocole 7 phases formel** → `docs/AGENTIC_RUN_PROTOCOL.md`
 - **Voir les règles de session** → `docs/SESSION_RULES.md`
-- **Voir le catalogue des 57 skills** → `skills/0-vbb-guide/SKILL.md`
+- **Voir le catalogue des 62 skills** → `skills/0-vbb-guide/SKILL.md`
 - **Comprendre la mémoire et les handoffs** → `docs/MEMORY_AND_HANDOFF.md`
 
 ### Vous voulez contribuer

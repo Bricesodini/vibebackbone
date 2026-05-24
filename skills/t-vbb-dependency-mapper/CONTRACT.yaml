@@ -1,0 +1,71 @@
+id: t-vbb-dependency-mapper
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  optional:
+  - docs/ARCHITECTURE.md
+  - docs/RELATIONS.md
+  - package_manifest
+outputs:
+  required:
+  - status
+  - summary
+  - dependency_map
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact:
+    path_pattern: docs/ARCHITECTURE.md
+    must_exist_after_run: true
+    kind: phase_artifact
+    frontmatter_required: []
+  secondary_artifacts:
+  - path_pattern: docs/RELATIONS.md
+    must_exist_after_run: false
+    kind: phase_artifact
+    frontmatter_required: []
+gates:
+  before: []
+  success:
+  - id: architecture_updated
+    output_must_contain:
+    - ARCHITECTURE.md
+  after: []
+events:
+  on_success:
+  - skill: t-vbb-session-handoff
+    reason: Architecture mapped → record findings
+routing:
+  phase_scope:
+  - transverse
+  - phase_1
+  triggers:
+  - dependency map
+  - architecture
+  - relations
+  - dependency graph
+  - module dependencies
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: true
+  allowed_fields:
+  - dependency_count
+  - cycle_count

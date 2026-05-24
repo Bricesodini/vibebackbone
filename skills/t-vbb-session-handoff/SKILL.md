@@ -13,106 +13,106 @@ mode_sensitive: false
 
 # Session Handoff
 
-Référence standard : `0-vbb-standard`
+Standard reference: `0-vbb-standard`
 
-Lire `skills/vibebackbone/docs/PILOTAGE.md` d’abord.
+Read `skills/vibebackbone/docs/PILOTAGE.md` first.
 
 ## ROLE & POSTURE
 
-Tu es un secrétaire de session.
-Ton rôle est de rendre la reprise quasi immédiate.
+You are a session secretary.
+Your role is to make re-entry nearly immediate.
 
-Tu dois être :
+You must be:
 
-- factuel
+- factual
 - compact
-- actionnable
-- orienté prochaine étape
+- actionable
+- next-step oriented
 
-Tu ne produis PAS un récit.
-Tu ne reformules PAS inutilement.
-Tu privilégies la prochaine action concrète.
+You do NOT produce a narrative.
+You do NOT reformat unnecessarily.
+You prioritize the next concrete action.
 
 ## INPUT CONTRACT
 
-**Requis :**
+**Required:**
 
-- [ ] Conversation courante ou contexte de session
+- [ ] Current conversation or session context
 
-**Optionnels :**
+**Optional:**
 
 - [ ] `docs/SESSION.md`
 - [ ] `docs/CONTEXT.md`
 - [ ] `docs/AUDIT_STATUS.md`
-- [ ] historique git récent si visible
-- [ ] fichiers touchés ou sujets principaux
+- [ ] recent git history if visible
+- [ ] files touched or main topics
 
-**Sources acceptées :** conversation, docs/, git récent, description textuelle
+**Accepted sources:** conversation, docs/, recent git, text description
 
 ## BLOCKING CONDITIONS
 
-- Aucune. Si le contexte est minimal, écrire un `SESSION.md` minimal avec placeholders explicites.
+- None. If context is minimal, write a minimal `SESSION.md` with explicit placeholders.
 
 ## SCOPE
 
-### Inclus
+### Included
 
-- ce qui a été fait
-- décisions prises
-- questions ouvertes
-- fichiers/sujets touchés
-- prochaine étape explicite
-- mise à jour de `docs/SESSION.md`
+- what was done
+- decisions made
+- open questions
+- files/topics touched
+- explicit next step
+- update of `docs/SESSION.md`
 
-### Exclus
+### Excluded
 
-- récit détaillé de toute la session
-- ré-audit
-- réécriture complète de `docs/CONTEXT.md` sans raison
-- patch code
-- préparation du paquet de commit propre et du message de commit (→ `t-vbb-commit-ready`)
+- detailed narrative of the entire session
+- re-audit
+- complete rewrite of `docs/CONTEXT.md` without reason
+- code patches
+- clean commit package and commit message preparation (→ `t-vbb-commit-ready`)
 
 ## PROCESS
 
-1. Analyser la conversation courante.
-2. Lire, si disponible :
+1. Analyze the current conversation.
+2. Read, if available:
    - `docs/SESSION.md`
    - `docs/CONTEXT.md`
    - `docs/AUDIT_STATUS.md`
-   - git récent
-3. Identifier :
-   - actions réalisées
-   - décisions prises
-   - blocages / questions ouvertes
-   - fichiers ou zones concernés
-4. Déterminer la prochaine étape la plus concrète.
-5. Mettre à jour `docs/SESSION.md`.
-6. Si des faits projet nouveaux sont apparus, signaler qu’une mise à jour de `docs/CONTEXT.md` est recommandée.
+   - recent git
+3. Identify:
+   - actions completed
+   - decisions made
+   - blockers / open questions
+   - files or areas concerned
+4. Determine the most concrete next step.
+5. Update `docs/SESSION.md`.
+6. If new project facts emerged, signal that an update to `docs/CONTEXT.md` is recommended.
 
 ## OUTPUT CONTRACT
 
-### Artefact principal (phase artifact)
+### Primary artifact (phase artifact)
 
-- **Chemin** : `docs/runs/{run_id}/07_CLOSEOUT.md`
-- **Template** : [`docs/templates/07_CLOSEOUT.md.template`](../../docs/templates/07_CLOSEOUT.md.template)
-- **Kind** : `phase_artifact`
-- **Frontmatter requis** : `run_id`, `phase=07_CLOSEOUT`, `voie`, `status`, `agent`, `started_at`, `ended_at`, `artifacts_consumed`, `artifacts_produced`
+- **Path**: `docs/runs/{run_id}/07_CLOSEOUT.md`
+- **Template**: [`docs/templates/07_CLOSEOUT.md.template`](../../docs/templates/07_CLOSEOUT.md.template)
+- **Kind**: `phase_artifact`
+- **Required frontmatter**: `run_id`, `phase=07_CLOSEOUT`, `route`, `status`, `agent`, `started_at`, `ended_at`, `artifacts_consumed`, `artifacts_produced`
 
-Le closeout est la mémoire officielle versionnée de fin de run.
+The closeout is the versioned official memory of run completion.
 
-### Artefact secondaire
+### Secondary artifact
 
-- **Mémoire locale** (`kind: persistent_state_update`) : `docs/SESSION.md`
-  - gitignored par design (per-machine handoff state, voir [`docs/MEMORY_AND_HANDOFF.md`](../../docs/MEMORY_AND_HANDOFF.md))
-  - doit rester court : contexte courant, ce qui a été fait, décisions prises, questions ouvertes, fichiers / zones touchés, **prochaine étape explicite**
+- **Local memory** (`kind: persistent_state_update`): `docs/SESSION.md`
+  - gitignored by design (per-machine handoff state, see [`docs/MEMORY_AND_HANDOFF.md`](../../docs/MEMORY_AND_HANDOFF.md))
+  - must remain short: current context, what was done, decisions made, open questions, files / areas touched, **explicit next step**
 
 ## VERDICT RULES
 
 - `READY`
-  - handoff compact, lisible et actionnable
+  - compact, readable and actionable handoff
 - `PARTIAL`
-  - handoff produit mais certaines informations clés restent implicites
+  - handoff produced but some key information remains implicit
 - `BLOCKED`
-  - contexte trop fragmenté pour produire un handoff fiable
+  - context too fragmented to produce a reliable handoff
 - `UNKNOWN`
-  - utilisé seulement si les sources disponibles sont trop contradictoires pour conclure proprement
+  - used only if available sources are too contradictory to conclude properly

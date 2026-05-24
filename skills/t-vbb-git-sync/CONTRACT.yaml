@@ -1,0 +1,66 @@
+id: t-vbb-git-sync
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  optional:
+  - commit_message
+  - branch_name
+  - docs/SESSION.md
+outputs:
+  required:
+  - status
+  - summary
+  - git_state
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact: null
+gates:
+  before: []
+  success:
+  - id: push_completed
+    output_must_contain:
+    - push
+  after: []
+events:
+  on_fail:
+  - skill: t-vbb-session-handoff
+    reason: Sync failed → handoff for recovery
+  on_success:
+  - skill: t-vbb-session-handoff
+    reason: Sync succeeded → clean session
+routing:
+  phase_scope:
+  - transverse
+  - closeout
+  triggers:
+  - git sync
+  - git commit
+  - git push
+  - sync
+  - commit and push
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - branch
+  - commit_sha
+  - pushed

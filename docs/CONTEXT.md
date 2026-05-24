@@ -3,80 +3,56 @@ context_role: moc-central
 phase: transverse
 status: active
 run_id: permanent
-updated: 2026-05-23
+updated: 2026-06-13
 ---
 
-# CONTEXT.md — MOC / Routeur central persistant
+# CONTEXT.md — MOC / Persistent central router
 
-> Premier fichier à lire au démarrage. Carte du contexte projet, point d'entrée de reprise.
-> **Ce fichier pointe vers — il ne duplique pas.** Les liens localisés sont des pointeurs de fetch, pas une garantie de chargement automatique.
+> First file to read at startup. **This file points to — it does not duplicate.**
 
-## Identité du projet
+## Identity
 
-- **Nom** : vibebackbone
+- **Name** : vibebackbone
 - **Mode** : [DISTRIBUTION](PROJECT_MODE.md#mode)
-- **Vocation** : Catalogue de distribution de skills, prompts et gouvernance pour agents LLM
-- **Gouvernance** : [AGENTS.md](../AGENTS.md) · [SYSTEM.md](../SYSTEM.md) · [PILOTAGE.md](PILOTAGE.md)
+- **Purpose** : Distribution catalog of skills, prompts and governance for LLM agents
+- **Governance** : [AGENTS.md](../AGENTS.md) · [SYSTEM.md](../SYSTEM.md) · [PILOTAGE.md](PILOTAGE.md)
 
-## Contexte actif
+## Active context
 
-- **Voie** : RAPIDE — hygiène documentaire (Lot F+G)
-- **Run** : `2026-05-23_2100_hygiene-lot-f-g` — PR #6 en cours
-- **Phase** : 07 (CLOSEOUT) ✅ Complété
-- **Prochaine action** : merge `feat/artifact-loop-closure` → main
+- **Route** : STRUCTURED
+- **Phase** : v1.0 Hardening — complete
+- **Version** : 1.0.0-rc.1
+- **Contracts** : 62/62 (100%) — machine-facing EN-clean
+- **SKILL.md EN** : 52/62 body-clean (10 remaining: Phase 4 UX/UI + spec-validator)
+- **Tests** : 69/69 pytest green, CI 7/7 PASS, 0 warnings
+- **Token economy** : L0 boot ~2.5K tokens (87% reduction from 19K)
+- **Next action** : Tag v1.0.0 (awaiting explicit instruction)
 
-## Runs récents
+## Risks / audits
 
-| Date | Run | Statut | Lien |
-|------|-----|--------|------|
-| 2026-05-23 | hygiene-lot-f-g | ✅ Complet | [closeout](runs/2026-05-23_2100_hygiene-lot-f-g/07_CLOSEOUT.md) |
-| 2026-05-23 | phase2-contracts-lot-5b | ✅ Complet | [closeout](runs/2026-05-23_2000_phase2-contracts-lot-5b/07_CLOSEOUT.md) |
-| 2026-05-23 | bootstrap-project-client-lot-e | ✅ Complet | [closeout](runs/2026-05-23_1900_bootstrap-project-client-lot-e/07_CLOSEOUT.md) |
-| 2026-05-23 | artifact-verify-lot-c | ✅ Complet | [closeout](runs/2026-05-23_1800_artifact-verify-lot-c/07_CLOSEOUT.md) |
-| 2026-05-23 | contracts-artifact-schema-lot-b-d | ✅ Complet | [closeout](runs/2026-05-23_1700_contracts-artifact-schema-lot-b-d/07_CLOSEOUT.md) |
-| 2026-05-23 | artifact-infra-lot-a | ✅ Complet | [closeout](runs/2026-05-23_1600_artifact-infra-lot-a/07_CLOSEOUT.md) |
-| 2026-05-19 | moc-context-strategy | ✅ Complet | [closeout](runs/2026-05-19_1000_moc-context-strategy/07_CLOSEOUT.md) |
+- **Global verdict** : 🟡 PARTIAL → [AUDIT_STATUS.md](AUDIT_STATUS.md)
+- **P0/P1** : 0 · **P2** : 2 (mitigated) · Detail: [AUDIT_STATUS.md](AUDIT_STATUS.md#risques-identifiés--status)
 
-## Décisions actives
+## Structural artifacts
 
-| Décision | Verdict | Lien |
-|----------|---------|------|
-| CONTEXT.md comme MOC central | GO (condition levée) | [03](runs/2026-05-19_1000_moc-context-strategy/03_DECISION_RECORD.md) |
-
-## Risques / audits
-
-- **Verdict global** : 🟢 PRODUCTION-READY + OPENCODE-READY → [AUDIT_STATUS.md](AUDIT_STATUS.md)
-- **Risques P0/P1** : 0
-- **Risques P2** : 2 (mitigés) → détail dans [Risques Identifiés](AUDIT_STATUS.md#risques-identifiés--status)
-
-## Artefacts structurants
-
-| Rép | Contenu |
+| Dir | Content |
 |-----|---------|
-| `docs/` | Gouvernance, runs, audits → [INDEX.md](INDEX.md) |
-| `skills/` | 58 skills · 22 CONTRACT.yaml indexés → [skills/](../skills/) |
-| `prompts/` | 24 prompts de session → [prompts/](../prompts/) |
+| `docs/` | Governance, runs, audits → [INDEX.md](INDEX.md) |
+| `skills/` | 62 skills · 62 contracts (100%) → [skills/](../skills/) |
+| `prompts/` | 32 prompts (7 canonical + 24 specialized + 1 router) → [prompts/](../prompts/) |
 
-## Points ouverts
+## Open points
 
-1. 🟡 Runs sans closeout formel (reformat-agentic-protocol, run05-test-cases) — *moyenne*
-2. ⬜ DEPLOYMENT.md, RUNBOOK.md, TROUBLESHOOTING.md (post-v1.0) — *basse*
-3. ⬜ Harmonisation lexicale « persistant » vs « persistant et versionné » — *basse*
-4. ⬜ Section `## Mise à jour de CONTEXT.md` promotion P0 après usage — *basse*
+1. 🟡 10 SKILL.md files with FR body (Phase 4 + spec-validator) — *low*
+2. ⬜ DEPLOYMENT.md, RUNBOOK.md (post-v1.0) — *low*
+3. ⬜ EN README/GUIDE for international adoption — *medium*
 
-## Convention de liens localisés
+## Quick search
 
-1. Liens Markdown relatifs uniquement : `[label](path.md#anchor)`
-2. Ancres vers sections stables quand possible
-3. Pas de dépendance exclusive aux liens Obsidian `[[…]]`
-4. Liens = pointeurs de fetch, pas garantie de chargement automatique
-5. Pas de lien vers un fichier absent
-6. Mise à jour corrélative si une section stable change de nom
+- `python tools/vbb-index.py search "query"` — text index
+- `python tools/vbb-status-dashboard.py` — repo state
+- `python tools/vbb-context-compactor.py docs/runs/<id>` — run summary
 
-## Historique des modifications
+## Run history
 
-| Date | Section | Changement |
-|------|---------|------------|
-| 2026-05-19 | Runs récents · Décisions actives · Points ouverts · Contexte actif | RUN 06 : clôture cycle — CONDITIONAL_GO levé, statut final |
-| 2026-05-19 | Runs récents · Décisions actives · Contexte actif · Points ouverts | RUN 04 : restructuration tables + prochaine action + priorités |
-| 2026-05-19 | Création | Création initiale du MOC central |
+Latest closed runs: 2026-06-13 (hardening ×4, global evaluation), 2026-06-12 (token-refactor ×3, canonical-en), 2026-06-11 (5 contractualisation/setup), 2026-06-10 (6 audit/ci/lot0). Closeouts: `docs/runs/*/07_CLOSEOUT.md`

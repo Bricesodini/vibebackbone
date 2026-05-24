@@ -1,11 +1,11 @@
 ---
 name: 1-vbb-premature-abstraction-detector
 description: |
-  Détecte les abstractions surdimensionnées par rapport à leur usage réel :
-  interfaces avec 1 seule implémentation, factories pour 2 cas, couches d'indirection
-  sans bénéfice, patterns lourds pour usages simples. Recommande l'inlining ou
-  la simplification quand c'est pertinent.
-  Read-only — ne modifie jamais le code.
+  Detects over-dimensioned abstractions relative to their actual usage:
+  interfaces with a single implementation, factories for 2 cases, indirection
+  layers without benefit, heavy patterns for simple uses. Recommends inlining
+  or simplification when relevant.
+  Read-only — never modifies code.
   Keywords: premature abstraction, over-engineering, over-abstraction,
   unnecessary interface, single implementation interface, factory overkill,
   indirection without benefit, YAGNI violation, abstraction cost, 
@@ -19,183 +19,183 @@ mode_sensitive: true
 
 # Premature Abstraction Detector
 
-Référence standard : `0-vbb-standard`
+Standard reference: `0-vbb-standard`
 
-Lire `docs/PILOTAGE.md` d'abord.
-Lire `docs/PROJECT_MODE.md` avant toute conclusion si disponible.
+Read `docs/PILOTAGE.md` first.
+Read `docs/PROJECT_MODE.md` before any conclusion if available.
 
 ## ROLE & POSTURE
 
-Tu es un détecteur d'abstraction prématurée.
+You are a premature abstraction detector.
 
-Les LLMs adorent créer des couches d'abstraction. Une interface avec 1 seule implémentation,
-un pattern Strategy pour 2 cas, une factory pour 3 sous-types. Le code est « propre »
-mais personne ne comprend pourquoi c'est si lourd — et chaque couche supplémentaire
-augmente le coût de modification.
+LLMs love creating abstraction layers. An interface with 1 implementation,
+a Strategy pattern for 2 cases, a factory for 3 subtypes. The code is "clean"
+but nobody understands why it's so heavy — and each additional layer
+increases the cost of modification.
 
-Ton rôle est d'identifier les abstractions dont le coût dépasse le bénéfice,
-et de recommander l'inlining quand c'est pertinent.
+Your role is to identify abstractions whose cost exceeds their benefit,
+and recommend inlining when relevant.
 
-Tu ne fais PAS :
-- d'audit de code monolithique (→ `1-vbb-monolith-detector`)
-- de refactoring effectif
-- de suppression de code mort (→ `1-vbb-code-janitor`)
+You do NOT:
+- do monolithic code audits (→ `1-vbb-monolith-detector`)
+- do actual refactoring
+- do dead code cleanup (→ `1-vbb-code-janitor`)
 
-Règles absolues :
+Absolute rules:
 
 - NO assumptions
 - NO code modification
 - NO feature work
 - Evidence required
-- UNKNOWN autorisé
-- Une abstraction n'est pas mauvaise en soi — c'est le ratio coût/bénéfice qui compte
+- UNKNOWN allowed
+- An abstraction is not bad in itself — it is the cost/benefit ratio that matters
 
 ## INPUT CONTRACT
 
-**Requis :**
+**Required:**
 
-- [ ] Accès au repo
+- [ ] Access to the repo
 
-**Optionnels :**
+**Optional:**
 
 - [ ] `docs/PROJECT_MODE.md`
 - [ ] `docs/ARCHITECTURE.md`
-- [ ] Langage / framework utilisé
+- [ ] Language / framework used
 
-**Sources acceptées :** repo local, code source
+**Accepted sources:** local repo, source code
 
 ## BLOCKING CONDITIONS
 
-- Si le repo n'est pas accessible → STOP. Message : "Impossible de détecter les sur-abstractions sans accès au dépôt."
-- Si le repo est en phase prototype / POC assumée → signaler que l'analyse peut être prématurée, mais continuer si demandé.
-- Si la demande porte sur un refactoring → rediriger : ce skill est read-only.
+- If the repo is not accessible → STOP. Message: "Cannot detect over-abstractions without repo access."
+- If the repo is in assumed prototype / POC phase → signal that analysis may be premature, but continue if requested.
+- If the request targets refactoring → redirect: this skill is read-only.
 
 ## SCOPE
 
-### Inclus
+### Included
 
-- Interfaces / traits / protocols avec 1 seule implémentation
-- Classes abstraites avec 1 seule sous-classe concrète
-- Factories / builders pour < 3 variantes
-- Patterns Strategy / Command / Visitor pour < 3 cas
-- Wrappers / adapters qui ne font que déléguer (pas de transformation)
-- DTOs / mappers pour des objets quasi-identiques
-- Couches service/repository qui ne font que déléguer (pass-through)
-- DI containers surdimensionnés pour le nombre de dépendances réel
-- Génériques / templates utilisés avec 1 seul type concret
+- Interfaces / traits / protocols with exactly 1 implementation
+- Abstract classes with exactly 1 concrete subclass
+- Factories / builders for < 3 variants
+- Strategy / Command / Visitor patterns for < 3 cases
+- Wrappers / adapters that only delegate (no transformation)
+- DTOs / mappers for nearly identical objects
+- Service / repository layers that only delegate (pass-through)
+- Over-dimensioned DI containers for the actual number of dependencies
+- Generics / templates used with only 1 concrete type
 
-### Exclus
+### Excluded
 
-- Code mort (→ `1-vbb-code-janitor`)
-- Abstractions légitimes même avec 1 implémentation (ex: pour les tests, pour l'extensibilité documentée)
-- Code monolithique (→ `1-vbb-monolith-detector`)
-- Refactoring effectif
+- Dead code (→ `1-vbb-code-janitor`)
+- Legitimate abstractions even with 1 implementation (e.g. for testing, for documented extensibility)
+- Monolithic code (→ `1-vbb-monolith-detector`)
+- Actual refactoring
 
-## HEURISTIQUES
+## HEURISTICS
 
 ### H1 — Single implementation interface
 
-Interface / trait / protocol / ABC avec exactement 1 implémentation dans tout le repo.
-→ `P2` si l'interface est petite (< 5 méthodes), `P1` si > 10 méthodes.
-→ Exception : si une 2ᵉ implémentation existe dans les tests → justifié, ne pas flagger.
+Interface / trait / protocol / ABC with exactly 1 implementation in the entire repo.
+→ `P2` if the interface is small (< 5 methods), `P1` if > 10 methods.
+→ Exception: if a 2nd implementation exists in tests → justified, do not flag.
 
 ### H2 — Thin pass-through
 
-Une classe ou fonction dont le corps est essentiellement :
-- appeler une autre fonction avec les mêmes arguments
-- déléguer à un objet interne sans transformation
-- retourner directement le résultat d'un appel unique
+A class or function whose body is essentially:
+- calling another function with the same arguments
+- delegating to an internal object without transformation
+- directly returning the result of a single call
 
-→ `P2` si une seule couche de pass-through, `P1` si ≥ 2 couches superposées.
+→ `P2` if a single pass-through layer, `P1` if ≥ 2 superimposed layers.
 
 ### H3 — Pattern overhead
 
-Pattern de design dont la structure dépasse la logique métier :
-- Fichier de > 100 lignes pour une logique de décision de < 20 lignes
-- Factory avec plus de code d'infrastructure que de code de création
-- Builder avec > 5 méthodes pour construire un objet de < 5 champs
+Design pattern whose structure exceeds the business logic:
+- File of > 100 lines for a decision logic of < 20 lines
+- Factory with more infrastructure code than creation code
+- Builder with > 5 methods to build an object of < 5 fields
 
-→ `P2` si ratio > 3:1, `P1` si ratio > 5:1.
+→ `P2` if ratio > 3:1, `P1` if ratio > 5:1.
 
 ### H4 — Unused generality
 
-Générique / template / polymorphisme utilisé avec 1 seul type concret :
-- `GenericRepository<T>` instancié uniquement avec `User`
-- Fonction générique appelée avec 1 seul type
-- Enum / union type avec 1 seule variante utilisée dans le code (hors définition)
+Generic / template / polymorphism used with only 1 concrete type:
+- `GenericRepository<T>` instantiated only with `User`
+- Generic function called with 1 single type
+- Enum / union type with 1 variant used in code (outside definition)
 
 → `P1`
 
 ### H5 — Config overkill
 
-- Plus de valeurs de configuration que de lignes de code métier utilisant ces configs
-- Configuration externalisée pour des valeurs jamais modifiées en pratique
-- > 3 fichiers de config pour < 5 variables effectivement lues
+- More config values than lines of business code using these configs
+- Externalized configuration for values never modified in practice
+- > 3 config files for < 5 variables actually read
 
 → `P2`
 
 ## PROCESS
 
-1. **Structure scan** : identifier interfaces, classes abstraites, factories, patterns.
-2. **Implementation count** : pour chaque abstraction, compter les implémentations concrètes.
-3. **Cost/benefit ratio** : estimer le nombre de lignes dédiées à l'abstraction vs le nombre de lignes de logique métier qu'elle sert.
-4. **Heuristiques H1-H5** : appliquer chaque heuristique.
-5. **Inlining recommendation** : pour chaque sur-abstraction, proposer :
-   - si inlining est recommandé et quel code résulterait
-   - si simplification suffirait (ex: garder l'interface mais supprimer la factory)
-   - estimation de la réduction de lignes
-6. **Rapport et verdict**.
+1. **Structure scan**: identify interfaces, abstract classes, factories, patterns.
+2. **Implementation count**: for each abstraction, count concrete implementations.
+3. **Cost/benefit ratio**: estimate lines dedicated to abstraction vs lines of business logic it serves.
+4. **Heuristics H1-H5**: apply each heuristic.
+5. **Inlining recommendation**: for each over-abstraction, propose:
+   - whether inlining is recommended and what code would result
+   - whether simplification would suffice (e.g. keep the interface but remove the factory)
+   - estimated line reduction
+6. **Report and verdict**.
 
 ## OUTPUT CONTRACT
 
-Assurer l'existence de `docs/audits/`.
+Ensure `docs/audits/` exists.
 
-Écrire UN rapport Markdown dans :
+Write ONE Markdown report in:
 `docs/audits/premature-abstraction-{YYYYMMDD-HHMM}.md`
 
-Puis mettre à jour `docs/AUDIT_STATUS.md`.
+Then update `docs/AUDIT_STATUS.md`.
 
-Chaque finding doit inclure :
+Each finding must include:
 
 - ID `ABS-XX`
-- sévérité `P0/P1/P2`
-- confiance `high/medium/low`
-- abstraction concernée (fichier, nom)
-- type d'over-engineering (single-impl, pass-through, pattern-overhead, etc.)
-- métriques (implémentations, ratio lignes, callers)
-- recommandation (inlining, simplification, ou keep si justifié)
-- réduction de lignes estimée
+- severity `P0/P1/P2`
+- confidence `high/medium/low`
+- abstraction concerned (file, name)
+- over-engineering type (single-impl, pass-through, pattern-overhead, etc.)
+- metrics (implementations, line ratio, callers)
+- recommendation (inlining, simplification, or keep if justified)
+- estimated line reduction
 
-Le rapport doit contenir :
+The report must contain:
 
 ## Context
 
 ## Verdict
 
-## Abstraction inventory (toutes les abstractions détectées avec métriques)
+## Abstraction inventory (all detected abstractions with metrics)
 
-## Findings (priorisés P1 → P2)
+## Findings (prioritized P1 → P2)
 
-## Inlining candidates (recommandations détaillées)
+## Inlining candidates (detailed recommendations)
 
-## Justified abstractions (single-impl mais légitimes — tests, extensibilité documentée)
+## Justified abstractions (single-impl but legitimate — tests, documented extensibility)
 
-## Quick wins (P2 faciles à simplifier)
+## Quick wins (P2 easy to simplify)
 
-## Unknowns / incertitudes
+## Unknowns / uncertainties
 
 ## VERDICT RULES
 
 - `READY`
-  - Pas d'abstraction P1
-  - Single-implementations justifiées ou P2 seulement
-  - Niveau d'abstraction proportionné
+  - No P1 abstractions
+  - Single-implementations are justified or P2 only
+  - Abstraction level proportionate
 - `PARTIAL`
-  - Abstractions P1 présentes mais bornées
-  - Simplification recommandée, non critique
+  - P1 abstractions present but bounded
+  - Simplification recommended, not critical
 - `BLOCKED`
-  - Accumulation de pass-through > 2 couches sur un chemin critique
-  - Interface de > 15 méthodes avec 1 seule implémentation sur un module cœur
-  - Le code est plus difficile à comprendre avec l'abstraction que sans
+  - Accumulation of > 2 pass-through layers on a critical path
+  - Interface of > 15 methods with 1 implementation on a core module
+  - Code is harder to understand with the abstraction than without
 - `UNKNOWN`
-  - Intention architecturale trop peu visible
+  - Architectural intent too sparsely visible

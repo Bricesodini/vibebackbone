@@ -1,0 +1,87 @@
+id: 4-vbb-design-system-validator
+version: "0.3"
+type: prompt_skill
+formalization_level: declarative
+
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+
+compatibility:
+  runtime_required: false
+  agents:
+    - claude-code
+    - codex
+    - pi
+    - opencode
+
+inputs:
+  required:
+    - repo_access
+  optional:
+    - design_token_map
+    - component_inventory
+    - mode_preference
+
+outputs:
+  required:
+    - status
+    - summary
+    - validation_report
+    - token_coverage
+    - next_action
+  statuses:
+    - PASS
+    - PARTIAL
+    - FAIL
+    - BLOCKED
+  artifact: null
+
+gates:
+  before:
+    - id: passes_1_2_3_complete
+      expected_status: PASS
+      blocking: true
+      reason: "Design system validation requires completed UX, interaction, and cognitive load passes"
+  success:
+    - id: design_system_validated
+      output_must_contain:
+        - validation_report
+        - token_coverage
+  after:
+    - id: next_pass_ready
+      skill: t-vbb-session-handoff
+      reason: "Pass 4 complete (hard gate passed) → handoff for visual identity layer (pass 5/7)"
+
+events:
+  on_blocked:
+    - skill: t-vbb-session-handoff
+      reason: "Design system not ready → handoff to resolve issues before visual work"
+  on_partial:
+    - skill: t-vbb-session-handoff
+      reason: "Partial design system validation → handoff for remediation"
+  on_success:
+    - skill: t-vbb-session-handoff
+      reason: "Design system validated → record handoff"
+
+routing:
+  phase_scope:
+    - phase_4
+  triggers:
+    - design system validation
+    - design token coverage
+    - inline style risk
+    - component reuse
+    - hard gate
+    - front pipeline pass 4
+
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+
+state_policy:
+  persistent: false
+  allowed_fields:
+    - token_coverage_pct
+    - inline_style_count
+    - reuse_pct

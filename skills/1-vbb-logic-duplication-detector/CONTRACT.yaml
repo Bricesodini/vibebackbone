@@ -1,0 +1,84 @@
+id: 1-vbb-logic-duplication-detector
+version: "0.3"
+type: prompt_skill
+formalization_level: declarative
+
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+
+compatibility:
+  runtime_required: false
+  agents:
+    - claude-code
+    - codex
+    - pi
+    - opencode
+
+inputs:
+  required:
+    - repo_access
+  optional:
+    - docs/PROJECT_MODE.md
+    - scope_filter
+    - domain_filter
+
+outputs:
+  required:
+    - status
+    - summary
+    - findings
+    - duplication_map
+    - next_action
+  statuses:
+    - PASS
+    - PARTIAL
+    - FAIL
+    - BLOCKED
+  artifact:
+    path_pattern: "docs/audits/logic-duplication-{date}-*.md"
+    must_exist_after_run: false
+    kind: audit_report
+
+gates:
+  before:
+    - id: repo_accessible
+      expected_status: PASS
+      blocking: true
+      reason: "Cannot detect duplication without repo access"
+  success:
+    - id: duplication_reported
+      output_must_contain:
+        - findings
+        - duplication_map
+  after: []
+
+events:
+  on_partial:
+    - skill: 1-vbb-tech-debt
+      reason: "Semantic duplication found → register as tech debt"
+  on_success:
+    - skill: t-vbb-session-handoff
+      reason: "Duplication audit complete → record handoff"
+
+routing:
+  phase_scope:
+    - phase_1
+  triggers:
+    - logic duplication
+    - semantic duplication
+    - duplicated intent
+    - DRY violation
+    - duplicated calculations
+    - duplicated validation
+    - business logic duplication
+
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+
+state_policy:
+  persistent: false
+  allowed_fields:
+    - duplication_count
+    - severity_distribution

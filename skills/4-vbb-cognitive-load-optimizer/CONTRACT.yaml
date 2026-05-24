@@ -1,0 +1,78 @@
+id: 4-vbb-cognitive-load-optimizer
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  - simplified_flow
+  optional:
+  - information_hierarchy
+  - density_metrics
+outputs:
+  required:
+  - status
+  - summary
+  - optimization_report
+  - load_reduction_map
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact: null
+gates:
+  before:
+  - id: simplified_flow_exists
+    expected_status: PASS
+    blocking: true
+    reason: Cannot optimize cognitive load without validated flow from passes 1-2
+  success:
+  - id: load_optimized
+    output_must_contain:
+    - optimization_report
+    - load_reduction_map
+  after:
+  - id: next_pass_ready
+    skill: t-vbb-session-handoff
+    reason: Pass 3 complete → handoff for design system validator (pass 4/7)
+events:
+  on_blocked:
+  - skill: t-vbb-session-handoff
+    reason: 'Missing simplified flow → handoff: run interaction coherence (pass 2)
+      first'
+  on_partial:
+  - skill: t-vbb-session-handoff
+    reason: Partial load optimization → handoff for continuation
+  on_success:
+  - skill: t-vbb-session-handoff
+    reason: Cognitive load optimization complete → record handoff
+routing:
+  phase_scope:
+  - phase_4
+  triggers:
+  - cognitive load
+  - information hierarchy
+  - grouping optimization
+  - density optimization
+  - terminology clarity
+  - front pipeline pass 3
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - optimization_count
+  - density_score

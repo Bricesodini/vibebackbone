@@ -130,8 +130,9 @@ Si des points ouverts ou des risques existent :
 - Ajouter des notes dans `docs/AUDIT_STATUS.md` sur les risques restants
 
 **Comportement pour les tâches RAPIDES** :
-- Si un `07_CLOSEOUT.md` formel est produit → `docs/CONTEXT.md` doit être mis à jour (même règle)
-- Si la tâche RAPIDE ne produit pas de closeout formel → ne pas créer d'entrée lourde dans CONTEXT.md ; une mise à jour légère reste possible à la discrétion de l'agent
+- **RAPIDE-ZERO** : aucun `07_CLOSEOUT.md` requis. Inscrire dans `docs/ACTIVITY_LOG.md` uniquement.
+- **RAPIDE-MINIMAL** : aucun `07_CLOSEOUT.md` requis. Inscrire dans `docs/ACTIVITY_LOG.md` + `05_PATCH_SUMMARY.md`.
+- **RAPIDE STANDARD** : si un `07_CLOSEOUT.md` formel est produit → `docs/CONTEXT.md` doit être mis à jour (même règle). Si pas de closeout formel → mise à jour légère discrétionnaire.
 
 ### Étape 7 — Produire l'artefact
 
@@ -155,7 +156,7 @@ Créer le fichier `07_CLOSEOUT.md` dans `docs/runs/`.
 
 **Date** : YYYY-MM-DD HH:mm
 **Session** : [Slug de la session]
-**Voie** : RAPIDE | STRUCTURÉE | AUDIT | CLÔTURE
+**Voie** : RAPIDE-ZERO | RAPIDE-MINIMAL | RAPIDE | STRUCTURÉE | AUDIT | CLÔTURE
 
 ## Statut global
 

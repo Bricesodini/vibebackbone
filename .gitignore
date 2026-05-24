@@ -16,3 +16,4 @@ docs/audits/vbb-runtime/
 
 # OS files
 **/.DS_Store
+.vbb/

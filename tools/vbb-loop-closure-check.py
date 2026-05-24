@@ -13,10 +13,12 @@ Exit codes:
     1  FAIL  — one or more required artifacts missing or invalid
 
 Invariant (from docs/runs/README.md):
-    Voie RAPIDE     → 01_INTAKE + 05_EXECUTION + 07_CLOSEOUT
-    Voie STRUCTUREE → 01_INTAKE + 04_PLAN + 05_EXECUTION + 07_CLOSEOUT
-    Voie AUDIT      → 01_INTAKE + 02_AUDIT + 03_DECISION + 07_CLOSEOUT
-    Voie CLOTURE    → 07_CLOSEOUT only (special case, no 01_INTAKE required)
+    Voie RAPIDE-ZERO   → no docs/runs/ required (Activity Log only)
+    Voie RAPIDE-MINIMAL → 05_PATCH_SUMMARY only (Activity Log required)
+    Voie RAPIDE        → 01_INTAKE + 05_EXECUTION + 07_CLOSEOUT
+    Voie STRUCTUREE    → 01_INTAKE + 04_PLAN + 05_EXECUTION + 07_CLOSEOUT
+    Voie AUDIT         → 01_INTAKE + 02_AUDIT + 03_DECISION + 07_CLOSEOUT
+    Voie CLOTURE       → 07_CLOSEOUT only (special case, no 01_INTAKE required)
 """
 
 import sys
@@ -31,10 +33,12 @@ RUNS_DIR = REPO_ROOT / "docs" / "runs"
 
 # Voie → required phase file stems (matches filenames in docs/runs/{slug}/)
 VOIE_REQUIRED_PHASES: Dict[str, List[str]] = {
-    "RAPIDE":     ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"],
-    "STRUCTUREE": ["01_INTAKE", "04_PLAN", "05_EXECUTION", "07_CLOSEOUT"],
-    "AUDIT":      ["01_INTAKE", "02_AUDIT", "03_DECISION", "07_CLOSEOUT"],
-    "CLOTURE":    ["07_CLOSEOUT"],
+    "RAPIDE-ZERO":   [],                                    # Activity Log only
+    "RAPIDE-MINIMAL": ["05_PATCH_SUMMARY"],                 # Activity Log + patch summary
+    "RAPIDE":        ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"],
+    "STRUCTUREE":    ["01_INTAKE", "04_PLAN", "05_EXECUTION", "07_CLOSEOUT"],
+    "AUDIT":         ["01_INTAKE", "02_AUDIT", "03_DECISION", "07_CLOSEOUT"],
+    "CLOTURE":       ["07_CLOSEOUT"],
 }
 
 # Minimum frontmatter fields required in every phase artifact
@@ -145,6 +149,7 @@ def check_run(run_id: str, runs_dir: Optional[Path] = None) -> Tuple[bool, List[
     # Step 2 — determine voie
     intake_path = run_dir / "01_INTAKE.md"
     closeout_path = run_dir / "07_CLOSEOUT.md"
+    patch_path = run_dir / "05_PATCH_SUMMARY.md"
     voie: Optional[str] = None
 
     if intake_path.exists():
@@ -168,18 +173,24 @@ def check_run(run_id: str, runs_dir: Optional[Path] = None) -> Tuple[bool, List[
             else:
                 voie = candidate
     else:
-        # No 01_INTAKE — only CLOTURE is valid without it.
-        # Try to infer from 07_CLOSEOUT.
+        # No 01_INTAKE — try to infer voie from other artifacts.
+        # Priority: closeout → patch summary → default error
         if closeout_path.exists():
             fm, _ = read_frontmatter(closeout_path)
             if fm:
                 inferred = str(fm.get("voie", "")).strip().upper()
-                if inferred == "CLOTURE":
-                    voie = "CLOTURE"
+                if inferred in ("CLOTURE", "RAPIDE-ZERO", "RAPIDE-MINIMAL"):
+                    voie = inferred
+        if voie is None and patch_path.exists():
+            fm, _ = read_frontmatter(patch_path)
+            if fm:
+                inferred = str(fm.get("voie", "")).strip().upper()
+                if inferred == "RAPIDE-MINIMAL":
+                    voie = "RAPIDE-MINIMAL"
         if voie is None:
             errors.append(
                 "01_INTAKE.md: not found "
-                "(required for all non-CLOTURE runs)"
+                "(required for all non-CLOTURE/RAPIDE-ZERO/RAPIDE-MINIMAL runs)"
             )
 
     # Step 3 — required phases

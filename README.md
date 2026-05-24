@@ -1,7 +1,7 @@
 <p align="center">
   <img src="assets/vibebackbone_logo.svg" alt="Vibebackbone" width="480"/>
   <br/>
-  <strong style="font-size: 1.4em;">57 skills · 31 prompts · 4 voies d'exécution · 7 phases agentiques</strong>
+  <strong style="font-size: 1.4em;">62 skills · 32 prompts (7 canoniques + 24 spécialisés + 1 router) · 4 voies d'exécution · 7 phases agentiques</strong>
 </p>
 
 <p align="center">Le système d'orchestration pour agents IA qui transforme le chaos de développement en pilotage prévisible.</p>
@@ -32,15 +32,15 @@ Le résultat ? Un orchestrateur silencieux qui :
 
 ```
 vibebackbone/
-├── skills/              # 57 skills prêts à injecter
+├── skills/              # 62 skills prêts à injecter
 │   ├── 0-vbb-*/        # Phase 0 : Readiness & cadrage (5)
 │   ├── 1-vbb-*/        # Phase 1 : Structure & dette technique (16)
 │   ├── 2-vbb-*/        # Phase 2 : Audits de fond (12)
 │   ├── 3-vbb-*/        # Phase 3 : Consolidation (1)
 │   ├── 4-vbb-*/        # Phase 4 : Front-end UX/UI (10)
-│   ├── t-vbb-*/        # Transverse : Docker, Git, CI, deploiement (12)
+│   ├── t-vbb-*/        # Transverse : Docker, Git, CI, deploiement (13)
 │   └── vibebackbone/   # Orchestrateur principal + PILOTAGE.md
-├── prompts/             # 31 prompts (7 canoniques + 24 spécialisés + 1 router)
+├── prompts/             # 32 prompts (7 canoniques + 24 spécialisés + 1 router)
 │   ├── canonical/      # 7 prompts canoniques (un par phase 01–07)
 │   └── t-p-vbb-phase-router.md  # Matrice de décision Markdown
 ├── docs/                # Fichiers de pilotage
@@ -59,16 +59,16 @@ vibebackbone/
     └── taskplane.json   # Config taskplane
 ```
 
-### Les 57 skills en un coup d'œil
+### Les 58 skills en un coup d'œil
 
 | Phase | Foyer | Skills |
 |-------|-------|--------|
-| **🔰 0** | Readiness & cadrage | Guide, Pilotage, Scope-freeze, Audit-readiness, Standard |
+| **🔰 0** | Readiness & cadrage | Guide, Pilotage, Scope-freeze, Audit-readiness, Standard *(3 méta/documentation, 2 opérationnels)* |
 | **🔧 1** | Structure & dette | Code-janitor, Conventions, Formatter, Tech-debt, Monolith-detector, Logic-duplication-detector, Pattern-inconsistency-detector, Error-handling-auditor, Premature-abstraction-detector, Test-mirage-detector, Intent-decomposer, Code-doc-coherence-auditor, Code-doc-gap-integrator, Doc-harmonizer, API-contract-designer, ADR |
 | **🔬 2** | Audits de fond | API-auditor, DB-robustness, Data-integrity, Security, Systemic-risk, Ops, CI, Legal, Performance, Accessibility, Analytics, Spec-validator |
 | **📋 3** | Consolidation | Risk-register |
 | **🎨 4** | Front-end UX/UI | User-experience-engine, Interaction-coherence, Visual-identity-layer, Visual-identity-gatekeeper, Design-system-validator, Micro-interaction-refiner, Cognitive-load-optimizer, Front-pipeline-reference, Security-remediation, Product-changelog |
-| **🛠️ t-** | Transverse | Dependency-mapper, Impact-analyzer, Docker-audit, Docker-generate, Deploy-runtime, Git-sync, Commit-ready, Test-coverage-mapper, Session-handoff, Project-context-init, Anti-slop-gate, Mode-transition-gate |
+| **🛠️ t-** | Transverse | Dependency-mapper, Impact-analyzer, Docker-audit, Docker-generate, Deploy-runtime, Git-sync, Commit-ready, Test-coverage-mapper, Session-handoff, Project-context-init, Anti-slop-gate, Mode-transition-gate, Status-report |
 
 Chaque skill est un fichier `SKILL.md` standardisé, indépendant, injectable dans n'importe quel agent LLM.
 
@@ -76,7 +76,7 @@ Chaque skill est un fichier `SKILL.md` standardisé, indépendant, injectable da
 - `t-vbb-deploy-runtime/templates/deploy.sh` — script de déploiement Docker complet avec backup, rollback, healthcheck
 - `t-vbb-docker-generate/templates/nginx/` — reverse-proxy production-ready (nginx.conf + security-headers.conf)
 
-### Les 31 prompts — architecture en 3 couches
+### Les 32 prompts — architecture en 3 couches
 
 Les prompts sont organisés en **trois couches complémentaires** :
 
@@ -85,7 +85,7 @@ prompts/
 ├── canonical/                       ← 7 prompts génériques (un par phase agentique)
 │                                      01-intake · 02-audit · 03-decision · 04-plan
 │                                      05-execution · 06-review · 07-closeout
-├── (racine)                         ← 24 prompts spécialisés (domaine ou contexte précis)
+├── (racine)                         ← 24 prompts spécialisés + 1 router (domaine ou contexte précis)
 └── t-p-vbb-phase-router.md          ← Matrice de décision Markdown
 ```
 
@@ -118,6 +118,8 @@ Tâche entrante
 ┌──────────────────────────────────────────────────┐
 │  TRIAGE (via PILOTAGE.md)                        │
 │                                                  │
+│  RAPIDE-ZERO   → Activity Log only (zéro friction)     │  (micro-tâche sûre)
+│  RAPIDE-MINIMAL→ 05_PATCH_SUMMARY only                  │  (petite tâche non triviale)
 │  Voie RAPIDE    → exécution directe              │  (risque faible)
 │  Voie STRUCTURÉE → plan + exécution cadrée       │  (contrats, multi-fichiers)
 │  Voie AUDIT     → séquence d'audit complète      │  (sécurité, intégrité)
@@ -183,11 +185,11 @@ auto-découvert par Pi, OpenCode et Codex. Claude Code est patché automatiqueme
 # 1. Cloner vibebackbone
 git clone https://github.com/bricesodini/vibebackbone ~/vibebackbone
 
-# 2. Installer les 57 skills globalement
+# 2. Installer les 58 skills globalement
 bash ~/vibebackbone/setup.sh
 ```
 
-C'est tout. Les 57 skills sont disponibles pour tous vos agents, dans tous vos projets.
+C'est tout. Les 58 skills sont disponibles pour tous vos agents, dans tous vos projets.
 
 **Ce que fait `setup.sh` :**
 - installe les skills dans `~/.agents/skills/vibebackbone`

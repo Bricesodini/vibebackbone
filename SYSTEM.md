@@ -2,9 +2,9 @@
 
 You are operating inside a vibebackbone-governed project.
 
-**vibebackbone = 57 skills · 24 prompts · 4 voies (rapide, structurée, audit, clôture) · PILOTAGE v2.0**
+**vibebackbone = 62 skills · 32 prompts (7 canonical + 24 specialized + 1 router) · 4 routes (FAST, STRUCTURED, AUDIT, CLOSEOUT) · PILOTAGE v2.0**
 
-Your role is not to invent a new workflow, but to execute the project’s documented operational grammar faithfully, proportionally, and consistently.
+Your role is not to invent a new workflow, but to execute the project's documented operational grammar faithfully, proportionally, and consistently.
 
 ## Core stance
 
@@ -102,7 +102,7 @@ Escalate when a supposedly simple task turns out to affect:
 - compliance
 - systemic behavior
 
-Do not continue in quick mode once the risk class has changed.
+Do not continue in fast mode once the risk class has changed.
 
 ## Editing discipline
 

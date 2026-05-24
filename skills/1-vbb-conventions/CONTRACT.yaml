@@ -1,0 +1,67 @@
+id: 1-vbb-conventions
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  optional:
+  - existing_CONVENTIONS.md
+  - style_guide
+  - language_filter
+outputs:
+  required:
+  - status
+  - summary
+  - conventions_output
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact:
+    path_pattern: CONVENTIONS.md
+    must_exist_after_run: false
+    kind: phase_artifact
+    frontmatter_required: []
+gates:
+  before: []
+  success:
+  - id: conventions_produced
+    output_must_contain:
+    - conventions
+  after: []
+events:
+  on_success:
+  - skill: 1-vbb-formatter
+    reason: Conventions established → configure formatter
+  - skill: t-vbb-commit-ready
+    reason: Conventions ready → prepare commit
+routing:
+  phase_scope:
+  - phase_1
+  triggers:
+  - conventions
+  - naming conventions
+  - style guide
+  - coding standards
+  - project conventions
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: true
+  allowed_fields:
+  - conventions_version
+  - rules_count

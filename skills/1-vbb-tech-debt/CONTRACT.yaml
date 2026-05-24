@@ -1,0 +1,69 @@
+id: 1-vbb-tech-debt
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  optional:
+  - docs/ARCHITECTURE.md
+  - docs/AUDIT_STATUS.md
+  - scope_filter
+outputs:
+  required:
+  - status
+  - summary
+  - findings
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact:
+    path_pattern: docs/audits/tech-debt-{date}-*.md
+    must_exist_after_run: false
+    kind: audit_report
+gates:
+  before: []
+  success:
+  - id: debt_reported
+    output_must_contain:
+    - findings
+  after: []
+events:
+  on_partial:
+  - skill: 3-vbb-risk-register
+    reason: Dette critique → inscrire au registre des risques
+  on_success:
+  - skill: t-vbb-session-handoff
+    reason: Tech debt audit complete → record findings
+routing:
+  phase_scope:
+  - phase_1
+  triggers:
+  - tech debt
+  - technical debt
+  - dette technique
+  - legacy
+  - maintainability
+  - monolith
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - finding_count
+  - p1_count
+  - p2_count

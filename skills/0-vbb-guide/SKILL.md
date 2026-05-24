@@ -14,7 +14,7 @@ mode_sensitive: false
 
 # Vibebackbone Guide
 
-Référence standard : `0-vbb-standard`
+Standard reference: `0-vbb-standard`
 
 ## ROLE & POSTURE
 
@@ -34,22 +34,22 @@ Routing belongs to `vibebackbone`, using `skills/vibebackbone/docs/PILOTAGE.md`.
 
 ## INPUT CONTRACT
 
-**Requis :**
+**Required:**
 
-- [ ] Une question sur la structure, les skills, les workflows ou l’architecture Vibebackbone
+- [ ] A question about Vibebackbone structure, skills, workflows, or architecture
 
-**Optionnels :**
+**Optional:**
 
-- [ ] Un besoin de workflow
-- [ ] Un doute sur quel skill lancer
-- [ ] Un projet à initialiser ou reprendre
+- [ ] A workflow need
+- [ ] Uncertainty about which skill to launch
+- [ ] A project to initialize or resume
 
-**Sources acceptées :** question textuelle, fichiers docs/, description de projet
+**Accepted sources:** textual question, docs/ files, project description
 
 ## BLOCKING CONDITIONS
 
-- Si la demande porte sur l’exécution détaillée d’un audit spécifique → STOP. Message : "Utiliser le skill métier correspondant plutôt que le guide."
-- Si la demande ne concerne pas Vibebackbone → STOP. Message : "Cette ressource documente uniquement le système Vibebackbone."
+- If the request concerns the detailed execution of a specific audit → STOP. Message: "Use the corresponding business skill rather than the guide."
+- If the request does not concern Vibebackbone → STOP. Message: "This resource documents the Vibebackbone system only."
 
 ## SCOPE
 

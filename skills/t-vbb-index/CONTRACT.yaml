@@ -1,0 +1,61 @@
+id: t-vbb-index
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - query
+  optional:
+  - json_mode
+  - repo_path
+outputs:
+  required:
+  - status
+  - summary
+  - results
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact:
+    path_pattern: .vbb/index/manifest.json
+    must_exist_after_run: false
+    kind: persistent_state_update
+gates:
+  before: []
+  success:
+  - id: results_returned
+    output_must_contain:
+    - results
+  after: []
+events: {}
+routing:
+  phase_scope:
+  - transverse
+  triggers:
+  - index
+  - search
+  - find
+  - lookup
+  - text search
+  - retrieval
+limits:
+  max_gate_depth: 1
+  circular_dependencies: forbidden
+state_policy:
+  persistent: true
+  allowed_fields:
+  - entry_count
+  - last_built

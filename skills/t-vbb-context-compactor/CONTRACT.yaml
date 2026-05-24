@@ -1,0 +1,63 @@
+id: t-vbb-context-compactor
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - run_path
+  optional:
+  - output_path
+  - stdout_mode
+outputs:
+  required:
+  - status
+  - summary
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact:
+    path_pattern: docs/runs/{run_id}/CONTEXT_SUMMARY.md
+    must_exist_after_run: false
+    kind: phase_artifact
+    frontmatter_required: []
+gates:
+  before: []
+  success:
+  - id: summary_produced
+    output_must_contain:
+    - CONTEXT_SUMMARY
+  after: []
+events:
+  on_success:
+  - skill: t-vbb-session-handoff
+    reason: Context compacted → record in handoff
+routing:
+  phase_scope:
+  - transverse
+  triggers:
+  - context compactor
+  - context summary
+  - run summary
+  - compact context
+  - re-entry prompt
+limits:
+  max_gate_depth: 1
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - run_id
+  - files_compacted

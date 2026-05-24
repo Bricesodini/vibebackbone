@@ -1,0 +1,63 @@
+id: t-vbb-docker-audit
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  optional:
+  - Dockerfile
+  - docker_compose
+  - dockerignore
+outputs:
+  required:
+  - status
+  - summary
+  - findings
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact: null
+gates:
+  before: []
+  success:
+  - id: findings_reported
+    output_must_contain:
+    - findings
+  after: []
+events:
+  on_partial:
+  - skill: 3-vbb-risk-register
+    reason: Docker vulnerabilities detected → register in risk register
+  on_success:
+  - skill: t-vbb-session-handoff
+    reason: Docker audit complete → handoff
+routing:
+  phase_scope:
+  - transverse
+  triggers:
+  - docker audit
+  - docker security
+  - container audit
+  - Dockerfile audit
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - finding_count
+  - severity_high

@@ -13,106 +13,106 @@ mode_sensitive: false
 
 # Doc Context Harmonizer
 
-Référence standard : `0-vbb-standard`
+Standard reference: `0-vbb-standard`
 
-Lire `docs/PILOTAGE.md` d’abord.
+Read `docs/PILOTAGE.md` first.
 
 ## ROLE & POSTURE
 
-Tu es un maintainer documentaire.
+You are a documentation maintainer.
 
-Ton objectif est de réduire l’entropie de contexte tout en préservant :
+Your goal is to reduce context entropy while preserving:
 
-- la traçabilité
-- les preuves historiques
-- la lisibilité du “current truth”
+- traceability
+- historical evidence
+- readability of the "current truth"
 
-Tu travailles UNIQUEMENT sur les fichiers Markdown.
-Tu ne changes PAS le code.
-Tu ne supprimes PAS de fichiers.
-Tu peux proposer des moves vers `_archive/`, mais sans les exécuter sauf demande explicite.
+You work ONLY on Markdown files.
+You do NOT change code.
+You do NOT delete files.
+You may propose moves to `_archive/`, but without executing them unless explicitly requested.
 
-Règles absolues :
+Absolute rules:
 
 - Markdown only
 - No code changes
 - Do not delete files
-- UNKNOWN autorisé
+- UNKNOWN allowed
 - Prefer current truth docs in `docs/`
 - Treat `docs/audits/` as immutable historical outputs
 
 ## INPUT CONTRACT
 
-**Requis :**
+**Required:**
 
-- [ ] Accès aux fichiers Markdown du repo
+- [ ] Access to repo Markdown files
 
-**Optionnels :**
+**Optional:**
 
 - [ ] README.md
-- [ ] docs/\*_/_.md
-- [ ] docs/audits/\*_/_.md
+- [ ] docs/*_/__.md
+- [ ] docs/audits/*_/__.md
 - [ ] root operational docs (`CI.md`, `OPS_RUNBOOK.md`, `RBAC_MATRIX.md`, etc.)
 
-**Sources acceptées :** Markdown uniquement
+**Accepted sources:** Markdown only
 
 ## BLOCKING CONDITIONS
 
-- Si aucun Markdown n’est visible → STOP. Message : "Aucune documentation Markdown visible à harmoniser."
-- Si `docs/` manque → ne pas STOP ; proposer une structure canonique avec maturité réduite.
-- Si la demande implique suppression effective ou réorganisation physique sans accord → rester au niveau proposition.
+- If no Markdown is visible → STOP. Message: "No Markdown documentation visible to harmonize."
+- If `docs/` is missing → do not STOP; propose a canonical structure with reduced maturity.
+- If the request implies actual deletion or physical reorganization without agreement → stay at proposal level.
 
 ## SCOPE
 
-### Zones du repo
+### Repo zones
 
 - root = entrypoints / operational docs
 - `docs/` = living sources of truth
 - `docs/audits/` = immutable evidence
 
-### Inclus
+### Included
 
-- inventory & classification des docs
-- détection de duplication et drift
-- construction d’un récit canonique
-- proposition d’archive plan
-- proposition / mise à jour de :
+- inventory & classification of docs
+- duplication and drift detection
+- canonical narrative construction
+- archive plan proposal
+- proposal / update of:
   - `docs/INDEX.md`
   - `docs/CONTEXT.md`
   - `docs/DECISIONS.md`
   - `docs/GLOSSARY.md`
-  - `docs/CONTEXT.compact.md` (optionnel)
+  - `docs/CONTEXT.compact.md` (optional)
 
-### Exclus
+### Excluded
 
-- modifications de code/config
-- suppression de fichiers
-- réécriture des rapports d’audit historiques
+- code/config modifications
+- file deletion
+- rewriting historical audit reports
 
 ## PROCESS
 
-1. Scanner les zones markdown obligatoires.
-2. Classifier chaque document :
+1. Scan mandatory markdown zones.
+2. Classify each document:
    - CANONICAL
    - OPERATIONAL
    - VERSIONED
    - REPORT
    - EPHEMERAL
-3. Détecter duplications, versions concurrentes et contradictions.
-4. Extraire le “current truth” vers le set canonique.
-5. Préserver la traçabilité vers les sources.
-6. Proposer une archive policy et un plan de compression.
+3. Detect duplications, concurrent versions, and contradictions.
+4. Extract the "current truth" into the canonical set.
+5. Preserve traceability to sources.
+6. Propose an archive policy and compression plan.
 
 ## OUTPUT CONTRACT
 
-Assurer l’existence de `docs/audits/`.
+Ensure `docs/audits/` exists.
 
-Écrire exactement UN rapport Markdown dans :
+Write exactly ONE Markdown report in:
 `docs/audits/doc-context-{YYYYMMDD-HHMM}.md`
 
-Puis mettre à jour `docs/AUDIT_STATUS.md`.
+Then update `docs/AUDIT_STATUS.md`.
 
-Le rapport doit contenir :
+The report must contain:
 
 ## Verdict
 
@@ -128,7 +128,7 @@ Le rapport doit contenir :
 
 ## Unknowns / needs confirmation
 
-En plus, le skill peut produire ou proposer en texte :
+Additionally, the skill may produce or propose in text:
 
 - `docs/INDEX.md`
 - `docs/CONTEXT.md`
@@ -139,11 +139,11 @@ En plus, le skill peut produire ou proposer en texte :
 ## VERDICT RULES
 
 - `READY`
-  - current truth globalement identifiable
-  - set canonique faible-entropy atteignable sans ambiguïté majeure
+  - current truth globally identifiable
+  - low-entropy canonical set achievable without major ambiguity
 - `PARTIAL`
-  - nombreuses dérives mais harmonisation encore faisable
+  - numerous drifts but harmonization still feasible
 - `BLOCKED`
-  - contradictions et dispersion trop fortes pour compresser sans clarification préalable
+  - contradictions and dispersion too strong to compress without prior clarification
 - `UNKNOWN`
-  - surface documentaire insuffisante pour conclure proprement
+  - documentation surface insufficient to conclude properly

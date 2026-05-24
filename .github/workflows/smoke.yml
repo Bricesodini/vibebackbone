@@ -2,9 +2,16 @@ name: smoke
 on:
   push:
   pull_request:
+
+permissions:
+  contents: read
+
 jobs:
   install:
-    runs-on: macos-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
       - run: bash tests/smoke-install.sh

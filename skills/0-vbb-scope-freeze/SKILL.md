@@ -4,7 +4,7 @@ description: |
   Phase 0 gatekeeper that validates whether the functional scope is explicitly written
   and sufficiently frozen: documented use cases, explicit non-goals, visible system
   boundaries, and no obvious active scope drift. Use before any deep audit, or when the
-  user asks "scope freeze", "is the scope clear", "validate the scope", "gèle le périmètre",
+  user asks "scope freeze", "is the scope clear", "validate the scope", "freeze the scope",
   "non-goals", or "document what this project does".
 version: "1.1"
 phase: 0
@@ -15,134 +15,134 @@ mode_sensitive: false
 
 # Vibebackbone Phase 0 — Scope Freeze Validator
 
-Référence standard : `0-vbb-standard`
+Standard reference: `0-vbb-standard`
 
-Lire `docs/PILOTAGE.md` d’abord.
+Read `docs/PILOTAGE.md` first.
 
 ## ROLE & POSTURE
 
-Tu agis comme un product/engineering gatekeeper de périmètre.  
-Tu ne proposes pas une stratégie produit. Tu juges uniquement si le scope est suffisamment explicite et figé pour permettre des audits utiles.
+You act as a product/engineering scope gatekeeper.
+You do not propose product strategy. You only judge whether the scope is sufficiently explicit and frozen to enable useful audits.
 
-Règles absolues :
+Absolute rules:
 
 - NO assumptions
-- UNKNOWN autorisé
-- Aucun patch
-- Aucun code
-- Aucun feature design spéculatif
+- UNKNOWN allowed
+- No patches
+- No code
+- No speculative feature design
 
 ## INPUT CONTRACT
 
-**Requis :**
+**Required:**
 
-- [ ] Accès au répertoire racine du projet
+- [ ] Access to the project root directory
 
-**Optionnels :**
+**Optional:**
 
 - [ ] `README.md`
 - [ ] `docs/SCOPE.md`
 - [ ] `docs/CONTEXT.md`
-- [ ] ADR, tickets, commentaires structurants
-- [ ] Notes produit visibles dans le repo
+- [ ] ADRs, tickets, structural comments
+- [ ] Product notes visible in the repo
 
-**Sources acceptées :** repo local, fichiers docs/, contenu collé, description textuelle
+**Accepted sources:** local repo, docs/ files, pasted content, textual description
 
 ## BLOCKING CONDITIONS
 
-- Si le projet n’est pas accessible → STOP. Message : "Impossible d’évaluer le scope sans accès au projet."
-- Si la demande porte sur l’amélioration fonctionnelle du produit plutôt que sur la clarté du périmètre → STOP. Message : "Ce skill valide le périmètre ; il ne redéfinit pas la roadmap produit."
-- Si aucune source de description fonctionnelle n’est visible → conclure `BLOCKED` ou `UNKNOWN` selon l’évidence, sans inventer.
+- If the project is not accessible → STOP. Message: "Cannot evaluate scope without project access."
+- If the request concerns product improvement rather than scope clarity → STOP. Message: "This skill validates scope; it does not redefine the product roadmap."
+- If no functional description source is visible → conclude `BLOCKED` or `UNKNOWN` based on evidence, without inventing.
 
 ## SCOPE
 
-Vérifier uniquement les points suivants :
+Check only the following points:
 
-### 1. Scope écrit
+### 1. Written scope
 
-- Le périmètre existe-t-il explicitement dans README, docs, ADR, tickets ou commentaires structurants ?
-- Le fonctionnement principal est-il écrit quelque part ?
+- Does the scope exist explicitly in README, docs, ADRs, tickets, or structural comments?
+- Is the primary functionality written somewhere?
 
-### 2. Cas d’usage critiques listés
+### 2. Critical use cases listed
 
-- Au moins les interactions majeures sont-elles identifiables ?
-- Les principaux parcours utilisateur ou métiers sont-ils visibles ?
+- Are at least the major interactions identifiable?
+- Are the main user or business journeys visible?
 
-### 3. Non-objectifs explicites
+### 3. Explicit non-goals
 
-- Existe-t-il une formulation de ce que le système ne fait pas ?
-- À défaut, des frontières explicites sont-elles visibles ?
+- Is there a statement of what the system does NOT do?
+- If not, are explicit boundaries visible?
 
-### 4. Absence de scope drift
+### 4. No scope drift
 
-- Y a-t-il des marqueurs d’instabilité fonctionnelle active ?
-- Des TODO structurants, "plus tard", "à définir", flags de roadmap, features floues dans les zones centrales ?
+- Are there markers of active functional instability?
+- Structural TODOs, "later", "to be defined", roadmap flags, vague features in central areas?
 
-### 5. Frontières du système
+### 5. System boundaries
 
-- Peut-on comprendre, au moins grossièrement, ce qui appartient au système et ce qui est externe ?
+- Can one understand, at least roughly, what belongs to the system and what is external?
 
 ## PROCESS
 
-1. Rechercher les sources qui décrivent la finalité du projet.
-2. Identifier les cas d’usage visibles.
-3. Chercher des non-objectifs explicites ou des frontières négatives claires.
-4. Relever les marqueurs de scope drift actif.
-5. Évaluer si le périmètre est :
-   - écrit
-   - compréhensible
-   - assez stable pour un audit
-6. Produire un verdict READY / PARTIAL / BLOCKED / UNKNOWN selon l’évidence disponible.
-7. Si `BLOCKED`, proposer un `docs/SCOPE.md` minimal.
+1. Search for sources describing the project's purpose.
+2. Identify visible use cases.
+3. Look for explicit non-goals or clear negative boundaries.
+4. Note markers of active scope drift.
+5. Evaluate whether the scope is:
+   - written
+   - understandable
+   - stable enough for an audit
+6. Produce a verdict READY / PARTIAL / BLOCKED / UNKNOWN based on available evidence.
+7. If `BLOCKED`, propose a minimal `docs/SCOPE.md`.
 
 ## OUTPUT CONTRACT
 
-### Artefact principal (phase artifact)
+### Primary artifact (phase artifact)
 
-- **Chemin** : `docs/runs/{run_id}/02_AUDIT.md`
-- **Template** : [`docs/templates/02_AUDIT.md.template`](../../docs/templates/02_AUDIT.md.template)
-- **Kind** : `phase_artifact`
-- **Frontmatter requis** : `run_id`, `phase=02_AUDIT`, `voie`, `status`, `agent`, `started_at`, `ended_at`, `next_phase`, `artifacts_consumed`, `artifacts_produced`
+- **Path**: `docs/runs/{run_id}/02_AUDIT.md`
+- **Template**: [`docs/templates/02_AUDIT.md.template`](../../docs/templates/02_AUDIT.md.template)
+- **Kind**: `phase_artifact`
+- **Required frontmatter**: `run_id`, `phase=02_AUDIT`, `route`, `status`, `agent`, `started_at`, `ended_at`, `next_phase`, `artifacts_consumed`, `artifacts_produced`
 
-### Artefacts secondaires
+### Secondary artifacts
 
-- **Rapport horodaté** (`kind: audit_report`) : `docs/audits/scope-freeze-{YYYYMMDD-HHMM}.md`
-- **Mise à jour persistante** (`kind: persistent_state_update`) : ligne `scope-freeze` dans `docs/AUDIT_STATUS.md`
+- **Timestamped report** (`kind: audit_report`): `docs/audits/scope-freeze-{YYYYMMDD-HHMM}.md`
+- **Persistent update** (`kind: persistent_state_update`): `scope-freeze` row in `docs/AUDIT_STATUS.md`
 
-### Contenu du rapport (sections obligatoires)
+### Report content (mandatory sections)
 
-- synthèse exécutive
-- verdict global
-- findings par dimension
-- actions correctives recommandées
-- UNKNOWN / manques d'évidence
+- executive summary
+- global verdict
+- findings by dimension
+- recommended corrective actions
+- UNKNOWN / evidence gaps
 
-### Cas BLOCKED
+### BLOCKED case
 
-Si le verdict est `BLOCKED`, proposer ce template minimal :
+If the verdict is `BLOCKED`, propose this minimal template:
 
 ```markdown
-# SCOPE — [Nom du projet]
+# SCOPE — [Project Name]
 
-## Ce que fait ce projet
+## What this project does
 
-## Cas d’usage principaux
+## Main use cases
 
 1.
 2.
 3.
 
-## Ce que ce projet ne fait PAS (non-objectifs)
+## What this project does NOT do (non-goals)
 
 -
 -
 
-## Frontières du système
+## System boundaries
 ```
 
 ## VERDICT RULES
 
-    •	READY : scope écrit, cas d’usage principaux visibles, au moins un non-objectif ou frontière claire, pas de drift majeur.
-    •	PARTIAL : scope partiellement documenté ; l’audit est possible mais incomplet.
-    •	BLOCKED : scope implicite ou activement mouvant ; les audits de fond produiraient surtout du bruit.
-    •	UNKNOWN : utilisé seulement si les preuves disponibles sont insuffisantes pour conclure proprement.
+- `READY`: scope written, main use cases visible, at least one non-goal or clear boundary, no major drift.
+- `PARTIAL`: scope partially documented; audit is possible but incomplete.
+- `BLOCKED`: scope implicit or actively shifting; deep audits would mostly produce noise.
+- `UNKNOWN`: used only if available evidence is insufficient to conclude properly.

@@ -6,7 +6,7 @@ description: |
   documentation, identifiable system boundaries, critical invariants at least visible,
   and understandable environment. Does NOT perform the audit itself. Use before any
   deep audit, or when the user asks "is this project auditable", "audit readiness",
-  "pré-audit", "gatekeeper", "can we audit this now", or "before auditing".
+  "pre-audit", "gatekeeper", "can we audit this now", or "before auditing".
 version: "1.1"
 phase: 0
 token_budget: low
@@ -16,119 +16,119 @@ mode_sensitive: false
 
 # Vibebackbone Phase 0 — Audit Readiness Inspector
 
-Référence standard : `0-vbb-standard`
+Standard reference: `0-vbb-standard`
 
-Lire `docs/PILOTAGE.md` d’abord.
+Read `docs/PILOTAGE.md` first.
 
 ## ROLE & POSTURE
 
-Tu es un gatekeeper impartial de phase 0.  
-Tu ne fais PAS l'audit du projet. Tu juges uniquement si un audit produirait des findings exploitables ou seulement du bruit.
+You are an impartial Phase 0 gatekeeper.
+You do NOT audit the project. You only judge whether an audit would produce actionable findings or just noise.
 
-Règles absolues :
+Absolute rules:
 
 - NO assumptions
-- UNKNOWN autorisé
-- Aucun patch
-- Aucun code
-- Aucune feature invention
+- UNKNOWN allowed
+- No patches
+- No code
+- No feature invention
 
 ## INPUT CONTRACT
 
-**Requis :**
+**Required:**
 
-- [ ] Accès au répertoire racine du projet
+- [ ] Access to the project root directory
 
-**Optionnels :**
+**Optional:**
 
 - [ ] `README.md`
 - [ ] `docs/PROJECT_MODE.md`
 - [ ] `docs/AUDIT_STATUS.md`
 - [ ] `docs/SCOPE.md`
-- [ ] Rapport `scope-freeze` si disponible
+- [ ] `scope-freeze` report if available
 
-**Sources acceptées :** répertoire local, fichiers docs/, contenu collé, description textuelle
+**Accepted sources:** local directory, docs/ files, pasted content, textual description
 
 ## BLOCKING CONDITIONS
 
-- Si le repo ou le dossier racine n’est pas accessible → STOP. Message : "Impossible d’évaluer l’audit readiness sans accès au projet."
-- Si la demande porte sur un audit métier complet et non sur la readiness → STOP. Message : "Ce skill détermine si l’audit a du sens ; il ne remplace pas l’audit lui-même."
-- Si aucun élément de structure ou de documentation n’est visible → conclure `BLOCKED` ou `UNKNOWN` selon l’évidence, sans inventer.
+- If the repo or root directory is not accessible → STOP. Message: "Cannot evaluate audit readiness without project access."
+- If the request is for a full business audit rather than readiness → STOP. Message: "This skill determines whether an audit makes sense; it does not replace the audit itself."
+- If no structural or documentation element is visible → conclude `BLOCKED` or `UNKNOWN` based on evidence, without inventing.
 
 ## SCOPE
 
-Vérifier uniquement les 6 domaines suivants :
+Check only the following 6 domains:
 
-### A) Stabilité fonctionnelle
+### A) Functional stability
 
-- Le scope semble-t-il suffisamment figé pour qu’un audit ait du sens ?
-- Y a-t-il des marqueurs de flou majeur : "à définir", "WIP", TODO structurants dans les zones critiques ?
+- Does the scope seem sufficiently frozen for an audit to be meaningful?
+- Are there markers of major ambiguity: "to be defined", "WIP", structural TODOs in critical areas?
 
-### B) Lisibilité structurelle
+### B) Structural readability
 
-- L’arborescence est-elle navigable ?
-- Les noms de dossiers/fichiers permettent-ils de comprendre les responsabilités générales ?
-- Les frontières de modules semblent-elles lisibles ?
+- Is the directory tree navigable?
+- Do folder/file names reveal general responsibilities?
+- Do module boundaries appear readable?
 
-### C) Documentation minimale
+### C) Minimal documentation
 
-- Un README ou une documentation minimale existe-t-il ?
-- Le système est-il décrit quelque part, même partiellement ?
-- Des commandes de run, des flux majeurs ou des éléments de configuration sont-ils visibles ?
+- Does a README or minimal documentation exist?
+- Is the system described somewhere, even partially?
+- Are run commands, major flows, or configuration elements visible?
 
-### D) Clarté des frontières
+### D) Boundary clarity
 
-- Les entrées/sorties du système sont-elles identifiables ?
-- Les dépendances externes importantes (API, DB, services tiers) sont-elles visibles ?
+- Are system inputs/outputs identifiable?
+- Are major external dependencies (API, DB, third-party services) visible?
 
-### E) Invariants critiques visibles
+### E) Critical invariants visible
 
-- Les invariants critiques du système sont-ils au moins identifiés, même s’ils ne sont pas tous testés ?
-- Les règles métier qui "doivent toujours rester vraies" sont-elles visibles quelque part ?
+- Are the system's critical invariants at least identified, even if not all tested?
+- Are the business rules that "must always remain true" visible somewhere?
 
-### F) Clarté d’environnement
+### F) Environment clarity
 
-- La stack semble-t-elle identifiable sans exécuter le code ?
-- Un `.env.example`, une config type, ou un équivalent existe-t-il ?
-- Les différences DEV/PROD sont-elles au moins reconnues ?
+- Can the stack be identified without executing code?
+- Does a `.env.example`, typical config, or equivalent exist?
+- Are DEV/PROD differences at least recognized?
 
 ## PROCESS
 
-1. Inspecter la structure générale du projet.
-2. Rechercher les sources minimales de contexte : README, docs/, configs, conventions visibles.
-3. Évaluer les 6 domaines A→F.
-4. Noter les manques d’évidence sans extrapoler.
-5. Déterminer si un audit plus profond produirait :
-   - des findings exploitables
-   - beaucoup d’UNKNOWN
-   - principalement du bruit
-6. Produire un verdict READY / PARTIAL / BLOCKED / UNKNOWN selon l’évidence disponible.
+1. Inspect the project's general structure.
+2. Search for minimal context sources: README, docs/, configs, visible conventions.
+3. Evaluate the 6 domains A→F.
+4. Note evidence gaps without extrapolating.
+5. Determine whether a deeper audit would produce:
+   - actionable findings
+   - a lot of UNKNOWN
+   - mostly noise
+6. Produce a verdict READY / PARTIAL / BLOCKED / UNKNOWN based on available evidence.
 
 ## OUTPUT CONTRACT
 
-### Artefact principal (phase artifact)
+### Primary artifact (phase artifact)
 
-- **Chemin** : `docs/runs/{run_id}/02_AUDIT.md`
-- **Template** : [`docs/templates/02_AUDIT.md.template`](../../docs/templates/02_AUDIT.md.template)
-- **Kind** : `phase_artifact`
-- **Frontmatter requis** : `run_id`, `phase=02_AUDIT`, `voie`, `status`, `agent`, `started_at`, `ended_at`, `next_phase`, `artifacts_consumed`, `artifacts_produced`
+- **Path**: `docs/runs/{run_id}/02_AUDIT.md`
+- **Template**: [`docs/templates/02_AUDIT.md.template`](../../docs/templates/02_AUDIT.md.template)
+- **Kind**: `phase_artifact`
+- **Required frontmatter**: `run_id`, `phase=02_AUDIT`, `route`, `status`, `agent`, `started_at`, `ended_at`, `next_phase`, `artifacts_consumed`, `artifacts_produced`
 
-### Artefacts secondaires
+### Secondary artifacts
 
-- **Rapport horodaté** (`kind: audit_report`) : `docs/audits/audit-readiness-{YYYYMMDD-HHMM}.md`
-- **Mise à jour persistante** (`kind: persistent_state_update`) : ligne `audit-readiness` dans `docs/AUDIT_STATUS.md`
+- **Timestamped report** (`kind: audit_report`): `docs/audits/audit-readiness-{YYYYMMDD-HHMM}.md`
+- **Persistent update** (`kind: persistent_state_update`): `audit-readiness` row in `docs/AUDIT_STATUS.md`
 
-### Contenu du rapport (sections obligatoires)
+### Report content (mandatory sections)
 
-- la synthèse exécutive
-- le verdict global
-- les findings par domaine A→F
-- les actions correctives recommandées
-- les UNKNOWN / manques d'évidence
+- executive summary
+- global verdict
+- findings by domain A→F
+- recommended corrective actions
+- UNKNOWN / evidence gaps
 
 ## VERDICT RULES
 
-- `READY` : le projet est suffisamment lisible et stable pour qu’un audit produise des findings utiles.
-- `PARTIAL` : des gaps significatifs existent dans 1 ou 2 domaines ; audit possible mais avec des UNKNOWN.
-- `BLOCKED` : scope instable, structure trop floue, documentation minimale absente, ou invariants/frontières trop invisibles au point que l’audit serait surtout du bruit.
-- `UNKNOWN` : utilisé seulement si l’accès au projet ou aux éléments observables est trop incomplet pour conclure proprement.
+- `READY`: the project is sufficiently readable and stable for an audit to produce useful findings.
+- `PARTIAL`: significant gaps exist in 1 or 2 domains; audit possible but with UNKNOWNs.
+- `BLOCKED`: unstable scope, structure too vague, minimal documentation absent, or invariants/boundaries too invisible — audit would mostly produce noise.
+- `UNKNOWN`: used only if access to the project or observable elements is too incomplete to conclude properly.

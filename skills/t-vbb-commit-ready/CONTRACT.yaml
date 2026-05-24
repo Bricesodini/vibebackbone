@@ -1,95 +1,82 @@
 id: t-vbb-commit-ready
-version: "0.3"
+version: '0.3'
 type: prompt_skill
 formalization_level: declarative
-
 entrypoint:
   kind: markdown_prompt
   path: SKILL.md
-
 compatibility:
   runtime_required: false
   agents:
-    - claude-code
-    - codex
-    - pi
-    - opencode
-
+  - claude-code
+  - codex
+  - pi
+  - opencode
 inputs:
   required:
-    - change_set
+  - change_set
   optional:
-    - git_status
-    - git_diff
-    - docs/SESSION.md
-    - docs/AUDIT_STATUS.md
-
+  - git_status
+  - git_diff
+  - docs/SESSION.md
+  - docs/AUDIT_STATUS.md
 outputs:
   required:
-    - status
-    - summary
-    - findings
-    - next_action
+  - status
+  - summary
+  - findings
+  - next_action
   statuses:
-    - PASS
-    - PARTIAL
-    - FAIL
-    - BLOCKED
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
   artifact:
-    path_pattern: "docs/runs/{run_id}/07_CLOSEOUT.md"
-    template: "docs/templates/07_CLOSEOUT.md.template"
+    path_pattern: docs/runs/{run_id}/07_CLOSEOUT.md
+    template: docs/templates/07_CLOSEOUT.md.template
     must_exist_after_run: true
     kind: phase_artifact
     frontmatter_required:
-      - run_id
-      - phase
-      - voie
-      - status
-      - agent
-      - started_at
-      - ended_at
-      - artifacts_consumed
-      - artifacts_produced
-    # commit-ready writes a "Suggested Commit Message" section into the
-    # closeout. The closeout must exist at end of run.
-    # PR #3 (Lot C): tools/vbb-loop-closure-check.py enforces this invariant.
-    # Install git hook: bash scripts/install-vbb-pre-commit.sh
-
+    - run_id
+    - phase
+    - voie
+    - status
+    - agent
+    - started_at
+    - ended_at
+    - artifacts_consumed
+    - artifacts_produced
 gates:
   before: []
   success:
-    - id: commit_message_present
-      output_must_contain:
-        - COMMIT MESSAGE
-    - id: files_listed
-      output_must_contain:
-        - FILES
-
+  - id: commit_message_present
+    output_must_contain:
+    - COMMIT MESSAGE
+  - id: files_listed
+    output_must_contain:
+    - FILES
 events:
   on_partial:
-    - skill: t-vbb-impact-analyzer
-      reason: "Vérifier l'impact des fichiers modifiés"
+  - skill: t-vbb-impact-analyzer
+    reason: Verify impact of modified files
   on_success:
-    - skill: t-vbb-session-handoff
-      reason: "Préparer la prochaine session"
-
+  - skill: t-vbb-session-handoff
+    reason: Prepare next session
 routing:
   phase_scope:
-    - closeout
-    - commit
+  - closeout
+  - commit
   triggers:
-    - commit ready
-    - pré-commit
-    - package for commit
-    - commit message
-
+  - commit ready
+  - pré-commit
+  - package for commit
+  - commit message
 limits:
   max_gate_depth: 2
   circular_dependencies: forbidden
-
 state_policy:
   persistent: false
   allowed_fields:
-    - change_set_hash
-    - files_modified
-    - verdict
+  - change_set_hash
+  - files_modified
+  - verdict

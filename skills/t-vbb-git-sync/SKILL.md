@@ -14,197 +14,196 @@ subagent_eligible: true
 mode_sensitive: false
 ---
 
-# Git Sync — Procédure d'Exécution Bash
+# Git Sync — Bash Execution Procedure
 
-Référence standard : `0-vbb-standard`
+Standard reference: `0-vbb-standard`
 
 ## ROLE & POSTURE
 
-Tu exécutes une procédure git séquentielle. Tu neraisonnes pas créativement.
-Tu suis les étapes. Tu vérifies chaque output. Tu refuses si les conditions
-ne sont pas réunies.
+You execute a sequential git procedure. You do not reason creatively.
+You follow the steps. You verify each output. You refuse if conditions
+are not met.
 
-Règles absolues :
+Absolute rules:
 
-1. **JAMAIS** `git push --force`
-2. **JAMAIS** `git add -A` ou `git add .`
-3. **JAMAIS** merger si `git merge --ff-only` échoue (sauf confirmation)
-4. **TOUJOURS** vérifier l'output de chaque commande avant de continuer
-5. **DRY-RUN par défaut** — utiliser `--execute` pour exécuter réellement
+1. **NEVER** `git push --force`
+2. **NEVER** `git add -A` or `git add .`
+3. **NEVER** merge if `git merge --ff-only` fails (unless confirmed)
+4. **ALWAYS** verify each command's output before continuing
+5. **DRY-RUN by default** — use `--execute` to actually execute
 
 ## INPUT CONTRACT
 
-**Requis :**
+**Required:**
 
-- [ ] Un message de commit conventionnel (fourni par l'agent cloud via commit-ready)
-- [ ] La liste des fichiers à committer (ou "all-tracked-changes")
+- [ ] A conventional commit message (provided by the cloud agent via commit-ready)
+- [ ] List of files to commit (or "all-tracked-changes")
 
-**Optionnels :**
+**Optional:**
 
-- [ ] Branche de merge cible (défaut : main)
-- [ ] Remote name (défaut : origin)
-- [ ] Flag `--execute` (sinon = dry-run)
+- [ ] Target merge branch (default: main)
+- [ ] Remote name (default: origin)
+- [ ] `--execute` flag (otherwise = dry-run)
 
-## PROCESS — Procédure exacte
+## PROCESS — Exact procedure
 
-Exécuter les étapes dans l'ordre. Après chaque étape, vérifier le résultat
-avant de continuer. Si une vérification échoue, STOP et rapporter.
+Execute steps in order. After each step, verify the result before continuing. If a verification fails, STOP and report.
 
-### Étape 1 — Contexte initial
-
-```bash
-git rev-parse --abbrev-ref HEAD          # branche courante
-git status --porcelain                   # fichiers modifiés
-git remote -v                            # remote configuré
-git log -1 --oneline                     # dernier commit
-```
-
-Stocke le nom de la branche courante dans `CURRENT_BRANCH`.
-
-Si `CURRENT_BRANCH` == "main" :
-- Afficher WARN : "Commit direct sur main détecté."
-- Proposer de créer une branche : `git checkout -b work/{descriptive-name}`
-- Attendre confirmation.
-
-### Étape 2 — Staging
-
-SI fichiers spécifiés dans l'input :
-```bash
-git add fichier1 fichier2 fichier3 ...
-```
-
-SINON (all-tracked-changes) :
-```bash
-git add -u    # stage seulement les fichiers déjà trackés modifiés
-```
-
-Vérification :
-```bash
-git diff --cached --name-only   # liste des fichiers stagés
-```
-
-Comparer avec les fichiers attendus. Si différence → WARN.
-
-### Étape 3 — Commit
+### Step 1 — Initial context
 
 ```bash
-git commit -m "{MESSAGE FOURNI}"
+git rev-parse --abbrev-ref HEAD          # current branch
+git status --porcelain                   # modified files
+git remote -v                            # configured remote
+git log -1 --oneline                     # last commit
 ```
 
-Vérification :
+Store the current branch name in `CURRENT_BRANCH`.
+
+If `CURRENT_BRANCH` == "main":
+- Display WARN: "Direct commit on main detected."
+- Propose creating a branch: `git checkout -b work/{descriptive-name}`
+- Await confirmation.
+
+### Step 2 — Staging
+
+IF files specified in the input:
 ```bash
-git log -1 --oneline    # doit montrer le nouveau commit
+git add file1 file2 file3 ...
 ```
 
-Si le commit échoue → STOP. Rapporter l'erreur git.
+OTHERWISE (all-tracked-changes):
+```bash
+git add -u    # stage only already-tracked modified files
+```
 
-### Étape 4 — Push
+Verification:
+```bash
+git diff --cached --name-only   # list of staged files
+```
 
-SI remote configuré (étape 1) :
+Compare with expected files. If difference → WARN.
+
+### Step 3 — Commit
+
+```bash
+git commit -m "{PROVIDED MESSAGE}"
+```
+
+Verification:
+```bash
+git log -1 --oneline    # must show the new commit
+```
+
+If the commit fails → STOP. Report the git error.
+
+### Step 4 — Push
+
+IF remote configured (step 1):
 ```bash
 git push -u origin {CURRENT_BRANCH}
 ```
 
-Vérification :
-- Si "rejected" dans l'output → STOP. "Remote en avance. git pull --rebase requis."
-- Si "error" dans l'output → STOP. Rapporter l'erreur.
+Verification:
+- If "rejected" in the output → STOP. "Remote ahead. git pull --rebase required."
+- If "error" in the output → STOP. Report the error.
 
-SINON :
-- WARN : "Pas de remote. Commit local uniquement."
+OTHERWISE:
+- WARN: "No remote. Local commit only."
 
-### Étape 5 — Merge vers main
+### Step 5 — Merge to main
 
-SI `CURRENT_BRANCH` != "main" :
+IF `CURRENT_BRANCH` != "main":
 
 ```bash
 # checkout main
 git checkout main
-git pull --ff-only origin main    # synchroniser main
+git pull --ff-only origin main    # sync main
 git merge --ff-only {CURRENT_BRANCH}
 ```
 
-Vérifications après merge :
-- Si "Already up to date" → déjà mergé, OK.
-- Si "Fast-forward" → merge réussi, OK.
-- SI "CONFLICT" → EXECUTER IMMÉDIATEMENT :
+Post-merge verifications:
+- If "Already up to date" → already merged, OK.
+- If "Fast-forward" → merge succeeded, OK.
+- If "CONFLICT" → EXECUTE IMMEDIATELY:
   ```bash
   git merge --abort
   ```
-  puis STOP. "Conflits détectés. Merge annulé. Résolution manuelle requise."
-- Si "fatal: Not possible to fast-forward" → demander confirmation pour :
+  then STOP. "Conflicts detected. Merge aborted. Manual resolution required."
+- If "fatal: Not possible to fast-forward" → request confirmation for:
   ```bash
   git merge --no-ff {CURRENT_BRANCH}
   ```
-  Si confirmation refusée → STOP.
+  If confirmation denied → STOP.
 
-### Étape 6 — Push main
+### Step 6 — Push main
 
-SI remote configuré :
+IF remote configured:
 ```bash
 git push origin main
 ```
 
-Vérification : même logique qu'étape 4.
+Verification: same logic as step 4.
 
-### Étape 7 — Nettoyage (optionnel)
+### Step 7 — Cleanup (optional)
 
-Demander confirmation :
+Request confirmation:
 ```bash
-git branch -d {CURRENT_BRANCH}              # supprimer branche locale
-git push origin --delete {CURRENT_BRANCH}   # supprimer branche remote
+git branch -d {CURRENT_BRANCH}              # delete local branch
+git push origin --delete {CURRENT_BRANCH}   # delete remote branch
 ```
 
-### Étape 8 — Rapport final
+### Step 8 — Final report
 
-Afficher :
+Display:
 
 ```
 ════════════════════════════════════════════════════════════════
-  GIT SYNC : RÉSULTAT
+  GIT SYNC : RESULT
 ════════════════════════════════════════════════════════════════
-  Branche initiale : {CURRENT_BRANCH}
+  Initial branch   : {CURRENT_BRANCH}
   Commit SHA        : {SHA}
-  Push vers remote  : {OK/FAIL/SKIP}
-  Merge vers main   : {OK/FAIL/CONFLICT/SKIP}
+  Push to remote    : {OK/FAIL/SKIP}
+  Merge to main     : {OK/FAIL/CONFLICT/SKIP}
   Push main         : {OK/FAIL/SKIP}
-  Branche nettoyée  : {oui/non}
-  Branche courante  : main
+  Branch cleaned up : {yes/no}
+  Current branch    : main
 ════════════════════════════════════════════════════════════════
 ```
 
-Écrire dans `docs/audits/git-sync-{YYYYMMDD-HHMM}.md` si le répertoire existe.
+Write to `docs/audits/git-sync-{YYYYMMDD-HHMM}.md` if the directory exists.
 
 ## BLOCKING CONDITIONS
 
-- Aucun changement local → STOP.
-- HEAD détaché → STOP.
-- Conflits de merge → ABORT merge + STOP.
+- No local changes → STOP.
+- Detached HEAD → STOP.
+- Merge conflicts → ABORT merge + STOP.
 - `docs/PROJECT_MODE.md` = frozen → STOP.
 
 ## OUTPUT CONTRACT
 
-Résultat des opérations git (exécutées ou dry-run).
+Results of git operations (executed or dry-run).
 
-Rapport dans `docs/audits/git-sync-{YYYYMMDD-HHMM}.md` si le répertoire existe.
+Report in `docs/audits/git-sync-{YYYYMMDD-HHMM}.md` if the directory exists.
 
 ## VERDICT RULES
 
-- `READY` — cycle complet exécuté avec succès
-- `PARTIAL` — commit OK mais push/merge échoué ou skip
-- `BLOCKED` — préconditions non réunies ou conflits
-- `UNKNOWN` — état du repo impossible à déterminer
+- `READY` — full cycle executed successfully
+- `PARTIAL` — commit OK but push/merge failed or skipped
+- `BLOCKED` — preconditions not met or conflicts
+- `UNKNOWN` — repo state impossible to determine
 
 ## SUPPORT BOUNDARY
 
-Supporté :
-- Repos Git avec un seul remote (origin)
-- Merge fast-forward vers main
+Supported:
+- Git repos with a single remote (origin)
+- Fast-forward merge to main
 - Conventional commits
 - DRY-RUN + --execute
 
-Non supporté (refuser) :
-- Force push → interdit
-- Rebase interactif → manuel
-- Résolution auto de conflits → manuel
-- Multi-remote → manuel
-- Submodules modifiés → manuel
+Not supported (refuse):
+- Force push → forbidden
+- Interactive rebase → manual
+- Auto conflict resolution → manual
+- Multi-remote → manual
+- Modified submodules → manual

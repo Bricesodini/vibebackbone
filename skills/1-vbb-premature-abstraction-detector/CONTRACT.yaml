@@ -1,0 +1,83 @@
+id: 1-vbb-premature-abstraction-detector
+version: "0.3"
+type: prompt_skill
+formalization_level: declarative
+
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+
+compatibility:
+  runtime_required: false
+  agents:
+    - claude-code
+    - codex
+    - pi
+    - opencode
+
+inputs:
+  required:
+    - repo_access
+  optional:
+    - docs/PROJECT_MODE.md
+    - scope_filter
+
+outputs:
+  required:
+    - status
+    - summary
+    - findings
+    - abstraction_map
+    - next_action
+  statuses:
+    - PASS
+    - PARTIAL
+    - FAIL
+    - BLOCKED
+  artifact:
+    path_pattern: "docs/audits/premature-abstraction-{date}-*.md"
+    must_exist_after_run: false
+    kind: audit_report
+
+gates:
+  before:
+    - id: repo_accessible
+      expected_status: PASS
+      blocking: true
+      reason: "Cannot detect premature abstractions without repo access"
+  success:
+    - id: abstraction_reported
+      output_must_contain:
+        - findings
+        - abstraction_map
+  after: []
+
+events:
+  on_partial:
+    - skill: 1-vbb-tech-debt
+      reason: "Premature abstractions found → register as tech debt"
+  on_success:
+    - skill: t-vbb-session-handoff
+      reason: "Abstraction audit complete → record handoff"
+
+routing:
+  phase_scope:
+    - phase_1
+  triggers:
+    - premature abstraction
+    - over-engineering
+    - over-abstraction
+    - unnecessary interface
+    - single implementation interface
+    - factory overkill
+    - indirection without benefit
+
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+
+state_policy:
+  persistent: false
+  allowed_fields:
+    - abstraction_count
+    - over_engineered_count

@@ -44,7 +44,7 @@ updated: 2026-05-23
 | Type | Localisation | Catalogue |
 |------|--------------|-----------|
 | Skills (58) | [`../skills/`](../skills/) | [`../skills/INDEX.yaml`](../skills/INDEX.yaml) |
-| Prompts spécialisés (25) | [`../prompts/`](../prompts/) | — |
+| Prompts spécialisés (24) + 1 router | [`../prompts/`](../prompts/) | — |
 | Prompts canoniques (7) | [`../prompts/canonical/`](../prompts/canonical/) | — |
 
 ## Audits

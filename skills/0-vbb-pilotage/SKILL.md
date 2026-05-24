@@ -13,8 +13,8 @@ mode_sensitive: false
 
 # Vibebackbone Pilotage Reference
 
-Référence standard : `0-vbb-standard`
-Référence canonique de prévalence : `skills/vibebackbone/docs/PILOTAGE.md`
+Standard reference: `0-vbb-standard`
+Canonical precedence reference: `skills/vibebackbone/docs/PILOTAGE.md`
 
 ## ROLE & POSTURE
 
@@ -34,23 +34,23 @@ If this skill and the document diverge, the document prevails.
 
 ## INPUT CONTRACT
 
-**Requis :**
+**Required:**
 
-- [ ] Une tâche, une demande, ou un besoin de clarification de voie d’exécution
+- [ ] A task, request, or need for execution route clarification
 
-**Optionnels :**
+**Optional:**
 
 - [ ] `skills/vibebackbone/docs/PILOTAGE.md`
-- [ ] contexte de session
-- [ ] contexte projet
+- [ ] session context
+- [ ] project context
 
-**Sources acceptées :** demande textuelle, fichiers docs/, contexte projet
+**Accepted sources:** textual request, docs/ files, project context
 
 ## BLOCKING CONDITIONS
 
-- Si la demande ne concerne ni le triage, ni la sélection de voie, ni le niveau de traitement → STOP. Message : "Cette ressource sert à choisir une voie d’exécution, pas à exécuter une tâche."
-- Si aucune tâche ni aucun cas d’usage n’est fourni → STOP. Message : "Impossible d’appliquer le pilotage sans demande ou tâche à classifier."
-- Si ce skill diverge de `skills/vibebackbone/docs/PILOTAGE.md` → suivre le document et signaler l’écart.
+- If the request does not concern triage, route selection, or processing level → STOP. Message: "This resource serves to choose an execution route, not to execute a task."
+- If no task or use case is provided → STOP. Message: "Cannot apply pilotage without a request or task to classify."
+- If this skill diverges from `skills/vibebackbone/docs/PILOTAGE.md` → follow the document and flag the discrepancy.
 
 ## SCOPE
 

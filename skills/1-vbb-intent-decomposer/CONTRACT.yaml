@@ -1,0 +1,95 @@
+id: 1-vbb-intent-decomposer
+version: "0.3"
+type: prompt_skill
+formalization_level: declarative
+
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+
+compatibility:
+  runtime_required: false
+  agents:
+    - claude-code
+    - codex
+    - pi
+    - opencode
+
+inputs:
+  required:
+    - product_specification
+    - repo_access
+  optional:
+    - docs/ARCHITECTURE.md
+    - docs/PROJECT_MODE.md
+    - dependency_map
+
+outputs:
+  required:
+    - status
+    - summary
+    - build_plan
+    - task_chunks
+    - risk_flags
+    - next_action
+  statuses:
+    - PASS
+    - PARTIAL
+    - FAIL
+    - BLOCKED
+  artifact: null
+
+gates:
+  before:
+    - id: spec_provided
+      expected_status: PASS
+      blocking: true
+      reason: "Cannot decompose without product specification"
+    - id: spec_sufficient
+      expected_status: PASS
+      blocking: true
+      reason: "Specification too thin for reliable decomposition"
+    - id: repo_accessible
+      expected_status: PASS
+      blocking: true
+      reason: "Cannot map plan without access to existing code"
+  success:
+    - id: plan_produced
+      output_must_contain:
+        - build_plan
+        - task_chunks
+  after: []
+
+events:
+  on_blocked:
+    - skill: 0-vbb-guide
+      reason: "No spec → help user frame the specification via guide"
+  on_partial:
+    - skill: t-vbb-dependency-mapper
+      reason: "Vague architecture context → map dependencies for better plan"
+  on_success:
+    - skill: t-vbb-session-handoff
+      reason: "Build plan ready → record handoff for structured execution"
+
+routing:
+  phase_scope:
+    - phase_1
+  triggers:
+    - product spec
+    - feature brief
+    - implementation plan
+    - intent decomposition
+    - build plan
+    - feature breakdown
+    - product-to-code
+
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+
+state_policy:
+  persistent: false
+  allowed_fields:
+    - task_count
+    - risk_count
+    - chunk_count

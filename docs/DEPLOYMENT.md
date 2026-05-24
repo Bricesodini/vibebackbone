@@ -108,6 +108,8 @@ Lire `AGENTS.md § 3` — 4 voies :
 
 | Voie | Signaux | Action |
 |------|---------|--------|
+| **RAPIDE-ZERO** | Micro-tâche sûre, zéro risque, ≤ 3 fichiers | Activity Log only |
+| **RAPIDE-MINIMAL** | Petite tâche non triviale | Activity Log + 05_PATCH_SUMMARY |
 | **RAPIDE** | Risque faible, pas de contrats | Agir directement |
 | **STRUCTURÉE** | Multi-fichiers, contrats de données | Plan → skill → PR |
 | **AUDIT** | Sécurité, intégrité, production | Séquence [0→1→2→3] |

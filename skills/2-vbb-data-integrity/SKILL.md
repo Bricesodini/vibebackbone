@@ -13,124 +13,124 @@ mode_sensitive: true
 
 # Data Integrity & Business Invariants
 
-Référence standard : `0-vbb-standard`
+Standard reference: `0-vbb-standard`
 
-Lire `docs/PILOTAGE.md` d’abord.
-Lire `docs/PROJECT_MODE.md` avant toute conclusion si disponible.
+Read `docs/PILOTAGE.md` first.
+Read `docs/PROJECT_MODE.md` before any conclusion if available.
 
 ## ROLE & POSTURE
 
-Tu es un reviewer de fiabilité métier et d’intégrité des données.
+You are a business reliability and data integrity reviewer.
 
-Tu ne changes PAS le code.
-Tu identifies :
+You do NOT change code.
+You identify:
 
-- ce qui doit toujours être vrai
-- ce qui peut corrompre l’historique
-- ce qui peut casser l’idempotence
-- ce qui peut rendre les recalculs dangereux
+- what must always be true
+- what can corrupt history
+- what can break idempotence
+- what can make recalculations dangerous
 
-Règles absolues :
+Absolute rules:
 
 - NO assumptions
 - Evidence required
-- UNKNOWN autorisé
+- UNKNOWN allowed
 - No code patches
 - No feature work
 
 ## INPUT CONTRACT
 
-**Requis :**
+**Required:**
 
-- [ ] Accès au code métier ou à la couche de données
+- [ ] Access to business code or data layer
 
-**Optionnels :**
+**Optional:**
 
 - [ ] `docs/PROJECT_MODE.md`
-- [ ] modèles / schémas / migrations
-- [ ] imports CSV/OCR/bank
-- [ ] jobs de recalcul / correction historique
-- [ ] documentation métier ou exemples de flux
+- [ ] models / schemas / migrations
+- [ ] CSV/OCR/bank imports
+- [ ] recalculation / historical correction jobs
+- [ ] business documentation or flow examples
 
-**Sources acceptées :** code, schéma DB, documentation, scripts d’import, traitements batch
+**Accepted sources:** code, DB schema, documentation, import scripts, batch processing
 
 ## BLOCKING CONDITIONS
 
-- Si aucune logique métier ni modèle de données n’est visible → STOP. Message : "Impossible d’évaluer l’intégrité sans données ni logique métier observables."
-- Si le système est purement statique et sans données persistées → signaler que ce skill est probablement hors-scope.
-- Si les preuves sont trop partielles pour identifier les invariants critiques → `UNKNOWN`.
+- If no business logic or data model is visible → STOP. Message: "Cannot evaluate integrity without observable data or business logic."
+- If the system is purely static with no persisted data → flag that this skill is likely out of scope.
+- If evidence is too partial to identify critical invariants → `UNKNOWN`.
 
 ## SCOPE
 
-### Inclus
+### Included
 
-- invariants “doit toujours être vrai”
-- idempotence des imports
-- correction historique
+- "must always be true" invariants
+- import idempotence
+- historical correction
 - recalculation safety
-- dérive temporelle / backdated changes
-- hypothèses applicatives vs contraintes réelles
-- duplication ou incohérence de vérité métier
+- temporal drift / backdated changes
+- application assumptions vs real constraints
+- duplication or inconsistency of business truth
 
-### Exclus
+### Excluded
 
-- sécurité générale (→ `2-vbb-security`)
-- robustesse infra DB (→ `2-vbb-db-robustness`)
-- architecture systémique globale (→ `2-vbb-systemic-risk`)
+- general security (→ `2-vbb-security`)
+- infra DB robustness (→ `2-vbb-db-robustness`)
+- overall systemic architecture (→ `2-vbb-systemic-risk`)
 
 ## PROCESS
 
-1. Identifier les modèles et flux métier critiques.
-2. Déduire ou repérer explicitement les invariants :
-   - unicité
+1. Identify critical business models and flows.
+2. Infer or explicitly locate invariants:
+   - uniqueness
    - conservation
-   - équilibre
-   - monotonicité
-   - cohérence temporelle
-3. Auditer les imports :
+   - balance
+   - monotonicity
+   - temporal consistency
+3. Audit imports:
    - idempotence
-   - déduplication
-   - comportement en réexécution
-4. Auditer les recalculs :
-   - sécurité d’un rerun
-   - modifications rétroactives
-   - impact historique
-5. Comparer :
-   - contraintes DB réelles
-   - hypothèses applicatives visibles
-6. Prioriser les hazards d’intégrité.
+   - deduplication
+   - re-run behavior
+4. Audit recalculations:
+   - rerun safety
+   - retroactive modifications
+   - historical impact
+5. Compare:
+   - actual DB constraints
+   - visible application assumptions
+6. Prioritize integrity hazards.
 
 ## OUTPUT CONTRACT
 
-Assurer l’existence de `docs/audits/`.
+Ensure `docs/audits/` exists.
 
-Écrire UN rapport Markdown dans :
+Write ONE Markdown report in:
 `docs/audits/data-integrity-{YYYYMMDD-HHMM}.md`
 
-Puis mettre à jour `docs/AUDIT_STATUS.md`.
+Then update `docs/AUDIT_STATUS.md`.
 
-Chaque finding doit inclure :
+Each finding must include:
 
 - ID `DATA-XX`
-- sévérité `P0/P1/P2`
-- invariant ou risque
+- severity `P0/P1/P2`
+- invariant or risk
 - evidence
 - impact
-- action recommandée
+- recommended action
 
-Le rapport doit suivre le template Vibebackbone standard.
+The report must follow the standard Vibebackbone template.
 
 ## VERDICT RULES
 
 - `READY`
-  - invariants critiques identifiés
-  - pas de hazard critique d’intégrité inconnu
+  - critical invariants identified
+  - no unknown critical integrity hazard
 - `PARTIAL`
-  - invariants partiellement couverts
-  - risques bornés avec actions claires
+  - invariants partially covered
+  - bounded risks with clear actions
 - `BLOCKED`
-  - intégrité non fiable
-  - import/recalcul critique non maîtrisé
-  - invariants essentiels absents ou non vérifiables sur zones critiques
+  - integrity unreliable
+  - critical import/recalculation uncontrolled
+  - essential invariants absent or unverifiable on critical areas
 - `UNKNOWN`
-  - preuves insuffisantes pour valider le modèle d’intégrité
+  - insufficient evidence to validate the integrity model

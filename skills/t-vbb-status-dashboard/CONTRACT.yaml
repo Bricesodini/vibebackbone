@@ -1,0 +1,57 @@
+id: t-vbb-status-dashboard
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  optional:
+  - json_mode
+  - full_mode
+outputs:
+  required:
+  - status
+  - summary
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact: null
+gates:
+  before: []
+  success:
+  - id: status_displayed
+    output_must_contain:
+    - skills
+    - contracts
+  after: []
+events: {}
+routing:
+  phase_scope:
+  - transverse
+  triggers:
+  - status dashboard
+  - repo status
+  - health check
+  - dashboard
+  - status
+limits:
+  max_gate_depth: 1
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - skills_count
+  - contracts_count

@@ -56,9 +56,11 @@ Output format:
 
 **Phases correspondantes** : 01_INTAKE (implicite) + 05_EXECUTION
 
-Ce prompt enchaîne le cadrage et l'exécution en une seule session. Adapté à la voie RAPIDE uniquement.
+Ce prompt enchaîne le cadrage et l'exécution en une seule session. Adapté à la voie RAPIDE STANDARD uniquement.
 
-**Artefacts attendus** :
+Pour RAPIDE-ZERO et RAPIDE-MINIMAL, utiliser `0-p-vbb-zero-friction` à la place.
+
+**Artefacts attendus** (RAPIDE STANDARD) :
 - `docs/runs/YYYY-MM-DD_HHmm_slug/01_INTAKE.md` — objectif + classification RAPIDE (peut être minimal)
 - `docs/runs/YYYY-MM-DD_HHmm_slug/05_PATCH_SUMMARY_RUN_01.md` — résumé des changements
 

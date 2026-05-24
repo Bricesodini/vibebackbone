@@ -1,0 +1,74 @@
+id: 4-vbb-front-pipeline-reference
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  optional:
+  - docs/PROJECT_MODE.md
+  - pipeline_stage_query
+  - subsystem_filter
+outputs:
+  required:
+  - status
+  - summary
+  - pipeline_definition
+  - gate_conditions
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact: null
+gates:
+  before:
+  - id: repo_accessible
+    expected_status: PASS
+    blocking: true
+    reason: Cannot reference pipeline without repo access
+  success:
+  - id: pipeline_defined
+    output_must_contain:
+    - pipeline_definition
+    - gate_conditions
+  after: []
+events:
+  on_partial:
+  - skill: t-vbb-session-handoff
+    reason: Partial pipeline reference → handoff for continuation
+  on_success:
+  - skill: t-vbb-session-handoff
+    reason: Pipeline reference consulted → handoff for pass execution
+routing:
+  phase_scope:
+  - phase_4
+  triggers:
+  - front pipeline
+  - pipeline reference
+  - pipeline stages
+  - visual pipeline
+  - UX pipeline
+  - ENGINE subsystem
+  - VISUAL subsystem
+  - pipeline gates
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - pass_count
+  - gate_count
+  - scope_locked

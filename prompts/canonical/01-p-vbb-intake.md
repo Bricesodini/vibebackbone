@@ -78,7 +78,7 @@ Appliquer le triage de `docs/PILOTAGE.md` :
 |----------|---------|
 | Touche à un contrat de données, de l'auth, ou un état de production ? | Oui → Voie STRUCTURÉE |
 | Touche à la sécurité, l'intégrité des données, ou un périmètre réglementaire ? | Oui → Voie AUDIT |
-| Aucune des deux ? | Voie RAPIDE |
+| Aucune des deux ? | Voie RAPIDE (ZERO si micro-tâche ≤ 3 fichiers, MINIMAL si petite tâche) |
 | Fin de session ou préparation de reprise ? | Voie CLÔTURE |
 
 Documenter le niveau de risque :
@@ -89,8 +89,10 @@ Documenter le niveau de risque :
 ### Étape 4 — Recommander la voie et la phase suivante
 
 Recommander :
-- La voie (`RAPIDE`, `STRUCTURÉE`, `AUDIT`, `CLÔTURE`)
+- La voie (`RAPIDE-ZERO`, `RAPIDE-MINIMAL`, `RAPIDE`, `STRUCTURÉE`, `AUDIT`, `CLÔTURE`)
 - La phase suivante (`02_AUDIT`, `03_DECISION`, `04_PLAN`, `05_EXECUTION`, `07_CLOSEOUT`)
+- Si voie RAPIDE-ZERO : agir directement, inscrire dans `docs/ACTIVITY_LOG.md`
+- Si voie RAPIDE-MINIMAL : agir puis créer `05_PATCH_SUMMARY`
 - Si voie RAPIDE : autoriser chaînage direct vers `04_PLAN` ou `05_EXECUTION`
 - Si voie AUDIT : imposer `02_AUDIT` avant toute modification
 
@@ -127,7 +129,7 @@ Créer le fichier `01_INTAKE.md` dans `docs/runs/YYYY-MM-DD_HHmm_slug/`.
 # 01_INTAKE — [Slug]
 
 **Date** : YYYY-MM-DD HH:mm
-**Voie** : RAPIDE | STRUCTURÉE | AUDIT | CLÔTURE
+**Voie** : RAPIDE-ZERO | RAPIDE-MINIMAL | RAPIDE | STRUCTURÉE | AUDIT | CLÔTURE
 
 ## Demande reçue
 

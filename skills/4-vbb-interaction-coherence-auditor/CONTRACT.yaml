@@ -1,0 +1,77 @@
+id: 4-vbb-interaction-coherence-auditor
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  - action_hierarchy
+  optional:
+  - interaction_patterns
+  - existing_feedback_map
+outputs:
+  required:
+  - status
+  - summary
+  - interaction_report
+  - standardization_map
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact: null
+gates:
+  before:
+  - id: action_hierarchy_exists
+    expected_status: PASS
+    blocking: true
+    reason: 'Pass 1 incomplete: action hierarchy absent'
+  success:
+  - id: interaction_coherent
+    output_must_contain:
+    - interaction_report
+    - standardization_map
+  after:
+  - id: next_pass_ready
+    skill: t-vbb-session-handoff
+    reason: Pass 2 complete → handoff for cognitive load optimizer (pass 3/7)
+events:
+  on_blocked:
+  - skill: t-vbb-session-handoff
+    reason: 'Missing action hierarchy → handoff: run UX engine (pass 1) first'
+  on_partial:
+  - skill: t-vbb-session-handoff
+    reason: Partial interaction coherence → handoff for continuation
+  on_success:
+  - skill: t-vbb-session-handoff
+    reason: Interaction coherence pass complete → record handoff
+routing:
+  phase_scope:
+  - phase_4
+  triggers:
+  - interaction coherence
+  - interaction consistency
+  - feedback standardization
+  - button behavior
+  - action patterns
+  - front pipeline pass 2
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - inconsistency_count
+  - standardization_count

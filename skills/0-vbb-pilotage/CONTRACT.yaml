@@ -1,0 +1,58 @@
+id: 0-vbb-pilotage
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  optional:
+  - docs/PILOTAGE.md
+  - phase_context
+  - voie_context
+outputs:
+  required:
+  - status
+  - summary
+  - routing_decision
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact: null
+gates:
+  before: []
+  success: []
+  after: []
+events:
+  on_success:
+  - skill: t-vbb-session-handoff
+    reason: Piloting decision → record
+routing:
+  phase_scope:
+  - transverse
+  triggers:
+  - pilotage
+  - governance decision
+  - mode selection
+  - voie selection
+  - escalation decision
+limits:
+  max_gate_depth: 1
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - selected_voie
+  - escalation_triggered

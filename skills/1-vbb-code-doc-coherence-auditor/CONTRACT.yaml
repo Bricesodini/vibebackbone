@@ -1,0 +1,84 @@
+id: 1-vbb-code-doc-coherence-auditor
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  optional:
+  - docs/PROJECT_MODE.md
+  - severity_threshold
+  - scope_filter
+outputs:
+  required:
+  - status
+  - summary
+  - findings
+  - coherence_report
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact:
+    path_pattern: docs/audits/code-doc-coherence-{date}-*.md
+    must_exist_after_run: false
+    kind: audit_report
+gates:
+  before:
+  - id: repo_accessible
+    expected_status: PASS
+    blocking: true
+    reason: Cannot audit an inaccessible repo
+  - id: repo_has_content
+    expected_status: PASS
+    blocking: true
+    reason: Nothing to audit — no code or documentation present
+  success:
+  - id: coherence_reported
+    output_must_contain:
+    - findings
+    - coherence_report
+  after: []
+events:
+  on_blocked:
+  - skill: 1-vbb-doc-harmonizer
+    reason: Doc writing request → redirect to harmonizer or gap integrator
+  on_partial:
+  - skill: 1-vbb-doc-harmonizer
+    reason: Coherence issues found → harmonize doc↔doc
+  on_success:
+  - skill: t-vbb-session-handoff
+    reason: Coherence audit complete → record handoff
+routing:
+  phase_scope:
+  - phase_1
+  triggers:
+  - coherence audit
+  - post-refactoring
+  - code-doc sync
+  - obsolete documentation
+  - stale documentation
+  - documentation drift
+  - gap detection
+  - doc redundancy
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - gap_count
+  - orphan_count
+  - obsolete_count

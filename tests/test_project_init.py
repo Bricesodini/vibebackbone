@@ -18,6 +18,7 @@ Bootstrap guard:
   9. Non-existent target dir → exit 1
 
 Usage:
+    pytest tests/test_project_init.py -q
     python3 tests/test_project_init.py
 """
 
@@ -45,26 +46,11 @@ def _run(args: list, cwd=None):
     return result.returncode, result.stdout, result.stderr
 
 
-_passed = 0
-_failed = 0
-
-
-def test(name: str, fn) -> None:
-    global _passed, _failed
-    try:
-        fn()
-        print(f"  ✓ {name}")
-        _passed += 1
-    except AssertionError as exc:
-        print(f"  ✗ {name}: {exc}")
-        _failed += 1
-
-
 # ---------------------------------------------------------------------------
 # Positive tests
 # ---------------------------------------------------------------------------
 
-def _test_fresh_project():
+def test_fresh_project():
     """All governance files created in an empty directory."""
     with tempfile.TemporaryDirectory() as tmp:
         rc, out, err = _run(["--target-dir", tmp, "--project-name", "TestProj"])
@@ -82,7 +68,7 @@ def _test_fresh_project():
         assert (Path(tmp) / "docs" / "AUDIT_STATUS.md").exists()
 
 
-def _test_dry_run_no_write():
+def test_dry_run_no_write():
     """--dry-run prints plan but writes nothing."""
     with tempfile.TemporaryDirectory() as tmp:
         rc, out, err = _run(["--target-dir", tmp, "--dry-run"])
@@ -93,7 +79,7 @@ def _test_dry_run_no_write():
         assert "CREATE" in out or "docs/PROJECT_MODE.md" in out
 
 
-def _test_project_name_in_context():
+def test_project_name_in_context():
     """--project-name appears in CONTEXT.md."""
     with tempfile.TemporaryDirectory() as tmp:
         rc, out, err = _run(["--target-dir", tmp, "--project-name", "MyAwesomeProject"])
@@ -102,7 +88,7 @@ def _test_project_name_in_context():
         assert "MyAwesomeProject" in context, f"Project name not found in CONTEXT.md:\n{context[:300]}"
 
 
-def _test_mode_prod_in_project_mode():
+def test_mode_prod_in_project_mode():
     """--mode PROD appears in PROJECT_MODE.md."""
     with tempfile.TemporaryDirectory() as tmp:
         rc, out, err = _run(["--target-dir", tmp, "--mode", "PROD"])
@@ -111,7 +97,7 @@ def _test_mode_prod_in_project_mode():
         assert "PROD" in pm, f"Mode PROD not found in PROJECT_MODE.md:\n{pm[:300]}"
 
 
-def _test_templates_copied():
+def test_templates_copied():
     """7 phase templates are copied to docs/templates/."""
     with tempfile.TemporaryDirectory() as tmp:
         if not TEMPLATES_SRC.exists():
@@ -132,7 +118,7 @@ def _test_templates_copied():
 # Idempotency and overwrite tests
 # ---------------------------------------------------------------------------
 
-def _test_existing_file_skipped():
+def test_existing_file_skipped():
     """Existing file is reported as skipped, not overwritten."""
     with tempfile.TemporaryDirectory() as tmp:
         # Pre-create PROJECT_MODE.md with custom content
@@ -154,7 +140,7 @@ def _test_existing_file_skipped():
         )
 
 
-def _test_overwrite_rewrites_file():
+def test_overwrite_rewrites_file():
     """--overwrite replaces existing files."""
     with tempfile.TemporaryDirectory() as tmp:
         docs = Path(tmp) / "docs"
@@ -170,7 +156,7 @@ def _test_overwrite_rewrites_file():
         assert "Mode actuel" in new_content, f"Expected VBB content in overwritten file:\n{new_content[:200]}"
 
 
-def _test_gitignore_idempotent():
+def test_gitignore_idempotent():
     """Running init twice doesn't duplicate .gitignore entries."""
     with tempfile.TemporaryDirectory() as tmp:
         # First run
@@ -196,7 +182,7 @@ def _test_gitignore_idempotent():
 # Bootstrap guard
 # ---------------------------------------------------------------------------
 
-def _test_nonexistent_target():
+def test_nonexistent_target():
     """Non-existent --target-dir → exit 1."""
     rc, out, err = _run(["--target-dir", "/nonexistent/path/that/does/not/exist"])
     assert rc == 1, f"Expected exit 1, got {rc}"
@@ -206,7 +192,7 @@ def _test_nonexistent_target():
 # Dogfood: running on VBB itself (all files exist → all skipped)
 # ---------------------------------------------------------------------------
 
-def _test_dogfood_vbb_skips_all():
+def test_dogfood_vbb_skips_all():
     """Running init on the VBB repo itself skips all existing files."""
     rc, out, err = _run(["--target-dir", str(REPO_ROOT)])
     assert rc == 0, f"Expected exit 0\n{out}\n{err}"
@@ -215,41 +201,23 @@ def _test_dogfood_vbb_skips_all():
         f"Expected some files to be skipped on VBB itself\n{out}"
     )
 
-
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
-
-def main() -> int:
-    print("=== VBB Project Init — Test Suite ===")
-    print()
-
-    print("Positive tests:")
-    test("Fresh project — all governance files created", _test_fresh_project)
-    test("--dry-run — no files written, plan printed", _test_dry_run_no_write)
-    test("--project-name — appears in CONTEXT.md", _test_project_name_in_context)
-    test("--mode PROD — appears in PROJECT_MODE.md", _test_mode_prod_in_project_mode)
-    test("Templates copied from VBB distribution", _test_templates_copied)
-
-    print()
-    print("Idempotency and overwrite:")
-    test("Existing file skipped (no --overwrite)", _test_existing_file_skipped)
-    test("--overwrite replaces existing files", _test_overwrite_rewrites_file)
-    test(".gitignore entries not duplicated on second run", _test_gitignore_idempotent)
-
-    print()
-    print("Bootstrap guard:")
-    test("Non-existent target dir → exit 1", _test_nonexistent_target)
-
-    print()
-    print("Dogfood:")
-    test("Running on VBB itself skips all existing files", _test_dogfood_vbb_skips_all)
-
-    print()
-    total = _passed + _failed
-    print(f"Results: {_passed}/{total} passed, {_failed} failed")
-    return 0 if _failed == 0 else 1
-
+# --- Direct execution fallback ---
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        import pytest
+        sys.exit(pytest.main([__file__, "-q"]))
+    except ImportError:
+        passed = failed = 0
+        for _name, _fn in sorted(globals().items()):
+            if _name.startswith("test_") and callable(_fn):
+                try:
+                    _fn()
+                    print("  PASS " + _name)
+                    passed += 1
+                except AssertionError as _e:
+                    print("  FAIL " + _name + ": " + str(_e))
+                    failed += 1
+        total = passed + failed
+        print("Results: %d/%d passed, %d failed" % (passed, total, failed))
+        sys.exit(0 if failed == 0 else 1)

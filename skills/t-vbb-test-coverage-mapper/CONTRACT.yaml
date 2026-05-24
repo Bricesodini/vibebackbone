@@ -1,0 +1,64 @@
+id: t-vbb-test-coverage-mapper
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  optional:
+  - test_config
+  - coverage_report
+  - critical_paths_filter
+outputs:
+  required:
+  - status
+  - summary
+  - coverage_map
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact: null
+gates:
+  before: []
+  success:
+  - id: coverage_mapped
+    output_must_contain:
+    - critical paths
+  after: []
+events:
+  on_partial:
+  - skill: 1-vbb-tech-debt
+    reason: Coverage mapping partial → check linked tech debt
+  on_success:
+  - skill: t-vbb-commit-ready
+    reason: Coverage map complete → prepare commit
+routing:
+  phase_scope:
+  - transverse
+  triggers:
+  - test coverage
+  - coverage map
+  - critical paths
+  - coverage gaps
+  - test gaps
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - uncovered_paths
+  - critical_count

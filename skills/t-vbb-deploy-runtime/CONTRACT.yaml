@@ -1,0 +1,68 @@
+id: t-vbb-deploy-runtime
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  optional:
+  - docker_compose
+  - deploy_config
+  - env_config
+outputs:
+  required:
+  - status
+  - summary
+  - deploy_plan
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact:
+    path_pattern: deploy.sh
+    must_exist_after_run: false
+    kind: phase_artifact
+    frontmatter_required: []
+gates:
+  before: []
+  success:
+  - id: deploy_script_produced
+    output_must_contain:
+    - deploy
+  after: []
+events:
+  on_partial:
+  - skill: t-vbb-impact-analyzer
+    reason: Deploy partiel → analyser impact
+  on_success:
+  - skill: t-vbb-commit-ready
+    reason: Deploy script ready → prepare commit
+routing:
+  phase_scope:
+  - transverse
+  triggers:
+  - deploy runtime
+  - docker deploy
+  - deployment
+  - deploy.sh
+  - zero-downtime
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - deploy_target
+  - backup_verified

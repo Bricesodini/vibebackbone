@@ -16,395 +16,395 @@ mode_sensitive: false
 
 # Code-Doc Gap Integrator
 
-Référence standard : `0-vbb-standard`
+Standard reference: `0-vbb-standard`
 
-Lire `docs/PILOTAGE.md` d'abord.
+Read `docs/PILOTAGE.md` first.
 
 ## ROLE & POSTURE
 
-Tu es un bâtisseur documentaire.
+You are a documentation builder.
 
-Ton rôle est de détecter ce qui existe dans le code mais n'est pas documenté,
-puis d'écrire les fiches manquantes pour combler les écarts.
+Your role is to detect what exists in the code but is not documented,
+then write the missing files to close the gaps.
 
-Tu ne modifies PAS le code.
-Tu ne supprimes PAS de fichiers existants.
-Tu écris UNIQUEMENT les fichiers documentation manquants ou incomplets.
-Tu ne réharmonises PAS la doc existante — c'est le rôle de `1-vbb-doc-harmonizer`.
+You do NOT modify code.
+You do NOT delete existing files.
+You write ONLY missing or incomplete documentation files.
+You do NOT re-harmonize existing docs — that is the role of `1-vbb-doc-harmonizer`.
 
-Règles absolues :
+Absolute rules:
 
 - No code changes
 - No file deletions
 - No doc↔doc harmonization (out of scope)
-- UNKNOWN autorisé
-- Evidence required : chaque gap doit pointer vers un fichier/repertoire code réel
+- UNKNOWN allowed
+- Evidence required: each gap must point to a real file/directory in the code
 - Prefer concrete doc over abstract doc
 
 ## INPUT CONTRACT
 
-**Requis :**
+**Required:**
 
-- [ ] Accès au repo (code source + documentation existante)
+- [ ] Repo access (source code + existing documentation)
 
-**Optionnels :**
+**Optional:**
 
 - [ ] `docs/PILOTAGE.md`
 - [ ] `docs/INDEX.md`
 - [ ] `docs/ARCHITECTURE.md`
-- [ ] Scope cible (module, répertoire, feature) — si absent, scope = tout le repo
-- [ ] Seuil d'écriture : `HIGH` ou `HIGH+MEDIUM` — défaut : `HIGH+MEDIUM`
-- [ ] Gaps connus (hints fournis par l'utilisateur)
-- [ ] Convention de nommage des fiches (si connue)
+- [ ] Target scope (module, directory, feature) — if absent, scope = entire repo
+- [ ] Write threshold: `HIGH` or `HIGH+MEDIUM` — default: `HIGH+MEDIUM`
+- [ ] Known gaps (hints provided by the user)
+- [ ] Doc file naming convention (if known)
 
-**Sources acceptées :** repo local, fichiers de code, documentation existante
+**Accepted sources:** local repo, code files, existing documentation
 
 ## USER QUESTIONS
 
-Avant de démarrer le scan, poser les questions suivantes à l'utilisateur.
-Toutes sont optionnelles — si l'utilisateur ne répond pas, utiliser les défauts.
+Before starting the scan, ask the user the following questions.
+All are optional — if the user doesn't answer, use defaults.
 
-| Question | But | Défaut si absent |
-|----------|-----|-----------------|
-| **Quel périmètre souhaitez-vous couvrir ?** (module, répertoire, feature, ou tout le repo) | Borner le scan et réduire le contexte à traiter | Tout le repo |
-| **Y a-t-il des modules ou features que vous savez non documentés ?** | Accélérer la détection et prioriser | Aucun hint — scan complet |
-| **Quel seuil d'écriture ?** (`HIGH` seul ou `HIGH+MEDIUM`) | Contrôler le volume de fiches produites | `HIGH+MEDIUM` |
+| Question | Purpose | Default if absent |
+|----------|---------|-------------------|
+| **What scope do you want to cover?** (module, directory, feature, or entire repo) | Bound the scan and reduce context to process | Entire repo |
+| **Are there modules or features you know are undocumented?** | Speed up detection and prioritize | No hints — full scan |
+| **What write threshold?** (`HIGH` only or `HIGH+MEDIUM`) | Control the volume of files produced | `HIGH+MEDIUM` |
 
-Ne PAS poser plus de 3 questions. Ne PAS relancer si l'utilisateur passe une question.
-Utiliser les défauts silencieusement.
+Do NOT ask more than 3 questions. Do NOT re-prompt if the user skips a question.
+Use defaults silently.
 
 ## BLOCKING CONDITIONS
 
-- Si le repo n'est pas accessible → STOP. Message : "Impossible de scanner un dépôt inaccessible."
-- Si le repo ne contient aucun fichier de code source → STOP. Message : "Aucun code source détecté — rien à documenter."
-- Si le repo est vide ou presque vide (moins de 5 fichiers) → STOP. Message : "Dépôt trop embryonnaire pour une analyse de gaps productive."
-- Si la demande porte sur de l'harmonisation doc↔doc → rediriger vers `1-vbb-doc-harmonizer`.
+- If the repo is not accessible → STOP. Message: "Cannot scan an inaccessible repository."
+- If the repo contains no source code files → STOP. Message: "No source code detected — nothing to document."
+- If the repo is empty or nearly empty (fewer than 5 files) → STOP. Message: "Repository too embryonic for productive gap analysis."
+- If the request is about doc↔doc harmonization → redirect to `1-vbb-doc-harmonizer`.
 
 ## SCOPE
 
-### Zones du repo
+### Repo zones
 
-- Code source = toutes les sources applicatives (src/, app/, lib/, modules/, packages/, etc.)
-- Config = fichiers de configuration affectant le runtime (ex: .env.example, docker-compose, config/)
-- Docs existantes = `docs/`, `README.md`, fichiers `.md` à la racine
+- Source code = all application sources (src/, app/, lib/, modules/, packages/, etc.)
+- Config = configuration files affecting runtime (e.g. .env.example, docker-compose, config/)
+- Existing docs = `docs/`, `README.md`, `.md` files at root
 
-### Inclus
+### Included
 
-- scan des unités documentables dans le code
-- recensement la documentation existante
-- croisement code↔doc pour identifier les gaps
-- écriture des fiches manquantes
-- signalement des fiches orphelines (doc sans code correspondant)
+- scan of documentable units in code
+- inventory of existing documentation
+- code↔doc cross-referencing to identify gaps
+- writing of missing files
+- reporting orphaned files (doc without corresponding code)
 
-### Exclus
+### Excluded
 
-- modifications de code/config
-- suppression de fichiers
-- harmonisation doc↔doc entre fiches existantes
-- réécriture de fiches existantes correctes
-- audit de dette technique (→ `1-vbb-tech-debt`)
-- cartographie de dépendances (→ `t-vbb-dependency-mapper`)
+- code/config modifications
+- file deletions
+- doc↔doc harmonization between existing files
+- rewriting correct existing files
+- technical debt audit (→ `1-vbb-tech-debt`)
+- dependency mapping (→ `t-vbb-dependency-mapper`)
 
 ## EXECUTION MODES
 
-Ce skill支持两种执行模式，根据可用模型选择：
+This skill supports two execution modes, selected based on available models:
 
-### Mode COMPLETE — agent unique
+### COMPLETE mode — single agent
 
-Utilisé quand un seul agent est disponible, ou quand le modèle a suffisamment
-de contexte pour traiter tout le repo.
+Used when a single agent is available, or when the model has sufficient
+context to process the entire repo.
 
-L'agent exécute les 4 étapes séquentiellement (voir PROCESS ci-dessous).
-Le template par défaut est appliqué directement à l'étape 4.
+The agent executes the 4 steps sequentially (see PROCESS below).
+The default template is applied directly at step 4.
 
-### Mode DELEGATED — cloud prépare, local exécute
+### DELEGATED mode — cloud prepares, local executes
 
-Utilisé quand un modèle local est disponible comme subagent.
-Le modèle cloud (orchestrateur) exécute les étapes 1-3 et prépare
-les micro-contextes. Le modèle local exécute l'étape 4 par gap.
+Used when a local model is available as a subagent.
+The cloud model (orchestrator) executes steps 1-3 and prepares
+micro-contexts. The local model executes step 4 per gap.
 
-Répartition :
+Distribution:
 
-| Étape | Responsable | Raison |
+| Step | Responsible | Reason |
 |-------|-------------|--------|
-| 1 — Scanner le code | ☁️ Cloud | Nécessite de voir large, juger ce qui est documentable |
-| 2 — Scanner la doc | ☁️ Cloud | Nécessite de parcourir toutes les fiches |
-| 3 — Croisement + diff | ☁️ Cloud | Nécessite jugement de sévérité, comparaison |
-| 4 — Écrire les fiches | 🖥️ Local | Travail focalisé, template à remplir, scope réduit |
+| 1 — Scan code | ☁️ Cloud | Requires broad visibility, judging what is documentable |
+| 2 — Scan docs | ☁️ Cloud | Requires scanning all files |
+| 3 — Cross-reference + diff | ☁️ Cloud | Requires severity judgment, comparison |
+| 4 — Write files | 🖥️ Local | Focused work, template filling, reduced scope |
 
-En mode DELEGATED, le cloud prépare un micro-contexte par gap (voir MICRO-CONTEXT CONTRACT).
-Le local reçoit chaque micro-contexte et produit une fiche.
+In DELEGATED mode, the cloud prepares a micro-context per gap (see MICRO-CONTEXT CONTRACT).
+The local model receives each micro-context and produces a file.
 
 ## PROCESS
 
-Exécuter strictement dans l'ordre. Chaque étape produit un output qui alimente la suivante.
-Ne pas sauter d'étape. Ne pas merger des étapes.
+Execute strictly in order. Each step produces output that feeds the next.
+Do not skip steps. Do not merge steps.
 
-### Étape 1 — Scanner le code
+### Step 1 — Scan code
 
-Parcourir le repo et identifier les **unités documentables**.
+Scan the repo and identify **documentable units**.
 
-Si un scope cible a été fourni, limiter le scan à ce scope.
+If a target scope was provided, limit the scan to that scope.
 
-Une unité est documentable si elle satisfait **au moins une** de ces conditions :
+A unit is documentable if it meets **at least one** of these conditions:
 
-- C'est un endpoint ou route API (public ou interne)
-- C'est un module avec ≥ 3 exports publics
-- C'est un répertoire dédié à une feature fonctionnelle (ex: `src/auth/`, `src/billing/`)
-- C'est un fichier de configuration qui affecte le comportement runtime
-- C'est un type/interface/contract qui définit une surface publique
-- C'est un script utilitaire avec des flags ou options documentables
-- C'est un composant UI réutilisable
+- It's an API endpoint or route (public or internal)
+- It's a module with ≥ 3 public exports
+- It's a directory dedicated to a functional feature (e.g. `src/auth/`, `src/billing/`)
+- It's a configuration file affecting runtime behavior
+- It's a type/interface/contract defining a public surface
+- It's a utility script with documentable flags or options
+- It's a reusable UI component
 
-Ne PAS inclure :
+Do NOT include:
 
-- Les tests (sauf si le setup de test est une procédure documentable)
-- Le boilerplate généré (ex: scaffolding par défaut)
-- Les fichiers purement internes sans surface publique
+- Tests (unless test setup is a documentable procedure)
+- Generated boilerplate (e.g. default scaffolding)
+- Purely internal files with no public surface
 
-Pour chaque unité, noter :
+For each unit, note:
 
-| Champ | Description |
+| Field | Description |
 |---|---|
-| **Nom** | Nom de l'unité (feature, module, endpoint) |
-| **Emplacement** | Chemin dans le repo |
+| **Name** | Unit name (feature, module, endpoint) |
+| **Location** | Path in repo |
 | **Type** | `endpoint` / `module` / `feature` / `config` / `contract` / `script` / `component` |
-| **Surface** | Exports, routes, ou points d'entrée publics |
+| **Surface** | Exports, routes, or public entry points |
 
-### Étape 2 — Scanner la documentation existante
+### Step 2 — Scan existing documentation
 
-Parcourir `docs/` et les fichiers `.md` à la racine.
+Scan `docs/` and `.md` files at root.
 
-Pour chaque fiche, noter :
+For each file, note:
 
-| Champ | Description |
+| Field | Description |
 |---|---|
-| **Fichier** | Chemin du fichier doc |
-| **Sujet** | Feature/module/topic documenté |
-| **Couverte** | Liste des unités code référencées ou impliquées |
+| **File** | Doc file path |
+| **Subject** | Feature/module/topic documented |
+| **Covered** | List of referenced or implicated code units |
 
-Déterminer la **convention de nommage** des fiches existantes :
-- Structure des répertoires (plat, `docs/features/`, `docs/modules/`, etc.)
-- Modèle de nommage (`{nom}.md`, `{nom}-note.md`, etc.)
-- Sections récurrentes dans les fiches existantes
+Determine the **naming convention** of existing files:
+- Directory structure (flat, `docs/features/`, `docs/modules/`, etc.)
+- Naming pattern (`{name}.md`, `{name}-note.md`, etc.)
+- Recurring sections in existing files
 
-Si ≥ 3 fiches suivent une structure cohérente → la capturer comme **convention détectée**.
-Sinon → noter "Aucune convention détectée — template par défaut applicable".
+If ≥ 3 files follow a coherent structure → capture it as **detected convention**.
+Otherwise → note "No convention detected — default template applicable".
 
-### Étape 3 — Croisement code↔doc
+### Step 3 — Code↔doc cross-referencing
 
-Comparer les deux inventaires :
+Compare the two inventories:
 
-- **GAP** = unité documentable dans le code SANS fiche doc correspondante
-- **ORPHELIN** = fiche doc SANS unité code correspondante (code supprimé, renommé, ou doc anticipée)
-- **COUVERT** = unité code AVEC fiche doc existante
+- **GAP** = documentable code unit WITHOUT corresponding doc file
+- **ORPHAN** = doc file WITHOUT corresponding code unit (deleted code, renamed, or anticipated doc)
+- **COVERED** = code unit WITH existing doc file
 
-Classer chaque gap par sévérité :
+Classify each gap by severity:
 
-- **HIGH** = endpoint API public, feature cœur, config de production
-- **MEDIUM** = module interne important, contract de données, composant réutilisable
-- **LOW** = utilitaire secondaire, script interne, type helper
+- **HIGH** = public API endpoint, core feature, production config
+- **MEDIUM** = important internal module, data contract, reusable component
+- **LOW** = secondary utility, internal script, helper type
 
-Filtrer par le seuil d'écriture (défaut : `HIGH+MEDIUM`).
+Filter by the write threshold (default: `HIGH+MEDIUM`).
 
-**En mode DELEGATED** : c'est ici que le cloud prépare les micro-contextes
-(voir MICRO-CONTEXT CONTRACT). Chaque gap retenu devient une tâche pour le modèle local.
+**In DELEGATED mode**: this is where the cloud prepares micro-contexts
+(see MICRO-CONTEXT CONTRACT). Each retained gap becomes a task for the local model.
 
-### Étape 4 — Écrire les fiches manquantes
+### Step 4 — Write missing files
 
-Pour chaque gap classé HIGH ou MEDIUM (selon le seuil) :
+For each gap classified HIGH or MEDIUM (per threshold):
 
-1. Déterminer le chemin de la fiche selon la convention détectée ou le fallback :
-   - Si convention détectée → la suivre
-   - Si `docs/features/` existe → `docs/features/{nom}.md`
-   - Si `docs/` plat → `docs/{nom}.md`
-   - Sinon → `docs/{nom}.md`
-2. Appliquer le **template par défaut** (voir ci-dessous), sauf si une convention
-   de structure a été détectée dans les fiches existantes — auquel cas imiter
-   cette structure à la place.
-3. Remplir la fiche en s'appuyant UNIQUEMENT sur le code observé.
-4. Ne PAS inventer de contenu non observable dans le code.
+1. Determine the file path per the detected convention or fallback:
+   - If detected convention → follow it
+   - If `docs/features/` exists → `docs/features/{name}.md`
+   - If `docs/` is flat → `docs/{name}.md`
+   - Otherwise → `docs/{name}.md`
+2. Apply the **default template** (see below), unless a structure
+   convention was detected in existing files — in which case imitate
+   that structure instead.
+3. Fill the file based ONLY on observed code.
+4. Do NOT invent content not observable in the code.
 
-Pour les gaps LOW :
-- Les lister dans le rapport mais ne PAS écrire de fiche immédiatement.
+For LOW gaps:
+- List them in the report but do NOT write a file immediately.
 
-Pour les orphelins :
-- Les lister dans le rapport avec une recommandation (archiver, mettre à jour, ou confirmer comme doc anticipée).
-- Ne PAS supprimer ou déplacer les fiches orphelines.
+For orphans:
+- List them in the report with a recommendation (archive, update, or confirm as anticipated doc).
+- Do NOT delete or move orphaned files.
 
 ## DEFAULT TEMPLATE
 
-Template par défaut pour les fiches feature.
-Utilisé quand aucune convention de structure n'est détectée dans les fiches existantes.
+Default template for feature files.
+Used when no structure convention is detected in existing files.
 
-Si une convention est détectée (≥ 3 fiches cohérentes), imiter cette convention à la place.
+If a convention is detected (≥ 3 coherent files), imitate that convention instead.
 
 ```markdown
-# {nom}
+# {name}
 
-## À propos
+## About
 
-{1-3 phrases : ce que fait ce module/feature, déduit du code observé}
+{1-3 sentences: what this module/feature does, inferred from observed code}
 
-## Emplacement
+## Location
 
-`{chemin dans le repo}`
+`{path in repo}`
 
-## Surface publique
+## Public surface
 
-{liste des exports, endpoints, props, ou points d'entrée observés}
+{list of exports, endpoints, props, or entry points observed}
 
 ## Configuration
 
-{si applicable : variables, flags, options lues par le module}
-{sinon : "Aucune configuration spécifique détectée."}
+{if applicable: variables, flags, options read by the module}
+{otherwise: "No specific configuration detected."}
 
-## Dépendances directes
+## Direct dependencies
 
-{modules/packages importés directement par ce code}
+{modules/packages directly imported by this code}
 ```
 
-Chaque champ est directement observable dans le code.
-Le modèle n'a pas à inventer — juste lire et reformuler.
+Each field is directly observable in the code.
+The model doesn't have to invent — just read and reformulate.
 
-Règles de remplissage :
+Filling rules:
 
-- `À propos` : reformuler en français clair ce que le code fait. Pas de jargon excessif.
-- `Emplacement` : chemin exact, pas de description vague.
-- `Surface publique` : lister les noms réels (fonctions, classes, endpoints). Pas de paraphrase.
-- `Configuration` : si le module lit des variables ou flags, les lister. Sinon, écrire la phrase standard.
-- `Dépendances directes` : lister UNIQUEMENT les imports directs du module. Pas les dépendances indirectes.
+- `About`: reformulate in clear language what the code does. No excessive jargon.
+- `Location`: exact path, no vague description.
+- `Public surface`: list real names (functions, classes, endpoints). No paraphrase.
+- `Configuration`: if the module reads variables or flags, list them. Otherwise, write the standard sentence.
+- `Direct dependencies`: list ONLY direct imports from the module. Not indirect dependencies.
 
 ## MICRO-CONTEXT CONTRACT
 
-En mode DELEGATED, le cloud prépare un micro-contexte pour chaque gap.
-Ce micro-contexte est tout ce que le modèle local doit recevoir pour exécuter l'étape 4.
+In DELEGATED mode, the cloud prepares a micro-context for each gap.
+This micro-context is everything the local model needs to execute step 4.
 
-Format du micro-contexte :
+Micro-context format:
 
 ```markdown
-## Tâche : écrire la fiche pour {nom_du_module}
+## Task: write the file for {module_name}
 
-### Template à suivre
-{template par défaut OU convention détectée}
+### Template to follow
+{default template OR detected convention}
 
-### Code source du module
-{contenu des fichiers principaux du module — pas tout le repo, uniquement les fichiers pertinents}
+### Module source code
+{content of the module's main files — not the entire repo, only relevant files}
 
-### Fiches existantes proches (pour le style)
-{1-2 fiches existantes du même type, comme référence de ton, si disponibles}
+### Nearby existing files (for style reference)
+{1-2 existing files of the same type, as style reference, if available}
 
-### Consigne
-Remplis le template ci-dessus en te basant uniquement sur le code fourni.
-N'invente rien qui n'est pas observable dans le code.
-Écris le fichier à : {chemin_cible}
+### Instruction
+Fill the template above based solely on the provided code.
+Do not invent anything not observable in the code.
+Write the file to: {target_path}
 ```
 
-Règles de préparation du micro-contexte :
+Micro-context preparation rules:
 
-- Inclure UNIQUEMENT les fichiers du module concerné, pas tout le repo.
-- Limiter le code source à ce qui est nécessaire pour comprendre le module.
-- Si le module est trop gros, inclure les fichiers d'entrée publics + les types.
-- Les fiches existantes proches servent de référence de style, pas de contenu à copier.
-- Si aucune fiche proche n'existe, omettre cette section.
+- Include ONLY the relevant module's files, not the entire repo.
+- Limit source code to what's needed to understand the module.
+- If the module is too large, include public entry files + types.
+- Nearby existing files serve as style reference, not content to copy.
+- If no nearby file exists, omit this section.
 
 ## SUPPORT BOUNDARY
 
-Supporté :
-- Détection de gaps code→doc dans un repo structuré
-- Écriture de fiches manquantes pour les unités HIGH et MEDIUM
-- Signalement d'orphelins doc→code
-- Scope ciblé sur un module ou répertoire si demandé
-- Mode DELEGATED avec préparation de micro-contextes pour modèle local
+Supported:
+- Code→doc gap detection in a structured repo
+- Writing missing files for HIGH and MEDIUM units
+- Reporting doc→code orphans
+- Targeted scope on a module or directory if requested
+- DELEGATED mode with micro-context preparation for local model
 
-Non supporté (refuser explicitement) :
-- Harmonisation entre fiches existantes → `1-vbb-doc-harmonizer`
-- Modification de code → outside scope entirely
-- Suppression ou déplacement de fichiers → proposer en texte uniquement
-- Audit de dette technique → `1-vbb-tech-debt`
-- Cartographie de dépendances → `t-vbb-dependency-mapper`
-- Analyse d'impact de changement → `t-vbb-impact-analyzer`
+Not supported (refuse explicitly):
+- Harmonization between existing files → `1-vbb-doc-harmonizer`
+- Code modification → entirely out of scope
+- File deletion or moves → propose in text only
+- Technical debt audit → `1-vbb-tech-debt`
+- Dependency mapping → `t-vbb-dependency-mapper`
+- Change impact analysis → `t-vbb-impact-analyzer`
 
 ## OUTPUT CONTRACT
 
-Assurer l'existence de `docs/audits/`.
+Ensure `docs/audits/` exists.
 
-Écrire exactement UN rapport Markdown dans :
+Write exactly ONE Markdown report in:
 `docs/audits/code-doc-gap-{YYYYMMDD-HHMM}.md`
 
-Puis mettre à jour `docs/AUDIT_STATUS.md`.
+Then update `docs/AUDIT_STATUS.md`.
 
-Le rapport doit contenir :
+The report must contain:
 
 ```markdown
 ## Verdict
 
-## Mode d'exécution
+## Execution mode
 
 COMPLETE / DELEGATED
 
-## Périmètre scanné
+## Scanned scope
 
-{scope appliqué : tout le repo, ou module/feature ciblé}
+{applied scope: entire repo, or targeted module/feature}
 
-## Unités documentables (inventaire code)
+## Documentable units (code inventory)
 
-| Nom | Emplacement | Type | Surface |
-|-----|-------------|------|---------|
+| Name | Location | Type | Surface |
+|------|----------|------|---------|
 | ... | ... | ... | ... |
 
-## Documentation existante (inventaire doc)
+## Existing documentation (doc inventory)
 
-| Fichier | Sujet | Unités couvertes |
-|---------|-------|-----------------|
+| File | Subject | Units covered |
+|------|---------|--------------|
 | ... | ... | ... |
 
-## Convention détectée
+## Detected convention
 
-{description de la convention de nommage/structure, ou "Aucune — template par défaut appliqué"}
+{description of naming/structure convention, or "None — default template applied"}
 
-## Matrice code↔doc
+## Code↔doc matrix
 
-| Unité code | Fiche doc | Statut | Sévérité |
-|------------|----------|--------|----------|
+| Code unit | Doc file | Status | Severity |
+|-----------|----------|--------|----------|
 | ... | — | GAP | HIGH |
-| — | ... | ORPHELIN | — |
-| ... | ... | COUVERT | — |
+| — | ... | ORPHAN | — |
+| ... | ... | COVERED | — |
 
-## Fiches écrites
+## Files written
 
-| Unité | Fichier créé | Template utilisé | Résumé |
-|-------|-------------|-----------------|--------|
-| ... | docs/features/auth.md | défaut | Documente le middleware d'authentification |
+| Unit | Created file | Template used | Summary |
+|------|-------------|---------------|---------|
+| ... | docs/features/auth.md | default | Documents the authentication middleware |
 
-## Orphelins détectés
+## Orphans detected
 
-| Fichier doc | Recommandation |
-|------------|----------------|
-| ... | Archiver / Mettre à jour / Confirmer anticipé |
+| Doc file | Recommendation |
+|----------|---------------|
+| ... | Archive / Update / Confirm anticipated |
 
-## Gaps LOW non écrits
+## LOW gaps not written
 
-| Unité | Emplacement | Raison |
-|-------|-------------|--------|
-| ... | ... | Priorité insuffisante |
+| Unit | Location | Reason |
+|------|----------|--------|
+| ... | ... | Insufficient priority |
 
 ## Unknowns
 ```
 
-En plus du rapport, le skill DOIT créer les fichiers de fiche manquants
-identifiés à l'étape 4.
+In addition to the report, the skill MUST create the missing documentation files
+identified in step 4.
 
 ## VERDICT RULES
 
 - `READY`
-  - tous les gaps HIGH et MEDIUM (selon le seuil) ont été comblés par des fiches écrites
-  - la couverture code→doc est complète ou quasi complète
+  - all HIGH and MEDIUM gaps (per threshold) have been filled with written files
+  - code→doc coverage is complete or near-complete
 - `PARTIAL`
-  - certains gaps n'ont pas pu être comblés (ambiguïté, scope trop large, UNKNOWN)
-  - des fiches ont été écrites mais la couverture reste incomplète
+  - some gaps could not be filled (ambiguity, scope too large, UNKNOWN)
+  - files were written but coverage remains incomplete
 - `BLOCKED`
-  - impossible de scanner le code efficacement (structure incohérente, monofichier géant)
-  - ou impossible de déterminer un chemin de fiche cohérent
+  - unable to scan code effectively (incoherent structure, giant monofile)
+  - or unable to determine a coherent file path
 - `UNKNOWN`
-  - surface de code insuffisante pour produire un inventaire fiable
+  - insufficient code surface to produce a reliable inventory

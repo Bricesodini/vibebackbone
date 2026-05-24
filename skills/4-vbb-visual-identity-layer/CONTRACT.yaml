@@ -1,0 +1,82 @@
+id: 4-vbb-visual-identity-layer
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  - moodboard
+  - human_validation
+  optional:
+  - design_system_tokens
+  - color_palette
+outputs:
+  required:
+  - status
+  - summary
+  - visual_identity
+  - visual_freeze_snapshot
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact: null
+gates:
+  before:
+  - id: pass_4_not_blocked
+    expected_status: PASS
+    blocking: true
+    reason: Pass 4 is BLOCKED → hard stop, resolve design system issues first
+  - id: human_validation_present
+    expected_status: PASS
+    blocking: true
+    reason: Visual identity requires human validation (moodboard approval)
+  success:
+  - id: visual_identity_applied
+    output_must_contain:
+    - visual_identity
+    - visual_freeze_snapshot
+  after:
+  - id: next_pass_ready
+    skill: t-vbb-session-handoff
+    reason: Pass 5 complete → handoff for micro-interaction refiner (pass 6/7)
+events:
+  on_blocked:
+  - skill: t-vbb-session-handoff
+    reason: 'Pass 4 blocked → handoff: resolve design system issues first'
+  on_partial:
+  - skill: t-vbb-session-handoff
+    reason: Partial visual identity → handoff for continuation
+  on_success:
+  - skill: t-vbb-session-handoff
+    reason: Visual identity applied → record handoff
+routing:
+  phase_scope:
+  - phase_4
+  triggers:
+  - visual identity
+  - moodboard
+  - visual styling
+  - visual freeze
+  - color palette
+  - front pipeline pass 5
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - visual_freeze_hash
+  - component_count

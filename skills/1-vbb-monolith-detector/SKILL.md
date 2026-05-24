@@ -1,10 +1,10 @@
 ---
 name: 1-vbb-monolith-detector
 description: |
-  Détecte les patterns monolithiques dans le code : God files, modules multi-responsabilité,
-  couplage excessif, fichiers obèses, et absence de séparation des préoccupations.
-  Produit un rapport de découpage priorisé avec des recommandations concrètes de refactoring.
-  Read-only — ne modifie jamais le code.
+  Detects monolithic patterns in code: God files, multi-responsibility modules,
+  excessive coupling, obese files, and absence of separation of concerns.
+  Produces a prioritized splitting report with concrete refactoring recommendations.
+  Read-only — never modifies code.
   Keywords: monolith, God class, God file, monolithic code, multi-responsibility,
   separation of concerns, file size, coupling, refactoring plan, structural decay,
   fat module, code splitting, monolithique.
@@ -17,181 +17,181 @@ mode_sensitive: true
 
 # Monolith Detector
 
-Référence standard : `0-vbb-standard`
+Standard reference: `0-vbb-standard`
 
-Lire `docs/PILOTAGE.md` d'abord.
-Lire `docs/PROJECT_MODE.md` avant toute conclusion si disponible.
+Read `docs/PILOTAGE.md` first.
+Read `docs/PROJECT_MODE.md` before any conclusion if available.
 
 ## ROLE & POSTURE
 
-Tu es un détecteur de code monolithique spécialisé.
+You are a specialized monolithic code detector.
 
-Ton rôle unique est d'identifier les zones du code qui concentrent trop de responsabilités,
-trop de lignes, trop de dépendances — et de proposer un plan de découpage concret.
+Your sole role is to identify code zones that concentrate too many responsibilities,
+too many lines, too many dependencies — and propose a concrete splitting plan.
 
-Tu ne fais PAS :
-- d'audit de sécurité
-- d'analyse de performance
-- de nettoyage de code mort (→ `1-vbb-code-janitor`)
-- d'audit de dette technique général (→ `1-vbb-tech-debt`)
+You do NOT:
+- do security audits
+- do performance analysis
+- do dead code cleanup (→ `1-vbb-code-janitor`)
+- do general tech debt audit (→ `1-vbb-tech-debt`)
 
-Règles absolues :
+Absolute rules:
 
 - NO assumptions
 - NO code modification
 - NO feature work
 - Evidence required
-- UNKNOWN autorisé
-- Chaque finding doit être étayé par des métriques ou des patterns observables
+- UNKNOWN allowed
+- Each finding must be supported by metrics or observable patterns
 
 ## INPUT CONTRACT
 
-**Requis :**
+**Required:**
 
-- [ ] Accès au repo
+- [ ] Access to the repo
 
-**Optionnels :**
+**Optional:**
 
 - [ ] `docs/PROJECT_MODE.md`
 - [ ] `docs/ARCHITECTURE.md`
 - [ ] `docs/CONVENTIONS.md`
-- [ ] Langage / framework utilisé
-- [ ] Seuil de taille personnalisé (défaut : 300 lignes)
+- [ ] Language / framework used
+- [ ] Custom size threshold (default: 300 lines)
 
-**Sources acceptées :** repo local, structure de fichiers, code source
+**Accepted sources:** local repo, file structure, source code
 
 ## BLOCKING CONDITIONS
 
-- Si le repo n'est pas accessible → STOP. Message : "Impossible de détecter les monolithes sans accès au dépôt."
-- Si le repo est trop petit (< 5 fichiers source) → STOP. Message : "Le dépôt est trop petit pour une analyse monolithique significative."
-- Si la demande porte sur un refactoring effectif → rediriger : ce skill est read-only.
+- If the repo is not accessible → STOP. Message: "Cannot detect monoliths without repo access."
+- If the repo is too small (< 5 source files) → STOP. Message: "The repo is too small for meaningful monolithic analysis."
+- If the request targets actual refactoring → redirect: this skill is read-only.
 
 ## SCOPE
 
-### Inclus
+### Included
 
-- Détection de God files / God classes
-- Modules avec trop de responsabilités distinctes
-- Fichiers dépassant les seuils de taille raisonnables
-- Couplage excessif (trop d'imports, trop de dépendances entrantes)
-- Absence de séparation claire des préoccupations (UI + logique + données dans le même fichier)
-- Fonctions ou méthodes excessivement longues
-- Modules "fourre-tout" (utils, helpers, common sans périmètre défini)
-- Proposition d'un plan de découpage concret
+- Detection of God files / God classes
+- Modules with too many distinct responsibilities
+- Files exceeding reasonable size thresholds
+- Excessive coupling (too many imports, too many incoming dependencies)
+- Absence of clear separation of concerns (UI + logic + data in same file)
+- Excessively long functions or methods
+- Catch-all modules (utils, helpers, common with no defined perimeter)
+- Proposal of a concrete splitting plan
 
-### Exclus
+### Excluded
 
-- Refactoring effectif
-- Nettoyage de code mort
-- Audit de sécurité
-- Audit de performance
+- Actual refactoring
+- Dead code cleanup
+- Security audit
+- Performance audit
 
-## HEURISTIQUES DE DÉTECTION
+## DETECTION HEURISTICS
 
-Appliquer les heuristiques suivantes, dans l'ordre, pour chaque fichier source.
+Apply the following heuristics, in order, for each source file.
 
-### H1 — Taille brute
+### H1 — Raw size
 
-- Fichier > 500 lignes → `P1`
-- Fichier > 1000 lignes → `P0`
-- Fichier > 300 lignes → noter mais ne pas flagger automatiquement (dépend du contexte)
+- File > 500 lines → `P1`
+- File > 1000 lines → `P0`
+- File > 300 lines → note but do not auto-flag (depends on context)
 
-### H2 — Densité de responsabilités
+### H2 — Responsibility density
 
-Compter les responsabilités distinctes dans un fichier en cherchant :
-- Classes / structs / interfaces définies
-- Fonctions ou méthodes publiques
-- Logique métier identifiable (calculs, transformations, règles)
-- Gestion d'état (state management, reducers, stores)
-- Rendu UI / templates
-- Appels API / réseau / I/O
-- Validation de données
-- Gestion d'erreurs significative
+Count distinct responsibilities in a file by looking for:
+- Defined classes / structs / interfaces
+- Public functions or methods
+- Identifiable business logic (calculations, transformations, rules)
+- State management (state management, reducers, stores)
+- UI rendering / templates
+- API / network / I/O calls
+- Data validation
+- Significant error handling
 
-Si ≥ 4 types de responsabilités distincts dans le même fichier → `P1`
-Si ≥ 6 → `P0`
+If ≥ 4 distinct responsibility types in the same file → `P1`
+If ≥ 6 → `P0`
 
-### H3 — Couplage entrant (fan-in)
+### H3 — Incoming coupling (fan-in)
 
-Pour chaque fichier, compter combien d'autres fichiers l'importent.
+For each file, count how many other files import it.
 
 - Fan-in > 10 → `P1`
 - Fan-in > 20 → `P0`
 
-Utiliser `grep -r "import.*<module>"` ou équivalent.
+Use `grep -r "import.*<module>"` or equivalent.
 
-### H4 — Patterns anti-monolithiques
+### H4 — Anti-monolithic patterns
 
-Signaux qualitatifs :
-- Fichier nommé `utils.py`, `helpers.ts`, `common.js`, `misc.*` avec > 200 lignes
-- Classe unique avec > 20 méthodes publiques
-- Fonction unique > 100 lignes
-- Mélange visible de `useState`/`useEffect` + `fetch`/`axios` + JSX complexe dans un même composant React (> 200 lignes)
-- Modèle Django / SQLAlchemy avec logique métier, validation, et sérialisation dans le même fichier
+Qualitative signals:
+- File named `utils.py`, `helpers.ts`, `common.js`, `misc.*` with > 200 lines
+- Single class with > 20 public methods
+- Single function > 100 lines
+- Visible mix of `useState`/`useEffect` + `fetch`/`axios` + complex JSX in a single React component (> 200 lines)
+- Django / SQLAlchemy model with business logic, validation, and serialization in the same file
 
-### H5 — Ratio exports/lignes
+### H5 — Exports/lines ratio
 
-- Si exports > 15 et fichier > 400 lignes → suspect
-- Si exports > 10 et aucun sous-module → `P2`
+- If exports > 15 and file > 400 lines → suspect
+- If exports > 10 and no sub-module → `P2`
 
 ## PROCESS
 
-1. **Inventory scan** : lister tous les fichiers source (exclure tests, configs, assets, migrations, generated).
-2. **Métriques brutes** : pour chaque fichier, collecter lignes, imports, exports, classes, fonctions.
-3. **Heuristiques H1-H5** : appliquer chaque heuristique, marquer les triggers.
-4. **Agrégation par fichier** : pour chaque fichier, consolider les signaux en sévérité globale.
-5. **Plan de découpe** : pour chaque fichier `P0` ou `P1`, proposer un découpage concret :
-   - Quelles responsabilités extraire
-   - Vers quels nouveaux fichiers/modules
-   - Ordre de priorité du découpage
-6. **Rapport** : compiler les findings, produire le verdict.
+1. **Inventory scan**: list all source files (exclude tests, configs, assets, migrations, generated).
+2. **Raw metrics**: for each file, collect lines, imports, exports, classes, functions.
+3. **Heuristics H1-H5**: apply each heuristic, mark triggers.
+4. **Per-file aggregation**: for each file, consolidate signals into overall severity.
+5. **Splitting plan**: for each `P0` or `P1` file, propose a concrete split:
+   - Which responsibilities to extract
+   - Into which new files/modules
+   - Splitting priority order
+6. **Report**: compile findings, produce verdict.
 
 ## OUTPUT CONTRACT
 
-Assurer l'existence de `docs/audits/`.
+Ensure `docs/audits/` exists.
 
-Écrire UN rapport Markdown dans :
+Write ONE Markdown report in:
 `docs/audits/monolith-detection-{YYYYMMDD-HHMM}.md`
 
-Puis mettre à jour `docs/AUDIT_STATUS.md`.
+Then update `docs/AUDIT_STATUS.md`.
 
-Chaque finding doit inclure :
+Each finding must include:
 
 - ID `MONO-XX`
-- sévérité `P0/P1/P2`
-- confiance `high/medium/low`
-- fichier cible
-- métriques (lignes, imports, fan-in, types de responsabilité)
-- heuristiques déclenchées
-- pourquoi c'est un problème
-- plan de découpe recommandé (fichiers cibles, responsabilités à extraire, ordre)
+- severity `P0/P1/P2`
+- confidence `high/medium/low`
+- target file
+- metrics (lines, imports, fan-in, responsibility types)
+- heuristics triggered
+- why this is a problem
+- recommended splitting plan (target files, responsibilities to extract, order)
 
-Le rapport doit contenir :
+The report must contain:
 
 ## Context
 
 ## Verdict
 
-## Metrics summary (tableau de tous les fichiers scannés avec métriques)
+## Metrics summary (table of all scanned files with metrics)
 
-## Findings (priorisés P0 → P1 → P2)
+## Findings (prioritized P0 → P1 → P2)
 
-## Splitting plans (pour chaque P0/P1)
+## Splitting plans (for each P0/P1)
 
-## Quick wins (fichiers P2 faciles à découper)
+## Quick wins (P2 files easy to split)
 
-## Unknowns / incertitudes
+## Unknowns / uncertainties
 
 ## VERDICT RULES
 
 - `READY`
-  - Aucun fichier P0 ou P1 détecté
-  - Structure modulaire saine
+  - No P0 or P1 files detected
+  - Healthy modular structure
 - `PARTIAL`
-  - Fichiers P1 ou P2 présents, pas de P0
-  - Découpage recommandé mais non bloquant
+  - P1 or P2 files present, no P0
+  - Splitting recommended but not blocking
 - `BLOCKED`
-  - Au moins un fichier P0 avec ≥ 3 heuristiques déclenchées
-  - Monolithe critique rendant le code dangereux à faire évoluer
+  - At least one P0 file with ≥ 3 heuristics triggered
+  - Critical monolith making code dangerous to evolve
 - `UNKNOWN`
-  - Structure du repo trop opaque pour appliquer les heuristiques
+  - Repo structure too opaque to apply heuristics

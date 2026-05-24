@@ -1,0 +1,64 @@
+id: 1-vbb-api-contract-designer
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  optional:
+  - api_spec
+  - openapi_doc
+  - endpoint_list
+outputs:
+  required:
+  - status
+  - summary
+  - api_contracts
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact: null
+gates:
+  before: []
+  success:
+  - id: contracts_produced
+    output_must_contain:
+    - api contracts
+  after: []
+events:
+  on_success:
+  - skill: t-vbb-commit-ready
+    reason: API contracts produced → prepare commit
+  on_partial:
+  - skill: t-vbb-impact-analyzer
+    reason: API contracts incomplets → analyser impact
+routing:
+  phase_scope:
+  - phase_1
+  triggers:
+  - api contract
+  - api design
+  - contract designer
+  - openapi
+  - endpoint design
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: true
+  allowed_fields:
+  - endpoints_count
+  - contracts_version

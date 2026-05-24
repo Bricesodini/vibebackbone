@@ -2,123 +2,58 @@
 context_role: memory-rules
 phase: transverse
 status: active
-updated: 2026-05-23
+updated: 2026-06-12
 ---
 
-# MEMORY_AND_HANDOFF — Mémoire officielle et transitions
+# MEMORY_AND_HANDOFF — Official memory and transitions
 
-La mémoire de vibebackbone n'est pas dans la conversation. Elle est dans des
-artefacts stables, versionnés ou explicitement locaux.
+> vibebackbone memory is not in the conversation. It lives in stable artifacts, versioned or explicitly local.
 
-## Trois niveaux de mémoire
+## Three memory levels
 
-### 1. Conversationnelle (éphémère)
+| Level | Duration | Examples | Authority |
+|-------|----------|---------|-----------|
+| Conversational | Ephemeral | LLM context window | Never authoritative |
+| Local persistent | Gitignored | `docs/SESSION.md`, `.vbb/` | Survives session, not machine |
+| Official versioned | Persistent | `docs/CONTEXT.md`, `docs/AUDIT_STATUS.md`, `docs/runs/`, `docs/audits/` | **Source of truth** |
 
-La fenêtre de contexte LLM en cours.
+On divergence: **official always wins**. Conversation alone is never authoritative.
 
-- Disparaît à la fin de la session ou au compactage.
-- Ne peut pas être citée comme source dans un artefact.
-- N'est jamais autoritative.
+## Handoff — What must cross
 
-### 2. Locale persistante (gitignored)
+| Information | Medium |
+|-------------|--------|
+| Major decision | `07_CLOSEOUT.md` + `docs/CONTEXT.md` |
+| Remaining action | `07_CLOSEOUT.md` |
+| Unresolved risk | `docs/AUDIT_STATUS.md` |
+| Operating mode | `docs/PROJECT_MODE.md` |
+| Immediate re-entry | `docs/SESSION.md` (local) |
 
-Fichiers présents sur le poste, non versionnés.
+**Does not cross**: intermediate reasoning, abandoned explorations, verbose output, conversation history.
 
-- `docs/SESSION.md` — mémoire de reprise immédiate.
-- Toute note personnelle dans `.vbb/` (si présent).
-- Survit à une session, pas à un changement de machine.
+## Read/write cycles
 
-### 3. Officielle (versionnée)
+**Write** (end of session): conversation → filter → `07_CLOSEOUT.md` → synthesize → `CONTEXT.md` / `AUDIT_STATUS.md`
 
-Artefacts dans `docs/` versionnés par git. C'est la mémoire autoritative.
+**Read** (start of session):
+1. `docs/CONTEXT.md` (always)
+2. `docs/PROJECT_MODE.md` (always)
+3. `docs/SESSION.md` (if present)
+4. `docs/AUDIT_STATUS.md` (if AUDIT route)
+5. Latest `07_CLOSEOUT.md`
 
-- `docs/CONTEXT.md` — état stable du projet (MOC).
-- `docs/PROJECT_MODE.md` — mode opérationnel.
-- `docs/AUDIT_STATUS.md` — état des audits.
-- `docs/runs/{slug}/0X_*.md` — artefacts de phase.
-- `docs/audits/*.md` — rapports d'audit horodatés.
-
-## Règles de priorité
-
-En cas de divergence entre niveaux :
-
-| Niveau 1 (conversation) | Niveau 2 (local) | Niveau 3 (versionné) | Source de vérité |
-|--------------------------|------------------|----------------------|------------------|
-| A | A | A | A |
-| A | A | B | **B** (officiel) |
-| A | B | B | **B** (officiel) |
-| A | B | C | **C** (officiel) |
-
-La conversation ne fait jamais foi seule.
-
-## Handoff entre sessions
-
-### Ce qui doit traverser
-
-| Information | Support |
-|-------------|---------|
-| Décision majeure | `07_CLOSEOUT.md` + `docs/CONTEXT.md` |
-| Action concrète restante | `07_CLOSEOUT.md` § « État pour la prochaine session » |
-| Risque identifié non résolu | `docs/AUDIT_STATUS.md` |
-| Hypothèse à valider | `07_CLOSEOUT.md` § « Points ouverts » |
-| Mode opérationnel actuel | `docs/PROJECT_MODE.md` |
-| Reprise immédiate (étape suivante) | `docs/SESSION.md` (local) |
-
-### Ce qui ne traverse pas
-
-- Le raisonnement intermédiaire (compaction du contexte LLM).
-- Les explorations abandonnées (sauf si décision documentée).
-- Les sorties de commande verbeuses (sauf citation utile).
-- L'historique conversationnel détaillé.
-
-## Cycle d'écriture
-
-Toute information qui doit survivre à une session est explicitement persistée.
-
-```
-Conversation
-   │
-   │ (filtrage : utile à la suite ?)
-   ▼
-07_CLOSEOUT.md du run en cours
-   │
-   │ (synthèse : change l'état stable du projet ?)
-   ▼
-CONTEXT.md / AUDIT_STATUS.md
-```
-
-Si une information n'est jamais persistée, elle n'existe pas pour la session
-suivante.
-
-## Cycle de lecture
-
-À l'ouverture d'une session :
-
-1. `docs/CONTEXT.md` (toujours)
-2. `docs/PROJECT_MODE.md` (toujours)
-3. `docs/SESSION.md` (si présent localement)
-4. `docs/AUDIT_STATUS.md` (si voie AUDIT)
-5. Dernier `07_CLOSEOUT.md` sous `docs/runs/` (si présent)
-6. Autres `0X_*.md` du run en cours, sur besoin
-
-Ne pas charger l'intégralité de `docs/runs/` en début de session — cibler le
-dernier run ou le run explicitement référencé.
+Do not load all of `docs/runs/` — target the current run.
 
 ## Anti-patterns
 
-- Citer un fait depuis la conversation sans l'avoir écrit dans un artefact.
-- Reprendre une session sans relire `07_CLOSEOUT.md` du run précédent.
-- Mettre à jour `docs/CONTEXT.md` directement sans passer par un closeout.
-- Considérer `docs/SESSION.md` comme une source autoritative (il est local).
+- Citing conversational fact without writing it in an artifact
+- Resuming without reading `07_CLOSEOUT.md`
+- Updating `CONTEXT.md` without going through a closeout
+- Treating `SESSION.md` as authoritative (it is local)
+- Compacting context before persisting decisions
 
-## Discipline de contexte
+## Links
 
-`AGENTS.md` §12 prescrit la compaction proactive avant 75 % de la fenêtre.
-Le pipeline de compaction utilise les artefacts officiels comme cible — pas
-de compaction qui efface une décision qui n'a pas été écrite ailleurs.
-
-## Liens
-
-- [`AGENTIC_RUN_PROTOCOL.md`](AGENTIC_RUN_PROTOCOL.md) — les 7 phases
-- [`SESSION_RULES.md`](SESSION_RULES.md) — quand changer de session
-- [`runs/README.md`](runs/README.md) — convention des artefacts de run
+- [SESSION_RULES.md](SESSION_RULES.md) — when to switch sessions
+- [PILOTAGE.md](PILOTAGE.md) — triage and routes
+- [AGENTIC_RUN_PROTOCOL.md](AGENTIC_RUN_PROTOCOL.md) — the 7 phases

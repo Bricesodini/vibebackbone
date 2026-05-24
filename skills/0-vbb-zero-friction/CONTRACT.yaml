@@ -1,0 +1,60 @@
+id: 0-vbb-zero-friction
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - task_description
+  optional:
+  - file_list
+  - docs/ACTIVITY_LOG.md
+outputs:
+  required:
+  - status
+  - summary
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact: null
+gates:
+  before: []
+  success: []
+  after: []
+events:
+  on_fail:
+  - skill: t-vbb-impact-analyzer
+    reason: Task reveals impact > FAST-ZERO → analyze
+  on_partial:
+  - skill: t-vbb-session-handoff
+    reason: Partial completion → handoff required
+routing:
+  phase_scope:
+  - transverse
+  - phase_1
+  triggers:
+  - zero friction
+  - micro-task
+  - quick fix
+  - typo
+  - label
+  - RAPIDE-ZERO
+  - RAPIDE-MINIMAL
+limits:
+  max_gate_depth: 1
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields: []

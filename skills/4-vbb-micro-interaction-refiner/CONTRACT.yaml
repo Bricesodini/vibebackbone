@@ -1,0 +1,77 @@
+id: 4-vbb-micro-interaction-refiner
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  - visual_freeze_snapshot
+  optional:
+  - accessibility_requirements
+  - design_system_tokens
+outputs:
+  required:
+  - status
+  - summary
+  - micro_interaction_map
+  - refinement_report
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact: null
+gates:
+  before:
+  - id: pass_5_ready
+    expected_status: PASS
+    blocking: true
+    reason: Pass 5 not READY → hard stop, visual identity must be validated first
+  success:
+  - id: micro_interactions_refined
+    output_must_contain:
+    - micro_interaction_map
+    - refinement_report
+  after:
+  - id: next_pass_ready
+    skill: t-vbb-session-handoff
+    reason: Pass 6 complete → handoff for visual identity gatekeeper (pass 7/7)
+events:
+  on_blocked:
+  - skill: t-vbb-session-handoff
+    reason: 'Pass 5 not ready → handoff: run visual identity layer (pass 5) first'
+  on_partial:
+  - skill: t-vbb-session-handoff
+    reason: Partial micro-interaction refinement → handoff for continuation
+  on_success:
+  - skill: t-vbb-session-handoff
+    reason: Micro-interaction refinement complete → record handoff
+routing:
+  phase_scope:
+  - phase_4
+  triggers:
+  - micro-interaction
+  - micro interaction refinement
+  - premium feel
+  - accessibility-first
+  - token-based interaction
+  - front pipeline pass 6
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - micro_interaction_count
+  - refinement_count

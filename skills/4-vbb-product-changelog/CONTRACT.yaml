@@ -1,0 +1,89 @@
+id: 4-vbb-product-changelog
+version: "0.3"
+type: prompt_skill
+formalization_level: declarative
+
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+
+compatibility:
+  runtime_required: false
+  agents:
+    - claude-code
+    - codex
+    - pi
+    - opencode
+
+inputs:
+  required:
+    - repo_access
+  optional:
+    - release_tag
+    - commit_range
+    - audience_filter
+    - previous_changelog
+
+outputs:
+  required:
+    - status
+    - summary
+    - changelog
+    - next_action
+  statuses:
+    - PASS
+    - PARTIAL
+    - FAIL
+    - BLOCKED
+  artifact: null
+
+gates:
+  before:
+    - id: repo_accessible
+      expected_status: PASS
+      blocking: true
+      reason: "Cannot produce changelog without repo access"
+    - id: changes_exist
+      expected_status: PASS
+      blocking: true
+      reason: "No changes detected — nothing to document"
+  success:
+    - id: changelog_produced
+      output_must_contain:
+        - changelog
+  after: []
+
+events:
+  on_partial:
+    - skill: t-vbb-session-handoff
+      reason: "Partial changelog → handoff for broader review"
+  on_success:
+    - skill: t-vbb-commit-ready
+      reason: "Changelog produced → prepare commit"
+    - skill: t-vbb-git-sync
+      reason: "Changelog ready → commit and push"
+
+routing:
+  phase_scope:
+    - phase_4
+  triggers:
+    - changelog
+    - product changelog
+    - release notes
+    - human-readable summary
+    - what changed
+    - business summary
+    - stakeholder communication
+    - post-session summary
+
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+
+state_policy:
+  persistent: false
+  allowed_fields:
+    - entry_count
+    - breaking_count
+    - feature_count
+    - fix_count

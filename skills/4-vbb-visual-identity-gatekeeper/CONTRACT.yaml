@@ -1,0 +1,87 @@
+id: 4-vbb-visual-identity-gatekeeper
+version: "0.3"
+type: prompt_skill
+formalization_level: declarative
+
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+
+compatibility:
+  runtime_required: false
+  agents:
+    - claude-code
+    - codex
+    - pi
+    - opencode
+
+inputs:
+  required:
+    - repo_access
+    - visual_freeze_snapshot
+  optional:
+    - aesthetic_drift_tolerance
+    - rollback_scope
+
+outputs:
+  required:
+    - status
+    - summary
+    - coherence_report
+    - drift_analysis
+    - rollback_plan
+    - next_action
+  statuses:
+    - PASS
+    - PARTIAL
+    - FAIL
+    - BLOCKED
+  artifact: null
+
+gates:
+  before:
+    - id: passes_1_6_complete
+      expected_status: PASS
+      blocking: true
+      reason: "Final gate requires all previous passes (1-6) to be READY"
+  success:
+    - id: visual_coherence_confirmed
+      output_must_contain:
+        - coherence_report
+        - drift_analysis
+  after: []
+
+events:
+  on_blocked:
+    - skill: t-vbb-session-handoff
+      reason: "Visual coherence not achieved → handoff to resolve pipeline gaps"
+  on_partial:
+    - skill: t-vbb-session-handoff
+      reason: "Aesthetic drift detected → handoff for remediation or rollback decision"
+  on_success:
+    - skill: t-vbb-commit-ready
+      reason: "All 7 passes validated → prepare final commit"
+    - skill: t-vbb-session-handoff
+      reason: "Final gate passed → record completion handoff"
+
+routing:
+  phase_scope:
+    - phase_4
+  triggers:
+    - visual identity gate
+    - visual coherence
+    - aesthetic drift
+    - final delivery gate
+    - rollback scope
+    - front pipeline pass 7
+
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+
+state_policy:
+  persistent: false
+  allowed_fields:
+    - drift_score
+    - coherence_score
+    - rollback_needed

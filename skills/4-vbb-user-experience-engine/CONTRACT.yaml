@@ -1,0 +1,81 @@
+id: 4-vbb-user-experience-engine
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - repo_access
+  - product_brief
+  optional:
+  - user_research_data
+  - existing_flow_map
+  - accessibility_requirements
+outputs:
+  required:
+  - status
+  - summary
+  - ux_recommendations
+  - flow_map
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact: null
+gates:
+  before:
+  - id: repo_accessible
+    expected_status: PASS
+    blocking: true
+    reason: Cannot optimize UX without repo access
+  - id: product_brief_provided
+    expected_status: PASS
+    blocking: true
+    reason: Cannot optimize UX without product context
+  success:
+  - id: ux_optimized
+    output_must_contain:
+    - ux_recommendations
+    - flow_map
+  after:
+  - id: next_pass_ready
+    skill: t-vbb-session-handoff
+    reason: UX pass complete → handoff for interaction coherence (pass 2/7)
+events:
+  on_partial:
+  - skill: t-vbb-session-handoff
+    reason: Partial UX optimization → handoff for continuation
+  on_success:
+  - skill: t-vbb-session-handoff
+    reason: UX engine pass complete → record handoff
+routing:
+  phase_scope:
+  - phase_4
+  triggers:
+  - user experience
+  - UX optimization
+  - task clarity
+  - flow efficiency
+  - state completeness
+  - action hierarchy
+  - front pipeline pass 1
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - flow_count
+  - task_count
+  - recommendation_count

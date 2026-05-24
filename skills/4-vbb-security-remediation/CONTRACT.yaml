@@ -1,0 +1,86 @@
+id: 4-vbb-security-remediation
+version: "0.3"
+type: prompt_skill
+formalization_level: declarative
+
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+
+compatibility:
+  runtime_required: false
+  agents:
+    - claude-code
+    - codex
+    - pi
+    - opencode
+
+inputs:
+  required:
+    - security_audit_report
+  optional:
+    - risk_register
+    - docs/AUDIT_STATUS.md
+    - environment_context
+
+outputs:
+  required:
+    - status
+    - summary
+    - remediation_plan
+    - effort_estimates
+    - next_action
+  statuses:
+    - PASS
+    - PARTIAL
+    - FAIL
+    - BLOCKED
+  artifact:
+    path_pattern: "docs/audits/security-remediation-{date}-*.md"
+    must_exist_after_run: false
+    kind: audit_report
+
+gates:
+  before:
+    - id: audit_report_exists
+      expected_status: PASS
+      blocking: true
+      reason: "Security remediation requires prior audit report from 2-vbb-security or t-vbb-docker-audit"
+  success:
+    - id: remediation_planned
+      output_must_contain:
+        - remediation_plan
+        - effort_estimates
+  after: []
+
+events:
+  on_blocked:
+    - skill: 2-vbb-security
+      reason: "No audit report → run security audit first"
+  on_partial:
+    - skill: 3-vbb-risk-register
+      reason: "Partial remediation plan → register remaining risks"
+  on_success:
+    - skill: t-vbb-session-handoff
+      reason: "Remediation plan complete → record handoff"
+
+routing:
+  phase_scope:
+    - phase_4
+  triggers:
+    - security remediation
+    - remediation plan
+    - fix security findings
+    - security action plan
+    - vulnerability remediation
+
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+
+state_policy:
+  persistent: false
+  allowed_fields:
+    - finding_count
+    - critical_count
+    - effort_days

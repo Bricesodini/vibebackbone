@@ -46,6 +46,8 @@ Phases minimales par voie (voir [`PILOTAGE.md`](PILOTAGE.md) pour le triage) :
 
 | Voie | Phases obligatoires | Phases conditionnelles |
 |------|---------------------|------------------------|
+| `RAPIDE-ZERO` | Aucun (`docs/runs/` non requis) | Activity Log uniquement |
+| `RAPIDE-MINIMAL` | 05_PATCH_SUMMARY seul | Activity Log requis |
 | `RAPIDE` | 01 + 05 + 07 | 04 si plan non trivial |
 | `STRUCTUREE` | 01 + 04 + 05 + 07 | 06 si DoD critique |
 | `AUDIT` | 01 + 02 + 03 + 07 | 04 + 05 si remédiation incluse |
@@ -81,7 +83,7 @@ Tous les artefacts suivent la convention frontmatter définie dans
 ---
 run_id: "YYYY-MM-DD_HHmm_slug"
 phase: "0X_NAME"
-voie: "RAPIDE|STRUCTUREE|AUDIT|CLOTURE"
+voie: "RAPIDE-ZERO|RAPIDE-MINIMAL|RAPIDE|STRUCTUREE|AUDIT|CLOTURE"
 status: "READY|PARTIAL|BLOCKED|UNKNOWN"
 agent: "claude-code|codex|pi|opencode"
 started_at: "ISO8601 UTC"
