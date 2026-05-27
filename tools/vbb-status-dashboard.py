@@ -18,6 +18,7 @@ Displays: verdict, skills, contracts, tests, latest runs, open risks,
 import sys
 import json
 import argparse
+from datetime import date
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -53,6 +54,19 @@ def count_contracts(repo: Path) -> Tuple[int, int, int]:
                 contracted += 1
     coverage = round(contracted / total, 2) if total > 0 else 0
     return contracted, total, coverage
+
+
+def count_indexed_contracts(repo: Path) -> int:
+    """Count contract entries declared in skills/INDEX.yaml."""
+    index_file = repo / "skills" / "INDEX.yaml"
+    if not index_file.exists():
+        return 0
+    try:
+        import yaml
+        data = yaml.safe_load(index_file.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return 0
+    return len(data.get("skills", []))
 
 
 def count_tests(repo: Path) -> int:
@@ -134,24 +148,76 @@ def get_open_risks(repo: Path) -> List[Dict]:
     """Extract open risks from AUDIT_STATUS.md."""
     content = read_file(repo / "docs" / "AUDIT_STATUS.md")
     risks = []
-    in_table = False
+    in_risk_section = False
     for line in content.split("\n"):
-        if "|" in line and "R-" in line:
-            parts = [p.strip() for p in line.split("|")]
-            if len(parts) >= 4:
-                rid = parts[1].strip() if len(parts) > 1 else ""
-                if rid.startswith("R-"):
-                    status = parts[3].strip() if len(parts) > 3 else ""
-                    # Only include OPEN or MITIGATING
-                    if status in ("OPEN", "MITIGATING", "`OPEN`", "`MITIGATING`"):
-                        desc = parts[2].strip() if len(parts) > 2 else ""
-                        risks.append({"id": rid, "status": status.strip("`"), "description": desc[:80]})
+        stripped = line.strip()
+        if stripped.startswith("## "):
+            in_risk_section = stripped.lower().startswith("## risks identified")
+            continue
+        if not in_risk_section or "|" not in line:
+            continue
+        parts = [p.strip() for p in line.split("|")]
+        if len(parts) < 5 or parts[1] in ("ID", "---"):
+            continue
+        rid = parts[1].strip("`")
+        severity = parts[2].strip("`")
+        desc = parts[3].strip()
+        status = parts[4].strip().strip("`")
+        status_key = status.lower()
+        if status_key.startswith("open") or status_key.startswith("mitigating"):
+            risks.append({
+                "id": rid,
+                "severity": severity,
+                "status": status,
+                "description": desc[:80],
+            })
     return risks
+
+
+def index_present(repo: Path) -> bool:
+    return (repo / ".vbb" / "index" / "manifest.json").exists()
+
+
+def temporal_provenance_present(repo: Path) -> bool:
+    return (repo / "docs" / "TEMPORAL_PROVENANCE.md").exists()
+
+
+def get_temporal_notes(repo: Path) -> List[str]:
+    """Report central artifacts dated after the local clock."""
+    notes = []
+    today = date.today().isoformat()
+    acknowledged = temporal_provenance_present(repo)
+    docs = [
+        repo / "docs" / "CONTEXT.md",
+        repo / "docs" / "AUDIT_STATUS.md",
+        repo / "docs" / "ACTIVITY_LOG.md",
+    ]
+    for doc in docs:
+        content = read_file(doc)
+        for line in content.splitlines()[:20]:
+            if "updated:" in line or "date:" in line:
+                observed = line.split(":", 1)[1].strip().strip('"')
+                if len(observed) >= 10 and observed[:10] > today:
+                    notes.append(f"{doc.relative_to(repo)} dated {observed[:10]} after local date {today}")
+                break
+
+    runs_dir = repo / "docs" / "runs"
+    if runs_dir.exists():
+        future_runs = sorted(
+            d.name for d in runs_dir.iterdir()
+            if d.is_dir() and len(d.name) >= 10 and d.name[:10] > today
+        )
+        if future_runs:
+            notes.append(f"{len(future_runs)} run directories are dated after local date {today}")
+    if acknowledged and notes:
+        return ["temporal skew acknowledged by docs/TEMPORAL_PROVENANCE.md"] + notes
+    return notes
 
 
 def gather_status(repo: Path) -> Dict:
     """Gather full repo status."""
     contracted, total, coverage = count_contracts(repo)
+    indexed_contracts = count_indexed_contracts(repo)
     verdict = extract_verdict(repo)
     next_action = extract_next_action(repo)
     latest_runs = get_latest_runs(repo)
@@ -163,16 +229,26 @@ def gather_status(repo: Path) -> Dict:
         "verdict": verdict,
         "skills": total,
         "contracts": contracted,
+        "indexed_contracts": indexed_contracts,
         "contract_coverage": coverage,
+        "runtime_contract_coverage": round(indexed_contracts / total, 2) if total > 0 else 0,
         "tests": test_count,
         "latest_runs": latest_runs,
         "risks": open_risks,
         "next_action": next_action,
+        "index_present": index_present(repo),
+        "temporal_provenance": temporal_provenance_present(repo),
+        "temporal_notes": get_temporal_notes(repo),
+        "temporal_warnings": [] if temporal_provenance_present(repo) else get_temporal_notes(repo),
     }
 
 
 def format_terminal(status: Dict, full: bool = False) -> str:
     """Format status as terminal output."""
+    def fit(value: object, width: int) -> str:
+        text = str(value)
+        return text[:width].ljust(width)
+
     pct = int(status["contract_coverage"] * 100)
     lines = [
         f"╔══════════════════════════════════════════════════╗",
@@ -180,7 +256,8 @@ def format_terminal(status: Dict, full: bool = False) -> str:
         f"╠══════════════════════════════════════════════════╣",
         f"║  Verdict global : {status['verdict']:<29}║",
         f"║  Skills          : {status['skills']:<29}║",
-        f"║  Contracts       : {status['contracts']}/{status['skills']} ({pct}%){' ' * (23 - len(str(pct)))}║",
+        f"║  Contracts       : {fit(f'{status['contracts']}/{status['skills']} ({pct}%)', 29)}║",
+        f"║  Indexed         : {fit(f'{status['indexed_contracts']}/{status['skills']}', 29)}║",
         f"║  Test suites     : {status['tests']:<29}║",
     ]
 
@@ -189,10 +266,10 @@ def format_terminal(status: Dict, full: bool = False) -> str:
         lines.append(f"╠══════════════════════════════════════════════════╣")
         lines.append(f"║  Latest runs:                                    ║")
         for run in status["latest_runs"][:5]:
-            rid = run["id"][:32]
-            v = run.get("voie", "?")[:8]
-            vr = run.get("verdict", "?")[:6]
-            lines.append(f"║    {rid:<32} {v:<8} {vr:<6} ║")
+            rid = fit(run["id"], 29)
+            v = fit(run.get("voie", "?").strip('"'), 7)
+            vr = fit(run.get("verdict", "?"), 6)
+            lines.append(f"║    {rid} {v} {vr} ║")
 
     # Open risks
     if status["risks"]:
@@ -202,13 +279,20 @@ def format_terminal(status: Dict, full: bool = False) -> str:
             rid = risk["id"]
             rs = risk["status"]
             desc = risk["description"][:28]
-            lines.append(f"║    {rid:<8} {rs:<12} {desc:<28}║")
+            lines.append(f"║    {fit(rid, 9)} {fit(rs, 11)} {fit(desc, 27)}║")
+
+    if status["temporal_notes"]:
+        lines.append(f"╠══════════════════════════════════════════════════╣")
+        heading = "Temporal provenance:" if status.get("temporal_provenance") else "Temporal warnings:"
+        lines.append(f"║  {heading:<47}║")
+        for note in status["temporal_notes"][:3]:
+            lines.append(f"║    {note[:43]:<43} ║")
 
     # Next action
     if status["next_action"]:
-        na = status["next_action"][:42]
+        na = fit(status["next_action"], 33)
         lines.append(f"╠══════════════════════════════════════════════════╣")
-        lines.append(f"║  Next action: {na:<33}║")
+        lines.append(f"║  Next action: {na}║")
 
     lines.append(f"╚══════════════════════════════════════════════════╝")
 

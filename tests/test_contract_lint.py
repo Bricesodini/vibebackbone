@@ -431,6 +431,19 @@ def test_runtime_all_dry_run():
         f"Expected summary output\n{result.stdout}"
 
 
+def test_runtime_partial_has_machine_reason():
+    """Runtime: expected dry-run PARTIAL includes a machine-readable reason."""
+    import json
+    rc, out, _ = _run_runtime("1-vbb-adr")
+    assert rc == 0, f"Expected partial dry-run to exit 0, got {rc}\n{out}"
+    result = json.loads(out)
+    if result.get("status") == "PARTIAL":
+        outputs = result.get("outputs", {})
+        warnings = result.get("warnings", [])
+        assert outputs.get("partial_reason") == "DRY_RUN_STUB_OUTPUT_INCOMPLETE"
+        assert any(w.get("type") == "EXPECTED_PARTIAL" for w in warnings), warnings
+
+
 # ---------------------------------------------------------------------------
 # Phase Router tests (if vbb-phase-router.py exists)
 # ---------------------------------------------------------------------------

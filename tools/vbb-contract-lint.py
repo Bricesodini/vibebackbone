@@ -39,6 +39,14 @@ def get_indexed_skills() -> Set[str]:
     return {entry["id"] for entry in index.get("skills", [])}
 
 
+def get_contract_skills() -> Set[str]:
+    return {
+        skill_dir.name
+        for skill_dir in SKILLS_DIR.iterdir()
+        if skill_dir.is_dir() and (skill_dir / "CONTRACT.yaml").exists()
+    }
+
+
 def load_contract(skill_dir: Path) -> Dict:
     contract_path = skill_dir / "CONTRACT.yaml"
     with open(contract_path, "r") as f:
@@ -252,10 +260,20 @@ def check_artifact(skill_id: str, contract: Dict) -> List[str]:
 def lint_all() -> Tuple[int, List[str]]:
     all_contracts = {}
     all_errors = []
+    indexed = get_indexed_skills()
+    contract_skills = get_contract_skills()
+
+    missing_from_index = sorted(contract_skills - indexed)
+    stale_index_entries = sorted(indexed - contract_skills)
+
+    for skill_id in missing_from_index:
+        all_errors.append(f"[{skill_id}] CONTRACT.yaml exists but skill is missing from INDEX.yaml")
+    for skill_id in stale_index_entries:
+        all_errors.append(f"[{skill_id}] INDEX.yaml entry points to a skill without CONTRACT.yaml")
 
     # Load all contracts
     for skill_dir in SKILLS_DIR.iterdir():
-        if skill_dir.is_dir() and skill_dir.name != "vibebackbone":
+        if skill_dir.is_dir():
             contract_path = skill_dir / "CONTRACT.yaml"
             if contract_path.exists():
                 try:
@@ -263,8 +281,6 @@ def lint_all() -> Tuple[int, List[str]]:
                     all_contracts[skill_dir.name] = c
                 except Exception as e:
                     all_errors.append(f"[{skill_dir.name}] YAML parse error: {e}")
-
-    indexed = get_indexed_skills()
 
     # Lint each contract
     for skill_id, contract in all_contracts.items():

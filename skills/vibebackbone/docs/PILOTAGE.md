@@ -1,7 +1,7 @@
 ## Usage par agent
 
-Ce document est la **source de vérité** du pilotage vibebackbone pour le catalogue canonique
-présent sous `skills/vibebackbone/`.
+Ce document est la **référence détaillée** du pilotage vibebackbone pour le catalogue canonique
+présent sous `skills/vibebackbone/`. La source canonique courte est `docs/PILOTAGE.md`.
 
 Il est utilisé par un orchestrateur, par exemple le skill `vibebackbone`, pour :
 
@@ -12,15 +12,15 @@ Il est utilisé par un orchestrateur, par exemple le skill `vibebackbone`, pour 
 
 Ce document ne doit pas être exécuté comme un audit ou comme une action métier.
 
-Si un skill de lecture ou de routage diverge de ce document, `skills/vibebackbone/docs/PILOTAGE.md`
-prévaut.
+Si un skill de lecture ou de routage diverge, `docs/PILOTAGE.md` prévaut. Ce fichier doit
+rester aligné comme détail de catalogue, pas comme source concurrente.
 
 ---
 
 # PILOTAGE OPÉRATIONNEL - vibebackbone
 
 **Version :** 2.1 | **Date :** 2026-05-23 | **Auteur :** Brice × Claude × Codex
-**Statut :** Couche opérationnelle canonique - complète la base sans la modifier
+**Statut :** Couche opérationnelle détaillée - complète `docs/PILOTAGE.md` sans le remplacer
 
 ---
 
@@ -327,17 +327,18 @@ Chaque agent applique ensuite ses propres mécanismes d'exécution dans la voie 
 
 | Périmètre | Indexés | Total | Source |
 |-----------|---------|-------|--------|
-| Phase 0 | 2 | 5 | `skills/INDEX.yaml` |
-| Phase 1 | 1 | 16 | `skills/INDEX.yaml` |
+| Socle | 1 | 1 | `skills/INDEX.yaml` |
+| Phase 0 | 6 | 6 | `skills/INDEX.yaml` |
+| Phase 1 | 16 | 16 | `skills/INDEX.yaml` |
 | Phase 2 | 12 | 12 | `skills/INDEX.yaml` |
 | Phase 3 | 1 | 1 | `skills/INDEX.yaml` |
-| Phase 4 | 0 | 10 | — |
-| Transverses | 6 | 13 | `skills/INDEX.yaml` |
-| **Total** | **22** | **58** | — |
+| Phase 4 | 10 | 10 | `skills/INDEX.yaml` |
+| Transverses | 16 | 16 | `skills/INDEX.yaml` |
+| **Total** | **62** | **62** | `skills/INDEX.yaml` |
 
-Progression : **22/58 skills ont un CONTRACT.yaml v0.3** (état 2026-05-23).
+Progression : **62/62 skills ont un CONTRACT.yaml v0.3** (état 2026-05-27).
 Linter : `python3 tools/vbb-contract-lint.py` — 0 erreur.
-Extension : voir PR #6+ pour les phases 1, 4 et transverses restants.
+Invariant : `skills/INDEX.yaml` doit rester exhaustif par rapport aux `skills/*/CONTRACT.yaml`.
 
 ---
 

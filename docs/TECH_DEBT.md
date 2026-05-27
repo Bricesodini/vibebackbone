@@ -58,11 +58,13 @@ Une réduction de dette doit documenter :
 | TD-001 | `MITIGATING` | [pyyaml-validation-dependency](runs/2026-05-26_2355_pyyaml-validation-dependency/07_CLOSEOUT.md) | Validation loop-closure dépend de PyYAML ; dépendance désormais déclarée mais non installée localement | Les checks mécaniques peuvent échouer dans un environnement Python nu | Installer `requirements.txt`, puis relancer `tools/vbb-loop-closure-check.py` sur les runs récents | 2026-05-26 : dépendance déclarée, validation non relancée |
 | TD-002 | `ACCEPTED` | [post-audit-consigne-alignment](runs/2026-05-26_2330_post-audit-consigne-alignment/07_CLOSEOUT.md) | Debt Guard complet non intégré ; seul le pré-check documentaire existe | Le garde-fou reste déclaratif dans les prompts | Planifier un Debt Guard complet dans un run séparé si le besoin est confirmé | 2026-05-26 : explicitement hors scope |
 | TD-003 | `OPEN` | [CONTEXT.md § Points ouverts](CONTEXT.md#points-ouverts) | Runs historiques sans closeout formel (`reformat-agentic-protocol`, `run05-test-cases`) | Reprise historique incomplète, rescans possibles | Décider : backfill minimal ou acceptation documentée | 2026-05-27 : toujours listé dans `CONTEXT.md` |
-| TD-004 | `OPEN` | [SESSION.md § Prochaine session](SESSION.md#prochaine-session) | Couverture `CONTRACT.yaml` incomplète sur les skills restants | Contrats mécaniques partiels, validation inégale selon les skills | Étendre les contrats par phase (`1-vbb-*`, `4-vbb-*`, transverses restants) | 2026-05-23 : 22/58 skills couverts |
+| TD-004 | `RESOLVED` | [SESSION.md § Prochaine session](SESSION.md#prochaine-session) | Couverture `CONTRACT.yaml` incomplète sur les skills restants | Contrats mécaniques partiels, validation inégale selon les skills | Étendre les contrats par phase (`1-vbb-*`, `4-vbb-*`, transverses restants) | 2026-05-27 : 62/62 contrats présents et indexés ; `vbb-contract-lint.py` vert |
+| TD-005 | `RESOLVED` | [AUDIT_STATUS.md § REL-001](AUDIT_STATUS.md#risks-identified--status) | Statut release indiquait DEPLOYMENT/RUNBOOK absents alors que les fichiers existent | Reprise trompeuse pour release/readiness | Vérifier présence `docs/DEPLOYMENT.md` et `docs/RUNBOOK.md`, puis corriger `AUDIT_STATUS.md` | 2026-05-27 : fichiers présents et statut REL-001 résolu |
 
 ## Dernières mises à jour
 
 | Date | Changement |
 |------|------------|
+| 2026-05-27 | TD-004 passé à `RESOLVED` après exhaustivité `skills/INDEX.yaml` et linter vert |
 | 2026-05-27 | Ajout des règles de promotion, résolution et validation attendue |
 | 2026-05-27 | Création du registre léger, initialisé depuis les closeouts et le contexte actif |

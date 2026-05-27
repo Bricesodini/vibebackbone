@@ -27,6 +27,8 @@ inputs:
 
 outputs:
   required:
+    - status
+    - summary
     - route
     - justification
     - required_context

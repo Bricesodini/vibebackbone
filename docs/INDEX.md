@@ -19,6 +19,7 @@ updated: 2026-05-27
 | Routage opérationnel des tâches | [`PILOTAGE.md`](PILOTAGE.md) |
 | Mode du dépôt | [`PROJECT_MODE.md`](PROJECT_MODE.md) |
 | État des audits | [`AUDIT_STATUS.md`](AUDIT_STATUS.md) |
+| Provenance temporelle | [`TEMPORAL_PROVENANCE.md`](TEMPORAL_PROVENANCE.md) |
 | Registre léger de dette technique | [`TECH_DEBT.md`](TECH_DEBT.md) |
 | Mémoire de reprise (local, gitignored) | `SESSION.md` |
 
@@ -44,8 +45,8 @@ updated: 2026-05-27
 
 | Type | Localisation | Catalogue |
 |------|--------------|-----------|
-| Skills (58) | [`../skills/`](../skills/) | [`../skills/INDEX.yaml`](../skills/INDEX.yaml) |
-| Prompts spécialisés (24) + 1 router | [`../prompts/`](../prompts/) | — |
+| Skills (62) | [`../skills/`](../skills/) | [`../skills/INDEX.yaml`](../skills/INDEX.yaml) |
+| Prompts spécialisés (25) + 1 router | [`../prompts/`](../prompts/) | — |
 | Prompts canoniques (7) | [`../prompts/canonical/`](../prompts/canonical/) | — |
 
 ## Audits

@@ -10,7 +10,7 @@ Positive tests:
   5. Minimal repo doesn't crash
 
 Negative tests:
-  6. search without build → clear error
+  6. search without build → auto-builds
   7. .vbb/ is gitignored
 
 Usage:
@@ -91,13 +91,30 @@ def test_minimal_repo():
 
 
 def test_search_without_build():
-    """search without build → clear error message."""
+    """search without build → auto-builds a local index."""
     with tempfile.TemporaryDirectory() as tmp:
         repo = Path(tmp)
         (repo / "docs").mkdir()
+        (repo / "docs" / "CONTEXT.md").write_text("# Context\nTest searchable content\n")
         rc, out, err = _run_index(["search", "test", "--repo", str(repo)])
-        assert rc == 1 or "not found" in err.lower() or "not found" in out.lower(), \
-            f"Expected error for missing index\n{out}\n{err}"
+        assert rc == 0, f"Expected auto-build search success\n{out}\n{err}"
+        assert (repo / ".vbb" / "index" / "manifest.json").exists(), "Expected manifest to be auto-built"
+
+
+def test_search_rebuilds_stale_index():
+    """search rebuilds when indexed sources changed after manifest creation."""
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = Path(tmp)
+        (repo / "docs").mkdir()
+        context = repo / "docs" / "CONTEXT.md"
+        context.write_text("# Context\nOld content\n")
+        rc, _, err = _run_index(["build", "--repo", str(repo)])
+        assert rc == 0, f"Expected build success\n{err}"
+
+        context.write_text("# Context\nTemporal provenance marker\n")
+        rc, out, err = _run_index(["search", "temporal", "--repo", str(repo)])
+        assert rc == 0, f"Expected stale index rebuild search success\n{out}\n{err}"
+        assert "temporal" in out.lower()
 
 
 def test_vbb_gitignored():

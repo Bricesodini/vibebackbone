@@ -2,14 +2,11 @@ version: 0.1
 type: vbb_skill_contract_index
 
 skills:
-  - id: 0-vbb-scope-freeze
-    contract: ./0-vbb-scope-freeze/CONTRACT.yaml
+  - id: vibebackbone
+    contract: ./vibebackbone/CONTRACT.yaml
 
   - id: 0-vbb-audit-readiness
     contract: ./0-vbb-audit-readiness/CONTRACT.yaml
-
-  - id: 0-vbb-zero-friction
-    contract: ./0-vbb-zero-friction/CONTRACT.yaml
 
   - id: 0-vbb-guide
     contract: ./0-vbb-guide/CONTRACT.yaml
@@ -17,80 +14,62 @@ skills:
   - id: 0-vbb-pilotage
     contract: ./0-vbb-pilotage/CONTRACT.yaml
 
+  - id: 0-vbb-scope-freeze
+    contract: ./0-vbb-scope-freeze/CONTRACT.yaml
+
   - id: 0-vbb-standard
     contract: ./0-vbb-standard/CONTRACT.yaml
 
-  - id: t-vbb-commit-ready
-    contract: ./t-vbb-commit-ready/CONTRACT.yaml
-
-  - id: t-vbb-impact-analyzer
-    contract: ./t-vbb-impact-analyzer/CONTRACT.yaml
-
-  - id: t-vbb-mode-transition-gate
-    contract: ./t-vbb-mode-transition-gate/CONTRACT.yaml
-
-  - id: t-vbb-session-handoff
-    contract: ./t-vbb-session-handoff/CONTRACT.yaml
-
-  - id: t-vbb-status-report
-    contract: ./t-vbb-status-report/CONTRACT.yaml
-
-  - id: t-vbb-anti-slop-gate
-    contract: ./t-vbb-anti-slop-gate/CONTRACT.yaml
-
-  - id: t-vbb-dependency-mapper
-    contract: ./t-vbb-dependency-mapper/CONTRACT.yaml
-
-  - id: t-vbb-git-sync
-    contract: ./t-vbb-git-sync/CONTRACT.yaml
-
-  - id: t-vbb-deploy-runtime
-    contract: ./t-vbb-deploy-runtime/CONTRACT.yaml
-
-  - id: t-vbb-docker-audit
-    contract: ./t-vbb-docker-audit/CONTRACT.yaml
-
-  - id: t-vbb-test-coverage-mapper
-    contract: ./t-vbb-test-coverage-mapper/CONTRACT.yaml
-
-  - id: t-vbb-context-compactor
-    contract: ./t-vbb-context-compactor/CONTRACT.yaml
-
-  - id: t-vbb-status-dashboard
-    contract: ./t-vbb-status-dashboard/CONTRACT.yaml
-
-  - id: t-vbb-index
-    contract: ./t-vbb-index/CONTRACT.yaml
+  - id: 0-vbb-zero-friction
+    contract: ./0-vbb-zero-friction/CONTRACT.yaml
 
   - id: 1-vbb-adr
     contract: ./1-vbb-adr/CONTRACT.yaml
 
-  - id: 1-vbb-tech-debt
-    contract: ./1-vbb-tech-debt/CONTRACT.yaml
+  - id: 1-vbb-api-contract-designer
+    contract: ./1-vbb-api-contract-designer/CONTRACT.yaml
 
-  - id: 1-vbb-formatter
-    contract: ./1-vbb-formatter/CONTRACT.yaml
+  - id: 1-vbb-code-doc-coherence-auditor
+    contract: ./1-vbb-code-doc-coherence-auditor/CONTRACT.yaml
 
-  - id: 1-vbb-doc-harmonizer
-    contract: ./1-vbb-doc-harmonizer/CONTRACT.yaml
-
-  - id: 1-vbb-conventions
-    contract: ./1-vbb-conventions/CONTRACT.yaml
+  - id: 1-vbb-code-doc-gap-integrator
+    contract: ./1-vbb-code-doc-gap-integrator/CONTRACT.yaml
 
   - id: 1-vbb-code-janitor
     contract: ./1-vbb-code-janitor/CONTRACT.yaml
 
-  - id: 1-vbb-api-contract-designer
-    contract: ./1-vbb-api-contract-designer/CONTRACT.yaml
+  - id: 1-vbb-conventions
+    contract: ./1-vbb-conventions/CONTRACT.yaml
+
+  - id: 1-vbb-doc-harmonizer
+    contract: ./1-vbb-doc-harmonizer/CONTRACT.yaml
 
   - id: 1-vbb-error-handling-auditor
     contract: ./1-vbb-error-handling-auditor/CONTRACT.yaml
 
+  - id: 1-vbb-formatter
+    contract: ./1-vbb-formatter/CONTRACT.yaml
+
+  - id: 1-vbb-intent-decomposer
+    contract: ./1-vbb-intent-decomposer/CONTRACT.yaml
+
+  - id: 1-vbb-logic-duplication-detector
+    contract: ./1-vbb-logic-duplication-detector/CONTRACT.yaml
+
   - id: 1-vbb-monolith-detector
     contract: ./1-vbb-monolith-detector/CONTRACT.yaml
 
-  - id: t-vbb-project-context-init
-    contract: ./t-vbb-project-context-init/CONTRACT.yaml
+  - id: 1-vbb-pattern-inconsistency-detector
+    contract: ./1-vbb-pattern-inconsistency-detector/CONTRACT.yaml
+
+  - id: 1-vbb-premature-abstraction-detector
+    contract: ./1-vbb-premature-abstraction-detector/CONTRACT.yaml
+
+  - id: 1-vbb-tech-debt
+    contract: ./1-vbb-tech-debt/CONTRACT.yaml
+
+  - id: 1-vbb-test-mirage-detector
+    contract: ./1-vbb-test-mirage-detector/CONTRACT.yaml
 
   - id: 2-vbb-accessibility
     contract: ./2-vbb-accessibility/CONTRACT.yaml
@@ -130,3 +109,81 @@ skills:
 
   - id: 3-vbb-risk-register
     contract: ./3-vbb-risk-register/CONTRACT.yaml
+
+  - id: 4-vbb-cognitive-load-optimizer
+    contract: ./4-vbb-cognitive-load-optimizer/CONTRACT.yaml
+
+  - id: 4-vbb-design-system-validator
+    contract: ./4-vbb-design-system-validator/CONTRACT.yaml
+
+  - id: 4-vbb-front-pipeline-reference
+    contract: ./4-vbb-front-pipeline-reference/CONTRACT.yaml
+
+  - id: 4-vbb-interaction-coherence-auditor
+    contract: ./4-vbb-interaction-coherence-auditor/CONTRACT.yaml
+
+  - id: 4-vbb-micro-interaction-refiner
+    contract: ./4-vbb-micro-interaction-refiner/CONTRACT.yaml
+
+  - id: 4-vbb-product-changelog
+    contract: ./4-vbb-product-changelog/CONTRACT.yaml
+
+  - id: 4-vbb-security-remediation
+    contract: ./4-vbb-security-remediation/CONTRACT.yaml
+
+  - id: 4-vbb-user-experience-engine
+    contract: ./4-vbb-user-experience-engine/CONTRACT.yaml
+
+  - id: 4-vbb-visual-identity-gatekeeper
+    contract: ./4-vbb-visual-identity-gatekeeper/CONTRACT.yaml
+
+  - id: 4-vbb-visual-identity-layer
+    contract: ./4-vbb-visual-identity-layer/CONTRACT.yaml
+
+  - id: t-vbb-anti-slop-gate
+    contract: ./t-vbb-anti-slop-gate/CONTRACT.yaml
+
+  - id: t-vbb-commit-ready
+    contract: ./t-vbb-commit-ready/CONTRACT.yaml
+
+  - id: t-vbb-context-compactor
+    contract: ./t-vbb-context-compactor/CONTRACT.yaml
+
+  - id: t-vbb-dependency-mapper
+    contract: ./t-vbb-dependency-mapper/CONTRACT.yaml
+
+  - id: t-vbb-deploy-runtime
+    contract: ./t-vbb-deploy-runtime/CONTRACT.yaml
+
+  - id: t-vbb-docker-audit
+    contract: ./t-vbb-docker-audit/CONTRACT.yaml
+
+  - id: t-vbb-docker-generate
+    contract: ./t-vbb-docker-generate/CONTRACT.yaml
+
+  - id: t-vbb-git-sync
+    contract: ./t-vbb-git-sync/CONTRACT.yaml
+
+  - id: t-vbb-impact-analyzer
+    contract: ./t-vbb-impact-analyzer/CONTRACT.yaml
+
+  - id: t-vbb-index
+    contract: ./t-vbb-index/CONTRACT.yaml
+
+  - id: t-vbb-mode-transition-gate
+    contract: ./t-vbb-mode-transition-gate/CONTRACT.yaml
+
+  - id: t-vbb-project-context-init
+    contract: ./t-vbb-project-context-init/CONTRACT.yaml
+
+  - id: t-vbb-session-handoff
+    contract: ./t-vbb-session-handoff/CONTRACT.yaml
+
+  - id: t-vbb-status-dashboard
+    contract: ./t-vbb-status-dashboard/CONTRACT.yaml
+
+  - id: t-vbb-status-report
+    contract: ./t-vbb-status-report/CONTRACT.yaml
+
+  - id: t-vbb-test-coverage-mapper
+    contract: ./t-vbb-test-coverage-mapper/CONTRACT.yaml

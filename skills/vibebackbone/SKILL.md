@@ -31,7 +31,9 @@ You do NOT perform audits or transformations yourself unless explicitly requeste
 
 ## DECISION LAYER (MANDATORY)
 
-You MUST use `skills/vibebackbone/docs/PILOTAGE.md` as the canonical source of truth.
+You MUST use `docs/PILOTAGE.md` as the canonical source of truth.
+Use `skills/vibebackbone/docs/PILOTAGE.md` only as the detailed catalog reference
+when deeper skill ordering is needed.
 
 Do NOT reconstruct or reinterpret triage rules from memory.
 
@@ -54,6 +56,7 @@ Always:
 - [ ] `docs/CONTEXT.md`
 - [ ] `docs/AUDIT_STATUS.md`
 - [ ] `docs/PROJECT_MODE.md`
+- [ ] `docs/PILOTAGE.md`
 - [ ] `skills/vibebackbone/docs/PILOTAGE.md`
 
 **Sources acceptées :** demande textuelle, repo local, fichiers docs/
@@ -80,7 +83,7 @@ It does NOT:
 
 ## PROCESS
 
-1. Apply pilotage triage from `skills/vibebackbone/docs/PILOTAGE.md`.
+1. Apply pilotage triage from `docs/PILOTAGE.md`.
 2. Determine execution path:
    - FAST
    - STRUCTURED

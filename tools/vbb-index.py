@@ -27,6 +27,7 @@ INDEX_SOURCES = [
     "docs/CONTEXT.md",
     "docs/AUDIT_STATUS.md",
     "docs/ACTIVITY_LOG.md",
+    "docs/TEMPORAL_PROVENANCE.md",
     "README.md",
     "GUIDE.md",
     "AGENTS.md",
@@ -51,6 +52,42 @@ KIND_MAP = {
     "CONTRACT.yaml": "contract",
     "prompts/": "prompt",
 }
+
+
+def _iter_index_files(repo: Path) -> List[Path]:
+    """Return all files that should be represented in the local index."""
+    files = []
+    for rel in INDEX_SOURCES:
+        fpath = repo / rel
+        if fpath.exists() and fpath.is_file():
+            files.append(fpath)
+    for glob_pattern in INDEX_GLOBS:
+        files.extend(fpath for fpath in sorted(repo.glob(glob_pattern)) if fpath.is_file())
+    return files
+
+
+def _index_is_stale(repo: Path, manifest_path: Path) -> bool:
+    """Return true when indexed sources are newer than the manifest."""
+    if not manifest_path.exists():
+        return True
+    try:
+        manifest_mtime = manifest_path.stat().st_mtime
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except OSError:
+        return True
+    except json.JSONDecodeError:
+        return True
+    indexed_paths = {entry.get("path") for entry in manifest.get("entries", [])}
+    source_paths = {str(fpath.relative_to(repo)) for fpath in _iter_index_files(repo)}
+    if indexed_paths != source_paths:
+        return True
+    for fpath in _iter_index_files(repo):
+        try:
+            if fpath.stat().st_mtime > manifest_mtime:
+                return True
+        except OSError:
+            continue
+    return False
 
 
 def _classify(path: str) -> str:
@@ -114,40 +151,22 @@ def _read_file(path: Path) -> str:
 def build_index(repo: Path) -> Dict:
     """Build the text index from repo sources."""
     entries = []
+    index_dir = repo / ".vbb" / "index"
+    manifest_path = index_dir / "manifest.json"
 
-    # Index single files
-    for rel in INDEX_SOURCES:
-        fpath = repo / rel
-        if fpath.exists():
-            text = _read_file(fpath)
-            entry = {
-                "path": rel,
-                "title": _extract_title(rel, text),
-                "kind": _classify(rel),
-                "tokens_estimate": _estimate_tokens(text),
-                "headings": _extract_headings(text),
-                "keywords": _extract_keywords(text),
-                "updated_at": _get_mtime(fpath),
-            }
-            entries.append(entry)
-
-    # Index glob patterns
-    for glob_pattern in INDEX_GLOBS:
-        for fpath in sorted(repo.glob(glob_pattern)):
-            if not fpath.is_file():
-                continue
-            rel = str(fpath.relative_to(repo))
-            text = _read_file(fpath)
-            entry = {
-                "path": rel,
-                "title": _extract_title(rel, text),
-                "kind": _classify(rel),
-                "tokens_estimate": _estimate_tokens(text),
-                "headings": _extract_headings(text),
-                "keywords": _extract_keywords(text),
-                "updated_at": _get_mtime(fpath),
-            }
-            entries.append(entry)
+    for fpath in _iter_index_files(repo):
+        rel = str(fpath.relative_to(repo))
+        text = _read_file(fpath)
+        entry = {
+            "path": rel,
+            "title": _extract_title(rel, text),
+            "kind": _classify(rel),
+            "tokens_estimate": _estimate_tokens(text),
+            "headings": _extract_headings(text),
+            "keywords": _extract_keywords(text),
+            "updated_at": _get_mtime(fpath),
+        }
+        entries.append(entry)
 
     manifest = {
         "version": "1.0",
@@ -158,8 +177,8 @@ def build_index(repo: Path) -> Dict:
     }
 
     # Write index
-    INDEX_DIR.mkdir(parents=True, exist_ok=True)
-    MANIFEST_PATH.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
+    index_dir.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
     return manifest
 
 
@@ -176,9 +195,8 @@ def _get_mtime(path: Path) -> str:
 def search_index(query: str, repo: Path, json_mode: bool = False) -> List[Dict]:
     """Search the index for entries matching the query."""
     manifest_path = repo / ".vbb" / "index" / "manifest.json"
-    if not manifest_path.exists():
-        print("Error: index not found. Run 'python tools/vbb-index.py build' first.", file=sys.stderr)
-        return []
+    if _index_is_stale(repo, manifest_path):
+        build_index(repo)
 
     with open(manifest_path, encoding="utf-8") as f:
         manifest = json.load(f)

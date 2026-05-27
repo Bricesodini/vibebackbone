@@ -14,7 +14,7 @@ mode_sensitive: false
 # Vibebackbone Pilotage Reference
 
 Standard reference: `0-vbb-standard`
-Canonical precedence reference: `skills/vibebackbone/docs/PILOTAGE.md`
+Canonical precedence reference: `docs/PILOTAGE.md`
 
 ## ROLE & POSTURE
 
@@ -29,8 +29,8 @@ You clarify:
 You do NOT execute work.
 You do NOT replace business or audit skills.
 You exist to support routing and execution-level clarification.
-You do not override `skills/vibebackbone/docs/PILOTAGE.md`.
-If this skill and the document diverge, the document prevails.
+You do not override `docs/PILOTAGE.md`.
+If this skill and the document diverge, `docs/PILOTAGE.md` prevails.
 
 ## INPUT CONTRACT
 
@@ -40,6 +40,7 @@ If this skill and the document diverge, the document prevails.
 
 **Optional:**
 
+- [ ] `docs/PILOTAGE.md`
 - [ ] `skills/vibebackbone/docs/PILOTAGE.md`
 - [ ] session context
 - [ ] project context
@@ -50,7 +51,7 @@ If this skill and the document diverge, the document prevails.
 
 - If the request does not concern triage, route selection, or processing level → STOP. Message: "This resource serves to choose an execution route, not to execute a task."
 - If no task or use case is provided → STOP. Message: "Cannot apply pilotage without a request or task to classify."
-- If this skill diverges from `skills/vibebackbone/docs/PILOTAGE.md` → follow the document and flag the discrepancy.
+- If this skill diverges from `docs/PILOTAGE.md` → follow the document and flag the discrepancy.
 
 ## SCOPE
 
@@ -71,7 +72,7 @@ This skill defines:
    - structural / architectural work
    - audit / compliance / integrity / security work
    - end-of-session or restart preparation
-2. Read `skills/vibebackbone/docs/PILOTAGE.md` first when available.
+2. Read `docs/PILOTAGE.md` first when available.
 3. Apply the pilotage rule from the document.
 4. Determine the corresponding path.
 5. Indicate which skill family belongs to that path.
@@ -84,7 +85,7 @@ Output must contain:
 - brief explanation
 - reminder of escalation rule if relevant
 - corresponding Vibebackbone skill family
-- explicit note when the document and this skill diverge, with document precedence stated
+- explicit note when `docs/PILOTAGE.md` and this skill diverge, with document precedence stated
 
 ## VERDICT RULES
 

@@ -79,6 +79,18 @@ def score_agent_compatibility(contract: Dict, agent: str) -> float:
     return 0.0
 
 
+def phase_exists(index: Dict, target_phase: str) -> bool:
+    """Return whether target_phase is declared by at least one indexed contract."""
+    for entry in index["skills"]:
+        contract = load_contract(entry["id"])
+        if not contract:
+            continue
+        scopes = contract.get("routing", {}).get("phase_scope", [])
+        if target_phase in scopes:
+            return True
+    return False
+
+
 def route(query: str, agent: str = "local", phase: Optional[str] = None,
          strict: bool = False, dry_run: bool = False) -> List[Tuple[str, float, Dict]]:
     """
@@ -89,6 +101,9 @@ def route(query: str, agent: str = "local", phase: Optional[str] = None,
     """
     index = load_index()
     candidates = []
+
+    if phase and not phase_exists(index, phase):
+        return []
 
     for entry in index["skills"]:
         skill_id = entry["id"]
@@ -102,7 +117,7 @@ def route(query: str, agent: str = "local", phase: Optional[str] = None,
 
         total_score = trigger_score + phase_score + agent_score
 
-        if total_score > 0:
+        if trigger_score > 0 and total_score > 0:
             candidates.append((skill_id, total_score, contract))
 
     # Sort by score descending

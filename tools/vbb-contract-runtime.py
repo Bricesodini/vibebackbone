@@ -210,6 +210,14 @@ def execute_contract(skill_id: str, contract: Optional[Dict] = None, depth: int 
     failed_gates = [g for g in evaluated_gates if not g["passed"]]
     if failed_gates:
         outputs["status"] = "PARTIAL"
+        outputs["partial_reason"] = "DRY_RUN_STUB_OUTPUT_INCOMPLETE" if dry_run else "SUCCESS_GATE_OUTPUT_INCOMPLETE"
+        outputs["partial_details"] = [
+            {
+                "gate_id": g.get("gate_id"),
+                "missing_fields": g.get("missing_fields", []),
+            }
+            for g in failed_gates
+        ]
 
     events_declared = contract.get("events", {})
     events_skipped = list(events_declared.keys()) if events_declared else []
@@ -237,6 +245,13 @@ def execute_contract(skill_id: str, contract: Optional[Dict] = None, depth: int 
         "warnings": (
             [{"type": "EVENTS_SKIPPED", "events": events_skipped, "reason": "Events disabled in Phase 4 minimal runtime"}]
             if events_skipped else []
+        ) + (
+            [{
+                "type": "EXPECTED_PARTIAL",
+                "reason": outputs.get("partial_reason"),
+                "failed_success_gates": len(failed_gates),
+            }]
+            if failed_gates and dry_run else []
         ) + artifact_warnings,
         "errors": errors,
         "events": {
