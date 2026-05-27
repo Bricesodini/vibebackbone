@@ -41,6 +41,12 @@ artifacts_produced:
 
 - <ce qui peut casser et où regarder en premier>
 
+## Statut dette
+
+- **Dette remboursée** : <dette documentaire, technique ou de cohérence effectivement réduite>
+- **Dette acceptée** : <dette restante explicitement acceptée, avec justification>
+- **Dette introduite** : <nouvelle dette éventuelle ; si aucune, écrire "Aucune identifiée">
+
 ## État pour la prochaine session
 
 - **Branche** : <nom>

@@ -38,6 +38,7 @@ updated: 2026-06-13
 | Dir | Content |
 |-----|---------|
 | `docs/` | Governance, runs, audits → [INDEX.md](INDEX.md) |
+| `docs/TECH_DEBT.md` | Lightweight source-based technical debt register |
 | `skills/` | 62 skills · 62 contracts (100%) → [skills/](../skills/) |
 | `prompts/` | 32 prompts (7 canonical + 24 specialized + 1 router) → [prompts/](../prompts/) |
 

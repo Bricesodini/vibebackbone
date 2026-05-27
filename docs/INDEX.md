@@ -2,7 +2,7 @@
 context_role: navigation-index
 phase: transverse
 status: active
-updated: 2026-05-23
+updated: 2026-05-27
 ---
 
 # INDEX — Carte de navigation du dépôt
@@ -19,6 +19,7 @@ updated: 2026-05-23
 | Routage opérationnel des tâches | [`PILOTAGE.md`](PILOTAGE.md) |
 | Mode du dépôt | [`PROJECT_MODE.md`](PROJECT_MODE.md) |
 | État des audits | [`AUDIT_STATUS.md`](AUDIT_STATUS.md) |
+| Registre léger de dette technique | [`TECH_DEBT.md`](TECH_DEBT.md) |
 | Mémoire de reprise (local, gitignored) | `SESSION.md` |
 
 ## Protocole agentique

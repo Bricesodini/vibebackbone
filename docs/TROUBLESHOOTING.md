@@ -25,6 +25,13 @@ Common issues & resolutions.
 → Consulter [PILOTAGE.md](../skills/vibebackbone/docs/PILOTAGE.md) pour le contexte opérationnel
 → Ouvrir une issue GitHub avec la question
 
+## "ModuleNotFoundError: No module named 'yaml'"
+→ Les outils Python de contrat et de clôture utilisent PyYAML pour lire les frontmatters et contrats.
+→ Installer les dépendances Python du dépôt : `python3 -m pip install -r requirements.txt`
+→ Relancer la commande, par exemple : `python3 tools/vbb-loop-closure-check.py <run_id>`
+
+Si l'installation locale est impossible, noter explicitement la validation comme non réalisée dans le `07_CLOSEOUT.md` concerné avec cette erreur.
+
 ## "How do I extend vibebackbone?"
 → Lire [CONTRIBUTING.md](../CONTRIBUTING.md)
 → Créer un nouveau skill : `skills/[phase]-vbb-[name]/SKILL.md`

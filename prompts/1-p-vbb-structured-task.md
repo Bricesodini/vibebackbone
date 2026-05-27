@@ -26,9 +26,13 @@ Required process:
 2. Confirm why the task is STRUCTURED.
 3. State which governance files are available and relevant.
 4. Identify the artifact or change type.
-5. Produce a short but explicit plan.
-6. Execute in a controlled way.
-7. Summarize what changed and what remains open.
+5. If this is post-audit implementation, require a concrete finding / target before execution: id, file, skill, or behavior to fix.
+6. For skill changes, read the relevant `skills/*/CONTRACT.yaml` and `skills/INDEX.yaml`; do not assume a root `CONTRACT.yaml` exists.
+7. Treat `docs/AUDIT_STATUS.md` as the source of truth for the current audit state.
+8. List pre-existing untracked files and leave them untouched unless they are explicitly in scope.
+9. Produce a short but explicit plan.
+10. Execute in a controlled way.
+11. Summarize what changed and what remains open.
 
 STRUCTURED triggers:
 

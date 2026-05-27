@@ -52,6 +52,21 @@ Avant de commencer l'exécution, lire :
 
 ---
 
+## Pré-check anti-dette post-audit
+
+Avant toute implémentation issue d'un audit, confirmer explicitement :
+
+- **Finding / tâche cible obligatoire avant implémentation** : id, fichier, skill ou comportement à corriger.
+- **Entité Vibebackbone concernée** : skill, prompt, contrat, artefact de run, outil `tools/vbb-*` ou document de gouvernance.
+- **Contrats à lire** : les `skills/*/CONTRACT.yaml` concernés, et `skills/INDEX.yaml` si le changement touche un skill. Il n'existe pas de `CONTRACT.yaml` racine canonique dans ce dépôt.
+- **Closeouts à lire** : les derniers `docs/runs/**/07_CLOSEOUT.md` pertinents.
+- **État d'audit actuel** : `docs/AUDIT_STATUS.md` est la source de vérité pour l'état d'audit courant du dépôt.
+- **Scope check worktree** : lister les fichiers non suivis préexistants et ne pas les modifier sauf s'ils sont explicitement dans le scope.
+
+Si aucun finding, fichier, skill ou comportement cible n'est fourni, arrêter l'exécution et demander le périmètre avant de modifier.
+
+---
+
 ## Travail attendu
 
 ### Étape 1 — Identifier le run à exécuter
