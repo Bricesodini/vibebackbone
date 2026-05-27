@@ -58,6 +58,24 @@ Absolute rules:
 - If the request implies a redesign → redirect to `1-vbb-tech-debt` or `1-vbb-conventions`.
 - If evidence is too limited to judge the cleanup surface → `UNKNOWN`.
 
+## SUPPORT BOUNDARY
+
+Supporté :
+- cleanup local et non créatif
+- réduction de bruit de maintenance
+- incohérences superficielles prouvées
+- quick wins sans changement métier
+- signaux structurels non diagnostiqués, à transmettre vers `1-vbb-tech-debt`
+
+Non supporté (refuser explicitement) :
+- refactor métier ou architectural → risque hors scope janitor
+- renommage opportuniste → risque de churn sans bénéfice prouvé
+- centralisation de logique métier → relève de `1-vbb-tech-debt`
+- conventions repo-wide → relève de `1-vbb-conventions`
+- enforcement outillé format/lint → relève de `1-vbb-formatter`
+- correction automatique de tests, sécurité, auth, permissions, API ou async → risque de changement comportemental
+- préparation de commit ou handoff → relève de `t-vbb-commit-ready` ou `t-vbb-session-handoff`
+
 ## SCOPE
 
 ### Included
@@ -110,6 +128,57 @@ These must be addressed via `1-vbb-tech-debt`.
 Pilotage rule:
 Never conclude on overall system quality solely from a Code Janitor report.
 
+## REDUCTION CANDIDATE RULE
+
+Un finding Janitor devient candidat à une micro-boucle de remboursement uniquement si :
+
+- la dette est sourcée par une preuve vérifiable
+- le périmètre est local et borné
+- le diff attendu est minimal
+- les checks de validation sont identifiables avant action
+- le changement ne modifie ni contrat, ni comportement produit, ni permissions, ni auth, ni flux async
+- l'entrée correspondante dans `docs/TECH_DEBT.md` existe ou peut être créée à partir d'une source vérifiable
+
+Si un de ces critères manque, ne pas patcher. Documenter le finding, le classer en structural signal si nécessaire, et recommander `1-vbb-tech-debt` ou une entrée `docs/TECH_DEBT.md`.
+
+## STOP CRITERIA
+
+Arrêter immédiatement le passage Janitor si le cleanup révèle :
+
+- impact API, contrat de données ou format partagé
+- auth, permissions, sécurité ou conformité
+- changement de comportement métier
+- flux async, concurrence, transaction ou ordre d'exécution
+- dépendance externe ou migration d'outil
+- refonte de responsabilité entre modules
+- preuve insuffisante pour borner le risque
+
+En cas d'arrêt, produire le rapport avec verdict `PARTIAL`, `BLOCKED` ou `UNKNOWN` selon le cas, puis orienter vers le skill approprié.
+
+## TECH_DEBT LINK
+
+Les findings Janitor peuvent alimenter `docs/TECH_DEBT.md` quand ils dépassent le quick win local ou doivent être suivis sur plusieurs sessions.
+
+Règles :
+
+- ne créer ou modifier une entrée TECH_DEBT qu'à partir d'une source vérifiable
+- ne pas dupliquer un risque déjà porté par `docs/AUDIT_STATUS.md`
+- relier chaque dette à un closeout, audit, fichier, finding ou contexte explicite
+- passer une entrée à `RESOLVED` seulement si le diff et sa validation sont documentés
+- laisser en `OPEN`, `MITIGATING` ou `ACCEPTED` quand la réduction n'est pas prouvée
+
+## VALIDATION LOOP
+
+Pour une micro-boucle de remboursement contrôlé :
+
+1. Identifier la dette sourcée et le fichier cible.
+2. Vérifier que la Reduction Candidate Rule est satisfaite.
+3. Préparer le diff minimal, sans changement métier.
+4. Lancer uniquement les checks disponibles et pertinents.
+5. Mettre à jour `docs/TECH_DEBT.md` si le statut change ou si une dette doit être suivie.
+6. Produire un closeout court avec : dette traitée, diff résumé, checks, statut restant.
+7. Stopper dès que le risque sort du périmètre janitor.
+
 ## PROCESS
 
 1. Scan the repo structure.
@@ -127,6 +196,7 @@ Never conclude on overall system quality solely from a Code Janitor report.
 4. Distinguish quick wins from consolidation plan.
 5. Adjust caution level to DEV/PROD mode.
 6. Assess whether findings suggest a problem beyond janitor scope (see Structural gaps below).
+7. For any controlled repayment candidate, apply the Reduction Candidate Rule and Validation Loop.
 
 ## OUTPUT CONTRACT
 
