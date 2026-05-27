@@ -44,12 +44,12 @@
 
 ### Known limitations (documented, not blocking)
 - 10/62 SKILL.md files still have FR body content (Phase 4 UX/UI domain + spec-validator, vibebackbone)
-- 17/32 prompts in FR (by design — human narrative layer)
+- 17/33 prompts in FR (by design — human narrative layer)
 - README.md and GUIDE.md in FR (by design)
 - 16/62 contract PARTIAL in dry-run (expected — stub outputs don't satisfy success gates)
 - 2/62 contract BLOCKED in dry-run (expected — scope-freeze gate chain)
 - No Formal Skill executor yet (v2.0 target)
-- No DEPLOYMENT.md or RUNBOOK.md yet (post-v1.0)
+- DEPLOYMENT.md and RUNBOOK.md exist; keep them aligned with README/GUIDE before final v1.0
 
 ---
 
@@ -69,7 +69,7 @@
 
 1. Translate remaining 10 SKILL.md files to EN (spec-validator, Phase 4 UX/UI)
 2. Translate 17 prompts to EN (or provide EN alternatives)
-3. Create DEPLOYMENT.md and RUNBOOK.md
+3. Keep DEPLOYMENT.md and RUNBOOK.md current through release
 4. Add JSON Schema for CONTRACT.yaml validation
 5. Add negative tests for contract-runtime and tools
 6. Smaller-model benchmarking (Qwen 27B, etc.)

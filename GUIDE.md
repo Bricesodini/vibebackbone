@@ -1,6 +1,6 @@
 # GUIDE — Piloter vibebackbone au quotidien
 
-**Version** : 1.0 · **Date** : 2026-05-18 · **Public** : humains (devs, leads, PM)
+**Version** : 1.0 · **Date** : 2026-06-13 · **Public** : humains (devs, leads, PM)
 **Couche** : L3 — référence, pas chargé au boot. Charger via `tools/vbb-index.py search` ou skill `0-vbb-guide`.
 
 Ce guide est un compagnon **pédagogique** du `README.md`. Le README dit *ce qu'est* vibebackbone. Ce guide dit *comment l'utiliser pour de vrai*, avec des cas d'usages concrets, des dialogues réalistes avec un agent, et les pièges à éviter.
@@ -80,13 +80,13 @@ Une grammaire à **quatre composants**, qu'on injecte dans le contexte de l'agen
 └─────────────────────────────────────────────────────────┘
                           ↓
 ┌─────────────────────────────────────────────────────────┐
-│  32 PROMPTS                                             │
-│  7 canoniques (un par phase) + 24 spécialisés           │
+│  33 PROMPTS                                             │
+│  7 canoniques (un par phase) + 25 spécialisés           │
 │  + 1 router Markdown pour choisir                       │
 └─────────────────────────────────────────────────────────┘
                           ↓
 ┌─────────────────────────────────────────────────────────┐
-│  58 SKILLS                                              │
+│  62 SKILLS                                              │
 │  Unités de capacité injectables, chacune avec un        │
 │  SKILL.md standardisé                                   │
 └─────────────────────────────────────────────────────────┘
@@ -169,11 +169,11 @@ Chaque phase **produit un artefact nommé** dans `docs/runs/YYYY-MM-DD_HHmm_slug
 | Phase | Fichier produit |
 |-------|----------------|
 | 01 | `01_INTAKE.md` |
-| 02 | `02_AUDIT_REPORT.md` (+ rapport horodaté dans `docs/audits/`) |
+| 02 | `02_AUDIT.md` (+ rapport horodaté dans `docs/audits/`) |
 | 03 | `03_DECISION_RECORD.md` |
-| 04 | `04_FIX_PLAN.md` |
-| 05 | `05_PATCH_SUMMARY_RUN_N.md` |
-| 06 | `06_REVIEW_RUN_N.md` |
+| 04 | `04_PLAN.md` |
+| 05 | `05_EXECUTION.md` |
+| 06 | `06_REVIEW.md` |
 | 07 | `07_CLOSEOUT.md` |
 
 **Toutes les voies ne traversent pas toutes les phases.** Une voie RAPIDE est typiquement `01 → 05 → 07`. Une voie AUDIT est `01 → 02 → 03 → 04 → 05 → 06 → 07`.
@@ -187,7 +187,7 @@ prompts/
 │   ├── 02-p-vbb-audit.md
 │   ├── ...
 │   └── 07-p-vbb-closeout.md
-├── (racine)                          ← 24 prompts spécialisés + 1 router
+├── (racine)                          ← 25 prompts spécialisés + 1 router
 │   ├── 0-p-vbb-triage.md
 │   ├── 1-p-vbb-quick-task.md
 │   ├── 2-p-vbb-security-pipeline.md
@@ -218,8 +218,8 @@ C'est **le** principe non-négociable de vibebackbone :
 > **Un agent qui exécute ne peut pas reviewer son propre travail dans la même session.**
 
 Concrètement :
-- Session 1 : `05-p-vbb-execution` → produit `05_PATCH_SUMMARY_RUN_01.md`
-- Session 2 (nouvelle, obligatoire) : `06-p-vbb-review` → produit `06_REVIEW_RUN_01.md`
+- Session 1 : `05-p-vbb-execution` → produit `05_EXECUTION.md`
+- Session 2 (nouvelle, obligatoire) : `06-p-vbb-review` → produit `06_REVIEW.md`
 
 Pourquoi ? Parce qu'un agent qui vient de coder a un biais cognitif énorme pour valider son propre code. Une nouvelle session redonne du regard neuf.
 
@@ -240,7 +240,7 @@ bash setup.sh
 | Couche | Cible | Quoi |
 |--------|-------|------|
 | **Skills** | `~/.agents/skills/vibebackbone` | Les 62 skills (lecture universelle) |
-| **Prompts** | `~/.agents/prompts/vibebackbone` | Les 24 prompts spécialisés + 1 router (symlink universel) |
+| **Prompts** | `~/.agents/prompts/vibebackbone` | Les 25 prompts spécialisés + 1 router (symlink universel) |
 | **AGENTS.md** | Par provider | Grammaire opérationnelle |
 | **SYSTEM.md** | Par provider | Comportement runtime |
 
@@ -338,32 +338,31 @@ L'agent va :
 2. **Classer** la voie : RAPIDE (action locale, réversible).
 3. **Créer** `docs/runs/2026-05-18_1430_fix-error-message/01_INTAKE.md` minimal.
 4. **Appliquer** la modification.
-5. **Produire** `docs/runs/2026-05-18_1430_fix-error-message/05_PATCH_SUMMARY_RUN_01.md`.
-6. **Conclure** : voie RAPIDE complète, pas de 06_REVIEW nécessaire.
+5. **Produire** `docs/runs/2026-05-18_1430_fix-error-message/05_EXECUTION.md`.
+6. **Conclure** avec `07_CLOSEOUT.md` : voie RAPIDE complète, pas de 06_REVIEW nécessaire.
 
 ### Étape 3 — Vérifier l'artefact
 
 ```bash
 ls docs/runs/2026-05-18_1430_fix-error-message/
 # 01_INTAKE.md
-# 05_PATCH_SUMMARY_RUN_01.md
+# 05_EXECUTION.md
+# 07_CLOSEOUT.md
 ```
 
-Ouvrez `05_PATCH_SUMMARY_RUN_01.md` — vous devez y lire :
+Ouvrez `05_EXECUTION.md` — vous devez y lire :
 - Fichier modifié
 - Diff appliqué
 - Résultat attendu
 - Tests effectués (si applicable)
 
-### Étape 4 — Clôturer (optionnel pour RAPIDE)
+### Étape 4 — Clôturer
 
-Pour une RAPIDE, le 07_CLOSEOUT n'est pas obligatoire. Vous pouvez :
-- soit fermer la session telle quelle ;
-- soit demander `/vbb-session-handoff` pour archiver proprement.
+Pour une RAPIDE standard, `07_CLOSEOUT.md` ferme la boucle. Les niveaux RAPIDE-ZERO et RAPIDE-MINIMAL réduisent volontairement la friction selon `docs/PILOTAGE.md`.
 
 ### Ce que vous venez d'apprendre
 
-- Une session vibebackbone produit toujours **au moins un artefact persistant**.
+- Une session vibebackbone produit des **artefacts persistants** proportionnés à sa voie.
 - Le triage en voie est **explicite** (RAPIDE ici).
 - L'agent **ne dérive pas** : il ne refactorise pas tout `login.tsx`, il change juste la chaîne.
 - Le dossier `docs/runs/` devient votre **journal de bord** automatique.
@@ -394,7 +393,8 @@ Pour une RAPIDE, le 07_CLOSEOUT n'est pas obligatoire. Vous pouvez :
 ```
 docs/runs/2026-05-18_1430_fix-typo/
 ├── 01_INTAKE.md              (minimal — peut être 3 lignes)
-└── 05_PATCH_SUMMARY_RUN_01.md
+├── 05_EXECUTION.md
+└── 07_CLOSEOUT.md
 ```
 
 **Piège** : la tâche révèle un risque (par exemple, la "typo" est en réalité dans un fichier de config d'auth). **Stop, on escalade en STRUCTURÉE.**
@@ -425,9 +425,9 @@ Session 5: 07_CLOSEOUT
 ```
 docs/runs/2026-05-18_1430_add-email-validation/
 ├── 01_INTAKE.md
-├── 04_FIX_PLAN.md
-├── 05_PATCH_SUMMARY_RUN_01.md
-├── 06_REVIEW_RUN_01.md
+├── 04_PLAN.md
+├── 05_EXECUTION.md
+├── 06_REVIEW.md
 └── 07_CLOSEOUT.md
 ```
 
@@ -472,7 +472,7 @@ Si GO → Session 4: 07_CLOSEOUT (directement)
 ```
 docs/runs/2026-05-18_1430_security-audit/
 ├── 01_INTAKE.md
-├── 02_AUDIT_REPORT.md
+├── 02_AUDIT.md
 ├── 03_DECISION_RECORD.md
 ├── ...
 
@@ -509,7 +509,7 @@ docs/audits/
 **Chaque run** est exécuté puis reviewé séparément avant le suivant :
 
 ```
-05_EXECUTION_RUN_01 → 06_REVIEW_RUN_01 → 05_EXECUTION_RUN_02 → 06_REVIEW_RUN_02 → ...
+05_EXECUTION → 06_REVIEW → 05_EXECUTION → 06_REVIEW → ...
 ```
 
 **Bénéfice** : si un run casse, on revient au précédent sans tout perdre.
@@ -723,7 +723,7 @@ llm_log_delegation --task_type compression --provider qwen3.5-9b
 
 **Pourquoi c'est cassé** : un audit est en **lecture seule**. Si l'auditeur corrige, il ne peut plus auditer objectivement.
 
-**Correctif** : produire le `02_AUDIT_REPORT.md` complet, **puis** ouvrir une session 04_PLAN pour décider quoi corriger.
+**Correctif** : produire le `02_AUDIT.md` complet, **puis** ouvrir une session 04_PLAN pour décider quoi corriger.
 
 ---
 
@@ -743,7 +743,7 @@ llm_log_delegation --task_type compression --provider qwen3.5-9b
 
 **Pourquoi c'est cassé** : ces fichiers sont la **source de vérité**. Les modifier sans trace fait dériver tout le système.
 
-**Correctif** : toute modification de gouvernance passe par voie AUDIT minimum, avec `02_AUDIT_REPORT.md` et `03_DECISION_RECORD.md`.
+**Correctif** : toute modification de gouvernance passe par voie AUDIT minimum, avec `02_AUDIT.md` et `03_DECISION_RECORD.md`.
 
 ---
 
@@ -805,14 +805,14 @@ Si l'un de ces signaux manque, l'agent ne suit pas la grammaire — relancez ave
 
 ---
 
-### Q4 — "Pourquoi tant de prompts ? 32 c'est beaucoup."
+### Q4 — "Pourquoi tant de prompts ? 33 c'est beaucoup."
 
 C'est l'arbitrage hybride documenté dans `PROMPTS_ARCHITECTURE.md` :
 - **7 canoniques** suffisent pour 80 % des cas.
-- **24 spécialisés** existent pour les contextes précis (sécurité, DB, Docker…).
+- **25 spécialisés** existent pour les contextes précis (sécurité, DB, Docker…).
 - **1 router** vous aide à choisir.
 
-Vous n'avez **pas besoin de connaître les 32**. Vous utilisez le router en cas de doute.
+Vous n'avez **pas besoin de connaître les 33**. Vous utilisez le router en cas de doute.
 
 ---
 
@@ -873,11 +873,11 @@ C'est une dérive classique. Réagir :
 
 ```
 01_INTAKE       → 01_INTAKE.md
-02_AUDIT        → 02_AUDIT_REPORT.md (+ docs/audits/{type}-YYYYMMDD-HHMM.md)
+02_AUDIT        → 02_AUDIT.md (+ docs/audits/{type}-YYYYMMDD-HHMM.md)
 03_DECISION     → 03_DECISION_RECORD.md
-04_PLAN         → 04_FIX_PLAN.md
-05_EXECUTION    → 05_PATCH_SUMMARY_RUN_N.md
-06_REVIEW       → 06_REVIEW_RUN_N.md
+04_PLAN         → 04_PLAN.md
+05_EXECUTION    → 05_EXECUTION.md
+06_REVIEW       → 06_REVIEW.md
 07_CLOSEOUT     → 07_CLOSEOUT.md
 ```
 
@@ -985,4 +985,4 @@ Au bout de 5 tâches, la grammaire devient automatique.
 
 ---
 
-_vibebackbone GUIDE v1.0 — 2026-05-18 — pour les humains qui pilotent des agents._
+_vibebackbone GUIDE v1.0 — 2026-06-13 — pour les humains qui pilotent des agents._

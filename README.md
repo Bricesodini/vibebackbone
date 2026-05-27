@@ -1,7 +1,7 @@
 <p align="center">
   <img src="assets/vibebackbone_logo.svg" alt="Vibebackbone" width="480"/>
   <br/>
-  <strong style="font-size: 1.4em;">62 skills · 32 prompts (7 canoniques + 24 spécialisés + 1 router) · 4 voies d'exécution · 7 phases agentiques</strong>
+  <strong style="font-size: 1.4em;">62 skills · 33 prompts (7 canoniques + 25 spécialisés + 1 router) · 4 voies d'exécution · 7 phases agentiques</strong>
 </p>
 
 <p align="center">Le système d'orchestration pour agents IA qui transforme le chaos de développement en pilotage prévisible.</p>
@@ -40,7 +40,7 @@ vibebackbone/
 │   ├── 4-vbb-*/        # Phase 4 : Front-end UX/UI (10)
 │   ├── t-vbb-*/        # Transverse : Docker, Git, CI, deploiement (13)
 │   └── vibebackbone/   # Orchestrateur principal + PILOTAGE.md
-├── prompts/             # 32 prompts (7 canoniques + 24 spécialisés + 1 router)
+├── prompts/             # 33 prompts (7 canoniques + 25 spécialisés + 1 router)
 │   ├── canonical/      # 7 prompts canoniques (un par phase 01–07)
 │   └── t-p-vbb-phase-router.md  # Matrice de décision Markdown
 ├── docs/                # Fichiers de pilotage
@@ -59,7 +59,7 @@ vibebackbone/
     └── taskplane.json   # Config taskplane
 ```
 
-### Les 58 skills en un coup d'œil
+### Les 62 skills en un coup d'œil
 
 | Phase | Foyer | Skills |
 |-------|-------|--------|
@@ -76,7 +76,7 @@ Chaque skill est un fichier `SKILL.md` standardisé, indépendant, injectable da
 - `t-vbb-deploy-runtime/templates/deploy.sh` — script de déploiement Docker complet avec backup, rollback, healthcheck
 - `t-vbb-docker-generate/templates/nginx/` — reverse-proxy production-ready (nginx.conf + security-headers.conf)
 
-### Les 32 prompts — architecture en 3 couches
+### Les 33 prompts — architecture en 3 couches
 
 Les prompts sont organisés en **trois couches complémentaires** :
 
@@ -85,7 +85,7 @@ prompts/
 ├── canonical/                       ← 7 prompts génériques (un par phase agentique)
 │                                      01-intake · 02-audit · 03-decision · 04-plan
 │                                      05-execution · 06-review · 07-closeout
-├── (racine)                         ← 24 prompts spécialisés + 1 router (domaine ou contexte précis)
+├── (racine)                         ← 25 prompts spécialisés + 1 router (domaine ou contexte précis)
 └── t-p-vbb-phase-router.md          ← Matrice de décision Markdown
 ```
 
@@ -96,7 +96,7 @@ prompts/
 
 Détails : [`PROMPTS_ARCHITECTURE.md`](PROMPTS_ARCHITECTURE.md).
 
-**Les 24 prompts spécialisés** :
+**Les 25 prompts spécialisés** :
 
 | Phase | Prompts |
 |-------|---------|
@@ -185,11 +185,11 @@ auto-découvert par Pi, OpenCode et Codex. Claude Code est patché automatiqueme
 # 1. Cloner vibebackbone
 git clone https://github.com/bricesodini/vibebackbone ~/vibebackbone
 
-# 2. Installer les 58 skills globalement
+# 2. Installer les 62 skills globalement
 bash ~/vibebackbone/setup.sh
 ```
 
-C'est tout. Les 58 skills sont disponibles pour tous vos agents, dans tous vos projets.
+C'est tout. Les 62 skills sont disponibles pour tous vos agents, dans tous vos projets.
 
 **Ce que fait `setup.sh` :**
 - installe les skills dans `~/.agents/skills/vibebackbone`

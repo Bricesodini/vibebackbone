@@ -1,11 +1,11 @@
 # RUNBOOK — vibebackbone
 
-Procédures opérationnelles pour maintenir vibebackbone en production.
+Procédures opérationnelles pour maintenir vibebackbone comme catalogue de distribution versionné.
 
 ## Daily Tasks (5 min)
 
 1. **Monitor GitHub** : Vérifier issues/PRs
-2. **Check AUDIT_STATUS.md** : Dernière audit < 30 jours?
+2. **Check AUDIT_STATUS.md** : dernier audit < 30 jours ?
 3. **Git commits** : Continuité normale?
 
 ## Weekly Tasks (30 min)
@@ -18,7 +18,7 @@ Procédures opérationnelles pour maintenir vibebackbone en production.
 
 1. **Security scan** : Vérifier absence secrets en git
 2. **Documentation review** : Coherence + staleness
-3. **Dependency check** : Zero deps, nothing to update
+3. **Dependency check** : dépendances déclarées dans `requirements.txt`, rien à mettre à jour
 
 ## Quarterly Tasks (4 hours)
 
@@ -64,4 +64,4 @@ Release process:
 
 ---
 
-**Last updated** : 2026-05-16
+**Last updated** : 2026-06-13

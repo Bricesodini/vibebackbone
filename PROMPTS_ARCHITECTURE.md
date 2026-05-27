@@ -1,6 +1,6 @@
 # PROMPTS_ARCHITECTURE — Guide utilisateur des prompts Vibebackbone
 
-**Version** : 1.0 | **Date** : 2026-05-18
+**Version** : 1.0 | **Date** : 2026-06-13
 **Basé sur** : `PROMPTS_ALIGNMENT_DECISION.md` · `PROMPTS_AGENTIC_ALIGNMENT_AUDIT.md`
 
 ---
@@ -12,7 +12,7 @@ Les prompts Vibebackbone sont organisés en **trois couches** :
 ```
 prompts/
 ├── canonical/          ← 7 prompts de phase (01–07) — référence générique
-├── (racine)            ← 24 prompts spécialisés — domaine ou contexte précis
+├── (racine)            ← 25 prompts spécialisés — domaine ou contexte précis
 └── t-p-vbb-phase-router.md  ← Matrice de décision — lequel utiliser ?
 ```
 
@@ -71,7 +71,7 @@ Pour les tâches à faible risque, locales et réversibles.
 ```
 docs/runs/YYYY-MM-DD_HHmm_slug/
 ├── 01_INTAKE.md
-├── 05_PATCH_SUMMARY_RUN_01.md
+├── 05_EXECUTION.md
 └── 07_CLOSEOUT.md
 ```
 
@@ -103,11 +103,9 @@ Pour les tâches qui touchent des contrats de données, plusieurs fichiers, ou d
 ```
 docs/runs/YYYY-MM-DD_HHmm_slug/
 ├── 01_INTAKE.md
-├── 04_FIX_PLAN.md
-├── 05_PATCH_SUMMARY_RUN_01.md
-├── 05_PATCH_SUMMARY_RUN_02.md  (si 2 runs)
-├── 06_REVIEW_RUN_01.md
-├── 06_REVIEW_RUN_02.md         (si 2 runs)
+├── 04_PLAN.md
+├── 05_EXECUTION.md
+├── 06_REVIEW.md
 └── 07_CLOSEOUT.md
 ```
 
@@ -143,11 +141,11 @@ Pour les tâches qui touchent la sécurité, l'intégrité des données, la conf
 ```
 docs/runs/YYYY-MM-DD_HHmm_slug/
 ├── 01_INTAKE.md
-├── 02_AUDIT_REPORT.md
+├── 02_AUDIT.md
 ├── 03_DECISION_RECORD.md
-├── 04_FIX_PLAN.md
-├── 05_PATCH_SUMMARY_RUN_01.md
-├── 06_REVIEW_RUN_01.md
+├── 04_PLAN.md
+├── 05_EXECUTION.md
+├── 06_REVIEW.md
 └── 07_CLOSEOUT.md
 
 docs/audits/
@@ -191,7 +189,7 @@ t-p-vbb-session-handoff
 
 ---
 
-## Les 24 prompts spécialisés
+## Les 25 prompts spécialisés
 
 ### Par domaine
 
@@ -230,11 +228,11 @@ docs/runs/YYYY-MM-DD_HHmm_slug/
 | Phase | Fichier | Obligatoire |
 |-------|---------|-------------|
 | 01 | `01_INTAKE.md` | ✅ Toujours |
-| 02 | `02_AUDIT_REPORT.md` | Si voie AUDIT |
+| 02 | `02_AUDIT.md` | Si voie AUDIT |
 | 03 | `03_DECISION_RECORD.md` | Si décision formelle |
-| 04 | `04_FIX_PLAN.md` | Si plan > 5 min |
-| 05 | `05_PATCH_SUMMARY_RUN_N.md` | Si exécution |
-| 06 | `06_REVIEW_RUN_N.md` | Si changements validés |
+| 04 | `04_PLAN.md` | Si plan > 5 min |
+| 05 | `05_EXECUTION.md` | Si exécution |
+| 06 | `06_REVIEW.md` | Si changements validés |
 | 07 | `07_CLOSEOUT.md` | ✅ Toujours |
 
 ### Rapports d'audit horodatés
@@ -318,4 +316,4 @@ Source complète : `docs/SESSION_RULES.md`
 
 ---
 
-_vibebackbone PROMPTS_ARCHITECTURE v1.0 — 2026-05-18_
+_vibebackbone PROMPTS_ARCHITECTURE v1.0 — 2026-06-13_
