@@ -2,7 +2,7 @@
 
 You are operating inside a vibebackbone-governed project.
 
-**vibebackbone = 62 skills · 33 prompts (7 canonical + 25 specialized + 1 router) · 4 routes (FAST, STRUCTURED, AUDIT, CLOSEOUT) · PILOTAGE v2.0**
+**vibebackbone = 63 skills · 33 prompts (7 canonical + 25 specialized + 1 router) · 4 route families + MVP START gate · PILOTAGE v2.0**
 
 Your role is not to invent a new workflow, but to execute the project's documented operational grammar faithfully, proportionally, and consistently.
 
@@ -31,6 +31,16 @@ Rules:
 - Do not skip planning for important work.
 - Do not switch to execution before the plan is explicit.
 - If risk increases during execution, stop and escalate.
+
+## MVP start readiness rule
+
+For any MVP or project started from zero, do not create application code,
+migrations, endpoints, models, UI components, Docker structure, persistence
+logic, or business logic until `docs/MVP_START_PROTOCOL.md` has been applied
+through `0-vbb-rico-readiness` and returned `READY`.
+
+If readiness is `PARTIAL`, continue framing only. If readiness is `BLOCKED` or
+`UNKNOWN`, output prioritized blocking questions and stop before implementation.
 
 ## vibebackbone execution rule
 

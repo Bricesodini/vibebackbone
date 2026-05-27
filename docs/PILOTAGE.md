@@ -10,7 +10,27 @@ Canonical operational entry point for any agent or human piloting vibebackbone. 
 
 ---
 
-## The 4 routes
+## The 4 route families
+
+### MVP START gate
+
+Any project started from zero, MVP build request, initial RICO/brief review, or
+request to code before the base specification is complete enters **MVP START**
+before implementation.
+
+- **Entry**: new product/MVP, incomplete RICO, missing brief, unclear MVP scope,
+  or coding requested before readiness.
+- **Minimum action**: apply [`MVP_START_PROTOCOL.md`](MVP_START_PROTOCOL.md) via
+  `0-vbb-rico-readiness`.
+- **Exit to STRUCTURED**: readiness `READY` with base brief, non-goals, initial
+  data model if needed, architecture boundaries, deployment constraints, and
+  acceptance criteria.
+- **Blocked exit**: readiness `BLOCKED` or `UNKNOWN` -> prioritized blocking
+  questions only; no application code, migration, endpoint, model, UI component,
+  Docker structure, persistence logic, or business logic.
+
+MVP START is a mandatory pre-route gate, not a replacement for STRUCTURED
+execution.
 
 | Route | When | Minimum action | Escalate if |
 |-------|------|----------------|-------------|
@@ -28,6 +48,7 @@ Full details (sequences, alternatives, artifact conventions): [ROUTER_MATRIX.md]
 ## Triage rule
 
 ```
+0. New MVP/from-zero or incomplete RICO ? → MVP START gate
 1. Touches data/auth/prod ? → STRUCTURED minimum
 2. Touches security/integrity/compliance ? → AUDIT
 3. Neither ? → FAST
@@ -41,6 +62,14 @@ Full details (sequences, alternatives, artifact conventions): [ROUTER_MATRIX.md]
 FAST task that reveals impact on data, auth, security, compliance, production, or systemic behavior → **escalate immediately** to STRUCTURED or AUDIT. Never finish in FAST if the risk has changed.
 
 Full procedure (stop, partial closeout, new session): [SESSION_RULES.md § Escalation](SESSION_RULES.md#escalation--new-session)
+
+MVP START escalation:
+
+- critical ambiguity -> blocking questions
+- architecture not defined -> no code
+- data not modeled -> no persistence
+- readiness `PARTIAL` -> framing only
+- readiness `BLOCKED` or `UNKNOWN` -> stop before implementation
 
 ---
 

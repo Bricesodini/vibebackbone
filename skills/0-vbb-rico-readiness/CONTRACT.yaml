@@ -1,0 +1,120 @@
+id: 0-vbb-rico-readiness
+version: "0.3"
+type: prompt_skill
+formalization_level: declarative
+
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+
+compatibility:
+  runtime_required: false
+  agents:
+    - claude-code
+    - codex
+    - pi
+    - opencode
+
+inputs:
+  required:
+    - initial_brief_or_rico
+  optional:
+    - docs/MVP_START_PROTOCOL.md
+    - docs/CONTEXT.md
+    - docs/PROJECT_MODE.md
+    - docs/ARCHITECTURE.md
+    - docs/SCOPE.md
+    - product_notes
+
+outputs:
+  required:
+    - status
+    - summary
+    - readiness_verdict
+    - blocking_questions
+    - authorization_decision
+    - next_action
+  statuses:
+    - PASS
+    - PARTIAL
+    - FAIL
+    - BLOCKED
+  artifact:
+    path_pattern: docs/runs/{run_id}/02_AUDIT.md
+    template: docs/templates/02_AUDIT.md.template
+    must_exist_after_run: true
+    kind: phase_artifact
+    frontmatter_required:
+      - run_id
+      - phase
+      - voie
+      - status
+      - agent
+      - started_at
+      - ended_at
+      - next_phase
+      - artifacts_consumed
+      - artifacts_produced
+  secondary_artifacts:
+    - path_pattern: docs/audits/rico-readiness-{YYYYMMDD-HHMM}.md
+      kind: audit_report
+      must_exist_after_run: true
+    - path_pattern: docs/AUDIT_STATUS.md
+      kind: persistent_state_update
+      must_exist_after_run: true
+
+gates:
+  before:
+    - id: brief_visible
+      expected_status: PASS
+      blocking: true
+      reason: "Cannot evaluate MVP readiness without an initial brief or RICO"
+  success:
+    - id: authorization_decision_present
+      output_must_contain:
+        - CODE_ALLOWED
+        - FRAMING_ONLY
+        - BLOCKED_NO_CODE
+  after: []
+
+events:
+  on_blocked:
+    - skill: 0-vbb-guide
+      reason: "RICO incomplete → help user frame the missing product context"
+  on_partial:
+    - skill: 1-vbb-intent-decomposer
+      reason: "Partial brief → continue decomposing intent without coding"
+  on_success:
+    - skill: 1-vbb-intent-decomposer
+      reason: "RICO ready → decompose controlled implementation plan"
+
+routing:
+  phase_scope:
+    - phase_0
+    - mvp_start
+    - readiness
+    - validation
+  triggers:
+    - rico
+    - mvp start
+    - readiness
+    - brief initial
+    - initial brief
+    - no code before readiness
+    - questions bloquantes
+    - blocking questions
+    - cahier des charges
+    - start from zero
+    - projet depuis zero
+
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+  no_direct_code_modification: true
+
+state_policy:
+  persistent: false
+  allowed_fields:
+    - readiness_verdict
+    - blocker_count
+    - authorization_decision

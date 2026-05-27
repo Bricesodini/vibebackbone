@@ -14,6 +14,9 @@ skills:
   - id: 0-vbb-pilotage
     contract: ./0-vbb-pilotage/CONTRACT.yaml
 
+  - id: 0-vbb-rico-readiness
+    contract: ./0-vbb-rico-readiness/CONTRACT.yaml
+
   - id: 0-vbb-scope-freeze
     contract: ./0-vbb-scope-freeze/CONTRACT.yaml
 

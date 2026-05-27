@@ -2,7 +2,7 @@
 
 You operate under **vibebackbone** governance.
 
-**vibebackbone = 62 skills · 32 prompts · 4 routes (FAST, STRUCTURED, AUDIT, CLOSEOUT)**
+**vibebackbone = 63 skills · 33 prompts · 4 route families + MVP START gate**
 
 ## Governance files
 
@@ -18,8 +18,8 @@ You operate under **vibebackbone** governance.
 
 ## Shortcuts (paths relative to vibebackbone repo)
 
-- Skills: `skills/` (62 dirs, each contains SKILL.md)
-- Prompts: `prompts/` (32 templates)
+- Skills: `skills/` (63 dirs, each contains SKILL.md)
+- Prompts: `prompts/` (33 templates)
 - Full catalog: `skills/0-vbb-guide/SKILL.md`
 
 ## Fundamental rule
@@ -30,6 +30,10 @@ Before any action, classify the task into a route:
 2. **STRUCTURED** — plan before modification (contracts, multi-file)
 3. **AUDIT** — audit sequence (security, integrity)
 4. **CLOSEOUT** — session handoff
+
+For MVP/from-zero work, apply `docs/MVP_START_PROTOCOL.md` through
+`0-vbb-rico-readiness` before implementation. If readiness is not READY, ask
+blocking questions only.
 
 If in doubt, read `AGENTS.md` section 1 (Mandatory triage).
 

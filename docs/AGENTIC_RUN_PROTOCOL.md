@@ -53,6 +53,29 @@ Phases minimales par voie (voir [`PILOTAGE.md`](PILOTAGE.md) pour le triage) :
 | `AUDIT` | 01 + 02 + 03 + 07 | 04 + 05 si remédiation incluse |
 | `CLOTURE` | 07 seul | 06 si bilan d'une session longue |
 
+## Readiness before execution
+
+For any MVP or project started from zero, `05_EXECUTION` is forbidden until the
+MVP START gate has returned `READY`.
+
+The gate is defined in [`MVP_START_PROTOCOL.md`](MVP_START_PROTOCOL.md) and
+executed by `0-vbb-rico-readiness`.
+
+If readiness is:
+
+- `READY` -> continue to `04_PLAN` / STRUCTURED execution.
+- `PARTIAL` -> continue framing only; no application code.
+- `BLOCKED` or `UNKNOWN` -> stop and output blocking questions only.
+
+Hard escalations:
+
+- critical ambiguity -> questions before plan
+- architecture not defined -> no code
+- data not modeled -> no persistence
+- deployment constraints absent while infra is requested -> no Docker/runtime
+  structure
+- acceptance criteria absent for core behavior -> no implementation run
+
 ## Cycle complet
 
 ```

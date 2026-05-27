@@ -17,13 +17,14 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Mode** : [DISTRIBUTION](PROJECT_MODE.md#mode)
 - **Purpose** : Distribution catalog of skills, prompts and governance for LLM agents
 - **Governance** : [AGENTS.md](../AGENTS.md) · [SYSTEM.md](../SYSTEM.md) · [PILOTAGE.md](PILOTAGE.md)
+- **MVP start** : new MVP/from-zero work must pass [MVP_START_PROTOCOL.md](MVP_START_PROTOCOL.md) before implementation
 
 ## Active context
 
 - **Route** : STRUCTURED
 - **Phase** : v1.0 Hardening — complete
 - **Version** : 1.0.0-rc.1
-- **Contracts** : 62/62 (100%) — machine-facing EN-clean
+- **Contracts** : 63/63 (100%) — machine-facing EN-clean
 - **SKILL.md EN** : partial — see [AUDIT_STATUS.md](AUDIT_STATUS.md#risks-identified--status)
 - **Tests** : 69/69 pytest green, CI 7/7 PASS, 0 warnings
 - **Token economy** : L0 boot ~2.5K tokens (87% reduction from 19K)
@@ -40,7 +41,7 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 |-----|---------|
 | `docs/` | Governance, runs, audits → [INDEX.md](INDEX.md) |
 | `docs/TECH_DEBT.md` | Lightweight source-based technical debt register |
-| `skills/` | 62 skills · 62 contracts (100%) → [skills/](../skills/) |
+| `skills/` | 63 skills · 63 contracts (100%) → [skills/](../skills/) |
 | `prompts/` | 33 prompts (7 canonical + 25 specialized + 1 router) → [prompts/](../prompts/) |
 
 ## Open points

@@ -41,6 +41,7 @@ Ce guide est un compagnon **pédagogique** du `README.md`. Le README dit *ce qu'
 |----------|-----------|
 | `README.md` | Quoi, pourquoi, installation rapide |
 | `docs/CONTEXT.md` | MOC / routeur central persistant (premier fichier à lire au démarrage) |
+| `docs/MVP_START_PROTOCOL.md` | Gate de readiness obligatoire avant code pour MVP depuis zero |
 | `AGENTS.md` | Grammaire opérationnelle canonique (lue par les agents) |
 | `SYSTEM.md` | Comportement runtime (lu par Pi) |
 | `docs/PILOTAGE.md` | Règles de triage et d'escalade (référence) |
@@ -67,9 +68,9 @@ Une grammaire à **quatre composants**, qu'on injecte dans le contexte de l'agen
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  4 VOIES                                                │
-│  Chaque tâche est triée dans une voie unique :          │
-│  RAPIDE · STRUCTURÉE · AUDIT · CLÔTURE                  │
+│  4 FAMILLES DE VOIES + MVP START GATE                   │
+│  Chaque tâche est triée, les MVP from-zero passent      │
+│  d'abord par le gate de readiness RICO                  │
 └─────────────────────────────────────────────────────────┘
                           ↓
 ┌─────────────────────────────────────────────────────────┐
@@ -86,7 +87,7 @@ Une grammaire à **quatre composants**, qu'on injecte dans le contexte de l'agen
 └─────────────────────────────────────────────────────────┘
                           ↓
 ┌─────────────────────────────────────────────────────────┐
-│  62 SKILLS                                              │
+│  63 SKILLS                                              │
 │  Unités de capacité injectables, chacune avec un        │
 │  SKILL.md standardisé                                   │
 └─────────────────────────────────────────────────────────┘
@@ -111,7 +112,12 @@ Si vous ne devez retenir qu'une chose, c'est ça.
 
 ## 3. Le modèle mental (concepts clés)
 
-### 3.1 Les 4 voies — comment trier une tâche
+### 3.1 Les 4 familles de voies — comment trier une tâche
+
+Avant ces voies, un projet MVP démarré depuis zéro passe par le **MVP START
+gate** (`docs/MVP_START_PROTOCOL.md` + `0-vbb-rico-readiness`). Si la readiness
+n'est pas `READY`, l'agent reste en cadrage et produit des questions
+bloquantes.
 
 | Voie | Quand | Sessions | Artefacts | Exemples |
 |------|-------|----------|-----------|----------|
@@ -141,10 +147,11 @@ La voie RAPIDE dispose de 3 niveaux internes pour réduire la friction :
 
 Si une condition n'est pas remplie → **RAPIDE-MINIMAL** (si ≤ 5 fichiers) ou **RAPIDE STANDARD** / **STRUCTURÉE**.
 
-**Triage en 4 questions** (dans cet ouitre) :
+**Triage en 5 questions** (dans cet ordre) :
 
 ```
-1. Touche données / auth / état prod ?       → STRUCTURÉE
+0. MVP depuis zéro / RICO incomplet ?         → MVP START gate
+1. Touche données / auth / état prod ?        → STRUCTURÉE
 2. Touche sécurité / conformité / intégrité ? → AUDIT
 3. Aucune des deux ?                          → RAPIDE
 4. C'est une fin de session ?                 → CLÔTURE
@@ -203,7 +210,7 @@ prompts/
 
 Détails : voir `PROMPTS_ARCHITECTURE.md`.
 
-### 3.4 Les 62 skills
+### 3.4 Les 63 skills
 
 Un **skill** est une unité de capacité réutilisable, packagée comme un dossier avec un `SKILL.md` standardisé. Exemples : `2-vbb-security`, `1-vbb-tech-debt`, `t-vbb-deploy-runtime`.
 
@@ -239,7 +246,7 @@ bash setup.sh
 
 | Couche | Cible | Quoi |
 |--------|-------|------|
-| **Skills** | `~/.agents/skills/vibebackbone` | Les 62 skills (lecture universelle) |
+| **Skills** | `~/.agents/skills/vibebackbone` | Les 63 skills (lecture universelle) |
 | **Prompts** | `~/.agents/prompts/vibebackbone` | Les 25 prompts spécialisés + 1 router (symlink universel) |
 | **AGENTS.md** | Par provider | Grammaire opérationnelle |
 | **SYSTEM.md** | Par provider | Comportement runtime |
@@ -733,7 +740,7 @@ llm_log_delegation --task_type compression --provider qwen3.5-9b
 
 **Pourquoi c'est cassé** : la grammaire devient locale au projet, plus aucun agent ne sait quoi faire.
 
-**Correctif** : utiliser les 4 voies canoniques (RAPIDE / STRUCTURÉE / AUDIT / CLÔTURE). Si vraiment un cas manque, modifier `docs/PILOTAGE.md` (avec audit).
+**Correctif** : utiliser les familles canoniques (RAPIDE / STRUCTURÉE / AUDIT / CLÔTURE) et le MVP START gate pour les projets from-zero. Si vraiment un cas manque, modifier `docs/PILOTAGE.md` (avec audit).
 
 ---
 
@@ -945,7 +952,7 @@ REVIEW → EXECUTION      ✅ Obligatoire (si modifs)
 - **Lire le routeur central de contexte** → `docs/CONTEXT.md`
 - **Lire le protocole 7 phases formel** → `docs/AGENTIC_RUN_PROTOCOL.md`
 - **Voir les règles de session** → `docs/SESSION_RULES.md`
-- **Voir le catalogue des 62 skills** → `skills/0-vbb-guide/SKILL.md`
+- **Voir le catalogue des 63 skills** → `skills/0-vbb-guide/SKILL.md`
 - **Comprendre la mémoire et les handoffs** → `docs/MEMORY_AND_HANDOFF.md`
 
 ### Vous voulez contribuer

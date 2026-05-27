@@ -17,10 +17,10 @@
 - [x] No stale TODOs in governance files
 
 ### Contract & skill integrity
-- [x] 62/62 contracts pass lint (0 errors)
-- [x] 62/62 SKILL.md files exist with standardized frontmatter
+- [x] 63/63 contracts pass lint (0 errors)
+- [x] 63/63 SKILL.md files exist with standardized frontmatter
 - [x] Agent-facing language is EN (SKILL.md body, CONTRACT.yaml machine-facing fields)
-- [x] Contract runtime dry-run: 25 PASS + 16 PARTIAL + 2 BLOCKED (all expected)
+- [x] Contract runtime dry-run: 44 PASS + 17 PARTIAL + 2 BLOCKED (all expected)
 
 ### Test & CI
 - [x] pytest: 69/69 green
@@ -43,11 +43,10 @@
 - [x] README.md describes installation, usage, and architecture
 
 ### Known limitations (documented, not blocking)
-- 10/62 SKILL.md files still have FR body content (Phase 4 UX/UI domain + spec-validator, vibebackbone)
+- 10/63 SKILL.md files still have FR body content (Phase 4 UX/UI domain + spec-validator, vibebackbone)
 - 17/33 prompts in FR (by design — human narrative layer)
 - README.md and GUIDE.md in FR (by design)
-- 16/62 contract PARTIAL in dry-run (expected — stub outputs don't satisfy success gates)
-- 2/62 contract BLOCKED in dry-run (expected — scope-freeze gate chain)
+- Runtime dry-run includes expected PARTIAL/BLOCKED results from stub outputs and gate chains
 - No Formal Skill executor yet (v2.0 target)
 - DEPLOYMENT.md and RUNBOOK.md exist; keep them aligned with README/GUIDE before final v1.0
 

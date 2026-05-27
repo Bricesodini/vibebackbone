@@ -9,20 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **62 skills** covering readiness (5), structure (16), audits (12), consolidation (1), front-end (10), and transverse (13) — each with standardized SKILL.md and CONTRACT.yaml
-- **32 prompts** (7 canonical + 24 specialized + 1 router) for session entrypoints across all 7 agentic phases
-- **Full contract coverage**: 62/62 CONTRACT.yaml files with events, gates, routing, state_policy, and limits defined
-- **Contract linter** (`vbb-contract-lint.py`): validates all 62 contracts against schema in <1s
+- **63 skills** covering readiness (6), structure (16), audits (12), consolidation (1), front-end (10), and transverse (13) — each with standardized SKILL.md and CONTRACT.yaml
+- **33 prompts** (7 canonical + 25 specialized + 1 router) for session entrypoints across all 7 agentic phases
+- **Full contract coverage**: 63/63 CONTRACT.yaml files with events, gates, routing, state_policy, and limits defined
+- **Contract linter** (`vbb-contract-lint.py`): validates all 63 contracts against schema in <1s
 - **Contract runtime** (`vbb-contract-runtime.py`): dry-run execution of contracts with gate evaluation
 - **Text index** (`vbb-index.py`): 287 entries, ~291K tokens indexed for targeted retrieval
 - **Status dashboard** (`vbb-status-dashboard.py`): terminal and JSON status output for repo state
 - **Context compactor** (`vbb-context-compactor.py`): run summarization for context handoff
 - **Loop closure checker** (`vbb-loop-closure-check.py`): validates run artifacts against voie requirements
 - **Project initializer** (`vbb-project-init.py`): bootstrap governance files for new projects
-- **4 agentic routes**: FAST-ZERO, FAST-MINIMAL, FAST-STANDARD, STRUCTURED, AUDIT, CLOSEOUT with clear triage rules
+- **4 route families + MVP START gate**: FAST (ZERO/MINIMAL/STANDARD), STRUCTURED, AUDIT, CLOSEOUT, with MVP readiness before from-zero implementation
 - **7-phase protocol**: INTAKE → AUDIT → DECISION → PLAN → EXECUTION → REVIEW → CLOSEOUT with named artifacts per phase
 - **Token economy architecture**: 5-layer boot model (L0–L4) reducing boot context from ~19K to ~2.5K tokens (87% reduction)
-- **Agent-facing EN harmonization**: all 62 SKILL.md and 62 CONTRACT.yaml machine-facing fields in English
+- **Agent-facing EN harmonization**: all 63 SKILL.md and 63 CONTRACT.yaml machine-facing fields in English
 - **7 governance files**: CONTEXT.md, AGENTS.md, SYSTEM.md, CLAUDE.md, PILOTAGE.md, SESSION_RULES.md, MEMORY_AND_HANDOFF.md
 - **7 test suites** with 69 tests covering contracts, loop closure, portability, project init, index, dashboard, and context compaction
 - **2 GitHub workflows**: smoke (install test) and contracts (lint + runtime + test)
@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Boot context**: reduced from ~19K tokens to ~2.5K tokens (87% reduction) via @import compilation and L0–L4 layer architecture
-- **Contract coverage**: expanded from 22/58 (38%) to 62/62 (100%) across 9 contractualization runs
+- **Contract coverage**: expanded from 22/58 (38%) to 63/63 (100%) across 9 contractualization runs
 - **SKILL.md language**: harmonized from mixed FR/EN to consistent EN for agent-facing content across 4 language EN runs (18A/18B/18C/20C)
 - **CONTRACT.yaml descriptions**: translated all FR event.reason, gate.reason, and blocking_conditions.message fields to EN (44 contracts modified, 73 translations)
 - **Test infrastructure**: converted all 7 test files from custom `test(name, fn)` runner to pytest-compatible `test_*` function names with `__main__` fallback — 69/69 tests green

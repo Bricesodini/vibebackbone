@@ -82,6 +82,7 @@ If a specialized prompt covers multiple phases in a single context, **verify**:
 
 | Route | Context | Recommended prompt | Specialized alternatives |
 |-------|---------|-------------------|--------------------------|
+| MVP START gate | New MVP/from-zero project, RICO, initial brief, code requested before framing | `canonical/01-p-vbb-intake` + skill `0-vbb-rico-readiness` | `0-p-vbb-before-building` only after RICO readiness |
 | Any route | Session start, objective to frame | `canonical/01-p-vbb-intake` | `t-p-vbb-start-session` (if session re-entry), `0-p-vbb-triage` (if classification only) |
 | FAST-ZERO | Safe micro-task, ≤ 3 files | `0-p-vbb-zero-friction` (Activity Log only) | — |
 | FAST-MINIMAL | Small non-trivial task | `0-p-vbb-zero-friction` (Activity Log + 05_PATCH_SUMMARY) | — |
@@ -90,6 +91,25 @@ If a specialized prompt covers multiple phases in a single context, **verify**:
 | AUDIT | Security, integrity, compliance | `canonical/01-p-vbb-intake` | `2-p-vbb-audit-task` (if objective is directly audit) |
 | CLOSEOUT | End of session or re-entry | `canonical/01-p-vbb-intake` | `t-p-vbb-start-session` (context read only) |
 | Repo initialization | First contact with ungoverned repo | `canonical/01-p-vbb-intake` | `1-p-vbb-project-init` (if governance init) |
+
+### MVP START gate sequence
+
+```
+canonical/01-p-vbb-intake
+    ↓
+0-vbb-rico-readiness      ← apply docs/MVP_START_PROTOCOL.md
+    ↓
+READY   → 04-p-vbb-plan / STRUCTURED execution
+PARTIAL → framing only, no application code
+BLOCKED → blocking questions only
+UNKNOWN → stop before implementation
+```
+
+Hard blocks:
+- architecture not defined → no code
+- data not modeled → no persistence
+- deployment constraints absent while infra is requested → no Docker/runtime structure
+- critical ambiguity → questions before plan
 
 ---
 

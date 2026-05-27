@@ -1,7 +1,7 @@
 <p align="center">
   <img src="assets/vibebackbone_logo.svg" alt="Vibebackbone" width="480"/>
   <br/>
-  <strong style="font-size: 1.4em;">62 skills · 33 prompts (7 canoniques + 25 spécialisés + 1 router) · 4 voies d'exécution · 7 phases agentiques</strong>
+  <strong style="font-size: 1.4em;">63 skills · 33 prompts (7 canoniques + 25 spécialisés + 1 router) · 4 familles de voies + MVP START gate · 7 phases agentiques</strong>
 </p>
 
 <p align="center">Le système d'orchestration pour agents IA qui transforme le chaos de développement en pilotage prévisible.</p>
@@ -32,8 +32,8 @@ Le résultat ? Un orchestrateur silencieux qui :
 
 ```
 vibebackbone/
-├── skills/              # 62 skills prêts à injecter
-│   ├── 0-vbb-*/        # Phase 0 : Readiness & cadrage (5)
+├── skills/              # 63 skills prêts à injecter
+│   ├── 0-vbb-*/        # Phase 0 : Readiness & cadrage (6)
 │   ├── 1-vbb-*/        # Phase 1 : Structure & dette technique (16)
 │   ├── 2-vbb-*/        # Phase 2 : Audits de fond (12)
 │   ├── 3-vbb-*/        # Phase 3 : Consolidation (1)
@@ -45,6 +45,7 @@ vibebackbone/
 │   └── t-p-vbb-phase-router.md  # Matrice de décision Markdown
 ├── docs/                # Fichiers de pilotage
 │   ├── CONTEXT.md       # MOC / routeur central persistant (premier fichier à lire, versionné)
+│   ├── MVP_START_PROTOCOL.md # Gate obligatoire avant code pour MVP depuis zéro
 │   ├── PROJECT_MODE.md  # Signal de mode (généré par `t-vbb-project-context-init`)
 │   ├── SESSION.md       # Brouillon local éphémère (gitignoré)
 │   ├── AUDIT_STATUS.md  # Audit dashboard — local au projet
@@ -59,11 +60,11 @@ vibebackbone/
     └── taskplane.json   # Config taskplane
 ```
 
-### Les 62 skills en un coup d'œil
+### Les 63 skills en un coup d'œil
 
 | Phase | Foyer | Skills |
 |-------|-------|--------|
-| **🔰 0** | Readiness & cadrage | Guide, Pilotage, Scope-freeze, Audit-readiness, Standard *(3 méta/documentation, 2 opérationnels)* |
+| **🔰 0** | Readiness & cadrage | Guide, Pilotage, RICO-readiness, Scope-freeze, Audit-readiness, Standard *(3 méta/documentation, 3 opérationnels)* |
 | **🔧 1** | Structure & dette | Code-janitor, Conventions, Formatter, Tech-debt, Monolith-detector, Logic-duplication-detector, Pattern-inconsistency-detector, Error-handling-auditor, Premature-abstraction-detector, Test-mirage-detector, Intent-decomposer, Code-doc-coherence-auditor, Code-doc-gap-integrator, Doc-harmonizer, API-contract-designer, ADR |
 | **🔬 2** | Audits de fond | API-auditor, DB-robustness, Data-integrity, Security, Systemic-risk, Ops, CI, Legal, Performance, Accessibility, Analytics, Spec-validator |
 | **📋 3** | Consolidation | Risk-register |
@@ -118,6 +119,7 @@ Tâche entrante
 ┌──────────────────────────────────────────────────┐
 │  TRIAGE (via PILOTAGE.md)                        │
 │                                                  │
+│  MVP START gate → RICO readiness avant code      │  (MVP depuis zéro)
 │  RAPIDE-ZERO   → Activity Log only (zéro friction)     │  (micro-tâche sûre)
 │  RAPIDE-MINIMAL→ 05_PATCH_SUMMARY only                  │  (petite tâche non triviale)
 │  Voie RAPIDE    → exécution directe              │  (risque faible)
@@ -142,6 +144,11 @@ Résultat prévisible, traçable, reproductible
 
 L'agent ne décide plus tout seul. Il suit une grammaire documentée, lisible et vérifiable.
 
+Pour un MVP démarré depuis zéro, l'agent applique d'abord
+[`docs/MVP_START_PROTOCOL.md`](docs/MVP_START_PROTOCOL.md) via
+`0-vbb-rico-readiness`. Tant que la readiness n'est pas `READY`, il reste en
+cadrage et produit des questions bloquantes au lieu de coder.
+
 ---
 
 ## Les quatre couches Vibebackbone
@@ -161,7 +168,8 @@ L'agent ne décide plus tout seul. Il suit une grammaire documentée, lisible et
 
 **Point de départ opérationnel** :
 - **[`docs/CONTEXT.md`](docs/CONTEXT.md)** — MOC / routeur central persistant, premier fichier à lire au démarrage
-- **[`docs/PILOTAGE.md`](docs/PILOTAGE.md)** — Guide opérationnel : les 4 voies, triage, escalade, cascades verdict
+- **[`docs/MVP_START_PROTOCOL.md`](docs/MVP_START_PROTOCOL.md)** — Gate obligatoire avant implementation d'un MVP depuis zero
+- **[`docs/PILOTAGE.md`](docs/PILOTAGE.md)** — Guide opérationnel : familles de voies, MVP START gate, triage, escalade, cascades verdict
 - **[`docs/INDEX.md`](docs/INDEX.md)** — Carte de navigation du dépôt pour agents et humains
 
 **Protocole agentique complet** :
@@ -185,11 +193,11 @@ auto-découvert par Pi, OpenCode et Codex. Claude Code est patché automatiqueme
 # 1. Cloner vibebackbone
 git clone https://github.com/bricesodini/vibebackbone ~/vibebackbone
 
-# 2. Installer les 62 skills globalement
+# 2. Installer les 63 skills globalement
 bash ~/vibebackbone/setup.sh
 ```
 
-C'est tout. Les 62 skills sont disponibles pour tous vos agents, dans tous vos projets.
+C'est tout. Les 63 skills sont disponibles pour tous vos agents, dans tous vos projets.
 
 **Ce que fait `setup.sh` :**
 - installe les skills dans `~/.agents/skills/vibebackbone`

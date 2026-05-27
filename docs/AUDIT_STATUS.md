@@ -18,8 +18,8 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 Global evaluation audit completed (RUN 19, composite score 7.4/10).
 v1.0 Hardening phase completed (RUNs 20A–20D):
 - Test reliability: 69/69 pytest green, CI 7/7 PASS
-- Contract quality: 62/62 valid, machine-facing EN-clean
-- Agent language: 52/62 SKILL.md body EN-clean, 10 remaining (Phase 4 + spec-validator)
+- Contract quality: 63/63 valid, machine-facing EN-clean
+- Agent language: 53/63 SKILL.md body EN-clean, 10 remaining (Phase 4 + spec-validator)
 - Release readiness: CHANGELOG.md, RELEASE_CHECKLIST.md created
 
 New local pilotage audit on 2026-05-27 identified 3 P1 and 3 P2 risks
@@ -34,22 +34,22 @@ setup.sh monolith, SYNERGY-005 governance duplication).
 | Run | Target | Result |
 |-----|--------|--------|
 | 20A | Test reliability | ✅ 69/69 pytest green, CI PASS |
-| 20B | Contract quality | ✅ 62/62 valid, 44 contracts EN-cleaned |
+| 20B | Contract quality | ✅ 63/63 valid, 44 contracts EN-cleaned |
 | 20C | Agent language | ✅ 4 priority SKILL.md EN-translated, 10 remain |
 | 20D | Release candidate | ✅ CHANGELOG.md, RELEASE_CHECKLIST.md created |
 
 ## Contract runtime status
 
-`run --all --dry-run`: 44 PASS · 16 PARTIAL · 2 BLOCKED
+`run --all --dry-run`: 44 PASS · 17 PARTIAL · 2 BLOCKED
 
-- 16 PARTIAL: expected (dry-run stubs don't satisfy success gates)
+- 17 PARTIAL: expected (dry-run stubs don't satisfy success gates; includes `0-vbb-rico-readiness` without a real brief)
 - 2 BLOCKED: expected (scope-freeze gate chain)
 
 ## Risks identified & status
 
 | ID | Severity | Description | Status |
 |----|----------|-------------|--------|
-| PILOT-001 | P1 | `skills/INDEX.yaml` indexes 43/62 contracts; router/runtime coverage is lower than documented contract-file coverage | Resolved — index now 62/62, linter guard added, runtime executes 62 contracts |
+| PILOT-001 | P1 | `skills/INDEX.yaml` indexes 43/63 contracts; router/runtime coverage is lower than documented contract-file coverage | Resolved — index now 63/63, linter guard added, runtime executes 63 contracts |
 | PILOT-002 | P1 | Phase router can route unknown/unindexed requests from agent/phase scoring without semantic trigger match | Resolved — router now requires trigger match, regression test green |
 | PILOT-003 | P1 | Two pilotage files claim canonical authority and diverge (`docs/PILOTAGE.md` v2.2 vs `skills/vibebackbone/docs/PILOTAGE.md` v2.1) | Resolved — root pilotage declared canonical, catalog doc demoted to detailed reference |
 | PILOT-004 | P2 | Central status/run artifacts are dated 2026-06-10..13 while local audit date is 2026-05-27 | Resolved — temporal skew documented in `docs/TEMPORAL_PROVENANCE.md`; dashboard reports provenance notes |
@@ -66,6 +66,12 @@ setup.sh monolith, SYNERGY-005 governance duplication).
 New audit: [pilotage-framework-20260527-1905.md](audits/pilotage-framework-20260527-1905.md).
 
 This audit was run against the local workspace date `2026-05-27`, which is earlier than several existing central artifacts dated `2026-06-10` through `2026-06-13`. It therefore treats the future-dated status files as evidence with a temporal provenance risk rather than as unquestioned current state.
+
+## Latest audit note — MVP start readiness (2026-05-27)
+
+New audit: [mvp-start-readiness-20260527-2142.md](audits/mvp-start-readiness-20260527-2142.md).
+
+Verdict: `RESOLVED`. The requested MVP Start Protocol integration was applied as a systemic governance change. `docs/MVP_START_PROTOCOL.md`, the `0-vbb-rico-readiness` skill/contract, `skills/INDEX.yaml`, canonical governance, agentic protocol, prompts and routing references were added or updated. Public counters now align on 63 skills, 63 contracts, and 33 prompts. Validation passed: contract lint, contract runtime dry-run, RICO router checks, counter checks, implementation run closure, and local CI.
 
 ## Historical risk register
 
@@ -84,7 +90,7 @@ Full risk history: [audits/auto-audit-synthesis](../audits/auto-audit-synthesis.
 | Status | Count | Explanation |
 |--------|-------|------------- |
 | PASS | 44 | Skill has no success gates, or stub output satisfies them |
-| PARTIAL | 16 | Dry-run stubs don't produce skill-specific output (expected) |
+| PARTIAL | 17 | Dry-run stubs don't produce skill-specific output (expected) |
 | BLOCKED | 2 | scope-freeze gate chain (expected) |
 
 All PARTIAL results are expected dry-run limitations from stub output and now

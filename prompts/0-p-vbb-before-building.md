@@ -12,6 +12,7 @@ de décollage" pour un architecte produit qui s'apprête à lancer un chantier.
 
 ## Preferred Vibebackbone skills
 
+- `0-vbb-rico-readiness`
 - `0-vbb-scope-freeze`
 - `1-vbb-intent-decomposer`
 - `t-vbb-dependency-mapper`
@@ -27,27 +28,34 @@ de décollage" pour un architecte produit qui s'apprête à lancer un chantier.
 3. Si présent → lire `docs/SESSION.md` et `docs/AUDIT_STATUS.md`.
 4. Si `docs/AUDIT_STATUS.md` montre des BLOCKED → STOP. Résoudre avant de continuer.
 
-### Phase 2 — Vérifier le scope
+### Phase 2 — Verifier la readiness RICO / MVP START
+
+1. Si le chantier est un MVP depuis zero, un RICO, un brief initial, ou une demande de coder avant cadrage → lancer `0-vbb-rico-readiness`.
+2. Si verdict = BLOCKED ou UNKNOWN → STOP. Produire uniquement les questions bloquantes.
+3. Si verdict = PARTIAL → rester en cadrage. Aucun code applicatif, migration, endpoint, modele, composant UI, structure Docker, persistence ou logique metier.
+4. Si verdict = READY → continuer vers scope/architecture.
+
+### Phase 3 — Vérifier le scope
 
 1. Lancer `0-vbb-scope-freeze` sur le périmètre concerné.
 2. Si verdict = BLOCKED → le scope n'est pas assez défini. STOP.
 3. Si verdict = PARTIAL → continuer mais noter les zones floues.
 4. Si verdict = READY → le scope est gelé, on peut continuer.
 
-### Phase 3 — Vérifier l'architecture
+### Phase 4 — Vérifier l'architecture
 
 1. Vérifier si `docs/ARCHITECTURE.md` existe.
 2. Si absent → lancer `t-vbb-dependency-mapper`.
 3. Si présent mais ancien (> 30 jours ou > 50 commits) → proposer une mise à jour.
 
-### Phase 4 — Vérifier l'état du code
+### Phase 5 — Vérifier l'état du code
 
 1. Lancer `t-vbb-anti-slop-gate` pour vérifier l'état de surface.
 2. Si verdict = BLOCKED (build cassé, tests échoués) → STOP. Réparer avant de construire.
 3. Si verdict = READY_WITH_WARNINGS → noter les warnings, continuer.
 4. Si verdict = READY → surface propre.
 
-### Phase 5 — Décomposer l'intent
+### Phase 6 — Décomposer l'intent
 
 1. Lancer `1-vbb-intent-decomposer` sur la spécification fournie.
 2. Le plan produit devient la feuille de route.
@@ -57,15 +65,17 @@ de décollage" pour un architecte produit qui s'apprête à lancer un chantier.
 
 1. **Restate** l'objectif : quelle feature va être construite.
 2. **Phase 1** — Vérifier/créer la gouvernance projet.
-3. **Phase 2** — Geler le scope.
-4. **Phase 3** — Vérifier/créer la cartographie d'architecture.
-5. **Phase 4** — Lancer l'anti-slop gate.
-6. **Phase 5** — Décomposer l'intent en plan.
+3. **Phase 2** — Valider la readiness RICO / MVP START.
+4. **Phase 3** — Geler le scope.
+5. **Phase 4** — Vérifier/créer la cartographie d'architecture.
+6. **Phase 5** — Lancer l'anti-slop gate.
+7. **Phase 6** — Décomposer l'intent en plan.
 7. **Résumer** : verdict de readiness, risques, plan.
 
 ## Gate criteria — le projet est prêt à construire si :
 
 - [ ] Gouvernance Vibebackbone présente (PROJECT_MODE, SESSION, AUDIT_STATUS)
+- [ ] RICO readiness READY si MVP depuis zero ou brief initial
 - [ ] Scope gelé et documenté
 - [ ] Architecture cartographiée (ARCHITECTURE.md)
 - [ ] Surface de code propre (anti-slop READY ou READY_WITH_WARNINGS)
@@ -84,10 +94,11 @@ dans SESSION.md et continuer.
 
 - **Goal**
 - **Phase 1 — Gouvernance** : verdict
-- **Phase 2 — Scope** : verdict du scope-freeze
-- **Phase 3 — Architecture** : état de ARCHITECTURE.md
-- **Phase 4 — Code surface** : verdict anti-slop
-- **Phase 5 — Plan** : résumé du plan (nombre de tâches, vagues, risques)
+- **Phase 2 — RICO readiness** : verdict du rico-readiness
+- **Phase 3 — Scope** : verdict du scope-freeze
+- **Phase 4 — Architecture** : état de ARCHITECTURE.md
+- **Phase 5 — Code surface** : verdict anti-slop
+- **Phase 6 — Plan** : résumé du plan (nombre de tâches, vagues, risques)
 - **Readiness verdict** : READY / READY_WITH_CAVEATS / NOT_READY
 - **Blockers** : liste des points bloquants
 - **Next action** : commencer Wave 1, ou résoudre les blockers

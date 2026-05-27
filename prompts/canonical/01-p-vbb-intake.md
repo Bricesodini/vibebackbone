@@ -76,6 +76,7 @@ Appliquer le triage de `docs/PILOTAGE.md` :
 
 | Question | Réponse |
 |----------|---------|
+| Nouveau MVP, projet depuis zéro, RICO/brief initial incomplet, ou demande de coder avant cadrage ? | Oui → MVP START gate via `0-vbb-rico-readiness` |
 | Touche à un contrat de données, de l'auth, ou un état de production ? | Oui → Voie STRUCTURÉE |
 | Touche à la sécurité, l'intégrité des données, ou un périmètre réglementaire ? | Oui → Voie AUDIT |
 | Aucune des deux ? | Voie RAPIDE (ZERO si micro-tâche ≤ 3 fichiers, MINIMAL si petite tâche) |
@@ -91,6 +92,7 @@ Documenter le niveau de risque :
 Recommander :
 - La voie (`RAPIDE-ZERO`, `RAPIDE-MINIMAL`, `RAPIDE`, `STRUCTURÉE`, `AUDIT`, `CLÔTURE`)
 - La phase suivante (`02_AUDIT`, `03_DECISION`, `04_PLAN`, `05_EXECUTION`, `07_CLOSEOUT`)
+- Si MVP START : appliquer `docs/MVP_START_PROTOCOL.md` via `0-vbb-rico-readiness`; si readiness n'est pas READY, ne pas coder et produire les questions bloquantes
 - Si voie RAPIDE-ZERO : agir directement, inscrire dans `docs/ACTIVITY_LOG.md`
 - Si voie RAPIDE-MINIMAL : agir puis créer `05_PATCH_SUMMARY`
 - Si voie RAPIDE : autoriser chaînage direct vers `04_PLAN` ou `05_EXECUTION`
@@ -190,6 +192,7 @@ Créer le fichier `01_INTAKE.md` dans `docs/runs/YYYY-MM-DD_HHmm_slug/`.
 - ❌ Inventer un mode ou une voie absents de `docs/PILOTAGE.md`
 - ❌ Commencer la phase suivante dans la même session sans produire l'artefact
 - ❌ Ignorer les fichiers de gouvernance disponibles
+- ❌ Autoriser du code applicatif pour un MVP depuis zéro tant que `0-vbb-rico-readiness` n'a pas rendu `READY`
 
 ---
 

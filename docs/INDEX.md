@@ -16,6 +16,7 @@ updated: 2026-05-27
 | Rôle | Fichier |
 |------|---------|
 | MOC central, premier-fichier-à-lire | [`CONTEXT.md`](CONTEXT.md) |
+| Demarrage MVP depuis zero | [`MVP_START_PROTOCOL.md`](MVP_START_PROTOCOL.md) |
 | Routage opérationnel des tâches | [`PILOTAGE.md`](PILOTAGE.md) |
 | Mode du dépôt | [`PROJECT_MODE.md`](PROJECT_MODE.md) |
 | État des audits | [`AUDIT_STATUS.md`](AUDIT_STATUS.md) |
@@ -28,6 +29,7 @@ updated: 2026-05-27
 | Sujet | Fichier |
 |-------|---------|
 | Les 7 phases | [`AGENTIC_RUN_PROTOCOL.md`](AGENTIC_RUN_PROTOCOL.md) |
+| Readiness avant implementation MVP | [`MVP_START_PROTOCOL.md`](MVP_START_PROTOCOL.md) |
 | Règles de session (rester / changer) | [`SESSION_RULES.md`](SESSION_RULES.md) |
 | Mémoire officielle vs conversation | [`MEMORY_AND_HANDOFF.md`](MEMORY_AND_HANDOFF.md) |
 | Templates d'artefacts | [`templates/`](templates/) |
@@ -45,7 +47,7 @@ updated: 2026-05-27
 
 | Type | Localisation | Catalogue |
 |------|--------------|-----------|
-| Skills (62) | [`../skills/`](../skills/) | [`../skills/INDEX.yaml`](../skills/INDEX.yaml) |
+| Skills (63) | [`../skills/`](../skills/) | [`../skills/INDEX.yaml`](../skills/INDEX.yaml) |
 | Prompts spécialisés (25) + 1 router | [`../prompts/`](../prompts/) | — |
 | Prompts canoniques (7) | [`../prompts/canonical/`](../prompts/canonical/) | — |
 

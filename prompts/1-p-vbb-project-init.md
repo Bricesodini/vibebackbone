@@ -10,6 +10,7 @@ Determine whether the repository is already on Vibebackbone rails and establish 
 Preferred Vibebackbone skills:
 
 - `t-vbb-project-context-init`
+- `0-vbb-rico-readiness`
 - `0-vbb-audit-readiness`
 - `t-vbb-mode-transition-gate`
 
@@ -33,7 +34,10 @@ Required process:
    - not initialized
 4. Identify what is missing.
 5. Propose the minimum next steps to initialize or normalize the repo.
-6. If governance is missing, do not pretend the repo is fully Vibebackbone-compliant.
+6. If the user wants to start a new MVP after initialization, route to
+   `docs/MVP_START_PROTOCOL.md` and `0-vbb-rico-readiness` before any
+   implementation.
+7. If governance is missing, do not pretend the repo is fully Vibebackbone-compliant.
 
 Constraints:
 

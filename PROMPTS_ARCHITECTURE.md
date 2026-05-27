@@ -53,7 +53,11 @@ Le router répond à : "Je suis en phase X, voie Y, avec les artefacts Z — que
 
 ---
 
-## Les 4 voies d'exécution
+## Les 4 familles de voies d'exécution
+
+Les MVP ou projets démarrés depuis zéro passent d'abord par le MVP START gate :
+`docs/MVP_START_PROTOCOL.md` + skill `0-vbb-rico-readiness`. Si la readiness
+n'est pas `READY`, aucun code applicatif ne démarre.
 
 ### Voie RAPIDE
 
