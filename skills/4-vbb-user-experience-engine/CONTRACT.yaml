@@ -2,80 +2,120 @@ id: 4-vbb-user-experience-engine
 version: '0.3'
 type: prompt_skill
 formalization_level: declarative
+
 entrypoint:
   kind: markdown_prompt
   path: SKILL.md
+
 compatibility:
   runtime_required: false
   agents:
-  - claude-code
-  - codex
-  - pi
-  - opencode
+    - claude-code
+    - codex
+    - pi
+    - opencode
+
 inputs:
   required:
-  - repo_access
-  - product_brief
+    - repo_access
+    - interface_description
+    - target_user
+    - primary_task
+    - usage_context
   optional:
-  - user_research_data
-  - existing_flow_map
-  - accessibility_requirements
+    - existing_feedback
+    - prior_audits
+
 outputs:
   required:
-  - status
-  - summary
-  - ux_recommendations
-  - flow_map
-  - next_action
+    - status
+    - summary
+    - graphic_propagation_map
+    - surface_cartography
+    - state_matrix
+    - next_action
   statuses:
-  - PASS
-  - PARTIAL
-  - FAIL
-  - BLOCKED
-  artifact: null
+    - PASS
+    - PARTIAL
+    - FAIL
+    - BLOCKED
+  artifact:
+    path_pattern: pass-1-output.md
+    kind: phase_artifact
+    must_exist_after_run: false
+    frontmatter_required:
+      - run_id
+      - phase
+      - voie
+      - status
+      - mode
+
 gates:
   before:
-  - id: repo_accessible
-    expected_status: PASS
-    blocking: true
-    reason: Cannot optimize UX without repo access
-  - id: product_brief_provided
-    expected_status: PASS
-    blocking: true
-    reason: Cannot optimize UX without product context
+    - id: repo_accessible
+      expected_status: PASS
+      blocking: true
+      reason: Cannot optimize UX without repo access
+    - id: interface_description_provided
+      expected_status: PASS
+      blocking: true
+      reason: Cannot produce GRAPHIC_PROPAGATION_MAP without interface context
   success:
-  - id: ux_optimized
-    output_must_contain:
-    - ux_recommendations
-    - flow_map
+    - id: propagation_architecture_documented
+      output_must_contain:
+        - GRAPHIC_PROPAGATION_MAP
+        - SURFACE_CARTOGRAPHY
+        - STATE_MATRIX
   after:
-  - id: next_pass_ready
-    skill: t-vbb-session-handoff
-    reason: UX pass complete → handoff for interaction coherence (pass 2/7)
+    - id: next_pass_ready
+      skill: 4-vbb-interaction-coherence-auditor
+      reason: Pass 1 complete → handoff to pass 2
+
 events:
-  on_partial:
-  - skill: t-vbb-session-handoff
-    reason: Partial UX optimization → handoff for continuation
+  on_blocked:
+    - skill: t-vbb-session-handoff
+      reason: Pass 1 blocked → GRAPHIC_PROPAGATION_MAP must be produced before continuing
   on_success:
-  - skill: t-vbb-session-handoff
-    reason: UX engine pass complete → record handoff
+    - skill: t-vbb-session-handoff
+      reason: Pass 1 complete → record GRAPHIC_PROPAGATION_MAP + SURFACE_CARTOGRAPHY + STATE_MATRIX
+
 routing:
   phase_scope:
-  - phase_4
+    - phase_4
   triggers:
-  - user experience
-  - UX optimization
-  - task clarity
-  - flow efficiency
-  - state completeness
-  - action hierarchy
-  - front pipeline pass 1
+    - front pipeline pass 1
+    - user experience optimization
+    - surface cartography
+    - graphic propagation
+    - UI/UX optimization
+
 limits:
   max_gate_depth: 2
   circular_dependencies: forbidden
+
 state_policy:
   persistent: false
   allowed_fields:
-  - flow_count
-  - task_count
-  - recommendation_count
+    - propagation_points_count
+    - surfaces_identified
+    - fake_centers_found
+    - inheritance_chains_documented
+    - propagation_debt_score
+
+blocking_rules:
+  - id: graphic_propagation_map_required
+    condition: "graphic_propagation_map absent"
+    level: HARD
+    message: "GRAPHIC_PROPAGATION_MAP is mandatory in Pass 1. It must be produced BEFORE surface cartography. Propagation architecture > component abstraction."
+  - id: surface_cartography_required
+    condition: "surface_cartography absent"
+    level: HARD
+    message: "Surface cartography missing. Pass 1 must produce SURFACE_CARTOGRAPHY before any design system work."
+  - id: state_matrix_required
+    condition: "state_matrix absent"
+    level: HARD
+    message: "STATE_MATRIX missing. Cannot validate pass 4 without 7 states mapped to surfaces."
+  - id: no_design_system_before_propagation
+    condition: "proposes Button/Card/Badge registries or token expansion BEFORE GRAPHIC_PROPAGATION_MAP"
+    level: HARD
+    message: "GENERIC_DESIGN_SYSTEM_RESPONSE detected. Propagation architecture must be documented before any design system creation (registries, tokens, migration)."

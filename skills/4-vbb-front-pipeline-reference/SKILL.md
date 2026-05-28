@@ -4,7 +4,7 @@ description: |
   Canonical reference for the 7-pass Vibebackbone front pipeline. Defines execution modes,
   subsystem boundaries (ENGINE vs VISUAL), gate conditions, scope locks, and rollback protocol.
   This is a decision and protocol reference, not an execution pass.
-version: "2.1"
+version: "2.2"
 phase: 4
 token_budget: low
 subagent_eligible: false
@@ -124,7 +124,7 @@ A pass output is INVALID if it contains only:
   - migration plans without CENTRALIZATION_ROADMAP
 
 A pass output is VALID only if:
-  - Pass 1: SURFACE_CARTOGRAPHY (named surfaces) + STATE_MATRIX (7 states mapped)
+  - Pass 1: GRAPHIC_PROPAGATION_MAP (propagation architecture) + SURFACE_CARTOGRAPHY (named surfaces) + STATE_MATRIX (7 states mapped)
   - Pass 4: TOKEN_DEFINITION_MAP + PRIMITIVE_REGISTRY_CHECK + CENTRALIZATION_GAPS + CENTRALIZATION_ROADMAP
   - All passes: No direct primitive proposals before surface mapping complete
 
@@ -132,7 +132,7 @@ A pass output is VALID only if:
 
 | Pass | Required Keys | Optional Seeds |
 |------|---------------|---------------|
-| Pass 1 (UX Engine) | SURFACE_CARTOGRAPHY, STATE_MATRIX | TOKEN_DEFINITION_MAP seeds, PRIMITIVE_REGISTRY_CHECK seeds |
+| Pass 1 (UX Engine) | GRAPHIC_PROPAGATION_MAP, SURFACE_CARTOGRAPHY, STATE_MATRIX | TOKEN_DEFINITION_MAP seeds, PRIMITIVE_REGISTRY_CHECK seeds |
 | Pass 4 (Design System) | TOKEN_DEFINITION_MAP, PRIMITIVE_REGISTRY_CHECK, CENTRALIZATION_GAPS, CENTRALIZATION_ROADMAP | — |
 
 ## GENERIC_OUTPUT_DETECTION
@@ -147,9 +147,9 @@ WITHOUT prior SURFACE_CARTOGRAPHY → REJECT and return to pass 1.
 
 | Gate | Requirement |
 |------|-------------|
-| pass 1 → 2 | SURFACE_CARTOGRAPHY must exist |
+| pass 1 → 2 | GRAPHIC_PROPAGATION_MAP + SURFACE_CARTOGRAPHY must exist |
 | pass 2 → 3 | CANONICAL_PATTERNS must reference SURFACE_CARTOGRAPHY |
-| pass 3 → 4 | SURFACE_CARTOGRAPHY + STATE_MATRIX must be frozen |
+| pass 3 → 4 | GRAPHIC_PROPAGATION_MAP + SURFACE_CARTOGRAPHY + STATE_MATRIX must be frozen |
 | pass 4 → 5 | All 6 required keys must be populated (2 from Pass 1, 4 from Pass 4) |
 
 **Pass 4 → 5 gate detail (6 keys required):**
