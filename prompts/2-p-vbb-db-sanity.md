@@ -69,3 +69,17 @@ Output format:
 - Suspected issues
 - Missing evidence
 - Recommended fixes
+
+---
+
+## Closeout sequence (mandatory — run after the sanity assessment)
+
+After the database sanity assessment:
+
+1. `t-vbb-commit-ready` → verdict + conventional commit message
+2. `git add <any files modified or created during assessment>` → `git commit -m "<message>"` → `git push`
+3. Update `docs/SESSION.md` (clear if session done, note state if re-entry planned)
+4. Update `docs/CONTEXT.md` (status, run link, decisions, open points, next action)
+5. Update `docs/AUDIT_STATUS.md` (new db-sanity assessment)
+
+> Database sanity assessments are audit-critical artifacts — they must be recorded and versioned. Do not stop after the output. The db-sanity loop is not closed until git push is done.

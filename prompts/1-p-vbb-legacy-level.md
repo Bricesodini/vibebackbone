@@ -60,3 +60,17 @@ Output format:
 - Legacy level
 - Acceptability by phase
 - Recommended cleanup priorities
+
+---
+
+## Closeout sequence (mandatory — run after the assessment)
+
+After the legacy level assessment:
+
+1. `t-vbb-commit-ready` → verdict + conventional commit message
+2. `git add <any files modified during assessment>` → `git commit -m "<message>"` → `git push`
+3. Update `docs/SESSION.md` (clear if session done, note state if re-entry planned)
+4. Update `docs/CONTEXT.md` (status, run link, decisions, open points, next action)
+5. Update `docs/AUDIT_STATUS.md` (new legacy level assessment)
+
+> The legacy assessment is a decision-critical artifact — it must be recorded in AUDIT_STATUS and versioned. Do not stop after the assessment output. The legacy-level loop is not closed until git push is done.

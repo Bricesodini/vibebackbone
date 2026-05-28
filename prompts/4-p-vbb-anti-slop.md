@@ -62,6 +62,19 @@ Output format :
 - Recommendations
 - Remaining risks
 
+---
+
+## Closeout sequence (mandatory — run after the verdict)
+
+After the anti-slop gate verdict:
+
+1. `t-vbb-commit-ready` → verdict + conventional commit message
+2. `git add <files modified during the gate>` → `git commit -m "<message>"` → `git push`
+3. Update `docs/SESSION.md` (clear if session done, note state if re-entry planned)
+4. Update `docs/CONTEXT.md` (status, run link, decisions, open points, next action)
+
+> The anti-slop gate is a quality gate — it should not leave files uncommitted. Do not stop after the verdict. The anti-slop gate loop is not closed until git push is done.
+
 Report destination :
 
 - If the skill defines a report artifact destination, write the report there.

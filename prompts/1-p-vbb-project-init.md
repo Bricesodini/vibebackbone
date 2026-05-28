@@ -56,3 +56,16 @@ Output format:
 - Fallback justification
 - Recommended initialization steps
 - Execution readiness
+
+---
+
+## Closeout sequence (mandatory — run after initialization recommendations)
+
+After the initialization state is assessed and recommendations are produced:
+
+1. `t-vbb-commit-ready` → verdict + conventional commit message
+2. `git add <governance files created or modified>` → `git commit -m "<message>"` → `git push`
+3. Update `docs/SESSION.md` (clear if session done, note state if re-entry planned)
+4. Update `docs/CONTEXT.md` (status, run link, decisions, open points, next action)
+
+> Governance files created during initialization are persistent artifacts — they must be versioned. Do not stop after the recommendations. The project-init loop is not closed until git push is done.

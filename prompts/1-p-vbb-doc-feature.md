@@ -73,6 +73,19 @@ Output format:
 - Compliance level
 - Execution mode (COMPLETE / DELEGATED)
 - Scope applied
+
+---
+
+## Closeout sequence (mandatory — run after documentation is written)
+
+After the documentation is written:
+
+1. `t-vbb-commit-ready` → verdict + conventional commit message
+2. `git add <docs written>` → `git commit -m "<message>"` → `git push`
+3. Update `docs/SESSION.md` (clear if session done, note state if re-entry planned)
+4. Update `docs/CONTEXT.md` (status, run link, decisions, open points, next action)
+
+> Documentation files are persistent artifacts — they must be versioned. Do not stop after writing the docs. The doc-feature loop is not closed until git push is done.
 - Write threshold
 - Primary skill used
 - Supporting skills

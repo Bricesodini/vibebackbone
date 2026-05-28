@@ -47,6 +47,20 @@ For each risk:
   - suspected
   - needs validation
 
+---
+
+## Closeout sequence (mandatory — run after the risk register is produced)
+
+After the risk register is produced:
+
+1. `t-vbb-commit-ready` → verdict + conventional commit message
+2. `git add <risk register files>` → `git commit -m "<message>"` → `git push`
+3. Update `docs/SESSION.md` (clear if session done, note state if re-entry planned)
+4. Update `docs/CONTEXT.md` (status, run link, decisions, open points, next action)
+5. Update `docs/AUDIT_STATUS.md` (new consolidated risks)
+
+> The risk register is a decision-critical artifact — it must be versioned. Do not stop after producing the register. The risk-register loop is not closed until git push is done.
+
 At the end:
 
 - Primary skill used

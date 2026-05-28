@@ -121,3 +121,16 @@ l'acceptation du risque dans SESSION.md.
 - **Verdict global** : VALIDATED / VALIDATED_WITH_CAVEATS / NEEDS_REWORK
 - **Écarts résiduels** : ce qui reste à traiter
 - **Prochaine action** : release-check, handoff, ou retour en développement
+
+---
+
+## Closeout sequence (mandatory — run after the global verdict)
+
+After the post-build validation verdict:
+
+1. `t-vbb-commit-ready` → verdict + conventional commit message
+2. `git add <any files modified during validation>` → `git commit -m "<message>"` → `git push`
+3. Update `docs/SESSION.md` (clear if session done, note state if re-entry planned)
+4. Update `docs/CONTEXT.md` (status, run link, decisions, open points, next action)
+
+> Post-build validation produces a go/no-go signal for release — do not leave artifacts uncommitted. Do not stop after the verdict. The after-building loop is not closed until git push is done.

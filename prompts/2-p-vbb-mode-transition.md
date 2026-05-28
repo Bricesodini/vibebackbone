@@ -66,3 +66,17 @@ Output format:
 - Blockers
 - Readiness
 - Recommended next action
+
+---
+
+## Closeout sequence (mandatory — run after the readiness verdict)
+
+After the mode-transition readiness verdict:
+
+1. `t-vbb-commit-ready` → verdict + conventional commit message
+2. `git add <any files modified during transition evaluation>` → `git commit -m "<message>"` → `git push`
+3. Update `docs/SESSION.md` (clear if session done, note state if re-entry planned)
+4. Update `docs/CONTEXT.md` (status, run link, decisions, open points, next action)
+5. Update `docs/AUDIT_STATUS.md` (new mode-transition verdict)
+
+> The mode-transition gate verdict is a production decision artifact — it must be recorded and versioned. Do not stop after the verdict. The mode-transition loop is not closed until git push is done.
