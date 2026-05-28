@@ -177,22 +177,23 @@ WITHOUT the following mandatory keys:
 MUST be flagged as INSUFFICIENT.
 
 Verdict: INSUFFICIENT
-Message: "Analysis missing systemic cartography. Required: SURFACE_CARTOGRAPHY + STATE_MATRIX (Pass 1), TOKEN_DEFINITION_MAP + PRIMITIVE_REGISTRY_CHECK + CENTRALIZATION_GAPS + CENTRALIZATION_ROADMAP (Pass 4)."
+Message: "Analysis missing systemic cartography. Required: GRAPHIC_PROPAGATION_MAP + SURFACE_CARTOGRAPHY + STATE_MATRIX (Pass 1), TOKEN_DEFINITION_MAP + PRIMITIVE_REGISTRY_CHECK + CENTRALIZATION_GAPS + CENTRALIZATION_ROADMAP (Pass 4)."
 
 ## OUTPUT VALIDITY CHECK
 
 Before accepting any UI/UX audit output:
-1. Verify SURFACE_CARTOGRAPHY exists and lists surfaces by semantic name
-2. Verify STATE_MATRIX maps 7 states to surfaces
-3. Verify TOKEN_DEFINITION_MAP shows definition → usage traceability
-4. Verify PRIMITIVE_REGISTRY_CHECK identifies central vs local primitives
-5. Verify CENTRALIZATION_GAPS lists non-centralized values with impact
-6. Verify CENTRALIZATION_ROADMAP orders remediation by surface level
+1. Verify GRAPHIC_PROPAGATION_MAP exists (propagation points, inheritance chains, debt)
+2. Verify SURFACE_CARTOGRAPHY exists and lists surfaces by semantic name
+3. Verify STATE_MATRIX maps 7 states to surfaces
+4. Verify TOKEN_DEFINITION_MAP shows definition → usage traceability
+5. Verify PRIMITIVE_REGISTRY_CHECK identifies central vs local primitives
+6. Verify CENTRALIZATION_GAPS lists non-centralized values with impact
+7. Verify CENTRALIZATION_ROADMAP orders remediation by surface level
 
 If any key is missing or empty → INSUFFICIENT.
 
 **Separation of responsibilities:**
-- Pass 1 (4-vbb-user-experience-engine) → SURFACE_CARTOGRAPHY + STATE_MATRIX (required)
+- Pass 1 (4-vbb-user-experience-engine) → GRAPHIC_PROPAGATION_MAP + SURFACE_CARTOGRAPHY + STATE_MATRIX (required)
 - Pass 4 (4-vbb-design-system-validator) → TOKEN_DEFINITION_MAP + PRIMITIVE_REGISTRY_CHECK + CENTRALIZATION_GAPS + CENTRALIZATION_ROADMAP (required)
 
 ## VERDICT RULES
@@ -203,4 +204,4 @@ Do NOT emit READY / PARTIAL / BLOCKED / UNKNOWN unless explicitly asked for a ro
 
 **Exception:** For UI/UX outputs (ENGINE_ONLY mode), ALWAYS emit a verdict:
 - INSUFFICIENT: Missing required cartography keys (from Pass 1 or Pass 4)
-- READY: All 6 required keys present and populated (2 from Pass 1, 4 from Pass 4)
+- READY: All 7 required keys present and populated (3 from Pass 1, 4 from Pass 4)
