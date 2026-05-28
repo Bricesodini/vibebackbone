@@ -96,15 +96,19 @@ Absolute rules:
    - touched audits
    - touched piloting files
    - manifest inconsistencies or omissions
-4. **Verify the closeout invariant** (mandatory if an active run is detected):
+4. **Detect the route and route-specific closeout artifact**:
+   - FAST-ZERO / FAST-MINIMAL: no `07_CLOSEOUT.md` required. Use the last `05_PATCH_SUMMARY.md` or `docs/ACTIVITY_LOG.md` entry as the change context.
+   - FAST-STANDARD / STRUCTURED / AUDIT: require `07_CLOSEOUT.md`.
+   - If the expected artifact is missing but the change is scoped → proceed with PARTIAL verdict and note the gap.
+5. **Verify the closeout invariant** (mandatory if an active run is detected):
    ```bash
    python3 tools/vbb-loop-closure-check.py "${VBB_RUN_ID:-$(ls -t docs/runs/ | head -1)}"
    ```
    - If exit ≠ 0 → status = `BLOCKED`. Do not produce a commit message.
    - Fix missing artifacts, then rerun.
-5. Identify elements that prevent a clean commit.
-6. Write a conventional commit message adapted to the change set.
-7. If the session context also needs compression for re-entry, explicitly signal that `t-vbb-session-handoff` should be chained next.
+6. Identify elements that prevent a clean commit.
+7. Write a conventional commit message adapted to the change set.
+8. If the session context also needs compression for re-entry, explicitly signal that `t-vbb-session-handoff` should be chained next.
 
 ## OUTPUT CONTRACT
 

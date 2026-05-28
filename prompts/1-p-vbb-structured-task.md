@@ -84,3 +84,12 @@ Créer ces trois fichiers dans le dossier de run. Si plusieurs runs : `05_PATCH_
 
 Après exécution, ne pas reviewer soi-même. Créer une nouvelle session avec `canonical/06-p-vbb-review`.
 Transmettre : `05_PATCH_SUMMARY_RUN_N.md` + liste des fichiers modifiés + points non résolus.
+
+**Closeout sequence (à exécuter après approval)** :
+
+1. `t-vbb-commit-ready` → verdict + message de commit conventionnel
+2. `git add <fichiers>` → `git commit -m "<message>"` → `git push`
+3. Mise à jour de `docs/SESSION.md` (vier ou noter l'état)
+4. Mise à jour de `docs/CONTEXT.md` (statut, lien vers run, points ouverts)
+
+> Ne pas s'arrêter après la review. La boucle n'est pas fermée tant que git push n'est pas fait. Pour STRUCTURED, le closeout formel est requis — produire `07_CLOSEOUT.md` avant de commiter.

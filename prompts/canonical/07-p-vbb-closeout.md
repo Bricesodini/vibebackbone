@@ -109,7 +109,12 @@ Si des points ouverts ou des risques existent :
 ### Étape 6 — Mettre à jour la mémoire officielle
 
 **Obligatoire** :
-1. Mettre à jour `docs/SESSION.md` (vider si session terminée, noter l'état si reprise prévue)
+1. Vérifier l'invariant de closeout (boucle complète) :
+   ```bash
+   python3 tools/vbb-loop-closure-check.py "${VBB_RUN_ID}"
+   ```
+   - Si exit ≠ 0 → vérifier les Artefacts manquants avant de continuer. Ne pas produire de closeout si l'invariant n'est pas satisfait.
+2. Mettre à jour `docs/SESSION.md` (vider si session terminée, noter l'état si reprise prévue)
 2. Mettre à jour `docs/CONTEXT.md` avec les éléments synthétiques suivants (uniquement) :
    - **Statut** : verdict du run (succès, partiel, escalade)
    - **Lien vers run** : `[YYYY-MM-DD_HHmm_slug](runs/YYYY-MM-DD_HHmm_slug/07_CLOSEOUT.md)`

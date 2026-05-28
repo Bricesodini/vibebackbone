@@ -222,6 +222,17 @@ Transmettre :
 - Points non résolus et leur criticité
 - Tests échoués ou non réalisés
 
+**Closeout sequence (à exécuter après la review)** :
+
+Une fois le run approuvé (APPROUVÉ ou APPROUVÉ_AVEC_RÉSERVES), la séquence de clôture est :
+
+1. `t-vbb-commit-ready` → verdict + message de commit conventionnel
+2. `git add <fichiers>` → `git commit -m "<message>"` → `git push`
+3. Mise à jour de `docs/SESSION.md` (vider ou noter l'état)
+4. Mise à jour de `docs/CONTEXT.md` (statut, lien vers run, points ouverts)
+
+> Ne pas s'arrêter après la review. La boucle n'est pas fermée tant que git push n'est pas fait.
+
 **Si run bloqué** : documenter le bloquant dans le patch summary, ne pas continuer. Passer en 03_DECISION pour réévaluer.
 
 **Si runs supplémentaires nécessaires** : exécuter le run N+1 dans la même session ou en nouvelle session selon le contexte et la limite de contexte LLM.

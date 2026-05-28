@@ -72,4 +72,13 @@ En voie RAPIDE, la review est optionnelle. Après l'exécution :
 - Si changement minimal → passer directement à `canonical/07-p-vbb-closeout` ou `t-p-vbb-session-handoff`
 - Si changement sensible → créer une session `canonical/06-p-vbb-review`
 
+**Closeout sequence (toujours — même en RAPIDE)** :
+
+1. `t-vbb-commit-ready` → verdict + message conventionnel
+2. `git add <fichiers>` → `git commit -m "<message>"` → `git push`
+3. Mise à jour de `docs/SESSION.md` (vier si session terminée)
+4. Mise à jour de `docs/CONTEXT.md` (statut, lien vers run)
+
+> Ne pas s'arrêter après l'exécution. La boucle n'est pas fermée tant que git push n'est pas fait. Pour RAPIDE-MINIMAL : le `05_PATCH_SUMMARY.md` existe déjà — l'utiliser comme base pour la séquence de commit.
+
 **Escalade obligatoire** : si en cours d'exécution le risque augmente (auth, données, prod, sécurité) → arrêter immédiatement, documenter dans le patch summary, créer une nouvelle session en voie STRUCTURÉE ou AUDIT.

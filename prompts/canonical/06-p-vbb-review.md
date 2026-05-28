@@ -228,6 +228,15 @@ La REVIEW est complète si :
 - Phase suivante : `07_CLOSEOUT` (ou Run N+1 si plan en cours)
 - Transmettre : review complète + réserves à traiter si applicable
 
+**Closeout sequence (à exécuter après approval)** :
+
+1. `t-vbb-commit-ready` → verdict + message de commit conventionnel
+2. `git add <fichiers>` → `git commit -m "<message>"` → `git push`
+3. Mise à jour de `docs/SESSION.md` (vider ou noter l'état)
+4. Mise à jour de `docs/CONTEXT.md` (statut, lien vers run, points ouverts)
+
+> Ne pas s'arrêter après la recommandation. La boucle n'est pas fermée tant que git push n'est pas fait.
+
 **Si MODIFICATIONS_REQUISES** :
 - Phase suivante : `05_EXECUTION` Run N+1 (nouvelle session obligatoire)
 - Transmettre : liste précise des corrections à réaliser
