@@ -58,6 +58,8 @@ def test_fresh_project():
         assert "docs/PROJECT_MODE.md" in out
         assert "docs/CONTEXT.md" in out
         assert "docs/AUDIT_STATUS.md" in out
+        assert "docs/ARCHITECTURE.md" in out
+        assert "docs/RELATIONS.md" in out
         assert "docs/INDEX.md" in out
         assert "docs/runs/README.md" in out
         assert "docs/audits/README.md" in out
@@ -66,6 +68,8 @@ def test_fresh_project():
         assert (Path(tmp) / "docs" / "PROJECT_MODE.md").exists()
         assert (Path(tmp) / "docs" / "CONTEXT.md").exists()
         assert (Path(tmp) / "docs" / "AUDIT_STATUS.md").exists()
+        assert (Path(tmp) / "docs" / "ARCHITECTURE.md").exists()
+        assert (Path(tmp) / "docs" / "RELATIONS.md").exists()
 
 
 def test_dry_run_no_write():
@@ -112,6 +116,19 @@ def test_templates_copied():
         assert len(copied) == src_count, (
             f"Expected {src_count} templates, got {len(copied)}: {[t.name for t in copied]}"
         )
+
+
+def test_architecture_initialized_as_fresh_state():
+    """Fresh projects get their own architecture source, not VBB audit history."""
+    with tempfile.TemporaryDirectory() as tmp:
+        rc, out, err = _run(["--target-dir", tmp, "--project-name", "FreshImpl"])
+        assert rc == 0, f"Expected exit 0\n{out}\n{err}"
+        arch = (Path(tmp) / "docs" / "ARCHITECTURE.md").read_text()
+        relations = (Path(tmp) / "docs" / "RELATIONS.md").read_text()
+        assert "FreshImpl" in arch
+        assert "Project Core" in arch
+        assert "global-implementation-readiness" not in arch
+        assert "source: ARCHITECTURE.md" in relations
 
 
 # ---------------------------------------------------------------------------

@@ -121,6 +121,19 @@ Keep edits coherent with the documented project mode.
 Do not rewrite governance documents unless the task explicitly requires it.
 Do not claim certainty when you are inferring.
 
+## Architecture source discipline
+
+`docs/ARCHITECTURE.md` is the canonical structured architecture source.
+`docs/RELATIONS.md` is generated from it and must not become a competing truth.
+
+For any change that touches architecture, routing, contracts, governance,
+provider adapters, CI, or architecture-sensitive tooling:
+
+1. update the relevant `docs/ARCHITECTURE.md` block;
+2. regenerate `docs/RELATIONS.md` when relations change;
+3. run `python tools/vbb-architecture.py lint`;
+4. treat a lint failure as a blocked implementation until the reference is fixed.
+
 ## Communication style
 
 - concise

@@ -139,8 +139,29 @@ symlink_if_absent() {
   fi
 }
 
-# Count *.md files in a directory, excluding README.md and INDEX.md
-count_prompts() {
+# Count skill directories, excluding catalog files such as INDEX.yaml.
+count_skills() {
+  local dir="$1"
+  if [ -d "$dir" ]; then
+    find "$dir" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' '
+  else
+    echo 0
+  fi
+}
+
+# Count all prompt templates, including canonical prompts in subdirectories.
+count_prompts_total() {
+  local dir="$1"
+  if [ -d "$dir" ]; then
+    find "$dir" -type f -name "*.md" ! -name "README.md" ! -name "INDEX.md" | wc -l | tr -d ' '
+  else
+    echo 0
+  fi
+}
+
+# Count root prompt adapter commands. Canonical prompts remain available through
+# the universal prompts symlink and Codex prompt-library reference.
+count_prompt_adapters() {
   local dir="$1"
   if [ -d "$dir" ]; then
     find "$dir" -maxdepth 1 -type f -name "*.md" ! -name "README.md" ! -name "INDEX.md" | wc -l | tr -d ' '
@@ -358,9 +379,13 @@ else
 fi
 
 PROMPT_COUNT=0
+PROMPT_ADAPTER_COUNT=0
 if [ "$PROMPTS_AVAILABLE" = true ]; then
-  PROMPT_COUNT=$(count_prompts "$PROMPTS_SRC")
+  PROMPT_COUNT=$(count_prompts_total "$PROMPTS_SRC")
+  PROMPT_ADAPTER_COUNT=$(count_prompt_adapters "$PROMPTS_SRC")
 fi
+
+SKILL_COUNT=$(count_skills "$SKILLS_SRC")
 
 # ── 1. Universal skills symlink ──────────────────────────────────────────────
 echo "Installing vibebackbone..."
@@ -635,7 +660,7 @@ generate_prompt_commands "$OPENCODE_COMMANDS" "OpenCode prompts" "OPENCODE_PROMP
 
 # ── Summary ──────────────────────────────────────────────────────────────────
 echo ""
-echo "✓ Done — $(ls "$SKILLS_SRC" | wc -l | tr -d ' ') skills · $PROMPT_COUNT prompts installed"
+echo "✓ Done — $SKILL_COUNT skills · $PROMPT_COUNT prompts available ($PROMPT_ADAPTER_COUNT adapter commands)"
 
 echo ""
 echo "Installed:"

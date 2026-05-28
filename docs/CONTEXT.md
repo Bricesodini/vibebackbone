@@ -3,7 +3,7 @@ context_role: moc-central
 phase: transverse
 status: active
 run_id: permanent
-updated: 2026-05-27
+updated: 2026-05-28
 temporal_provenance: TEMPORAL_PROVENANCE.md
 ---
 
@@ -26,20 +26,23 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Version** : 1.0.0-rc.1
 - **Contracts** : 63/63 (100%) — machine-facing EN-clean
 - **SKILL.md EN** : partial — see [AUDIT_STATUS.md](AUDIT_STATUS.md#risks-identified--status)
-- **Tests** : 69/69 pytest green, CI 7/7 PASS, 0 warnings
+- **Architecture** : structured source active → [ARCHITECTURE.md](ARCHITECTURE.md) · projection [RELATIONS.md](RELATIONS.md)
+- **Tests** : 80/80 pytest green, CI 8/8 PASS, 0 warnings
 - **Token economy** : L0 boot ~2.5K tokens (87% reduction from 19K)
-- **Next action** : Tag v1.0.0 (awaiting explicit instruction)
+- **Next action** : Decide whether to implement formal executor now or keep it as v2.0 scope before v1.0 tag
 
 ## Risks / audits
 
 - **Global verdict** : 🟡 PARTIAL → [AUDIT_STATUS.md](AUDIT_STATUS.md)
-- **P0/P1** : 0 open · **P2** : 0 open, 2 historical mitigated · Detail: [AUDIT_STATUS.md](AUDIT_STATUS.md#risks-identified--status)
+- **P0/P1** : 0 open, 1 mitigating P1 · **P2** : 0 open, 2 historical mitigated · Detail: [AUDIT_STATUS.md](AUDIT_STATUS.md#risks-identified--status)
 
 ## Structural artifacts
 
 | Dir | Content |
 |-----|---------|
 | `docs/` | Governance, runs, audits → [INDEX.md](INDEX.md) |
+| `docs/ARCHITECTURE.md` | Canonical structured architecture source |
+| `docs/RELATIONS.md` | Generated architecture projection |
 | `docs/TECH_DEBT.md` | Lightweight source-based technical debt register |
 | `skills/` | 63 skills · 63 contracts (100%) → [skills/](../skills/) |
 | `prompts/` | 33 prompts (7 canonical + 25 specialized + 1 router) → [prompts/](../prompts/) |
@@ -49,6 +52,7 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 1. 🟡 Residual FR in agent-facing assets — *low*
 2. 🟡 Temporal skew acknowledged in [TEMPORAL_PROVENANCE.md](TEMPORAL_PROVENANCE.md) — *low*
 3. ⬜ EN README/GUIDE for international adoption — *medium*
+4. ⬜ Implementation-readiness stabilization before reuse — *high*
 
 ## Quick search
 

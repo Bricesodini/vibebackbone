@@ -14,16 +14,18 @@ découvert automatiquement par Pi, Claude Code, OpenCode, Codex et tout agent co
 # 1. Cloner vibebackbone
 git clone https://github.com/bricesodini/vibebackbone ~/vibebackbone
 
-# 2. Installer les 62 skills globalement
+# 2. Installer les 63 skills globalement
 cd ~/vibebackbone
 bash setup.sh
 ```
 
-C'est tout. Les 62 skills sont maintenant disponibles pour tous vos agents.
+C'est tout. Les 63 skills sont maintenant disponibles pour tous vos agents.
 
 **Ce que fait `setup.sh`** :
 - Crée `~/.agents/skills/vibebackbone/` (symlink vers `skills/`)
-- Les mises à jour se font via `git pull` (le symlink suit automatiquement)
+- Crée `~/.agents/prompts/vibebackbone/` (symlink vers `prompts/`, 33 prompts disponibles)
+- Génère 26 commandes prompt adaptateur pour Claude Code / OpenCode / Pi (les 7 prompts canoniques restent disponibles via le symlink et la prompt library)
+- Les mises à jour se font via `git pull` (les symlinks suivent automatiquement)
 
 ---
 
@@ -32,6 +34,8 @@ C'est tout. Les 62 skills sont maintenant disponibles pour tous vos agents.
 | Action | Fichier cible | Provider |
 |--------|--------------|----------|
 | Symlink `skills/` | `~/.agents/skills/vibebackbone/` | Pi, OpenCode, Codex, Claude Code |
+| Symlink `prompts/` | `~/.agents/prompts/vibebackbone/` | Pi, OpenCode, Codex, Claude Code |
+| Commandes prompt spécialisées | provider command dirs | Claude Code, OpenCode, Pi |
 | Patch settings | `~/.claude/settings.json` | Claude Code |
 | `@import` AGENTS.md | `~/.claude/CLAUDE.md` | Claude Code |
 | Symlink AGENTS.md | `~/.codex/AGENTS.md` | Codex |
@@ -46,7 +50,11 @@ C'est tout. Les 62 skills sont maintenant disponibles pour tous vos agents.
 ```bash
 # Skills
 ls ~/.agents/skills/vibebackbone/
-# → liste des 62 skills : 0-vbb-scope-freeze, 1-vbb-conventions, 2-vbb-security, ...
+# → liste des 63 skills : 0-vbb-scope-freeze, 1-vbb-conventions, 2-vbb-security, ...
+
+# Prompts
+find ~/.agents/prompts/vibebackbone -name '*.md' | wc -l
+# → 33 prompts disponibles
 
 # Governance Claude Code
 grep "vibebackbone" ~/.claude/CLAUDE.md

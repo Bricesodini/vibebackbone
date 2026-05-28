@@ -6,6 +6,8 @@ echo "Testing install with HOME=$TMP_HOME"
 
 # Run first install (should create everything)
 HOME="$TMP_HOME" bash "$ROOT/setup.sh"
+HOME="$TMP_HOME" bash "$ROOT/setup.sh" > "$TMP_HOME/install-second.log"
+grep -q "63 skills · 33 prompts available (26 adapter commands)" "$TMP_HOME/install-second.log"
 
 # Check prompts deployed
 assert_dir_has_files() {
@@ -43,8 +45,7 @@ ls -l "$TMP_HOME/.pi/agent/AGENTS.md" >/dev/null
 ls -l "$TMP_HOME/.pi/agent/SYSTEM.md" >/dev/null
 python3 -m json.tool "$TMP_HOME/.config/opencode/opencode.json" >/dev/null
 
-# Run second install (should be idempotent)
-HOME="$TMP_HOME" bash "$ROOT/setup.sh"
+# Run second install already happened above (should be idempotent)
 
 # Run force-governance (should back up and overwrite)
 HOME="$TMP_HOME" bash "$ROOT/setup.sh" --force-governance

@@ -2,8 +2,8 @@
 name: t-vbb-dependency-mapper
 description: |
   Maps repository dependencies into a readable architecture and relation model.
-  Produces or updates docs/ARCHITECTURE.md and docs/RELATIONS.md with traceable,
-  human-readable structure covering intra-repo and inter-service dependencies.
+  Produces or updates structured docs/ARCHITECTURE.md blocks and regenerates
+  docs/RELATIONS.md with traceable, human-readable dependency projections.
   No code changes.
 version: "2.0"
 phase: transverse
@@ -92,7 +92,9 @@ Absolute rules:
    - intra-repo
    - inter-service / external
 6. If `docs/ARCHITECTURE.md` already exists, preserve the current truth and update only affected nodes.
-7. Produce or update `docs/ARCHITECTURE.md` and `docs/RELATIONS.md`.
+7. Produce or update structured `docs/ARCHITECTURE.md` blocks.
+8. Run `python tools/vbb-architecture.py lint` when available.
+9. Regenerate `docs/RELATIONS.md` with `python tools/vbb-architecture.py graph --write` when available.
 
 ## OUTPUT CONTRACT
 
@@ -103,6 +105,8 @@ Create or update:
 
 The result must:
 
+- keep `docs/ARCHITECTURE.md` as the canonical source of truth
+- use structured `## Bloc:` / `## Block:` sections when the repo supports them
 - remain readable in under 60 seconds
 - distinguish intra-repo and inter-service
 - reference observable sources

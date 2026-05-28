@@ -17,3 +17,7 @@ docs/audits/vbb-runtime/
 # OS files
 **/.DS_Store
 .vbb/
+
+# Python generated files
+__pycache__/
+*.py[cod]

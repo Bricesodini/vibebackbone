@@ -26,6 +26,8 @@ MANIFEST_PATH = INDEX_DIR / "manifest.json"
 INDEX_SOURCES = [
     "docs/CONTEXT.md",
     "docs/AUDIT_STATUS.md",
+    "docs/ARCHITECTURE.md",
+    "docs/RELATIONS.md",
     "docs/ACTIVITY_LOG.md",
     "docs/TEMPORAL_PROVENANCE.md",
     "README.md",

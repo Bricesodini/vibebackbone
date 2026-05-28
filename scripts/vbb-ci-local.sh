@@ -50,32 +50,36 @@ run_check_warn() {
 echo "=== VBB Local CI ==="
 echo ""
 
-echo "[1/6] Contract lint"
+echo "[1/8] Contract lint"
 run_check "Lint 0 errors" "$PYTHON" tools/vbb-contract-lint.py
 
 echo ""
-echo "[2/6] Contract runtime dry-run"
+echo "[2/8] Architecture lint"
+run_check "Architecture valid" "$PYTHON" tools/vbb-architecture.py lint
+
+echo ""
+echo "[3/8] Contract runtime dry-run"
 run_check "Runtime dry-run" "$PYTHON" tools/vbb-contract-runtime.py run --all --dry-run
 
 echo ""
-echo "[3/6] Loop closure (latest run)"
+echo "[4/8] Loop closure (latest run)"
 # WARN is acceptable if the latest run has unknown voie (ad-hoc session)
 run_check_warn "Closure check" "$PYTHON" tools/vbb-loop-closure-check.py
 
 echo ""
-echo "[4/7] Loop closure tests"
+echo "[5/8] Loop closure tests"
 run_check "test_loop_closure.py" "$PYTHON" tests/test_loop_closure.py
 
 echo ""
-echo "[5/7] Portability tests"
+echo "[6/8] Portability tests"
 run_check "test_portability.py" "$PYTHON" tests/test_portability.py
 
 echo ""
-echo "[6/7] Project init tests"
+echo "[7/8] Project init tests"
 run_check "test_project_init.py" "$PYTHON" tests/test_project_init.py
 
 echo ""
-echo "[7/7] Pytest suite"
+echo "[8/8] Pytest suite"
 run_check "pytest tests/" "$PYTHON" -m pytest tests/ -q
 
 # ── Summary ─────────────────────────────────────────────────────────

@@ -78,21 +78,22 @@ Absolute rules:
 ## PROCESS
 
 1. Identify the precise target of the change.
-2. Read `docs/ARCHITECTURE.md` and `docs/RELATIONS.md` if available.
-3. Map:
+2. Read structured `docs/ARCHITECTURE.md` blocks if available.
+3. Read `docs/RELATIONS.md` as a generated projection, not as a competing source of truth.
+4. Map:
    - direct impact
    - indirect impact
    - external impact
-4. Explicitly note:
+5. Explicitly note:
    - affected APIs
    - shared contracts
    - impacted tables / schemas / formats
-5. Qualify the change:
+6. Qualify the change:
    - `NON_BREAKING`
    - `BREAKING`
    - `CONDITIONAL`
-6. In DEV, flag without over-blocking.
-7. In PROD, be conservative and explicit about breakages.
+7. In DEV, flag without over-blocking.
+8. In PROD, be conservative and explicit about breakages.
 
 ## OUTPUT CONTRACT
 

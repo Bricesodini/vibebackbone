@@ -9,8 +9,9 @@
 3. **No code before readiness** for MVP/from-zero work: run `docs/MVP_START_PROTOCOL.md` via `0-vbb-rico-readiness`; if readiness is not READY, ask blocking questions only
 4. **Document hierarchy**: CONTEXT.md → PILOTAGE.md → PROJECT_MODE → SESSION → AUDIT_STATUS
 5. **No parallel truth** between governance files, sessions and code
-6. **LLM discipline**: limit to 3-8 active files · compact before 75% context · prefer targeted runs
-7. **Search tools**: `python tools/vbb-index.py search "query"` · `python tools/vbb-status-dashboard.py` · `python tools/vbb-context-compactor.py docs/runs/<id>`
+6. **Architecture source discipline**: any architecture-impacting change must update `docs/ARCHITECTURE.md` and pass `python tools/vbb-architecture.py lint`
+7. **LLM discipline**: limit to 3-8 active files · compact before 75% context · prefer targeted runs
+8. **Search tools**: `python tools/vbb-index.py search "query"` · `python tools/vbb-status-dashboard.py` · `python tools/vbb-context-compactor.py docs/runs/<id>`
 
 **Full details**: `GUIDE.md` (routes, phases, examples) · `docs/PILOTAGE.md` (escalation, audit) · `docs/SESSION_RULES.md` (duration, re-entry)
 

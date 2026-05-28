@@ -21,11 +21,9 @@ jobs:
       - run: pip install -r requirements.txt
       - name: Contract lint
         run: python3 tools/vbb-contract-lint.py
+      - name: Architecture lint
+        run: python3 tools/vbb-architecture.py lint
       - name: Contract runtime dry-run
         run: python3 tools/vbb-contract-runtime.py run --all --dry-run
-      - name: Loop closure tests
-        run: python3 tests/test_loop_closure.py
-      - name: Portability tests
-        run: python3 tests/test_portability.py
-      - name: Project init tests
-        run: python3 tests/test_project_init.py
+      - name: Pytest suite
+        run: python3 -m pytest tests/ -q

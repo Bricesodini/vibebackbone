@@ -2,7 +2,7 @@
 context_role: navigation-index
 phase: transverse
 status: active
-updated: 2026-05-27
+updated: 2026-05-28
 ---
 
 # INDEX — Carte de navigation du dépôt
@@ -32,6 +32,8 @@ updated: 2026-05-27
 | Readiness avant implementation MVP | [`MVP_START_PROTOCOL.md`](MVP_START_PROTOCOL.md) |
 | Règles de session (rester / changer) | [`SESSION_RULES.md`](SESSION_RULES.md) |
 | Mémoire officielle vs conversation | [`MEMORY_AND_HANDOFF.md`](MEMORY_AND_HANDOFF.md) |
+| Architecture canonique structurée | [`ARCHITECTURE.md`](ARCHITECTURE.md) |
+| Projection graphique des relations | [`RELATIONS.md`](RELATIONS.md) |
 | Templates d'artefacts | [`templates/`](templates/) |
 | Artefacts de run produits | [`runs/`](runs/) |
 
@@ -64,6 +66,7 @@ updated: 2026-05-27
 |-------|--------|
 | Linter des contrats | [`../tools/vbb-contract-lint.py`](../tools/vbb-contract-lint.py) |
 | Runtime des contrats | [`../tools/vbb-contract-runtime.py`](../tools/vbb-contract-runtime.py) |
+| Linter / projection architecture | [`../tools/vbb-architecture.py`](../tools/vbb-architecture.py) |
 | Phase router (lookup) | [`../tools/vbb-phase-router.py`](../tools/vbb-phase-router.py) |
 | CI locale | [`../scripts/vbb-ci-local.sh`](../scripts/vbb-ci-local.sh) |
 

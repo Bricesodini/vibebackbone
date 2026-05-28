@@ -24,6 +24,7 @@ outputs:
   - status
   - summary
   - dependency_map
+  - architecture_blocks
   - next_action
   statuses:
   - PASS
@@ -46,6 +47,9 @@ gates:
   - id: architecture_updated
     output_must_contain:
     - ARCHITECTURE.md
+  - id: architecture_linted
+    output_must_contain:
+    - vbb-architecture.py lint
   after: []
 events:
   on_success:
