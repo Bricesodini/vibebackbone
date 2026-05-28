@@ -85,6 +85,18 @@ stabilized in the same pass.
 | LANG-002 | P3 | Prompts still contain FR narrative | Accepted — prompt layer is human-facing by design |
 | REL-001 | P3 | No DEPLOYMENT.md or RUNBOOK.md | Resolved — both files exist and are indexed |
 
+## Latest audit note — global robustness (2026-05-28)
+
+New audit: [global-robustness-20260528-1625.md](audits/global-robustness-20260528-1625.md).
+
+Verdict: `PARTIAL`. 81 tests pass, CI clean (local + GitHub), contracts valid (63/63), index complete (63/63), architecture-source layer solid. 3 bounded gaps found:
+
+- **OPS-001 P1**: `vbb-loop-closure-check.py` — unknown/missing voie fallback silently passes instead of failing when both 01_INTAKE and 07_CLOSEOUT are absent.
+- **OPS-002 P2**: `vbb-context-compactor.py` — `sys.exit(1)` inside pure helper function `compact_run()` instead of returning error indicator.
+- **OPS-003 P2**: `vbb-status-dashboard.py` — `temporal_warnings` duplicates `temporal_notes`, no operational value added.
+
+No P0. No systemic risk. All 3 gaps are bounded and actionable. Existing risk register unchanged (IMPL-002 mitigating, SYNERGY-004/005 mitigated, LANG-001/002 accepted).
+
 ## Latest audit note — global implementation readiness (2026-05-28)
 
 New audit: [global-implementation-readiness-20260528-1309.md](audits/global-implementation-readiness-20260528-1309.md).

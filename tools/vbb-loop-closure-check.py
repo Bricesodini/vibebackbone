@@ -188,10 +188,14 @@ def check_run(run_id: str, runs_dir: Optional[Path] = None) -> Tuple[bool, List[
                 if inferred == "RAPIDE-MINIMAL":
                     voie = "RAPIDE-MINIMAL"
         if voie is None:
+            # Neither intake nor closeout — cannot establish invariant.
+            # Fail explicitly rather than silently passing.
             errors.append(
-                "01_INTAKE.md: not found "
-                "(required for all non-CLOTURE/RAPIDE-ZERO/RAPIDE-MINIMAL runs)"
+                "01_INTAKE.md: not found and 07_CLOSEOUT.md: not found "
+                "(cannot infer voie for closure invariant)"
             )
+            # Fall back to closeout-only requirement so the report still runs
+            required_phases = ["07_CLOSEOUT"]
 
     # Step 3 — required phases
     if voie and voie in VOIE_REQUIRED_PHASES:

@@ -87,21 +87,25 @@ def extract_files_changed(content: str) -> list:
     return sorted(files)
 
 
-def compact_run(run_dir: Path) -> str:
-    """Read a run directory and produce a context summary."""
+def compact_run(run_dir: Path) -> Optional[str]:
+    """Read a run directory and produce a context summary.
+
+    Returns the summary text, or None if the run_dir is invalid or empty.
+    Does not call sys.exit — callers handle errors.
+    """
     if not run_dir.exists():
         print(f"Error: run directory not found: {run_dir}", file=sys.stderr)
-        sys.exit(1)
+        return None
 
     if not run_dir.is_dir():
         print(f"Error: not a directory: {run_dir}", file=sys.stderr)
-        sys.exit(1)
+        return None
 
     # Read all phase artifacts in order
     phase_files = sorted(run_dir.glob("*.md"))
     if not phase_files:
         print(f"Error: no markdown files found in {run_dir}", file=sys.stderr)
-        sys.exit(1)
+        return None
 
     all_content = ""
     frontmatter = {}
@@ -154,8 +158,8 @@ def compact_run(run_dir: Path) -> str:
 
     # Build risks section
     risks = ""
-    for key in ["Risques résiduels", "Risques", "Risks", "Risques résiduels",
-                "Risques résiduels", "ACCEPTED_RISK"]:
+    for key in ["Risques résiduels", "Risques", "Risks",
+                "ACCEPTED_RISK"]:
         if key in all_sections:
             risks = all_sections[key][:500]
             break
@@ -252,6 +256,8 @@ def main() -> int:
         return 1
 
     summary = compact_run(run_dir)
+    if summary is None:
+        return 1
 
     if args.stdout:
         print(summary)

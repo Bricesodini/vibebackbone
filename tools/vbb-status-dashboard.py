@@ -239,7 +239,6 @@ def gather_status(repo: Path) -> Dict:
         "index_present": index_present(repo),
         "temporal_provenance": temporal_provenance_present(repo),
         "temporal_notes": get_temporal_notes(repo),
-        "temporal_warnings": [] if temporal_provenance_present(repo) else get_temporal_notes(repo),
     }
 
 
@@ -283,8 +282,8 @@ def format_terminal(status: Dict, full: bool = False) -> str:
 
     if status["temporal_notes"]:
         lines.append(f"╠══════════════════════════════════════════════════╣")
-        heading = "Temporal provenance:" if status.get("temporal_provenance") else "Temporal warnings:"
-        lines.append(f"║  {heading:<47}║")
+        label = "Temporal provenance:" if status.get("temporal_provenance") else "Temporal warnings:"
+        lines.append(f"║  {label:<47}║")
         for note in status["temporal_notes"][:3]:
             lines.append(f"║    {note[:43]:<43} ║")
 
