@@ -33,12 +33,12 @@ Le résultat ? Un orchestrateur silencieux qui :
 ```
 vibebackbone/
 ├── skills/              # 64 skills prêts à injecter
-│   ├── 0-vbb-*/        # Phase 0 : Readiness & cadrage (6)
+│   ├── 0-vbb-*/        # Phase 0 : Readiness & cadrage (7)
 │   ├── 1-vbb-*/        # Phase 1 : Structure & dette technique (16)
 │   ├── 2-vbb-*/        # Phase 2 : Audits de fond (12)
 │   ├── 3-vbb-*/        # Phase 3 : Consolidation (1)
 │   ├── 4-vbb-*/        # Phase 4 : Front-end UX/UI (10)
-│   ├── t-vbb-*/        # Transverse : Docker, Git, CI, deploiement (13)
+│   ├── t-vbb-*/        # Transverse : Docker, Git, CI, deploiement (17)
 │   └── vibebackbone/   # Orchestrateur principal + PILOTAGE.md
 ├── prompts/             # 33 prompts (7 canoniques + 25 spécialisés + 1 router)
 │   ├── canonical/      # 7 prompts canoniques (un par phase 01–07)
@@ -66,7 +66,7 @@ vibebackbone/
 
 | Phase | Foyer | Skills |
 |-------|-------|--------|
-| **🔰 0** | Readiness & cadrage | Guide, Pilotage, RICO-readiness, Scope-freeze, Audit-readiness, Standard *(3 méta/documentation, 3 opérationnels)* |
+| **🔰 0** | Readiness & cadrage | Guide, Pilotage, RICO-readiness, Scope-freeze, Audit-readiness, Standard, Zero-friction *(3 méta/documentation, 4 opérationnels)* |
 | **🔧 1** | Structure & dette | Code-janitor, Conventions, Formatter, Tech-debt, Monolith-detector, Logic-duplication-detector, Pattern-inconsistency-detector, Error-handling-auditor, Premature-abstraction-detector, Test-mirage-detector, Intent-decomposer, Code-doc-coherence-auditor, Code-doc-gap-integrator, Doc-harmonizer, API-contract-designer, ADR *(16)* |
 | **🔬 2** | Audits de fond | API-auditor, DB-robustness, Data-integrity, Security, Systemic-risk, Ops, CI, Legal, Performance, Accessibility, Analytics, Spec-validator *(12)* |
 | **📋 3** | Consolidation | Risk-register |
@@ -216,7 +216,7 @@ auto-découvert par Pi, OpenCode et Codex. Claude Code est patché automatiqueme
 # 1. Cloner vibebackbone
 git clone https://github.com/bricesodini/vibebackbone ~/vibebackbone
 
-# 2. Installer les 63 skills globalement
+# 2. Installer les 64 skills globalement
 bash ~/vibebackbone/setup.sh
 ```
 

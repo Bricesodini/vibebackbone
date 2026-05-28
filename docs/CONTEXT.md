@@ -24,7 +24,7 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Route** : STRUCTURED
 - **Phase** : v1.0 Hardening — complete
 - **Version** : 1.0.0-rc.1
-- **Contracts** : 63/63 (100%) — machine-facing EN-clean
+- **Contracts** : 63/64 (98%) — machine-facing EN-clean
 - **SKILL.md EN** : partial — see [AUDIT_STATUS.md](AUDIT_STATUS.md#risks-identified--status)
 - **Architecture** : structured source active → [ARCHITECTURE.md](ARCHITECTURE.md) · projection [RELATIONS.md](RELATIONS.md)
 - **Front pipeline**: propagation-first routing active (ADR-0002 + ADR-0003)
@@ -51,7 +51,7 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 | `docs/ARCHITECTURE.md` | Canonical structured architecture source |
 | `docs/RELATIONS.md` | Generated architecture projection |
 | `docs/TECH_DEBT.md` | Lightweight source-based technical debt register |
-| `skills/` | 63 skills · 63 contracts (100%) → [skills/](../skills/) |
+| `skills/` | 64 skills · 63 contracts (98%) → [skills/](../skills/) |
 | `prompts/` | 33 prompts (7 canonical + 25 specialized + 1 router) → [prompts/](../prompts/) |
 
 ## Open points

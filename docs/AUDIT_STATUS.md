@@ -18,8 +18,8 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 Global evaluation audit completed (RUN 19, composite score 7.4/10).
 v1.0 Hardening phase completed (RUNs 20A–20D):
 - Test reliability: 69/69 pytest green, CI 7/7 PASS
-- Contract quality: 63/63 valid, machine-facing EN-clean
-- Agent language: 53/63 SKILL.md body EN-clean, 10 remaining (Phase 4 + spec-validator)
+- Contract quality: 63/64 valid (t-vbb-llm-healthcheck has no contract yet), machine-facing EN-clean
+- Agent language: 53/64 SKILL.md body EN-clean, 10 remaining (Phase 4 + spec-validator)
 - Release readiness: CHANGELOG.md, RELEASE_CHECKLIST.md created
 
 New local pilotage audit on 2026-05-27 identified 3 P1 and 3 P2 risks

@@ -95,7 +95,7 @@ Une grammaire à **quatre composants**, qu'on injecte dans le contexte de l'agen
 └─────────────────────────────────────────────────────────┘
                           ↓
 ┌─────────────────────────────────────────────────────────┐
-│  63 SKILLS                                              │
+│  64 SKILLS                                              │
 │  Unités de capacité injectables, chacune avec un        │
 │  SKILL.md standardisé                                   │
 └─────────────────────────────────────────────────────────┘

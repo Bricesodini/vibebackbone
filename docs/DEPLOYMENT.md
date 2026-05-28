@@ -14,12 +14,12 @@ découvert automatiquement par Pi, Claude Code, OpenCode, Codex et tout agent co
 # 1. Cloner vibebackbone
 git clone https://github.com/bricesodini/vibebackbone ~/vibebackbone
 
-# 2. Installer les 63 skills globalement
+# 2. Installer les 64 skills globalement
 cd ~/vibebackbone
 bash setup.sh
 ```
 
-C'est tout. Les 63 skills sont maintenant disponibles pour tous vos agents.
+C'est tout. Les 64 skills sont maintenant disponibles pour tous vos agents.
 
 **Ce que fait `setup.sh`** :
 - Crée `~/.agents/skills/vibebackbone/` (symlink vers `skills/`)
@@ -50,7 +50,7 @@ C'est tout. Les 63 skills sont maintenant disponibles pour tous vos agents.
 ```bash
 # Skills
 ls ~/.agents/skills/vibebackbone/
-# → liste des 63 skills : 0-vbb-scope-freeze, 1-vbb-conventions, 2-vbb-security, ...
+# → liste des 64 skills : 0-vbb-scope-freeze, 1-vbb-conventions, 2-vbb-security, ...
 
 # Prompts
 find ~/.agents/prompts/vibebackbone -name '*.md' | wc -l

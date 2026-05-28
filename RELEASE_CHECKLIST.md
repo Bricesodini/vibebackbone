@@ -2,7 +2,7 @@
 
 **Version**: 1.0.0-rc.1  
 **Date**: 2026-06-13  
-**Status**: Release Candidate
+**Status**: Release Candidate (with additional post-hardening commits)
 
 ---
 
@@ -17,13 +17,13 @@
 - [x] No stale TODOs in governance files
 
 ### Contract & skill integrity
-- [x] 63/63 contracts pass lint (0 errors)
-- [x] 63/63 SKILL.md files exist with standardized frontmatter
+- [x] 63/64 contracts pass lint (0 errors, t-vbb-llm-healthcheck has no contract yet)
+- [x] 64/64 SKILL.md files exist with standardized frontmatter
 - [x] Agent-facing language is EN (SKILL.md body, CONTRACT.yaml machine-facing fields)
 - [x] Contract runtime dry-run: 44 PASS + 17 PARTIAL + 2 BLOCKED (all expected)
 
 ### Test & CI
-- [x] pytest: 69/69 green
+- [x] pytest: 81/81 green (including architecture lint)
 - [x] CI local: PASS (6/6, 0 warnings on closed runs)
 - [x] Loop closure: latest run passes
 
@@ -43,12 +43,13 @@
 - [x] README.md describes installation, usage, and architecture
 
 ### Known limitations (documented, not blocking)
-- 10/63 SKILL.md files still have FR body content (Phase 4 UX/UI domain + spec-validator, vibebackbone)
+- 10/64 SKILL.md files still have FR body content (Phase 4 UX/UI domain + spec-validator, vibebackbone)
 - 17/33 prompts in FR (by design — human narrative layer)
 - README.md and GUIDE.md in FR (by design)
 - Runtime dry-run includes expected PARTIAL/BLOCKED results from stub outputs and gate chains
 - No Formal Skill executor yet (v2.0 target)
-- DEPLOYMENT.md and RUNBOOK.md exist; keep them aligned with README/GUIDE before final v1.0
+- DEPLOYMENT.md and RUNBOOK.md aligned with current counts
+- t-vbb-llm-healthcheck has SKILL.md but no CONTRACT.yaml yet
 
 ---
 
