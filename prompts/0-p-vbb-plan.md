@@ -79,3 +79,16 @@ Créer ce fichier avec le plan produit. Nommer le dossier de run si absent.
 - Les points de vigilance
 
 **Escalade** : si l'exploration révèle un risque inattendu → escalader vers `canonical/02-p-vbb-audit` avant d'exécuter.
+
+---
+
+## Closeout sequence (mandatory — run after the plan is produced)
+
+After `04_FIX_PLAN.md` is created and the handoff is written:
+
+1. `t-vbb-commit-ready` → verdict + conventional commit message
+2. `git add docs/runs/*/04_FIX_PLAN.md` → `git commit -m "<message>"` → `git push`
+3. Update `docs/SESSION.md` (clear if session done, note state if re-entry planned)
+4. Update `docs/CONTEXT.md` (status, run link, decisions, open points, next action)
+
+> The plan is a persistent artifact — it must be versioned so the executor can read it in a new session. Do not stop after the handoff. The plan loop is not closed until git push is done. The executor will close the execution loop separately.
