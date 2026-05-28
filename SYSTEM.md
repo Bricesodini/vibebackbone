@@ -92,6 +92,7 @@ At session start:
 - Check whether the repo is on vibebackbone rails.
 - If yes, read the relevant session and audit context.
 - Resume intelligently without asking unnecessary questions.
+- **If `docs/AUDIT_STATUS.md` shows a BLOCKED or unresolved P0 finding on the task domain → surface it explicitly and stop before proceeding. Do not continue work in a domain with active blockers.**
 
 At session end — close the loop before stopping:
 
