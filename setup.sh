@@ -144,7 +144,7 @@ backup_file() {
 symlink_if_absent() {
   local src="$1" dst="$2" label="$3"
   if [ -L "$dst" ]; then
-    local current
+    local current resolved_current
     current="$(readlink "$dst")"
     # Accept both absolute and relative forms of the same target
     if [ "$current" = "$src" ]; then
@@ -152,7 +152,6 @@ symlink_if_absent() {
       return 0
     fi
     # Case-insensitive resolution on macOS
-    local resolved_current
     if command -v realpath &>/dev/null; then
       resolved_current="$(realpath "$dst" 2>/dev/null)"
     else
@@ -162,10 +161,16 @@ symlink_if_absent() {
       echo "✓ $label: already linked (case-insensitive match)"
       return 0
     fi
+    # Symlink exists but points to a different target → replace
+    rm "$dst"
+    ln -sfn "$src" "$dst"
+    echo "✓ $label: symlink updated (was pointing elsewhere)"
+    return 0
   fi
   if [ -e "$dst" ] && [ ! -L "$dst" ]; then
     if [ "$FORCE_GOVERNANCE" = true ]; then
       backup_file "$dst"
+      rm "$dst"
       ln -sfn "$src" "$dst"
       echo "✓ $label: backed up and symlinked"
     else
@@ -228,9 +233,17 @@ generate_prompt_commands() {
       dst="$dst_dir/vbb-$name.md"
       marker="<!-- vibebackbone:generated from $src -->"
 
-      if [ -f "$dst" ] && ! grep -q "vibebackbone:generated" "$dst" 2>/dev/null; then
-        if [ "$FORCE_GOVERNANCE" = true ]; then
+      if [ -L "$dst" ]; then
+        # Existing symlink → always replace (covers old source, case-insensitivity)
+        rm "$dst"
+      elif [ -f "$dst" ]; then
+        if grep -q "vibebackbone:generated" "$dst" 2>/dev/null; then
+          # Our own generated file → replace
+          rm "$dst"
+        elif [ "$FORCE_GOVERNANCE" = true ]; then
+          # Custom file + force → backup and replace
           backup_file "$dst"
+          rm "$dst"
         else
           echo "⚠ $label: existing custom $(basename "$dst") skipped"
           skip=$((skip + 1))
@@ -444,8 +457,16 @@ echo "✓ ~/.agents/skills/vibebackbone → skills symlink (Pi, OpenCode, Codex)
 # ── 2. Universal prompts symlink ─────────────────────────────────────────────
 if [ "$PROMPTS_AVAILABLE" = true ]; then
   mkdir -p "$GLOBAL_PROMPTS"
-  if [ -L "$PROMPTS_LINK" ] && _is_vbb_symlink "$PROMPTS_LINK" "$PROMPTS_SRC"; then
-    echo "✓ Prompts: ~/.agents/prompts/vibebackbone already linked"
+  if [ -L "$PROMPTS_LINK" ]; then
+    if _is_vbb_symlink "$PROMPTS_LINK" "$PROMPTS_SRC"; then
+      echo "✓ Prompts: ~/.agents/prompts/vibebackbone already linked"
+    else
+      # Symlink exists but points to a different source → replace
+      rm "$PROMPTS_LINK"
+      PROMPTS_REL="$(relpath "$GLOBAL_PROMPTS" "$PROMPTS_SRC")"
+      ln -sfn "$PROMPTS_REL" "$PROMPTS_LINK"
+      echo "✓ Prompts: ~/.agents/prompts/vibebackbone symlink updated (was pointing elsewhere)"
+    fi
   elif [ -e "$PROMPTS_LINK" ] && [ ! -L "$PROMPTS_LINK" ]; then
     if [ "$FORCE_GOVERNANCE" = true ]; then
       backup_file "$PROMPTS_LINK"
@@ -631,25 +652,21 @@ if [ "$PROMPTS_AVAILABLE" = true ]; then
     name=$(basename "$src")
     [[ "$name" == "README.md" || "$name" == "INDEX.md" ]] && continue
     dst="$PI_PROMPTS/$name"
-    if [ -L "$dst" ] && [ "$(readlink "$dst")" = "$src" ]; then
-      PI_PROMPTS_OK=$((PI_PROMPTS_OK + 1))
-      continue
-    fi
-    if [ -e "$dst" ] && [ ! -L "$dst" ]; then
+    if [ -L "$dst" ]; then
+      # Existing symlink → always replace (covers old source, case-insensitivity)
+      rm "$dst"
+    elif [ -e "$dst" ] && [ ! -L "$dst" ]; then
       if [ "$FORCE_GOVERNANCE" = true ]; then
         backup_file "$dst"
-        ln -sfn "$src" "$dst"
-        PI_PROMPTS_OK=$((PI_PROMPTS_OK + 1))
+        rm "$dst"
       else
         echo "⚠ Pi prompts: existing custom $name skipped"
         PI_PROMPTS_SKIP=$((PI_PROMPTS_SKIP + 1))
+        continue
       fi
-      continue
     fi
-    if [ ! -e "$dst" ]; then
-      ln -sfn "$src" "$dst"
-      PI_PROMPTS_OK=$((PI_PROMPTS_OK + 1))
-    fi
+    ln -sfn "$src" "$dst"
+    PI_PROMPTS_OK=$((PI_PROMPTS_OK + 1))
   done
   if [ "$PI_PROMPTS_SKIP" -eq 0 ]; then
     echo "✓ Pi prompts: $PI_PROMPTS_OK prompts linked"
