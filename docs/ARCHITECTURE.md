@@ -193,8 +193,13 @@ files:
   - docs/ARCHITECTURE.md
   - docs/RELATIONS.md
   - docs/adr/*.md
+  - docs/PILOTAGE.md
   - tools/vbb-architecture.py
   - tests/test_vbb_architecture.py
+  - scripts/vbb-ci-local.sh
+  - .github/workflows/vbb-contracts.yml
+  - skills/t-vbb-dependency-mapper/SKILL.md
+  - skills/t-vbb-impact-analyzer/SKILL.md
 contracts:
   - t-vbb-dependency-mapper
   - t-vbb-impact-analyzer

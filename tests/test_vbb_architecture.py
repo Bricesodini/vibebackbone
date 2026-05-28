@@ -200,6 +200,21 @@ def test_architecture_sensitive_glob_can_be_referenced():
         assert rc == 0, f"Expected files glob to cover architecture file\n{out}\n{err}"
 
 
+def test_ci_workflow_references_architecture_tool():
+    """GitHub Actions and local CI must reference the architecture linter."""
+    ci_file = REPO_ROOT / ".github/workflows/vbb-contracts.yml"
+    assert ci_file.exists(), ".github/workflows/vbb-contracts.yml not found"
+    content = ci_file.read_text(encoding="utf-8")
+    assert "vbb-architecture.py lint" in content, \
+        "vbb-contracts.yml does not reference architecture linter"
+
+    local_ci = REPO_ROOT / "scripts/vbb-ci-local.sh"
+    assert local_ci.exists(), "scripts/vbb-ci-local.sh not found"
+    content = local_ci.read_text(encoding="utf-8")
+    assert "vbb-architecture.py lint" in content, \
+        "vbb-ci-local.sh does not reference architecture linter"
+
+
 if __name__ == "__main__":
     try:
         import pytest
