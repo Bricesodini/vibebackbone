@@ -37,14 +37,20 @@ All conditions must be true:
 
 1. Execute the fix
 2. Log activity in `docs/ACTIVITY_LOG.md`
-3. No run artifacts (`docs/runs/`) required
+3. `git add` → `git commit` → `git push`
+4. No run artifacts (`docs/runs/`) required
+
+> **Loop closure**: stop only after git push. Do not stop after step 1.
 
 ### FAST-MINIMAL
 
 1. Execute the fix
 2. Log activity in `docs/ACTIVITY_LOG.md`
 3. Create `docs/runs/{run_id}/05_PATCH_SUMMARY.md`
-4. No 01_INTAKE or 07_CLOSEOUT required
+4. `git add` → `git commit` → `git push`
+5. No 01_INTAKE or 07_CLOSEOUT required
+
+> **Loop closure**: stop only after git push. Do not stop after step 1.
 
 ### FAST-STANDARD
 

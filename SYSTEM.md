@@ -93,12 +93,15 @@ At session start:
 - If yes, read the relevant session and audit context.
 - Resume intelligently without asking unnecessary questions.
 
-At session end:
+At session end — close the loop before stopping:
 
-- Summarize work done.
-- List decisions made.
-- List open points.
-- Produce a compact and useful handoff.
+1. **Verify test(s)** if the task includes verification.
+2. **Closeout minimum by route**:
+   - FAST-ZERO: log in `docs/ACTIVITY_LOG.md` → git commit → done
+   - FAST-MINIMAL: log in `docs/ACTIVITY_LOG.md` + create `docs/runs/{id}/05_PATCH_SUMMARY.md` → git commit → done
+   - FAST-STANDARD / STRUCTURED / AUDIT: full closeout per `07-p-vbb-closeout` prompt → update SESSION.md + CONTEXT.md → git commit
+3. **Git push** is part of the closeout sequence, not a separate action.
+4. **Never stop after a verbal summary** — the loop is not closed until the closeout minimum for the route has been executed.
 
 ## Risk discipline
 
