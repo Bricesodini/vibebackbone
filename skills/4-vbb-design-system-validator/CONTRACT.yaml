@@ -1,5 +1,5 @@
 id: 4-vbb-design-system-validator
-version: "1.0"
+version: "0.3"
 type: prompt_skill
 formalization_level: declarative
 
@@ -40,7 +40,11 @@ outputs:
     - PARTIAL
     - FAIL
     - BLOCKED
-  artifact: pass-4-output.md
+  artifact:
+    path_pattern: pass-4-output.md
+    kind: phase_artifact
+    must_exist_after_run: false
+    frontmatter_required: []
 
 gates:
   before:
