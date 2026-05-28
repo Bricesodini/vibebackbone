@@ -45,10 +45,31 @@ run_check_warn() {
   fi
 }
 
+require_python_modules() {
+  local missing
+  missing=$("$PYTHON" - <<'PY'
+import importlib.util
+mods = {
+    "yaml": "pyyaml",
+    "pytest": "pytest",
+}
+missing = [pkg for mod, pkg in mods.items() if importlib.util.find_spec(mod) is None]
+print(" ".join(missing))
+PY
+)
+  if [ -n "$missing" ]; then
+    echo "Missing Python dependencies: $missing"
+    echo "Run: python3 -m pip install -r requirements.txt"
+    exit 1
+  fi
+}
+
 # ── Checks ─────────────────────────────────────────────────────────
 
 echo "=== VBB Local CI ==="
 echo ""
+
+require_python_modules
 
 echo "[1/8] Contract lint"
 run_check "Lint 0 errors" "$PYTHON" tools/vbb-contract-lint.py

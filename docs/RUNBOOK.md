@@ -18,7 +18,7 @@ Procédures opérationnelles pour maintenir vibebackbone comme catalogue de dist
 
 1. **Security scan** : Vérifier absence secrets en git
 2. **Documentation review** : Coherence + staleness
-3. **Dependency check** : dépendances déclarées dans `requirements.txt`, rien à mettre à jour
+3. **Dependency check** : dépendances déclarées dans `requirements.txt`, vérifier les mises à jour
 
 ## Quarterly Tasks (4 hours)
 
@@ -56,10 +56,28 @@ v1.0.0 = MAJOR.MINOR.PATCH
 
 Release process:
 1. Update CHANGELOG.md
-2. `git tag -a v1.0.0 -m "Release 1.0.0"`
-3. `git push origin v1.0.0`
-4. Create GitHub release
-5. Publish to npm (if applicable)
+2. Run `python3 -m pip install -r requirements.txt`
+3. Run `bash scripts/vbb-ci-local.sh`
+4. Create an RC tag first, e.g. `git tag -a v1.0.0-rc.2 -m "Release candidate v1.0.0-rc.2"`
+5. Push the RC tag and rerun external review
+6. Before final stable, verify no stale local tags point to older commits
+7. Recreate stable tag only from the approved stable commit
+8. Create GitHub release
+9. Publish package metadata if applicable
+```
+
+## Stable tag hygiene
+
+A stale local tag must not be pushed if it points to an older commit than
+the approved release candidate. Delete and recreate it deliberately only after
+stable approval:
+
+```bash
+# Check where the tag points
+ git rev-parse v1.0.0
+# Delete and recreate deliberately
+git tag -d v1.0.0
+git tag -a v1.0.0 -m "Release v1.0.0"
 ```
 
 ---
