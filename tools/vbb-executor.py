@@ -299,7 +299,7 @@ def write_closEOUT(run_id: str, skill_id: str, result: Dict) -> Path:
     run_dir.mkdir(parents=True, exist_ok=True)
     path = run_dir / f"{phase}.md"
 
-    status = result.get("status", "UNKNOWN")
+    status = result["state"]
     errors = result.get("errors", [])
     warnings = result.get("warnings", [])
 
