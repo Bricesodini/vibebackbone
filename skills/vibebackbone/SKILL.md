@@ -118,12 +118,21 @@ Trigger detection (any of the following):
 - "design system"
 - "surface" + "cartographie"
 - "audit surface" + "Trame"
+- **"UI/UX"** in any request context
+- **"optimiser"** + **"logiques"** + **"modifications graphiques"** in same request
+- **"centraliser"** + **"graphique"** in same request
+- **"modifications graphiques"** alone
 
 Behavior when triggered:
 1. Route to `4-vbb-user-experience-engine` first.
-2. Require `SURFACE_CARTOGRAPHY` before any VISUAL pass (4–7).
-3. Do not allow direct entry to pass 4 or later.
-4. Full execution sequence: pass 1 → 2 → 3 → 4 → 5 → 6 → 7.
+2. Read `4-vbb-front-pipeline-reference` as required companion for pipeline context.
+3. Require `SURFACE_CARTOGRAPHY` before any VISUAL pass (4–7).
+4. Do not allow direct entry to pass 4 or later.
+5. Full execution sequence: pass 1 → 2 → 3 → 4 → 5 → 6 → 7.
+
+**Companion reads for UI/UX routes:**
+- `4-vbb-front-pipeline-reference` — pipeline protocol
+- `4-vbb-design-system-validator` — required for pass 4 gate
 
 ## OUTPUT CONTRACT
 

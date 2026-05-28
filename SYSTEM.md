@@ -93,6 +93,7 @@ At session start:
 - If yes, read the relevant session and audit context.
 - Resume intelligently without asking unnecessary questions.
 - **If `docs/AUDIT_STATUS.md` shows a BLOCKED or unresolved P0 finding on the task domain → surface it explicitly and stop before proceeding. Do not continue work in a domain with active blockers.**
+- **If the request contains UI/UX, visual architecture, graphic centralization, or design system intent → invoke `vibebackbone` skill first for ENGINE_ONLY routing. Do not proceed to skill execution without routing through the orchestrator.**
 
 At session end — close the loop before stopping:
 
