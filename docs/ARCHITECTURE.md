@@ -155,19 +155,22 @@ impacts:
 files:
   - tools/vbb-contract-lint.py
   - tools/vbb-contract-runtime.py
+  - tools/vbb-executor.py
   - tools/vbb-phase-router.py
   - tools/vbb-project-init.py
   - tools/vbb-status-dashboard.py
 contracts:
   - t-vbb-status-dashboard
   - t-vbb-index
+  - t-vbb-mode-transition-gate
+  - t-vbb-deploy-runtime
 tests:
   - tests/test_contract_lint.py
   - tests/test_status_dashboard.py
 risks:
   - id: TOOL-001
-    level: P1
-    note: Contracts remain declarative until an executor enforces gates and state transitions.
+    level: P2
+    note: Formal executor was declarative-only (ADR-0001); vbb-executor.py now provides state machine, gate evaluation, and artifact lifecycle. Runtime enforcement boundary established.
 ```
 
 ## Bloc: Architecture Source
