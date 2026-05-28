@@ -1,7 +1,7 @@
 <p align="center">
   <img src="assets/vibebackbone_logo.svg" alt="Vibebackbone" width="480"/>
   <br/>
-  <strong style="font-size: 1.4em;">62 skills · 33 prompts (7 canoniques + 25 spécialisés + 1 router) · 4 familles de voies + MVP START gate · 7 phases agentiques</strong>
+  <strong style="font-size: 1.4em;">64 skills · 33 prompts (7 canoniques + 25 spécialisés + 1 router) · 4 familles de voies + MVP START gate · 7 phases agentiques</strong>
 </p>
 
 <p align="center">Le système d'orchestration pour agents IA qui transforme le chaos de développement en pilotage prévisible.</p>
@@ -32,7 +32,7 @@ Le résultat ? Un orchestrateur silencieux qui :
 
 ```
 vibebackbone/
-├── skills/              # 62 skills prêts à injecter
+├── skills/              # 64 skills prêts à injecter
 │   ├── 0-vbb-*/        # Phase 0 : Readiness & cadrage (6)
 │   ├── 1-vbb-*/        # Phase 1 : Structure & dette technique (16)
 │   ├── 2-vbb-*/        # Phase 2 : Audits de fond (12)
@@ -62,7 +62,7 @@ vibebackbone/
     └── taskplane.json   # Config taskplane
 ```
 
-### Les 62 skills en un coup d'œil
+### Les 64 skills en un coup d'œil
 
 | Phase | Foyer | Skills |
 |-------|-------|--------|
@@ -220,7 +220,7 @@ git clone https://github.com/bricesodini/vibebackbone ~/vibebackbone
 bash ~/vibebackbone/setup.sh
 ```
 
-C'est tout. Les 62 skills sont disponibles pour tous vos agents, dans tous vos projets.
+C'est tout. Les 64 skills sont disponibles pour tous vos agents, dans tous vos projets.
 
 **Ce que fait `setup.sh` :**
 - installe les skills dans `~/.agents/skills/vibebackbone`

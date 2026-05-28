@@ -71,19 +71,54 @@ relpath() {
   fi
 }
 
+# Resolve a path to its real absolute form, following symlinks and resolving
+# case-insensitively on macOS (APFS is case-insensitive by default).
+_realpath() {
+  local path="$1"
+  # Try realpath first (cross-platform, follows symlinks)
+  if command -v realpath &>/dev/null; then
+    realpath "$path" 2>/dev/null && return
+  fi
+  # macOS fallback: use python for case-insensitive resolution
+  if command -v python3 &>/dev/null; then
+    python3 -c "
+import os, sys
+p = '$path'
+# Resolve parent case-insensitively on macOS
+base = os.path.dirname(p)
+name = os.path.basename(p)
+try:
+    for entry in os.listdir(base if base else '.'):
+        if entry.lower() == name.lower():
+            print(os.path.join(base, entry) if base else entry)
+            break
+    else:
+        print(p)
+except Exception:
+    print(p)
+" && return
+  fi
+  echo "$path"
+}
+
 _is_vbb_symlink() {
   # Check if a symlink points to a vibebackbone source path,
-  # regardless of whether the target is absolute or relative.
+  # regardless of whether the target is absolute or relative,
+  # and case-insensitively on macOS.
   local link="$1"
   local expected_abs="$2"  # absolute path to source (e.g. $PROMPTS_SRC)
   [ -L "$link" ] || return 1
   local target
   target="$(readlink "$link")"
-  # Direct absolute match
+  # Direct absolute match (exact case)
   [ "$target" = "$expected_abs" ] && return 0
-  # Resolve relative link to absolute for comparison
+  # Case-insensitive check on macOS
   local resolved
-  resolved="$(cd "$(dirname "$link")" && cd "$(dirname "$target")" && pwd)/$(basename "$target")" 2>/dev/null || return 1
+  if command -v realpath &>/dev/null; then
+    resolved="$(realpath "$link" 2>/dev/null)"
+  else
+    resolved="$(_realpath "$link")"
+  fi
   [ "$resolved" = "$expected_abs" ] && return 0
   return 1
 }
@@ -116,10 +151,15 @@ symlink_if_absent() {
       echo "✓ $label: already linked"
       return 0
     fi
+    # Case-insensitive resolution on macOS
     local resolved_current
-    resolved_current="$(cd "$(dirname "$dst")" && cd "$(dirname "$current")" && pwd)/$(basename "$current")" 2>/dev/null || true
+    if command -v realpath &>/dev/null; then
+      resolved_current="$(realpath "$dst" 2>/dev/null)"
+    else
+      resolved_current="$(_realpath "$dst")"
+    fi
     if [ "$resolved_current" = "$src" ]; then
-      echo "✓ $label: already linked (relative)"
+      echo "✓ $label: already linked (case-insensitive match)"
       return 0
     fi
   fi
@@ -143,7 +183,8 @@ symlink_if_absent() {
 count_skills() {
   local dir="$1"
   if [ -d "$dir" ]; then
-    find "$dir" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' '
+    # Exclude INDEX.yaml catalog files and the skills/ parent directory itself
+    find "$dir" -mindepth 1 -maxdepth 1 -type d ! -name 'INDEX.yaml' | wc -l | tr -d ' '
   else
     echo 0
   fi
@@ -378,9 +419,11 @@ else
   echo "⚠ SYSTEM.md not found — runtime behavior deployment skipped"
 fi
 
+PROMPT_CANONICAL_COUNT=0
 PROMPT_COUNT=0
 PROMPT_ADAPTER_COUNT=0
 if [ "$PROMPTS_AVAILABLE" = true ]; then
+  PROMPT_CANONICAL_COUNT=$(find "$PROMPTS_SRC/canonical" -type f -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
   PROMPT_COUNT=$(count_prompts_total "$PROMPTS_SRC")
   PROMPT_ADAPTER_COUNT=$(count_prompt_adapters "$PROMPTS_SRC")
 fi
@@ -401,7 +444,7 @@ echo "✓ ~/.agents/skills/vibebackbone → skills symlink (Pi, OpenCode, Codex)
 # ── 2. Universal prompts symlink ─────────────────────────────────────────────
 if [ "$PROMPTS_AVAILABLE" = true ]; then
   mkdir -p "$GLOBAL_PROMPTS"
-  if [ -L "$PROMPTS_LINK" ] && [ "$(readlink "$PROMPTS_LINK")" = "$PROMPTS_SRC" -o "$(readlink "$PROMPTS_LINK")" = "$(relpath "$GLOBAL_PROMPTS" "$PROMPTS_SRC")" ]; then
+  if [ -L "$PROMPTS_LINK" ] && _is_vbb_symlink "$PROMPTS_LINK" "$PROMPTS_SRC"; then
     echo "✓ Prompts: ~/.agents/prompts/vibebackbone already linked"
   elif [ -e "$PROMPTS_LINK" ] && [ ! -L "$PROMPTS_LINK" ]; then
     if [ "$FORCE_GOVERNANCE" = true ]; then
@@ -660,7 +703,7 @@ generate_prompt_commands "$OPENCODE_COMMANDS" "OpenCode prompts" "OPENCODE_PROMP
 
 # ── Summary ──────────────────────────────────────────────────────────────────
 echo ""
-echo "✓ Done — $SKILL_COUNT skills · $PROMPT_COUNT prompts available ($PROMPT_ADAPTER_COUNT adapter commands)"
+echo "✓ Done — $SKILL_COUNT skills · $PROMPT_COUNT prompts ($PROMPT_CANONICAL_COUNT canonical templates + $PROMPT_ADAPTER_COUNT adapter commands)"
 
 echo ""
 echo "Installed:"
@@ -704,10 +747,15 @@ if [ -f "$CODEX_AGENTS" ] && grep -q "vibebackbone:generated:start" "$CODEX_AGEN
     echo "  Codex       : AGENTS + SYSTEM compiled"
   fi
 fi
-if [ -L "$PI_AGENTS" ] && [ "$(readlink "$PI_AGENTS")" = "$AGENTS_SRC" ]; then
+if [ -L "$PI_AGENTS" ] && _is_vbb_symlink "$PI_AGENTS" "$AGENTS_SRC"; then
   echo "  Pi          : AGENTS + SYSTEM symlinked"
 fi
-if [ -f "$OPENCODE_JSON" ] && python3 -c "import json,sys; cfg=json.load(open('$OPENCODE_JSON')); print('$AGENTS_SRC' in cfg.get('instructions',[]))" 2>/dev/null | grep -q True; then
+if [ -f "$OPENCODE_JSON" ] && python3 -c "
+import json, sys
+cfg = json.load(open('$OPENCODE_JSON'))
+found = '$AGENTS_SRC' in cfg.get('instructions', [])
+sys.exit(0 if found else 1)
+" 2>/dev/null; then
   echo "  OpenCode    : AGENTS + SYSTEM referenced"
 fi
 
