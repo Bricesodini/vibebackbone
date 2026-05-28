@@ -4,7 +4,7 @@ description: |
   Pass 5/7 of the Vibebackbone front pipeline. Applies validated visual identity after
   UX stabilization, under strict moodboard and human validation requirements.
   Runs in two phases: visual freeze first, implementation second.
-version: "2.0"
+version: "2.1"
 phase: 4
 token_budget: high
 subagent_eligible: false
@@ -13,25 +13,25 @@ mode_sensitive: false
 
 # Visual Identity Layer
 
-Référence standard : `0-vbb-standard`
+Standard reference: `0-vbb-standard`
 
-Lire `docs/PILOTAGE.md` d’abord.
-Utiliser `4-vbb-front-pipeline-reference` comme référence de pipeline.
+Read `docs/PILOTAGE.md` first.
+Use `4-vbb-front-pipeline-reference` as pipeline reference.
 
 ## ROLE & POSTURE
 
-Tu appliques l’identité visuelle seulement après validation structurelle et humaine.
+You apply visual identity only after structural and human validation.
 
-Tu ne dois PAS :
+You must NOT:
 
-- modifier le flow ou l’action hierarchy
-- toucher aux composants exclus
-- changer la structure des tokens
-- introduire des décisions visuelles non validées
+- modify flow or action hierarchy
+- touch excluded components
+- change token structure
+- introduce unvalidated visual decisions
 
 ## INPUT CONTRACT
 
-**Requis depuis passes 1–4 :**
+**Required from passes 1–4:**
 
 - [ ] `ACTION_HIERARCHY`
 - [ ] `STATE_MATRIX`
@@ -40,54 +40,54 @@ Tu ne dois PAS :
 - [ ] `DS_SCORE`
 - [ ] `DS_EXCEPTIONS`
 
-**Moodboard obligatoire :**
+**Mandatory moodboard:**
 
-- [ ] description visuelle
-- [ ] ≥ 2 références web
+- [ ] visual description
+- [ ] ≥ 2 web references
 - [ ] palette
-- [ ] direction typographique
-- [ ] niveau d’intensité
-- [ ] restrictions explicites
+- [ ] typographic direction
+- [ ] intensity level
+- [ ] explicit restrictions
 
 ## BLOCKING CONDITIONS
 
-- Si pass 4 est `BLOCKED` → HARD STOP
-- Si pass 4 est `CONDITIONAL` sans validation humaine → STOP
-- Si un élément moodboard manque → STOP, max 1 clarification round
-- Si toujours incomplet → `PASS_BLOCKED: moodboard_incomplete`
+- If pass 4 is `BLOCKED` → HARD STOP
+- If pass 4 is `CONDITIONAL` without human validation → STOP
+- If a moodboard element is missing → STOP, max 1 clarification round
+- If still incomplete → `PASS_BLOCKED: moodboard_incomplete`
 
 ## SCOPE
 
 ### Phase A — Visual Freeze
 
-- analyse du moodboard
-- synthèse d’intention visuelle
-- attente de validation humaine
+- moodboard analysis
+- visual intent synthesis
+- await human validation
 
 ### Phase B — Implementation
 
-- seulement dans la couverture `TOKEN_COVERAGE`
-- jamais sur `DS_EXCEPTIONS`
-- application token-based uniquement
+- only within `TOKEN_COVERAGE` coverage
+- never on `DS_EXCEPTIONS`
+- token-based application only
 
 ## PROCESS
 
 ### Phase A
 
-1. Extraire principes visuels.
-2. Rédiger `VISUAL_INTENT`.
-3. Attendre validation humaine explicite.
+1. Extract visual principles.
+2. Write `VISUAL_INTENT`.
+3. Await explicit human validation.
 
 ### Phase B
 
-1. Réappliquer `VISUAL_INTENT` confirmé.
-2. Produire `THEME_PATCH`.
-3. Vérifier `STATE_VISUAL_COVERAGE`.
-4. Documenter justifications et exclusions.
+1. Reapply confirmed `VISUAL_INTENT`.
+2. Produce `THEME_PATCH`.
+3. Verify `STATE_VISUAL_COVERAGE`.
+4. Document justifications and exclusions.
 
 ## OUTPUT CONTRACT
 
-Émettre :
+Emit:
 `pass-5-output.md`
 
 ### Phase A
@@ -117,7 +117,7 @@ Key: `VISUAL_EXCLUSIONS`
 
 ## VERDICT RULES
 
-- `PASS_STATUS: AWAITING_VALIDATION` si Phase A non validée
-- `PASS_STATUS: READY` une fois la Phase B produite
+- `PASS_STATUS: AWAITING_VALIDATION` if Phase A not validated
+- `PASS_STATUS: READY` once Phase B is produced
 
-`VISUAL_INTENT` + `THEME_PATCH` deviennent le snapshot de rollback pour pass 7.
+`VISUAL_INTENT` + `THEME_PATCH` become the rollback snapshot for pass 7.

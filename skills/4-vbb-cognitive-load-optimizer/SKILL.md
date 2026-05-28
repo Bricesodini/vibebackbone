@@ -4,7 +4,7 @@ description: |
   Pass 3/7 of the Vibebackbone front pipeline. Reduces cognitive load by optimizing
   information hierarchy, grouping, density, and terminology clarity without conflicting
   with passes 1 and 2.
-version: "2.0"
+version: "2.1"
 phase: 4
 token_budget: high
 subagent_eligible: false
@@ -13,27 +13,27 @@ mode_sensitive: false
 
 # Cognitive Load Optimizer
 
-Référence standard : `0-vbb-standard`
+Standard reference: `0-vbb-standard`
 
-Lire `docs/PILOTAGE.md` d’abord.
-Utiliser `4-vbb-front-pipeline-reference` comme référence de pipeline.
+Read `docs/PILOTAGE.md` first.
+Use `4-vbb-front-pipeline-reference` as pipeline reference.
 
 ## ROLE & POSTURE
 
-Tu réduis la friction mentale et améliores la lisibilité/scannabilité.
+You reduce mental friction and improve readability/scanability.
 
-Tu ne dois PAS :
+You must NOT:
 
-- changer l’esthétique
-- ajouter du décoratif
-- modifier le task flow défini en pass 1
-- casser les patterns canoniques définis en pass 2
-- restructurer la hiérarchie d’actions
-- produire de patch code
+- change aesthetics
+- add decorative elements
+- modify task flow defined in pass 1
+- break canonical patterns defined in pass 2
+- restructure action hierarchy
+- produce code patches
 
 ## INPUT CONTRACT
 
-**Requis depuis passes 1–2 :**
+**Required from passes 1–2:**
 
 - [ ] `SIMPLIFIED_FLOW`
 - [ ] `CANONICAL_PATTERNS`
@@ -41,47 +41,47 @@ Tu ne dois PAS :
 
 ## BLOCKING CONDITIONS
 
-- Si `SIMPLIFIED_FLOW` manque → STOP. Message : "Impossible d’optimiser la charge cognitive sans flow validé."
-- Si `PASS_STATUS: STRUCTURAL_CONFLICT` depuis pass 2 → limiter le scope aux zones non conflictuelles et documenter les exclusions.
-- Si une optimisation contredit `ACTION_HIERARCHY` ou `CANONICAL_PATTERNS` → optimisation interdite.
+- If `SIMPLIFIED_FLOW` is missing → STOP. Message: "Cannot optimize cognitive load without validated flow."
+- If `PASS_STATUS: STRUCTURAL_CONFLICT` from pass 2 → limit scope to non-conflicting zones and document exclusions.
+- If an optimization contradicts `ACTION_HIERARCHY` or `CANONICAL_PATTERNS` → optimization forbidden.
 
 ## SCOPE
 
-### Inclus
+### Included
 
-- densité visuelle
-- hiérarchie d’information
-- regroupement logique
-- clarté/longueur des labels
+- visual density
+- information hierarchy
+- logical grouping
+- label clarity/length
 - scanning efficiency
-- simplifications structurelles compatibles
+- compatible structural simplifications
 
-### Exclus
+### Excluded
 
-- esthétique
-- nouveaux patterns UX
-- changement de flow
-- inversion des décisions des passes 1–2
+- aesthetics
+- new UX patterns
+- flow changes
+- inversion of pass 1–2 decisions
 
 ## PROCESS
 
-1. Calculer un score cognitif sur 5 dimensions pondérées :
+1. Calculate a cognitive score on 5 weighted dimensions:
    - visual density
    - information hierarchy clarity
    - logical grouping
    - label clarity & length
    - scanning efficiency
-2. Identifier les zones de friction.
-3. Documenter les optimisations interdites par conflit amont.
-4. Proposer uniquement les changements approuvables sans contradiction.
-5. Si le score < 6, produire un structural patch textuel obligatoire.
+2. Identify friction zones.
+3. Document optimizations forbidden by upstream conflict.
+4. Propose only changes that can be approved without contradiction.
+5. If score < 6, produce a mandatory text structural patch.
 
 ## OUTPUT CONTRACT
 
-Émettre :
+Emit:
 `pass-3-output.md`
 
-Le document doit contenir :
+Document must contain:
 
 ## 1. Cognitive Load Score
 
@@ -101,12 +101,12 @@ Key: `APPROVED_CHANGES`
 
 ## 6. Structural Patch
 
-obligatoire si score < 6, en pseudocode/description uniquement
+mandatory if score < 6, pseudocode/description only
 
 ## VERDICT RULES
 
-- `PASS_STATUS: BLOCKED` si `CL_SCORE < 4`
-- `PASS_STATUS: PATCH_REQUIRED` si `4 ≤ CL_SCORE < 6`
-- `PASS_STATUS: READY` si `CL_SCORE ≥ 6`
+- `PASS_STATUS: BLOCKED` if `CL_SCORE < 4`
+- `PASS_STATUS: PATCH_REQUIRED` if `4 ≤ CL_SCORE < 6`
+- `PASS_STATUS: READY` if `CL_SCORE ≥ 6`
 
-`APPROVED_CHANGES` est gelé pour les passes 4–7.
+`APPROVED_CHANGES` is frozen for passes 4–7.

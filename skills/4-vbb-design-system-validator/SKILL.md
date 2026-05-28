@@ -5,7 +5,7 @@ description: |
   Validates design-system structural readiness, token coverage, inline-style risks,
   and component reuse posture. Audits graphic centralization to enable easy modifications.
   In either GREENFIELD or LEGACY mode.
-version: "3.1"
+version: "3.2"
 phase: 4
 token_budget: high
 subagent_eligible: false
@@ -14,38 +14,38 @@ mode_sensitive: false
 
 # Design System Validator
 
-Référence standard : `0-vbb-standard`
+Standard reference: `0-vbb-standard`
 
-Lire `docs/PILOTAGE.md` d'abord.
-Utiliser `4-vbb-front-pipeline-reference` comme référence de pipeline.
+Read `docs/PILOTAGE.md` first.
+Use `4-vbb-front-pipeline-reference` as pipeline reference.
 
 ## ROLE & POSTURE
 
-Tu es le hard gate avant toute identité visuelle.
+You are the hard gate before any visual identity.
 
-Tu valides :
+You validate:
 
-- readiness structurelle du design system
-- couverture de tokens
+- structural readiness of the design system
+- token coverage
 - inline style risk
-- réutilisabilité des composants
-- **centralisation graphique (qui est la source unique de vérité)**
+- component reusability
+- **graphic centralization (who is the single source of truth)**
 
-Tu ne dois PAS :
+You must NOT:
 
-- appliquer l'identité visuelle
-- changer flow ou action hierarchy
-- introduire des patterns contraires aux passes amont
+- apply visual identity
+- change flow or action hierarchy
+- introduce patterns contrary to upstream passes
 
-**Notre objectif de modification graphique :**
-Quand un utilisateur veut modifier un élément visuel, il doit pouvoir :
-1. Identifier où la valeur est définie (SINGLE_SOURCE_OF_TRUTH)
-2. Connaître tous les endroits où elle est utilisée
-3. Savoir si le changement est simple (token propagé) ou risqué (hardcoded)
+**Our graphic modification goal:**
+When a user wants to modify a visual element, they must be able to:
+1. Identify where the value is defined (SINGLE_SOURCE_OF_TRUTH)
+2. Know all places where it is used
+3. Know if the change is simple (token propagated) or risky (hardcoded)
 
 ## INPUT CONTRACT
 
-**Requis depuis passes 1–3 :**
+**Required from passes 1–3:**
 
 - [ ] `SURFACE_CARTOGRAPHY`
 - [ ] `STATE_MATRIX`
@@ -53,91 +53,91 @@ Quand un utilisateur veut modifier un élément visuel, il doit pouvoir :
 - [ ] `APPROVED_CHANGES`
 - [ ] `CL_SCORE`
 
-**Requis codebase :**
+**Required from codebase:**
 
-* [ ] chemins source à inspecter
-- [ ] stack/framework déclaré
-- [ ] fichier(s) de design tokens (ex : tokens.css, theme.json, variables.scss…)
+- [ ] source paths to inspect
+- [ ] declared stack/framework
+- [ ] design token file(s) (ex: tokens.css, theme.json, variables.scss…)
 
-**Si design tokens manquants → mode LEGACY implicite.**
+**If design tokens are missing → implicit LEGACY mode.**
 
 ## BLOCKING CONDITIONS
 
-- Si `PASS_STATUS: BLOCKED` depuis pass 3 → HARD STOP
-- Si `PASS_STATUS: PATCH_REQUIRED` et aucune validation humaine → STOP
-- Si les chemins source manquent → STOP
-- **SI `SURFACE_CARTOGRAPHY` est absent → HARD STOP.** Message : "Surface cartography missing. Pass 1 must produce `SURFACE_CARTOGRAPHY` before pass 4 can execute."
-- **SI `STATE_MATRIX` est absent → HARD STOP.** Message : "State matrix missing. Cannot validate token coverage without `STATE_MATRIX` from pass 1."
+- If `PASS_STATUS: BLOCKED` from pass 3 → HARD STOP
+- If `PASS_STATUS: PATCH_REQUIRED` with no human validation → STOP
+- If source paths are missing → STOP
+- **IF `SURFACE_CARTOGRAPHY` is absent → HARD STOP.** Message: "Surface cartography missing. Pass 1 must produce `SURFACE_CARTOGRAPHY` before pass 4 can execute."
+- **IF `STATE_MATRIX` is absent → HARD STOP.** Message: "State matrix missing. Cannot validate token coverage without `STATE_MATRIX` from pass 1."
 
 ## SCOPE
 
 ### Modes
 
-Déclarer :
+Declare:
 
 - `GREENFIELD`
 - `LEGACY`
 
-### Inclus
+### Included
 
-- coverage des tokens (spacing, typo, colors)
+- token coverage (spacing, typography, colors)
 - inline styles
 - hardcoded values
-- overrides et duplications
-- réutilisabilité des composants
-- couverture token des changements validés en pass 3
+- overrides and duplications
+- component reusability
+- token coverage of changes validated in pass 3
 - state token coverage
-- **TOKEN_DEFINITION_MAP** — où chaque token est défini vs où il est utilisé
-- **PRIMITIVE_REGISTRY_CHECK** — composants primitifs centralisés ou redefinis localement
-- **SHELL_OVERRIDE_PATTERN** — les shells surchargent ils les primitives via tokens ou inline
-- **CENTRALIZATION_GAPS** — valeurs non centralisées avec impact et ordre de remediation
-- **CENTRALIZATION_ROADMAP** — ordre d'action pour centraliser progressivement
+- **TOKEN_DEFINITION_MAP** — where each token is defined vs where it is used
+- **PRIMITIVE_REGISTRY_CHECK** — primitive components centralized or redefined locally
+- **SHELL_OVERRIDE_PATTERN** — do shells override primitives via tokens or inline
+- **CENTRALIZATION_GAPS** — non-centralized values with impact and remediation order
+- **CENTRALIZATION_ROADMAP** — action order to centralize progressively
 
-### Exclus
+### Excluded
 
-- identité visuelle elle-même
-- refactor massif
-- changement de flow
+- visual identity itself
+- massive refactor
+- flow changes
 
 ## PROCESS
 
-1. Déclarer le mode `GREENFIELD` ou `LEGACY`.
+1. Declare mode `GREENFIELD` or `LEGACY`.
 2. **Centralization Audit (step 2 — always before scoring)**
-   2a. TOKEN_DEFINITION_MAP :
-       Pour chaque token identifié dans le fichier design tokens :
-       - Où est-il DEFINI (fichier + ligne)
-       - Où est-il UTILISE (liste des fichiers/surfaces)
-       - Signaler les DUPLICATES : un même token défini à plusieurs endroits
-   2b. PRIMITIVE_REGISTRY_CHECK :
-       - Composants primitifs (Button, Input, Card…) : centralisés dans un fichier ?
-       - Redéfinis localement sans réutilisation du registry
-       - Risque de drift si modifications non coordonnées
-   2c. SHELL_OVERRIDE_PATTERN :
-       - Chaque surface de `SURFACE_CARTOGRAPHY` (Level 1) :
-         - Utilise-t-elle les tokens ou des valeurs hardcodées ?
-         - Les shells définissent-ils des styles inline qui bypassent les tokens ?
-       - Classification : token-based | mixed | hardcoded
-   2d. CENTRALIZATION_GAPS :
-       - Liste des surfaces/valeurs NON centralisées
-       - Impact de migration : easy (< 5 files) | medium (5–15 files) | hard (> 15 files ou breakage risqué)
-       - Priorité par niveau : shells en premier, puis surfaces métier, puis primitives
-   2e. CENTRALIZATION_ROADMAP :
-       - Ordre d'action suggéré (du plus simple au plus complexe)
-       - Risque si modification faite avant centralisation complète
-       - Recommandation : commencer par les shells (Level 1) avant primitives (Level 3)
-3. Vérifier la checklist du mode (GREENFIELD / LEGACY).
-4. Calculer `DS_SCORE` et `CENTRALIZATION_SCORE`.
-5. Lister les problèmes structurels (hors gaps déjà documentés en 2d).
-6. Définir `TOKEN_COVERAGE` pour les changements de pass 3.
-7. Définir `DS_EXCEPTIONS`.
-8. Documenter les commandes utilisées ou recommandées.
+   2a. TOKEN_DEFINITION_MAP:
+       For each token identified in the design token file:
+       - Where is it DEFINED (file + line)
+       - Where is it USED (list of files/surfaces)
+       - Report DUPLICATES: same token defined in multiple places
+   2b. PRIMITIVE_REGISTRY_CHECK:
+       - Primitive components (Button, Input, Card…): centralized in a file?
+       - Redefined locally without registry reuse
+       - Drift risk if changes not coordinated
+   2c. SHELL_OVERRIDE_PATTERN:
+       - Each surface from `SURFACE_CARTOGRAPHY` (Level 1):
+         - Does it use tokens or hardcoded values?
+         - Do shells define inline styles that bypass tokens?
+       - Classification: token-based | mixed | hardcoded
+   2d. CENTRALIZATION_GAPS:
+       - List of NON-centralized surfaces/values
+       - Migration impact: easy (< 5 files) | medium (5–15 files) | hard (> 15 files or breakage risk)
+       - Priority by level: shells first, then business surfaces, then primitives
+   2e. CENTRALIZATION_ROADMAP:
+       - Suggested action order (simplest to most complex)
+       - Risk if modification made before full centralization
+       - Recommendation: start with shells (Level 1) before primitives (Level 3)
+3. Check mode checklist (GREENFIELD / LEGACY).
+4. Calculate `DS_SCORE` and `CENTRALIZATION_SCORE`.
+5. List structural issues (excluding gaps already documented in 2d).
+6. Define `TOKEN_COVERAGE` for pass 3 changes.
+7. Define `DS_EXCEPTIONS`.
+8. Document commands used or recommended.
 
 ## OUTPUT CONTRACT
 
-Émettre :
+Emit:
 `pass-4-output.md`
 
-Le document doit contenir :
+Document must contain:
 
 ## 0. Context Mode
 
@@ -145,7 +145,7 @@ Le document doit contenir :
 
 Key: `DS_SCORE`
 
-## 2. Centralization Audit     *(remplace "Structural Issues")*
+## 2. Centralization Audit
 
 Key: `CENTRALIZATION_AUDIT`
 
@@ -156,28 +156,28 @@ Key: `TOKEN_DEFINITION_MAP`
 ```
 token-name | defined_in | used_in (count) | status
 ---------|------------|-----------------|-------
-$color-primary | tokens/colors/brand.json:23 | 12 fichiers | OK
-$font-size-sm | tokens/typography/base.json:7 | 3 fichiers | OK
-$border-radius-lg | tokens/spacing/radii.json:12 | 1 fichier | OK
-$bg-surface | tokens/colors/surface.json:3 | hardcoded in 6 composants | DUPLICATE
+$color-primary | tokens/colors/brand.json:23 | 12 files | OK
+$font-size-sm | tokens/typography/base.json:7 | 3 files | OK
+$border-radius-lg | tokens/spacing/radii.json:12 | 1 file | OK
+$bg-surface | tokens/colors/surface.json:3 | hardcoded in 6 components | DUPLICATE
 ...
 ```
 
-**Si des DUPLICATES détectés → BLOCKED immediat.**
+**If DUPLICATES detected → immediately BLOCKED.**
 
 ### 2.2 Primitive Registry Check
 
 Key: `PRIMITIVE_REGISTRY_CHECK`
 
-- Composants primitifs trouvés dans le registry : [liste]
-- Composants redéfinis localement : [liste + surfaces afetées]
-- Risque de drift : [faible/moyen/élevé]
+- Primitive components found in registry: [list]
+- Components redefined locally: [list + affected surfaces]
+- Drift risk: [low/medium/high]
 
 ### 2.3 Shell Override Pattern
 
 Key: `SHELL_OVERRIDE_PATTERN`
 
-Pour chaque surface Level 1 :
+For each Level 1 surface:
 
 ```
 SurfaceName | token-based | mixed | hardcoded | locations
@@ -187,36 +187,36 @@ CardSurface | — | — | ✓ | card.module.css:8 (inline hardcoded bg)
 ModalShell | ✓ | — | — | modal.module.css:15
 ```
 
-Résumé : X surfaces token-based | Y mixed | Z hardcoded
+Summary: X surfaces token-based | Y mixed | Z hardcoded
 
 ### 2.4 Centralization Gaps
 
 Key: `CENTRALIZATION_GAPS`
 
 ```
-Surface | Valeur | Current | Impact | Priorité
+Surface | Value | Current | Impact | Priority
 -------|--------|---------|--------|----------
 CardSurface | background | inline: #f0f0f0 | migration easy | P1
 Trace | font-weight | inline: 700 | migration medium | P2
 ...
 ```
 
-Summary : X gapsfound | easy: N | medium: M | hard: K
+Summary: X gaps found | easy: N | medium: M | hard: K
 
 ### 2.5 Centralization Roadmap
 
 Key: `CENTRALIZATION_ROADMAP`
 
-Ordre suggéré :
-1. [Action 1] — shells token-based d'abord (impact faible, propagation automatique)
-2. [Action 2] — surfaces métier (impact moyen)
-3. [Action 3] — primitives (impact élevé, risqué si pas de test coverage)
+Suggested order:
+1. [Action 1] — token-based shells first (low impact, automatic propagation)
+2. [Action 2] — business surfaces (medium impact)
+3. [Action 3] — primitives (high impact, risky without test coverage)
 
-Avertissement : Ne pas modifier les primitives avant les shells.
+Warning: Do not modify primitives before shells.
 
 ## 3. Refactor Suggestions
 
-(Propositions structurelles hors centralization gaps)
+(Structural proposals excluding centralization gaps)
 
 ## 4. Tokenization Coverage for Pass 3 Changes
 
@@ -232,17 +232,17 @@ Key: `DS_EXCEPTIONS`
 
 ## VERDICT RULES
 
-- `PASS_STATUS: BLOCKED` si `DS_SCORE < 5`
-- `PASS_STATUS: BLOCKED` si `TOKEN_DEFINITION_MAP` contient des **DUPLICATES**
-- `PASS_STATUS: CONDITIONAL` si `5 ≤ DS_SCORE < 7`
-- `PASS_STATUS: CONDITIONAL` si `CENTRALIZATION_GAPS` ≥ 5 hardcoded values
-- `PASS_STATUS: READY` si `DS_SCORE ≥ 7` et `TOKEN_DEFINITION_MAP` sans DUPLICATES
-- `CENTRALIZATION_SCORE` = % de surfaces token-based (viser ≥ 80%)
+- `PASS_STATUS: BLOCKED` if `DS_SCORE < 5`
+- `PASS_STATUS: BLOCKED` if `TOKEN_DEFINITION_MAP` contains **DUPLICATES**
+- `PASS_STATUS: CONDITIONAL` if `5 ≤ DS_SCORE < 7`
+- `PASS_STATUS: CONDITIONAL` if `CENTRALIZATION_GAPS` ≥ 5 hardcoded values
+- `PASS_STATUS: READY` if `DS_SCORE ≥ 7` and `TOKEN_DEFINITION_MAP` without DUPLICATES
+- `CENTRALIZATION_SCORE` = % of token-based surfaces (target ≥ 80%)
 
-`TOKEN_COVERAGE`, `DS_EXCEPTIONS`, `CENTRALIZATION_AUDIT` sont gelés pour les passes 5–7.
+`TOKEN_COVERAGE`, `DS_EXCEPTIONS`, `CENTRALIZATION_AUDIT` are frozen for passes 5–7.
 
-Pour faciliter les modifications graphiques, `SURFACE_CARTOGRAPHY` + `TOKEN_DEFINITION_MAP`
-forment le point de référence : l'utilisateur peut toujours répondre à "où est définie cette valeur ?"
+To facilitate graphic modifications, `SURFACE_CARTOGRAPHY` + `TOKEN_DEFINITION_MAP`
+form the reference point: the user can always answer "where is this value defined?"
 
 ## VALIDITY ENFORCEMENT
 
@@ -262,9 +262,9 @@ Pass 4 output is INVALID (BLOCKED) if ANY of:
 ### REJECTION PATTERN DETECTION
 
 If output contains ONLY:
-  - "créer Button", "nouveau Badge", "design Token $color"
-  - "migration vers design system"
-  - "composants primitifs"
+  - "create Button", "new Badge", "design Token $color"
+  - "migration to design system"
+  - "primitive components"
 WITHOUT referencing specific surfaces from SURFACE_CARTOGRAPHY
 → This is GENERIC_FRONTEND_RESPONSE
 → Return: PASS_STATUS: BLOCKED
@@ -272,7 +272,7 @@ WITHOUT referencing specific surfaces from SURFACE_CARTOGRAPHY
 
 ## CANONICAL EXAMPLES
 
-### ✅ BONNE SORTIE (Pass 4 valide)
+### ✅ GOOD OUTPUT (Pass 4 valid)
 
 ```markdown
 ## 0. Context Mode
@@ -287,9 +287,9 @@ DS_SCORE: 6.5
 TOKEN_DEFINITION_MAP:
 | token | defined_in | used_in | status |
 |-------|-----------|---------|--------|
-| $color-brand | tokens/brand.json:12 | 8 fichiers | OK |
-| $bg-surface | tokens/surface.json:3 | 4 fichiers | OK |
-| $shadow-card | tokens/shadow.json:7 | hardcoded in 3 composants | MISSING |
+| $color-brand | tokens/brand.json:12 | 8 files | OK |
+| $bg-surface | tokens/surface.json:3 | 4 files | OK |
+| $shadow-card | tokens/shadow.json:7 | hardcoded in 3 components | MISSING |
 
 ### 2.2 Primitive Registry Check
 PRIMITIVE_REGISTRY_CHECK:
@@ -321,23 +321,23 @@ CENTRALIZATION_ROADMAP:
 4. Button primitives → deduplicate from TraceCard (high risk)
 ```
 
-### ❌ MAUVAISE SORTIE (Pass 4 invalide — GENERIC_FRONTEND_RESPONSE)
+### ❌ BAD OUTPUT (Pass 4 invalid — GENERIC_FRONTEND_RESPONSE)
 
 ```markdown
 ## Design System Audit
 
-Tokens à créer:
+Tokens to create:
 - $color-primary
 - $spacing-md
 
-Composants primitifs:
+Primitive components:
 - Button
 - Badge
 - Card
 
-Prochaine étape: migration vers design system.
+Next step: migration to design system.
 ```
 
-**Raison d'invalidation:** Aucune surface référencée depuis SURFACE_CARTOGRAPHY.
-Aucune traçabilité token → surface.
-**Résultat:** PASS_STATUS: BLOCKED + GENERIC_FRONTEND_RESPONSE
+**Invalidation reason:** No surface referenced from SURFACE_CARTOGRAPHY.
+No token → surface traceability.
+**Result:** PASS_STATUS: BLOCKED + GENERIC_FRONTEND_RESPONSE

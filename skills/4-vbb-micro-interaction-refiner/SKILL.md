@@ -4,7 +4,7 @@ description: |
   Pass 6/7 of the Vibebackbone front pipeline. Refines micro-interactions for premium feel
   without adding visual noise. Accessibility-first, token-based, and strictly limited
   to the design-system-covered scope.
-version: "2.0"
+version: "2.1"
 phase: 4
 token_budget: medium
 subagent_eligible: false
@@ -13,25 +13,25 @@ mode_sensitive: false
 
 # Micro-Interaction Refiner
 
-Référence standard : `0-vbb-standard`
+Standard reference: `0-vbb-standard`
 
-Lire `docs/PILOTAGE.md` d’abord.
-Utiliser `4-vbb-front-pipeline-reference` comme référence de pipeline.
+Read `docs/PILOTAGE.md` first.
+Use `4-vbb-front-pipeline-reference` as pipeline reference.
 
 ## ROLE & POSTURE
 
-Tu raffines les micro-interactions avec retenue et accessibilité.
+You refine micro-interactions with restraint and accessibility.
 
-Tu ne dois PAS :
+You must NOT:
 
-- ajouter de lourdes animations
-- introduire de nouveaux tokens
-- changer la structure UX
-- toucher les composants exclus
+- add heavy animations
+- introduce new tokens
+- change UX structure
+- touch excluded components
 
 ## INPUT CONTRACT
 
-**Requis depuis passes 1–5 :**
+**Required from passes 1–5:**
 
 - [ ] `ACTION_HIERARCHY`
 - [ ] `STATE_MATRIX`
@@ -42,45 +42,45 @@ Tu ne dois PAS :
 
 ## BLOCKING CONDITIONS
 
-- Si pass 5 n’est pas `READY` → HARD STOP
-- Si `STATE_MATRIX` manque → STOP
-- Si la portée n’est pas couverte par pass 4/pass 5 → exclure la zone
+- If pass 5 is not `READY` → HARD STOP
+- If `STATE_MATRIX` is missing → STOP
+- If scope is not covered by pass 4/pass 5 → exclude zone
 
 ## SCOPE
 
-### Inclus
+### Included
 
 - focus visibility
-- smoothness du feedback d’erreur
-- clarté du disabled
+- error feedback smoothness
+- disabled clarity
 - hover states
 - transition timing
 
-### Exclus
+### Excluded
 
-- nouvelles animations décoratives
-- nouveaux tokens
-- refonte UX
-- composants hors couverture
+- new decorative animations
+- new tokens
+- UX refactor
+- out-of-coverage components
 
 ## PROCESS
 
-1. Prioriser :
+1. Prioritize:
    - focus visibility
    - error feedback
    - disabled clarity
    - hover
    - timing
-2. Vérifier accessibilité motion :
-   - chaque patch doit intégrer `prefers-reduced-motion`
-3. Rédiger les patches scopés et les checks A11y.
+2. Check motion accessibility:
+   - each patch must integrate `prefers-reduced-motion`
+3. Write scoped patches and A11y checks.
 
 ## OUTPUT CONTRACT
 
-Émettre :
+Emit:
 `pass-6-output.md`
 
-Le document doit contenir :
+Document must contain:
 
 ## MI Audit
 
@@ -98,16 +98,16 @@ Key: `A11Y_REPORT`
 
 Key: `MI_TOKENS_USED`
 
-Chaque patch doit inclure :
+Each patch must include:
 
-- composant
-- priorité
+- component
+- priority
 - issue
-- patch ≤ 8 lignes conceptuelles
-- vérification A11y
+- patch ≤ 8 conceptual lines
+- A11y verification
 
 ## VERDICT RULES
 
-- `PASS_STATUS: A11Y_VIOLATION` si la focus visibility est non conforme
-- `PASS_STATUS: MOTION_VIOLATION` si `prefers-reduced-motion` manque
-- `PASS_STATUS: READY` sinon
+- `PASS_STATUS: A11Y_VIOLATION` if focus visibility is non-compliant
+- `PASS_STATUS: MOTION_VIOLATION` if `prefers-reduced-motion` is missing
+- `PASS_STATUS: READY` otherwise
