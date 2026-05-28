@@ -250,6 +250,7 @@ def format_terminal(status: Dict, full: bool = False) -> str:
 
     pct = int(status["contract_coverage"] * 100)
     cov = fit(f"{status['contracts']}/{status['skills']} ({pct}%)", 29)
+    idx = fit(f"{status['indexed_contracts']}/{status['skills']}", 29)
     lines = [
         f"╔══════════════════════════════════════════════════╗",
         f"║  VBB STATUS — {Path(status['repo']).name:<33}║",
@@ -257,7 +258,7 @@ def format_terminal(status: Dict, full: bool = False) -> str:
         f"║  Verdict global : {status['verdict']:<29}║",
         f"║  Skills          : {status['skills']:<29}║",
         f"║  Contracts       : {cov}║",
-        f"║  Indexed         : {fit(f'{status['indexed_contracts']}/{status['skills']}', 29)}║",
+        f"║  Indexed         : {idx}║",
         f"║  Test suites     : {status['tests']:<29}║",
     ]
 
