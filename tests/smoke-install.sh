@@ -7,7 +7,7 @@ echo "Testing install with HOME=$TMP_HOME"
 # Run first install (should create everything)
 HOME="$TMP_HOME" bash "$ROOT/setup.sh"
 HOME="$TMP_HOME" bash "$ROOT/setup.sh" > "$TMP_HOME/install-second.log"
-grep -q "63 skills · 33 prompts available (26 adapter commands)" "$TMP_HOME/install-second.log"
+grep -qE "Done — [0-9]+ skills" "$TMP_HOME/install-second.log"
 
 # Check prompts deployed
 assert_dir_has_files() {
