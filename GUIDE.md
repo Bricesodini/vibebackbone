@@ -218,7 +218,7 @@ prompts/
 
 Détails : voir `PROMPTS_ARCHITECTURE.md`.
 
-### 3.4 Les 63 skills
+### 3.4 Les 62 skills
 
 Un **skill** est une unité de capacité réutilisable, packagée comme un dossier avec un `SKILL.md` standardisé. Exemples : `2-vbb-security`, `1-vbb-tech-debt`, `t-vbb-deploy-runtime`.
 
@@ -285,7 +285,7 @@ bash setup.sh
 
 | Couche | Cible | Quoi |
 |--------|-------|------|
-| **Skills** | `~/.agents/skills/vibebackbone` | Les 63 skills (lecture universelle) |
+| **Skills** | `~/.agents/skills/vibebackbone` | Les 62 skills (lecture universelle) |
 | **Prompts** | `~/.agents/prompts/vibebackbone` | Les 33 prompts (symlink universel) |
 | **Commandes prompt** | Provider command dirs | 26 commandes adaptateur spécialisées/router |
 | **AGENTS.md** | Par provider | Grammaire opérationnelle |
@@ -829,7 +829,7 @@ llm_log_delegation --task_type compression --provider qwen3.5-9b
 
 ---
 
-### ❌ Anti-pattern 7 — "Je copie-colle l'output de l'agent sans vérifier les artefacts"
+### ❌ Anti-pattern 8 — "Je copie-colle l'output de l'agent sans vérifier les artefacts"
 
 **Symptôme** : vous lisez la réponse de l'agent dans le chat mais ne regardez jamais `docs/runs/`.
 
@@ -1007,7 +1007,7 @@ REVIEW → EXECUTION      ✅ Obligatoire (si modifs)
 - **Lire le routeur central de contexte** → `docs/CONTEXT.md`
 - **Lire le protocole 7 phases formel** → `docs/AGENTIC_RUN_PROTOCOL.md`
 - **Voir les règles de session** → `docs/SESSION_RULES.md`
-- **Voir le catalogue des 63 skills** → `skills/0-vbb-guide/SKILL.md`
+- **Voir le catalogue des 62 skills** → `skills/0-vbb-guide/SKILL.md`
 - **Comprendre la mémoire et les handoffs** → `docs/MEMORY_AND_HANDOFF.md`
 
 ### Vous voulez contribuer

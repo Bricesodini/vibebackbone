@@ -1,7 +1,7 @@
 <p align="center">
   <img src="assets/vibebackbone_logo.svg" alt="Vibebackbone" width="480"/>
   <br/>
-  <strong style="font-size: 1.4em;">63 skills · 33 prompts (7 canoniques + 25 spécialisés + 1 router) · 4 familles de voies + MVP START gate · 7 phases agentiques</strong>
+  <strong style="font-size: 1.4em;">62 skills · 33 prompts (7 canoniques + 25 spécialisés + 1 router) · 4 familles de voies + MVP START gate · 7 phases agentiques</strong>
 </p>
 
 <p align="center">Le système d'orchestration pour agents IA qui transforme le chaos de développement en pilotage prévisible.</p>
@@ -32,7 +32,7 @@ Le résultat ? Un orchestrateur silencieux qui :
 
 ```
 vibebackbone/
-├── skills/              # 63 skills prêts à injecter
+├── skills/              # 62 skills prêts à injecter
 │   ├── 0-vbb-*/        # Phase 0 : Readiness & cadrage (6)
 │   ├── 1-vbb-*/        # Phase 1 : Structure & dette technique (16)
 │   ├── 2-vbb-*/        # Phase 2 : Audits de fond (12)
@@ -62,16 +62,16 @@ vibebackbone/
     └── taskplane.json   # Config taskplane
 ```
 
-### Les 63 skills en un coup d'œil
+### Les 62 skills en un coup d'œil
 
 | Phase | Foyer | Skills |
 |-------|-------|--------|
 | **🔰 0** | Readiness & cadrage | Guide, Pilotage, RICO-readiness, Scope-freeze, Audit-readiness, Standard *(3 méta/documentation, 3 opérationnels)* |
-| **🔧 1** | Structure & dette | Code-janitor, Conventions, Formatter, Tech-debt, Monolith-detector, Logic-duplication-detector, Pattern-inconsistency-detector, Error-handling-auditor, Premature-abstraction-detector, Test-mirage-detector, Intent-decomposer, Code-doc-coherence-auditor, Code-doc-gap-integrator, Doc-harmonizer, API-contract-designer, ADR |
-| **🔬 2** | Audits de fond | API-auditor, DB-robustness, Data-integrity, Security, Systemic-risk, Ops, CI, Legal, Performance, Accessibility, Analytics, Spec-validator |
+| **🔧 1** | Structure & dette | Code-janitor, Conventions, Formatter, Tech-debt, Monolith-detector, Logic-duplication-detector, Pattern-inconsistency-detector, Error-handling-auditor, Premature-abstraction-detector, Test-mirage-detector, Intent-decomposer, Code-doc-coherence-auditor, Code-doc-gap-integrator, Doc-harmonizer, API-contract-designer, ADR *(16)* |
+| **🔬 2** | Audits de fond | API-auditor, DB-robustness, Data-integrity, Security, Systemic-risk, Ops, CI, Legal, Performance, Accessibility, Analytics, Spec-validator *(12)* |
 | **📋 3** | Consolidation | Risk-register |
 | **🎨 4** | Front-end UX/UI | User-experience-engine, Interaction-coherence, Visual-identity-layer, Visual-identity-gatekeeper, Design-system-validator, Micro-interaction-refiner, Cognitive-load-optimizer, Front-pipeline-reference, Security-remediation, Product-changelog |
-| **🛠️ t-** | Transverse | Dependency-mapper, Impact-analyzer, Docker-audit, Docker-generate, Deploy-runtime, Git-sync, Commit-ready, Test-coverage-mapper, Session-handoff, Project-context-init, Anti-slop-gate, Mode-transition-gate, Status-report |
+| **🛠️ t-** | Transverse | Dependency-mapper, Impact-analyzer, Docker-audit, Docker-generate, Deploy-runtime, Git-sync, Commit-ready, Test-coverage-mapper, Session-handoff, Project-context-init, Anti-slop-gate, Mode-transition-gate, Status-report, Index, Context-compactor, LLM-healthcheck, Status-dashboard *(17)* |
 
 Chaque skill est un fichier `SKILL.md` standardisé, indépendant, injectable dans n'importe quel agent LLM.
 
@@ -103,7 +103,7 @@ Détails : [`PROMPTS_ARCHITECTURE.md`](PROMPTS_ARCHITECTURE.md).
 
 | Phase | Prompts |
 |-------|---------|
-| **0** | Before-building, Plan, Triage |
+| **0** | Before-building, Plan, Triage, Zero-friction |
 | **1** | Doc-feature, Legacy-level, Post-refacto-coherence, Project-init, Quick-task, Structured-task, Tech-debt |
 | **2** | Audit-task, DB-sanity, Mode-transition, Release-check, Security-pipeline |
 | **3** | Risk-register |
@@ -220,7 +220,7 @@ git clone https://github.com/bricesodini/vibebackbone ~/vibebackbone
 bash ~/vibebackbone/setup.sh
 ```
 
-C'est tout. Les 63 skills sont disponibles pour tous vos agents, dans tous vos projets.
+C'est tout. Les 62 skills sont disponibles pour tous vos agents, dans tous vos projets.
 
 **Ce que fait `setup.sh` :**
 - installe les skills dans `~/.agents/skills/vibebackbone`
