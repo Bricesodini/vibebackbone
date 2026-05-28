@@ -47,6 +47,8 @@ vibebackbone/
 │   ├── CONTEXT.md       # MOC / routeur central persistant (premier fichier à lire, versionné)
 │   ├── MVP_START_PROTOCOL.md # Gate obligatoire avant code pour MVP depuis zéro
 │   ├── PROJECT_MODE.md  # Signal de mode (généré par `t-vbb-project-context-init`)
+│   ├── ARCHITECTURE.md  # Source canonique structurée de l'architecture
+│   ├── RELATIONS.md     # Projection graphique générée depuis ARCHITECTURE.md
 │   ├── SESSION.md       # Brouillon local éphémère (gitignoré)
 │   ├── AUDIT_STATUS.md  # Audit dashboard — local au projet
 │   └── audits/          # Rapports d'audit — locaux au projet
@@ -160,6 +162,25 @@ cadrage et produit des questions bloquantes au lieu de coder.
 
 ---
 
+## Architecture vivante
+
+`docs/ARCHITECTURE.md` est la source canonique structurée de l'architecture :
+chaque bloc y déclare rôle, responsabilités, dépendances, impacts, fichiers,
+contrats, tests, risques et statut. `docs/RELATIONS.md` est généré depuis cette
+source et fournit la projection Mermaid, les zones sensibles et l'index d'impact.
+
+```bash
+python tools/vbb-architecture.py lint
+python tools/vbb-architecture.py graph --write
+```
+
+Toute modification qui touche l'architecture, le routage, les contrats, la
+gouvernance, les adaptateurs provider, la CI ou l'outillage sensible doit être
+référencée dans `docs/ARCHITECTURE.md`. Le lint échoue si un fichier
+architecture-sensible n'est couvert par aucun bloc.
+
+---
+
 ## 📚 Documentation
 
 **Pour humains (pédagogique)** :
@@ -170,6 +191,8 @@ cadrage et produit des questions bloquantes au lieu de coder.
 - **[`docs/CONTEXT.md`](docs/CONTEXT.md)** — MOC / routeur central persistant, premier fichier à lire au démarrage
 - **[`docs/MVP_START_PROTOCOL.md`](docs/MVP_START_PROTOCOL.md)** — Gate obligatoire avant implementation d'un MVP depuis zero
 - **[`docs/PILOTAGE.md`](docs/PILOTAGE.md)** — Guide opérationnel : familles de voies, MVP START gate, triage, escalade, cascades verdict
+- **[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)** — Source canonique structurée de l'architecture
+- **[`docs/RELATIONS.md`](docs/RELATIONS.md)** — Projection générée : graphe, zones sensibles, index d'impact
 - **[`docs/INDEX.md`](docs/INDEX.md)** — Carte de navigation du dépôt pour agents et humains
 
 **Protocole agentique complet** :
@@ -201,15 +224,15 @@ C'est tout. Les 63 skills sont disponibles pour tous vos agents, dans tous vos p
 
 **Ce que fait `setup.sh` :**
 - installe les skills dans `~/.agents/skills/vibebackbone`
-- installe les prompts dans `~/.agents/prompts/vibebackbone`
+- installe les 33 prompts dans `~/.agents/prompts/vibebackbone`
 - configure Claude Code pour lire `~/.agents/skills`
 - référence `AGENTS.md` et `SYSTEM.md` dans `~/.claude/CLAUDE.md`
-- génère des commandes prompt `~/.claude/commands/vbb-*.md`
+- génère 26 commandes prompt adaptateur `~/.claude/commands/vbb-*.md`
 - génère `~/.codex/AGENTS.md` avec un bloc compilé AGENTS + SYSTEM + Prompt Library
 - crée les symlinks `~/.pi/agent/AGENTS.md` et `~/.pi/agent/SYSTEM.md`
-- symlink les prompts Pi dans `~/.pi/agent/prompts/`
+- symlink 26 prompts spécialisés/router dans `~/.pi/agent/prompts/`
 - ajoute `AGENTS.md` et `SYSTEM.md` dans `~/.config/opencode/opencode.json`
-- génère des commandes prompt `~/.config/opencode/commands/vbb-*.md`
+- génère 26 commandes prompt adaptateur `~/.config/opencode/commands/vbb-*.md`
 - **ne jamais écraser** les fichiers custom existants (sauf avec `--force-governance`)
 - les mises à jour se font via `git pull` (le symlink suit automatiquement)
 
@@ -219,16 +242,19 @@ C'est tout. Les 63 skills sont disponibles pour tous vos agents, dans tous vos p
 
 | Provider | Skills | Prompts | Gouvernance / runtime |
 |---|---|---|---|
-| **Claude Code** | `~/.agents/skills` via settings | `~/.claude/commands/vbb-*.md` | `~/.claude/CLAUDE.md` |
+| **Claude Code** | `~/.agents/skills` via settings | 26 commandes `~/.claude/commands/vbb-*.md` + prompts universels `~/.agents/prompts/vibebackbone` | `~/.claude/CLAUDE.md` |
 | **Codex** | `~/.agents/skills` | `~/.agents/prompts/vibebackbone` referenced | `~/.codex/AGENTS.md` compiled |
-| **Pi** | `~/.agents/skills` + package Pi | `~/.pi/agent/prompts/*.md` + package Pi | `~/.pi/agent/AGENTS.md` + `SYSTEM.md` |
-| **OpenCode** | `~/.agents/skills` | `~/.config/opencode/commands/vbb-*.md` | `opencode.json > instructions[]` |
+| **Pi** | `~/.agents/skills` + package Pi | 26 symlinks spécialisés/router + package Pi | `~/.pi/agent/AGENTS.md` + `SYSTEM.md` |
+| **OpenCode** | `~/.agents/skills` | 26 commandes `~/.config/opencode/commands/vbb-*.md` + prompts universels `~/.agents/prompts/vibebackbone` | `opencode.json > instructions[]` |
 
 ### Vérifier l'installation
 
 ```bash
 ls ~/.agents/skills/vibebackbone/
 # → 0-vbb-scope-freeze  1-vbb-conventions  2-vbb-security  3-vbb-risk-register  ...
+
+find ~/.agents/prompts/vibebackbone -name '*.md' | wc -l
+# → 33
 ```
 
 ### Mise à jour

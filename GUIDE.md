@@ -1,6 +1,6 @@
 # GUIDE — Piloter vibebackbone au quotidien
 
-**Version** : 1.0 · **Date** : 2026-06-13 · **Public** : humains (devs, leads, PM)
+**Version** : 1.0 · **Date** : 2026-05-28 · **Public** : humains (devs, leads, PM)
 **Couche** : L3 — référence, pas chargé au boot. Charger via `tools/vbb-index.py search` ou skill `0-vbb-guide`.
 
 Ce guide est un compagnon **pédagogique** du `README.md`. Le README dit *ce qu'est* vibebackbone. Ce guide dit *comment l'utiliser pour de vrai*, avec des cas d'usages concrets, des dialogues réalistes avec un agent, et les pièges à éviter.
@@ -45,6 +45,8 @@ Ce guide est un compagnon **pédagogique** du `README.md`. Le README dit *ce qu'
 | `AGENTS.md` | Grammaire opérationnelle canonique (lue par les agents) |
 | `SYSTEM.md` | Comportement runtime (lu par Pi) |
 | `docs/PILOTAGE.md` | Règles de triage et d'escalade (référence) |
+| `docs/ARCHITECTURE.md` | Source canonique structurée de l'architecture |
+| `docs/RELATIONS.md` | Projection graphique générée depuis l'architecture |
 | `docs/AGENTIC_RUN_PROTOCOL.md` | Les 7 phases formalisées (référence) |
 | `PROMPTS_ARCHITECTURE.md` | Architecture des 3 couches de prompts |
 
@@ -78,6 +80,12 @@ Une grammaire à **quatre composants**, qu'on injecte dans le contexte de l'agen
 │  Une tâche traverse 1 à 7 phases canoniques :           │
 │  INTAKE → AUDIT → DECISION → PLAN →                     │
 │  EXECUTION → REVIEW → CLOSEOUT                          │
+└─────────────────────────────────────────────────────────┘
+                          ↓
+┌─────────────────────────────────────────────────────────┐
+│  ARCHITECTURE.md STRUCTURÉ                              │
+│  Source canonique : blocs, dépendances, impacts,        │
+│  fichiers, contrats, tests, risques, statut             │
 └─────────────────────────────────────────────────────────┘
                           ↓
 ┌─────────────────────────────────────────────────────────┐
@@ -230,6 +238,37 @@ Concrètement :
 
 Pourquoi ? Parce qu'un agent qui vient de coder a un biais cognitif énorme pour valider son propre code. Une nouvelle session redonne du regard neuf.
 
+### 3.6 Architecture vivante
+
+`docs/ARCHITECTURE.md` est la source canonique structurée de l'architecture du
+projet. Chaque bloc y déclare au minimum :
+
+- rôle
+- responsabilités
+- dépendances
+- impacts
+- fichiers liés
+- contrats
+- tests
+- risques
+- statut
+
+`docs/RELATIONS.md` est une projection générée depuis cette source : graphe
+Mermaid, zones sensibles et index d'impact. Il ne faut pas l'éditer comme une
+deuxième vérité.
+
+Règle opérationnelle :
+
+```bash
+python tools/vbb-architecture.py lint
+python tools/vbb-architecture.py graph --write
+```
+
+Toute modification qui touche l'architecture, le routage, les contrats, la
+gouvernance, les adaptateurs provider, la CI ou l'outillage sensible doit être
+référencée dans `docs/ARCHITECTURE.md`. Le lint bloque si un fichier sensible
+n'est pas couvert par un bloc `files:`.
+
 ---
 
 ## 4. Installation et configuration
@@ -247,7 +286,8 @@ bash setup.sh
 | Couche | Cible | Quoi |
 |--------|-------|------|
 | **Skills** | `~/.agents/skills/vibebackbone` | Les 63 skills (lecture universelle) |
-| **Prompts** | `~/.agents/prompts/vibebackbone` | Les 25 prompts spécialisés + 1 router (symlink universel) |
+| **Prompts** | `~/.agents/prompts/vibebackbone` | Les 33 prompts (symlink universel) |
+| **Commandes prompt** | Provider command dirs | 26 commandes adaptateur spécialisées/router |
 | **AGENTS.md** | Par provider | Grammaire opérationnelle |
 | **SYSTEM.md** | Par provider | Comportement runtime |
 
@@ -274,6 +314,11 @@ grep -A2 "vibebackbone" ~/.claude/CLAUDE.md | head -10
 
 # Commandes Claude générées
 ls ~/.claude/commands/vbb-*.md 2>/dev/null | wc -l
+# → 26
+
+# Prompts universels
+find ~/.agents/prompts/vibebackbone -name '*.md' | wc -l
+# → 33
 ```
 
 Si tout est OK, ouvrez Claude Code dans un projet et tapez `/` — vous devriez voir les commandes `vbb-*`.
@@ -764,7 +809,17 @@ llm_log_delegation --task_type compression --provider qwen3.5-9b
 
 ---
 
-### ❌ Anti-pattern 6 — "Je shippe en passant outre un NO_GO"
+### ❌ Anti-pattern 6 — "Je change l'architecture sans mettre à jour ARCHITECTURE.md"
+
+**Symptôme** : ajout d'un outil, d'un workflow CI, d'un contrat, d'un adapter provider ou d'une frontière de module sans bloc `files:` correspondant dans `docs/ARCHITECTURE.md`.
+
+**Pourquoi c'est cassé** : la vue graphique et l'analyse d'impact cessent de représenter l'architecture réelle. L'agent croit lire une carte fiable alors qu'elle est déjà périmée.
+
+**Correctif** : mettre à jour le bloc concerné dans `docs/ARCHITECTURE.md`, régénérer `docs/RELATIONS.md`, puis lancer `python tools/vbb-architecture.py lint`.
+
+---
+
+### ❌ Anti-pattern 7 — "Je shippe en passant outre un NO_GO"
 
 **Symptôme** : `2-p-vbb-release-check` retourne NO_GO, vous le notez "à voir plus tard" et déployez.
 
@@ -992,4 +1047,4 @@ Au bout de 5 tâches, la grammaire devient automatique.
 
 ---
 
-_vibebackbone GUIDE v1.0 — 2026-06-13 — pour les humains qui pilotent des agents._
+_vibebackbone GUIDE v1.0 — 2026-05-28 — pour les humains qui pilotent des agents._
