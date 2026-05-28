@@ -27,9 +27,12 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Contracts** : 63/63 (100%) — machine-facing EN-clean
 - **SKILL.md EN** : partial — see [AUDIT_STATUS.md](AUDIT_STATUS.md#risks-identified--status)
 - **Architecture** : structured source active → [ARCHITECTURE.md](ARCHITECTURE.md) · projection [RELATIONS.md](RELATIONS.md)
+- **Front pipeline** : surface-first routing active (ADR-0002) → ENGINE_ONLY mode for UI/UX requests
+- **Centralization audit** : pass 4 produces `TOKEN_DEFINITION_MAP` + `CENTRALIZATION_ROADMAP`
 - **Tests** : 80/80 pytest green, CI 8/8 PASS, 0 warnings
 - **Token economy** : L0 boot ~2.5K tokens (87% reduction from 19K)
-- **Next action** : Decide whether to implement formal executor now or keep it as v2.0 scope before v1.0 tag
+- **Next action** : Test surface-first routing in real conditions → verify orchestrator detects UI/UX triggers correctly
+- **Key decisions** : [ADR-0002](docs/adr/0002-surface-first-routing-ui-ux.md) — surface-first routing + centralization audit
 
 ## Risks / audits
 
@@ -54,12 +57,10 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 3. ⬜ EN README/GUIDE for international adoption — *medium*
 4. ⬜ Implementation-readiness stabilization before reuse — *high*
 
+## Key decisions
+
+1. [ADR-0002](docs/adr/0002-surface-first-routing-ui-ux.md) — surface-first routing + centralization audit (2026-05-28)
+
 ## Quick search
-
-- `python tools/vbb-index.py search "query"` — text index
-- `python tools/vbb-status-dashboard.py` — repo state
-- `python tools/vbb-context-compactor.py docs/runs/<id>` — run summary
-
-## Run history
 
 Latest closed runs: 2026-06-13 (hardening ×4, global evaluation), 2026-06-12 (token-refactor ×3, canonical-en), 2026-06-11 (5 contractualisation/setup), 2026-06-10 (6 audit/ci/lot0). Closeouts: `docs/runs/*/07_CLOSEOUT.md`

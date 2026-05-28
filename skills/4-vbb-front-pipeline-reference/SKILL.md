@@ -4,7 +4,7 @@ description: |
   Canonical reference for the 7-pass Vibebackbone front pipeline. Defines execution modes,
   subsystem boundaries (ENGINE vs VISUAL), gate conditions, scope locks, and rollback protocol.
   This is a decision and protocol reference, not an execution pass.
-version: "2.0"
+version: "2.1"
 phase: 4
 token_budget: low
 subagent_eligible: false
@@ -116,6 +116,55 @@ La sortie doit contenir :
 - scope locks actifs
 - protocole de rollback si demandé
 
+## VALIDITY CRITERIA
+
+A pass output is INVALID if it contains only:
+  - token lists without SURFACE_CARTOGRAPHY
+  - primitive component proposals without surface context
+  - migration plans without CENTRALIZATION_ROADMAP
+
+A pass output is VALID only if:
+  - Pass 1: SURFACE_CARTOGRAPHY (named surfaces) + STATE_MATRIX (7 states mapped)
+  - Pass 4: TOKEN_DEFINITION_MAP + PRIMITIVE_REGISTRY_CHECK + CENTRALIZATION_GAPS + CENTRALIZATION_ROADMAP
+  - All passes: No direct primitive proposals before surface mapping complete
+
+## SEPARATION OF RESPONSIBILITIES
+
+| Pass | Required Keys | Optional Seeds |
+|------|---------------|---------------|
+| Pass 1 (UX Engine) | SURFACE_CARTOGRAPHY, STATE_MATRIX | TOKEN_DEFINITION_MAP seeds, PRIMITIVE_REGISTRY_CHECK seeds |
+| Pass 4 (Design System) | TOKEN_DEFINITION_MAP, PRIMITIVE_REGISTRY_CHECK, CENTRALIZATION_GAPS, CENTRALIZATION_ROADMAP | — |
+
+## GENERIC_OUTPUT_DETECTION
+
+If output contains phrases like:
+  - "commençons par les tokens"
+  - "créons Button/Badge/Tooltip"
+  - "migration vers un design system"
+WITHOUT prior SURFACE_CARTOGRAPHY → REJECT and return to pass 1.
+
+## GATE ENFORCEMENT
+
+| Gate | Requirement |
+|------|-------------|
+| pass 1 → 2 | SURFACE_CARTOGRAPHY must exist |
+| pass 2 → 3 | CANONICAL_PATTERNS must reference SURFACE_CARTOGRAPHY |
+| pass 3 → 4 | SURFACE_CARTOGRAPHY + STATE_MATRIX must be frozen |
+| pass 4 → 5 | All 6 required keys must be populated (2 from Pass 1, 4 from Pass 4) |
+
+**Pass 4 → 5 gate detail (6 keys required):**
+
+| Key | Source | Requirement |
+|-----|--------|-------------|
+| SURFACE_CARTOGRAPHY | Pass 1 | Must exist, Level 1–2 named |
+| STATE_MATRIX | Pass 1 | Must map 7 states to surfaces |
+| TOKEN_DEFINITION_MAP | Pass 4 | Must show definition → usage traceability |
+| PRIMITIVE_REGISTRY_CHECK | Pass 4 | Must identify central vs local primitives |
+| CENTRALIZATION_GAPS | Pass 4 | Must list non-centralized values with impact |
+| CENTRALIZATION_ROADMAP | Pass 4 | Must order remediation by surface level |
+
+If any key is missing or empty → HARD BLOCK, return to appropriate pass.
+
 ## VERDICT RULES
 
 Cette ressource n'émet pas READY / PARTIAL / BLOCKED par défaut.
@@ -125,3 +174,4 @@ Sortie attendue :
 - clarification de protocole
 - rappel de gate
 - rappel de mode
+- detection de generic_output si applicable

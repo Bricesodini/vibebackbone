@@ -5,7 +5,7 @@ description: |
   Use when starting work on a Vibebackbone project, deciding execution path,
   or selecting the correct next skill. Keywords: triage, pilotage, audit,
   structured path, fast path, handoff, routing, orchestration.
-version: "1.2"
+version: "1.3"
 phase: transverse
 token_budget: low
 subagent_eligible: false
@@ -153,8 +153,45 @@ Files to read before execution
 
 Only if applicable
 
+## GENERIC_RESPONSE_REJECTION_RULE
+
+Any UI/UX analysis that outputs only:
+  "tokens + composants + migration"
+WITHOUT the following mandatory keys:
+  - SURFACE_CARTOGRAPHY (from Pass 1)
+  - STATE_MATRIX (from Pass 1)
+  - TOKEN_DEFINITION_MAP (from Pass 4)
+  - PRIMITIVE_REGISTRY_CHECK (from Pass 4)
+  - CENTRALIZATION_GAPS (from Pass 4)
+  - CENTRALIZATION_ROADMAP (from Pass 4)
+
+MUST be flagged as INSUFFICIENT.
+
+Verdict: INSUFFICIENT
+Message: "Analysis missing systemic cartography. Required: SURFACE_CARTOGRAPHY + STATE_MATRIX (Pass 1), TOKEN_DEFINITION_MAP + PRIMITIVE_REGISTRY_CHECK + CENTRALIZATION_GAPS + CENTRALIZATION_ROADMAP (Pass 4)."
+
+## OUTPUT VALIDITY CHECK
+
+Before accepting any UI/UX audit output:
+1. Verify SURFACE_CARTOGRAPHY exists and lists surfaces by semantic name
+2. Verify STATE_MATRIX maps 7 states to surfaces
+3. Verify TOKEN_DEFINITION_MAP shows definition → usage traceability
+4. Verify PRIMITIVE_REGISTRY_CHECK identifies central vs local primitives
+5. Verify CENTRALIZATION_GAPS lists non-centralized values with impact
+6. Verify CENTRALIZATION_ROADMAP orders remediation by surface level
+
+If any key is missing or empty → INSUFFICIENT.
+
+**Separation of responsibilities:**
+- Pass 1 (4-vbb-user-experience-engine) → SURFACE_CARTOGRAPHY + STATE_MATRIX (required)
+- Pass 4 (4-vbb-design-system-validator) → TOKEN_DEFINITION_MAP + PRIMITIVE_REGISTRY_CHECK + CENTRALIZATION_GAPS + CENTRALIZATION_ROADMAP (required)
+
 ## VERDICT RULES
 
 Default output = routing decision.
 
 Do NOT emit READY / PARTIAL / BLOCKED / UNKNOWN unless explicitly asked for a routing verdict.
+
+**Exception:** For UI/UX outputs (ENGINE_ONLY mode), ALWAYS emit a verdict:
+- INSUFFICIENT: Missing required cartography keys (from Pass 1 or Pass 4)
+- READY: All 6 required keys present and populated (2 from Pass 1, 4 from Pass 4)

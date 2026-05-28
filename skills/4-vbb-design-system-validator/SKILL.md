@@ -5,7 +5,7 @@ description: |
   Validates design-system structural readiness, token coverage, inline-style risks,
   and component reuse posture. Audits graphic centralization to enable easy modifications.
   In either GREENFIELD or LEGACY mode.
-version: "3.0"
+version: "3.1"
 phase: 4
 token_budget: high
 subagent_eligible: false
@@ -167,7 +167,7 @@ $bg-surface | tokens/colors/surface.json:3 | hardcoded in 6 composants | DUPLICA
 
 ### 2.2 Primitive Registry Check
 
-Key: `PRIMITIVE_REGISTRY`
+Key: `PRIMITIVE_REGISTRY_CHECK`
 
 - Composants primitifs trouvés dans le registry : [liste]
 - Composants redéfinis localement : [liste + surfaces afetées]
@@ -243,3 +243,101 @@ Key: `DS_EXCEPTIONS`
 
 Pour faciliter les modifications graphiques, `SURFACE_CARTOGRAPHY` + `TOKEN_DEFINITION_MAP`
 forment le point de référence : l'utilisateur peut toujours répondre à "où est définie cette valeur ?"
+
+## VALIDITY ENFORCEMENT
+
+### HARD BLOCK CONDITIONS
+
+Pass 4 output is INVALID (BLOCKED) if ANY of:
+1. `TOKEN_DEFINITION_MAP` is empty or missing
+2. `PRIMITIVE_REGISTRY_CHECK` is empty or missing
+3. `CENTRALIZATION_GAPS` is empty or missing
+4. `CENTRALIZATION_ROADMAP` is empty or missing
+5. `DS_SCORE` is undefined or < 5
+6. SURFACE_CARTOGRAPHY from pass 1 is not referenced
+7. `SHELL_OVERRIDE_PATTERN` is empty or missing (required for traceability)
+
+**Note:** SHELL_OVERRIDE_PATTERN is a sub-artifact of CENTRALIZATION_AUDIT but is mandatory for Pass 4 validity.
+
+### REJECTION PATTERN DETECTION
+
+If output contains ONLY:
+  - "créer Button", "nouveau Badge", "design Token $color"
+  - "migration vers design system"
+  - "composants primitifs"
+WITHOUT referencing specific surfaces from SURFACE_CARTOGRAPHY
+→ This is GENERIC_FRONTEND_RESPONSE
+→ Return: PASS_STATUS: BLOCKED
+→ Message: "Response lacks surface-specific context. Every token and component must be traced to a named surface from SURFACE_CARTOGRAPHY."
+
+## CANONICAL EXAMPLES
+
+### ✅ BONNE SORTIE (Pass 4 valide)
+
+```markdown
+## 0. Context Mode
+LEGACY
+
+## 1. System Readiness Score
+DS_SCORE: 6.5
+
+## 2. Centralization Audit
+
+### 2.1 Token Definition Map
+TOKEN_DEFINITION_MAP:
+| token | defined_in | used_in | status |
+|-------|-----------|---------|--------|
+| $color-brand | tokens/brand.json:12 | 8 fichiers | OK |
+| $bg-surface | tokens/surface.json:3 | 4 fichiers | OK |
+| $shadow-card | tokens/shadow.json:7 | hardcoded in 3 composants | MISSING |
+
+### 2.2 Primitive Registry Check
+PRIMITIVE_REGISTRY_CHECK:
+| primitive | registry | local | surfaces |
+|-----------|----------|-------|----------|
+| Button | components/Button | yes (TraceCard, HeaderShell) | drift risk: HIGH |
+| Badge | components/Badge | no | — |
+
+### 2.3 Shell Override Pattern
+SHELL_OVERRIDE_PATTERN:
+| Surface | token-based | mixed | hardcoded |
+|---------|------------|-------|----------|
+| HeaderShell | ✓ | — | — |
+| TraceCard | — | ✓ | — |
+| ModalShell | — | — | ✓ |
+
+### 2.4 Centralization Gaps
+CENTRALIZATION_GAPS:
+| Surface | Value | Current | Impact | Priority |
+|---------|-------|---------|--------|----------|
+| TraceCard | bg | inline #f0f0f0 | medium (4 files) | P1 |
+| ModalShell | shadow | hardcoded | easy (2 files) | P2 |
+
+### 2.5 Centralization Roadmap
+CENTRALIZATION_ROADMAP:
+1. HeaderShell → token-based (already clean)
+2. ModalShell → extract $shadow-card token (easy)
+3. TraceCard → migrate bg to $bg-surface token (medium)
+4. Button primitives → deduplicate from TraceCard (high risk)
+```
+
+### ❌ MAUVAISE SORTIE (Pass 4 invalide — GENERIC_FRONTEND_RESPONSE)
+
+```markdown
+## Design System Audit
+
+Tokens à créer:
+- $color-primary
+- $spacing-md
+
+Composants primitifs:
+- Button
+- Badge
+- Card
+
+Prochaine étape: migration vers design system.
+```
+
+**Raison d'invalidation:** Aucune surface référencée depuis SURFACE_CARTOGRAPHY.
+Aucune traçabilité token → surface.
+**Résultat:** PASS_STATUS: BLOCKED + GENERIC_FRONTEND_RESPONSE
