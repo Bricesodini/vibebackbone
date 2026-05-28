@@ -91,13 +91,39 @@ It does NOT:
    - HANDOFF
 3. Apply escalation rule:
    if risk increases, upgrade path immediately.
-4. Identify required context files:
+4. **Check UI/UX trigger** (before any skill selection):
+   If the request contains UI/UX coherence, visual architecture,
+   graphic centralization, or surface mapping intent → set mode to
+   `ENGINE_ONLY` and route to `4-vbb-user-experience-engine` (pass 1).
+   Do NOT route directly to any VISUAL pass (pass 4 or later).
+   Do NOT treat as a single-skill task.
+5. Identify required context files:
    - `SESSION.md`
    - `CONTEXT.md`
    - `AUDIT_STATUS.md`
    - `PROJECT_MODE.md`
-5. Select next skill(s).
-6. If multiple steps are required, propose an ordered execution sequence.
+6. Select next skill(s).
+7. If multiple steps are required, propose an ordered execution sequence.
+8. For UI/UX ENGINE_ONLY mode: emit the full pipeline sequence,
+   not just the next step.
+
+## UI/UX ENGINE_ONLY RULE
+
+Trigger detection (any of the following):
+- "cohérence UI/UX"
+- "audit UI"
+- "cohérence visuelle"
+- "architecture visuelle"
+- "centralisation graphique"
+- "design system"
+- "surface" + "cartographie"
+- "audit surface" + "Trame"
+
+Behavior when triggered:
+1. Route to `4-vbb-user-experience-engine` first.
+2. Require `SURFACE_CARTOGRAPHY` before any VISUAL pass (4–7).
+3. Do not allow direct entry to pass 4 or later.
+4. Full execution sequence: pass 1 → 2 → 3 → 4 → 5 → 6 → 7.
 
 ## OUTPUT CONTRACT
 
@@ -106,6 +132,8 @@ Output must contain:
 ### Path
 
 FAST | STRUCTURED | AUDIT | HANDOFF
+
+**Special:** ENGINE_ONLY (front pipeline, passes 1–7) — see UI/UX ENGINE_ONLY RULE
 
 ### Justification
 
@@ -119,10 +147,7 @@ Files to read before execution
 
 - Primary skill
 - Optional secondary skill(s)
-
-### Execution strategy
-
-Ordered steps only if multiple skills are necessary
+- For ENGINE_ONLY: full pipeline sequence (pass 1 → 7)
 
 ### Escalation note
 

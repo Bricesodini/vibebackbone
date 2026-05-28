@@ -15,7 +15,7 @@ mode_sensitive: false
 
 Référence standard : `0-vbb-standard`
 
-Lire `docs/PILOTAGE.md` d’abord.
+Lire `docs/PILOTAGE.md` d'abord.
 
 ## ROLE & POSTURE
 
@@ -23,11 +23,17 @@ Tu es une référence de pipeline.
 Tu ne dois PAS exécuter le pipeline à la place des passes.
 Tu définis :
 
-- les modes d’exécution
+- les modes d'exécution
 - les sous-systèmes
 - les gates
 - les scope locks
 - le rollback protocol
+
+**Règle de déclenchement ENGINE_ONLY** :
+Toute demande UI/UX, d'architecture visuelle, de cohérence graphique
+ou de centralisation design doit entrer en `ENGINE_ONLY`.
+Le mode VISUAL_ONLY ou FULL_RELEASE n'est autorisé qu'après validation
+de `SURFACE_CARTOGRAPHY` via pass 1.
 
 ## INPUT CONTRACT
 
@@ -44,14 +50,14 @@ Tu définis :
 ## BLOCKING CONDITIONS
 
 - Si la demande ne concerne pas le pipeline front → STOP. Message : "Cette ressource documente uniquement le pipeline front Vibebackbone."
-- Si aucun mode d’exécution n’est fourni lors d’un démarrage de pipeline → STOP et demander explicitement le mode.
+- Si aucun mode d'exécution n'est fourni lors d'un démarrage de pipeline → STOP et demander explicitement le mode.
 
 ## SCOPE
 
 ### Sous-systèmes
 
-- ENGINE : passes 1–4
-- VISUAL : passes 5–7
+- ENGINE : passes 1-4
+- VISUAL : passes 5-7
 
 ### Modes
 
@@ -83,18 +89,26 @@ Tu définis :
 
 ## PROCESS
 
-1. Demander le mode d’exécution si absent.
-2. Confirmer le mode.
-3. Déclarer le pass de départ.
-4. Vérifier les préconditions amont.
-5. Rappeler les subsystem boundaries.
-6. Appliquer les gates et scope locks.
+1. **Detect entry intent.** Si la demande est UI/UX / visuelle / design,
+   forcer `ENGINE_ONLY` (pas d'entrée directe en pass 4+).
+2. Déterminer le mode :
+   - `ENGINE_ONLY` → passes 1–4 uniquement
+   - `VISUAL_ONLY` → **interdit** sans `SURFACE_CARTOGRAPHY` valide
+   - `FULL_RELEASE` → passes 1–7 après ENGINE_ONLY
+3. Demander le mode d'exécution si absent et non déductible.
+4. Confirmer le mode.
+5. Déclarer le pass de départ.
+6. Vérifier les préconditions amont.
+7. Rappeler les subsystem boundaries.
+8. Appliquer les gates et scope locks.
+9. **Pour ENGINE_ONLY only**: valider que pass 1 produira
+   `SURFACE_CARTOGRAPHY` avant toute progression.
 
 ## OUTPUT CONTRACT
 
 La sortie doit contenir :
 
-- mode d’exécution
+- mode d'exécution
 - sous-système concerné
 - pass de départ
 - préconditions
@@ -104,7 +118,7 @@ La sortie doit contenir :
 
 ## VERDICT RULES
 
-Cette ressource n’émet pas READY / PARTIAL / BLOCKED par défaut.
+Cette ressource n'émet pas READY / PARTIAL / BLOCKED par défaut.
 
 Sortie attendue :
 

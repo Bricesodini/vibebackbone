@@ -1,5 +1,5 @@
 id: 4-vbb-design-system-validator
-version: "0.3"
+version: "1.0"
 type: prompt_skill
 formalization_level: declarative
 
@@ -18,6 +18,8 @@ compatibility:
 inputs:
   required:
     - repo_access
+    - surface_cartography
+    - state_matrix
   optional:
     - design_token_map
     - component_inventory
@@ -27,7 +29,10 @@ outputs:
   required:
     - status
     - summary
-    - validation_report
+    - centralization_audit
+    - token_definition_map
+    - centralization_gaps
+    - centralization_roadmap
     - token_coverage
     - next_action
   statuses:
@@ -35,10 +40,18 @@ outputs:
     - PARTIAL
     - FAIL
     - BLOCKED
-  artifact: null
+  artifact: pass-4-output.md
 
 gates:
   before:
+    - id: surface_cartography_available
+      expected_status: PASS
+      blocking: true
+      reason: "Pass 4 requires SURFACE_CARTOGRAPHY from pass 1 before any token analysis"
+    - id: state_matrix_available
+      expected_status: PASS
+      blocking: true
+      reason: "Pass 4 requires STATE_MATRIX from pass 1 for state coverage"
     - id: passes_1_2_3_complete
       expected_status: PASS
       blocking: true
@@ -46,7 +59,8 @@ gates:
   success:
     - id: design_system_validated
       output_must_contain:
-        - validation_report
+        - centralization_audit
+        - token_definition_map
         - token_coverage
   after:
     - id: next_pass_ready
@@ -74,6 +88,9 @@ routing:
     - component reuse
     - hard gate
     - front pipeline pass 4
+    - graphic centralization audit
+    - token definition map
+    - single source of truth
 
 limits:
   max_gate_depth: 2
@@ -82,6 +99,23 @@ limits:
 state_policy:
   persistent: false
   allowed_fields:
+    - centralization_score_pct
+    - surfaces_token_based_pct
     - token_coverage_pct
     - inline_style_count
     - reuse_pct
+    - centralization_gaps_count
+
+blocking_rules:
+  - id: surface_cartography_required
+    condition: "surface_cartography absent"
+    level: HARD
+    message: "Surface cartography missing. Pass 1 must produce SURFACE_CARTOGRAPHY before pass 4 can execute."
+  - id: state_matrix_required
+    condition: "state_matrix absent"
+    level: HARD
+    message: "State matrix missing. Cannot validate token coverage without STATE_MATRIX from pass 1."
+  - id: no_duplicate_token_definitions
+    condition: "TOKEN_DEFINITION_MAP contains DUPLICATES"
+    level: HARD
+    message: "Duplicate token definitions found. All duplicates must be resolved before pass 4 can pass."
