@@ -104,6 +104,19 @@ Si tu tombes en fallback, nommer la skill manquante et expliquer pourquoi.
 7. **Phase 4** — Lancer `t-vbb-session-handoff`.
 8. **Résumer** le pipeline complet et l'état final.
 
+---
+
+## Closeout sequence (mandatory — run after Phase 4 handoff)
+
+After the Phase 4 handoff is produced:
+
+1. `t-vbb-commit-ready` → verdict + conventional commit message
+2. `git add <docs modified during the pipeline>` → `git commit -m "<message>"` → `git push`
+3. Update `docs/SESSION.md` (clear if session done, note state if re-entry planned)
+4. Update `docs/CONTEXT.md` (status, run link, decisions, open points, next action)
+
+> The coherence pipeline produces and modifies persistent artifacts (audit reports, gap docs, harmonized doc) — they must be committed and pushed. Do not stop after the handoff. The post-refacto coherence loop is not closed until git push is done.
+
 ## Constraints
 
 - Ne pas sauter la Phase 1 (audit). C'est la fondation de tout le pipeline.

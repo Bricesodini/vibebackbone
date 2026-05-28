@@ -102,6 +102,20 @@ Lancer en parallèle : 8. `2-vbb-api-auditor` — audit API (si applicable) 9. `
 
 ---
 
+## Closeout sequence (mandatory — run after the final verdict)
+
+After the GO / CONDITIONAL_GO / NO_GO verdict:
+
+1. `t-vbb-commit-ready` → verdict + conventional commit message
+2. `git add docs/audits/release-check-*.md docs/runs/*/03_DECISION_RECORD.md` → `git commit -m "<message>"` → `git push`
+3. Update `docs/SESSION.md` (clear if session done, note state if re-entry planned)
+4. Update `docs/CONTEXT.md` (status, run link, decisions, open points, next action)
+5. Update `docs/AUDIT_STATUS.md` (new release-check report)
+
+> Release-check reports and decision records are product-critical artifacts — they must be versioned. Do not stop after the verdict. The release-check loop is not closed until git push is done.
+
+---
+
 ## Alignement protocole agentique
 
 **Phases correspondantes** : 02_AUDIT (waves 1–3) + 03_DECISION (wave 4 + verdict)

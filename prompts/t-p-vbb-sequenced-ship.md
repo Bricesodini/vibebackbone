@@ -178,3 +178,16 @@ When complete (all steps in the chain done), produce a final summary:
 **Remaining Work:** ...
 **Recommendations for Next Phase:** ...
 ```
+
+---
+
+## Closeout sequence (mandatory — run after the final summary)
+
+After the final summary is produced:
+
+1. `t-vbb-commit-ready` → verdict + conventional commit message
+2. `git add <files>` → `git commit -m "<message>"` → `git push`
+3. Update `docs/SESSION.md` (clear if session done, note state if re-entry planned)
+4. Update `docs/CONTEXT.md` (status, run link, decisions, open points, next action)
+
+> The sequenced run is not finished until git push is done. A "success / partial / failed" summary without commit is an open loop.

@@ -34,6 +34,19 @@ Constraints:
 - Do not rewrite history.
 - Separate completed work from assumptions and pending items.
 
+---
+
+## Closeout sequence (mandatory — run at the end of every session)
+
+After the handoff artifact is produced:
+
+1. `t-vbb-commit-ready` → verdict + conventional commit message
+2. `git add <files>` → `git commit -m "<message>"` → `git push`
+3. Update `docs/SESSION.md` (clear if session done, note state if re-entry planned)
+4. Update `docs/CONTEXT.md` (status, run link, decisions, open points, next action)
+
+> Do not stop after producing the handoff artifact. The session loop is not closed until git push is done.
+
 Output format:
 
 - Goal

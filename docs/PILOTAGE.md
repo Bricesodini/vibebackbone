@@ -39,7 +39,7 @@ execution.
 | **FAST** (STANDARD) | Simple task, low risk | Act directly | Data/auth/security impact → AUDIT |
 | **STRUCTURED** | Architecture, contracts, multi-file | Read mode+session+audit → expose plan | Security → AUDIT |
 | **AUDIT** | Security, integrity, compliance, systemic risk | Timestamped report in `docs/audits/`, read-only | — |
-| **CLOSEOUT** | End of session, handoff, pause | Summarize · decisions · open points → `SESSION.md` + `AUDIT_STATUS.md` | — |
+| **CLOSEOUT** | End of session, handoff, pause | `t-vbb-commit-ready` → git commit → git push → update `SESSION.md` + `CONTEXT.md` | — |
 
 Full details (sequences, alternatives, artifact conventions): [ROUTER_MATRIX.md](router/ROUTER_MATRIX.md)
 
@@ -52,7 +52,7 @@ Full details (sequences, alternatives, artifact conventions): [ROUTER_MATRIX.md]
 1. Touches data/auth/prod ? → STRUCTURED minimum
 2. Touches security/integrity/compliance ? → AUDIT
 3. Neither ? → FAST
-4. End of session ? → CLOSEOUT
+4. End of session ? → CLOSEOUT: t-vbb-commit-ready → git commit → git push → SESSION.md → CONTEXT.md
 ```
 
 ---

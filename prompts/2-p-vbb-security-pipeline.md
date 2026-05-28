@@ -82,3 +82,16 @@ After all 4 steps, summarize:
 - readiness status
 - skills used in order
 - missing inputs or limitations
+
+---
+
+## Closeout sequence (mandatory — run after the final summary)
+
+After the final summary:
+
+1. `t-vbb-commit-ready` → verdict + conventional commit message
+2. `git add docs/audits/security-*.md docs/audits/systemic-risks-*.md docs/audits/risk-register-*.md docs/audits/security-remediation-*.md` → `git commit -m "<message>"` → `git push`
+3. Update `docs/SESSION.md` (clear if session done, note state if re-entry planned)
+4. Update `docs/CONTEXT.md` (status, run link, decisions, open points, next action)
+
+> Audit reports are persisted in `docs/audits/` — they must be committed and pushed. Do not stop after the summary. The security pipeline loop is not closed until git push is done.

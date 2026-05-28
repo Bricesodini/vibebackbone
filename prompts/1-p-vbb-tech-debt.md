@@ -86,3 +86,16 @@ Output format:
 - Recommended treatment
 - Controlled repayment decision
 - TECH_DEBT update needed
+
+---
+
+## Closeout sequence (mandatory — run after the TECH_DEBT update)
+
+After the TECH_DEBT.md update:
+
+1. `t-vbb-commit-ready` → verdict + conventional commit message
+2. `git add docs/TECH_DEBT.md` → `git commit -m "<message>"` → `git push`
+3. Update `docs/SESSION.md` (clear if session done, note state if re-entry planned)
+4. Update `docs/CONTEXT.md` (status, run link, decisions, open points, next action)
+
+> TECH_DEBT.md is a persistent artifact — it must be versioned. Do not stop after updating the entry. The tech-debt loop is not closed until git push is done.

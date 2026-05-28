@@ -49,6 +49,20 @@ Required process:
    - If BLOCKED → stop and report
 7. Produce final deployment report.
 
+---
+
+## Closeout sequence (mandatory — run after the final deployment report)
+
+After the final deployment report:
+
+1. `t-vbb-commit-ready` → verdict + conventional commit message
+2. `git add <docker artifacts>` → `git commit -m "<message>"` → `git push`
+   - Artifacts to commit: Dockerfile, docker-compose*.yml, .env, .dockerignore, nginx.conf, deploy.sh, docker-services.map
+3. Update `docs/SESSION.md` (clear if session done, note state if re-entry planned)
+4. Update `docs/CONTEXT.md` (status, run link, decisions, open points, next action)
+
+> Docker artifacts are infrastructure code — they must be versioned. Do not stop after the deployment report. The Docker pipeline loop is not closed until git push is done.
+
 Verdict cascade rule (from PILOTAGE.md):
 
 - READY → continue in all environments
