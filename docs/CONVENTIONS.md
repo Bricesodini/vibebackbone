@@ -144,10 +144,6 @@ If any command fails → do not mark as implemented. Document the failure, corre
 
 ---
 
-If any command fails → do not mark as implemented. Document the failure, correct if in scope, re-run the full loop.
-
----
-
 ## Pillar 4 — Traçabilité
 
 Traçabilité is embedded in the system and does not require a separate pillar.

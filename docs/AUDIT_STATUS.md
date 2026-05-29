@@ -2,7 +2,7 @@
 context_role: audit-dashboard
 phase: transverse
 status: active
-updated: 2026-05-28
+updated: 2026-05-29
 temporal_provenance: TEMPORAL_PROVENANCE.md
 ---
 
@@ -17,7 +17,7 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 Global evaluation audit completed (RUN 19, composite score 7.4/10).
 v1.0 Hardening phase completed (RUNs 20A–20D):
-- Test reliability: 69/69 pytest green, CI 7/7 PASS
+- Test reliability: 81/81 pytest green, CI PASS
 - Contract quality: 63/64 valid (t-vbb-llm-healthcheck has no contract yet), machine-facing EN-clean
 - Agent language: 53/64 SKILL.md body EN-clean, 10 remaining (Phase 4 + spec-validator)
 - Release readiness: CHANGELOG.md, RELEASE_CHECKLIST.md created
@@ -51,7 +51,7 @@ stabilized in the same pass.
 
 | Run | Target | Result |
 |-----|--------|--------|
-| 20A | Test reliability | ✅ 69/69 pytest green, CI PASS |
+| 20A | Test reliability | ✅ 81/81 pytest green, CI PASS |
 | 20B | Contract quality | ✅ 63/63 valid, 44 contracts EN-cleaned |
 | 20C | Agent language | ✅ 4 priority SKILL.md EN-translated, 10 remain |
 | 20D | Release candidate | ✅ CHANGELOG.md, RELEASE_CHECKLIST.md created |
@@ -93,7 +93,7 @@ stabilized in the same pass.
 
 New audit: [global-robustness-20260528-1625.md](audits/global-robustness-20260528-1625.md).
 
-Verdict: `PARTIAL`. 81 tests pass, CI clean (local + GitHub), contracts valid (63/63), index complete (63/63), architecture-source layer solid. 3 bounded gaps found:
+Verdict: `PARTIAL`. 81 tests pass, CI clean (local + GitHub), contracts valid (63/63), index complete (64/64), architecture-source layer solid. 3 bounded gaps found (OPS-001, OPS-002, OPS-003 — all resolved in commit `147f6dc`).
 
 - **OPS-001 P1**: `vbb-loop-closure-check.py` — unknown/missing voie fallback silently passes instead of failing when both 01_INTAKE and 07_CLOSEOUT are absent. → **RESOLVED** (commit `147f6dc`) — explicit fail added, 6 reproduction cases verified (2026-05-29).
 - **OPS-002 P2**: `vbb-context-compactor.py` — `sys.exit(1)` inside pure helper function `compact_run()` instead of returning error indicator. → **RESOLVED** (commit `147f6dc`) — returns `None`, `main()` handles exit.
