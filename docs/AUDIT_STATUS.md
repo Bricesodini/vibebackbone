@@ -79,6 +79,10 @@ stabilized in the same pass.
 | IMPL-004 | P2 | Python bytecode under `tests/__pycache__/` and `tools/__pycache__/` is tracked | Resolved — tracked bytecode removed and `.gitignore` now excludes Python generated files |
 | IMPL-005 | P2 | GitHub CI and local CI are close but not identical; GitHub does not run the full local pytest step | Resolved — GitHub CI now runs architecture lint and full `pytest tests/ -q`; local CI runs 8 checks |
 | IMPL-006 | P2 | Future-dated historical artifacts are documented but should not be inherited as live state by a new implementation | Resolved — project init now creates fresh `ARCHITECTURE.md` / `RELATIONS.md` placeholders without VBB audit history |
+| OPS-001 | P2 | `vbb-loop-closure-check.py` — silent pass on malformed runs (unknown voie fallback) | **CLOSED** — commit `147f6dc` fix; explicit fail added; 6 reproduction cases verified (2026-05-29) |
+| OPS-002 | P2 | `vbb-context-compactor.py` — `sys.exit(1)` inside pure helper function `compact_run()` | **CLOSED** — commit `147f6dc` fix; helper returns `None`; `main()` handles exit |
+| OPS-003 | P2 | `vbb-status-dashboard.py` — `temporal_warnings` duplicates `temporal_notes` | **CLOSED** — commit `147f6dc` fix; field removed |
+| OPS-004 | P2 | Pillar 5 (Robustness) not canonical in CONVENTIONS.md | **RESOLVED** — P.R1–P.R8 integrated in `docs/CONVENTIONS.md` v1.1 (2026-05-29) |
 | SYNERGY-004 | P2 | setup.sh monolith (25K) | Mitigated (hardened, still long) |
 | SYNERGY-005 | P3 | Governance duplication across files | Mitigated (RUN 14 links) |
 | LANG-001 | P3 | 11 SKILL.md still have FR body content | Accepted — human-readable narrative remains bilingual; machine-facing contracts are EN-clean |
@@ -91,11 +95,12 @@ New audit: [global-robustness-20260528-1625.md](audits/global-robustness-2026052
 
 Verdict: `PARTIAL`. 81 tests pass, CI clean (local + GitHub), contracts valid (63/63), index complete (63/63), architecture-source layer solid. 3 bounded gaps found:
 
-- **OPS-001 P1**: `vbb-loop-closure-check.py` — unknown/missing voie fallback silently passes instead of failing when both 01_INTAKE and 07_CLOSEOUT are absent.
-- **OPS-002 P2**: `vbb-context-compactor.py` — `sys.exit(1)` inside pure helper function `compact_run()` instead of returning error indicator.
-- **OPS-003 P2**: `vbb-status-dashboard.py` — `temporal_warnings` duplicates `temporal_notes`, no operational value added.
+- **OPS-001 P1**: `vbb-loop-closure-check.py` — unknown/missing voie fallback silently passes instead of failing when both 01_INTAKE and 07_CLOSEOUT are absent. → **RESOLVED** (commit `147f6dc`) — explicit fail added, 6 reproduction cases verified (2026-05-29).
+- **OPS-002 P2**: `vbb-context-compactor.py` — `sys.exit(1)` inside pure helper function `compact_run()` instead of returning error indicator. → **RESOLVED** (commit `147f6dc`) — returns `None`, `main()` handles exit.
+- **OPS-003 P2**: `vbb-status-dashboard.py` — `temporal_warnings` duplicates `temporal_notes`, no operational value added. → **RESOLVED** (commit `147f6dc`) — field removed.
+- **OPS-004 P2**: Pillar 5 (Robustness) integrated into `docs/CONVENTIONS.md` as canonical quality pillar (P.R1–P.R8). Verification evidence in `docs/runs/2026-05-29_1000_robustness-audit/07_CLOSEOUT.md`.
 
-No P0. No systemic risk. All 3 gaps are bounded and actionable. Existing risk register unchanged (IMPL-002 mitigating, SYNERGY-004/005 mitigated, LANG-001/002 accepted).
+No P0. No systemic risk. All gaps bounded and actionable. Pillar 5 canonical integration complete.
 
 ## Latest audit note — global implementation readiness (2026-05-28)
 

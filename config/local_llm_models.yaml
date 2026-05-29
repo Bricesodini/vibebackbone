@@ -41,13 +41,29 @@ ollama_mac:
       notes     : "Vision support — pas de MTP sur Apple Silicon"
       active    : false
 
-# ─── OLLAMA (PC RTX 3090) ─────────────────────────────────────────────────
-ollama_pc:
-  endpoint      : "http://192.168.40.4:11434/v1"
-  status        : "reserved_gpu"    # images / VLM / inference lourde — PAS de tasks textuelles
-  endpoint_label: "PC RTX 3090 Ubuntu"
-  usage         : "image generation, VLM tasks, heavy inference"
-  # Pas de model attaché pour l'instant — a venir selon loaded models
+# ─── MLX VLM SERVER (Mac M1 Max — port 8899) ─────────────────────────────────
+# mlx_vlm.server + mlx_lm.server запускаются depuis venv /Users/bot/mlx-vlm-prod/
+mlx_mac:
+  endpoint      : "http://127.0.0.1:8899/v1"
+  status        : "active"
+  endpoint_label: "Mac M1 Max MLX VLM server"
+
+  models:
+    - id        : "mlx-community/gemma-4-26b-a4b-it-4bit"
+      role      : "operator"           # vault-agent, classification, enrichment
+      context_k : 64
+      benchmark  : "3s/note, 24 t/s, JSON clean, tags+actions extraits"
+      active    : true
+      profile   : "vault-agent"        # Hermes profile ~/.hermes/profiles/vault-agent/
+
+    - id        : "mlx-community/gemma-4-31b-it-4bit"
+      role      : "operator"           # heavy variant si 26B insuffisant
+      context_k : 64
+      active    : false
+
+# ─── RESERVES ────────────────────────────────────────────────────────────────
+# Les entrées suivantes sont inactivees — garder pour reference future
+# Pas de subagent RTX 3090 pour le moment — reserved pour VLM/images plus tard
 
 # ─── N8N internal (Synology) ───────────────────────────────────────────────
 n8n_llm:

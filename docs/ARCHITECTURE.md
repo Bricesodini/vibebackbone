@@ -256,13 +256,16 @@ risks:
 id: quality-conventions
 type: governance
 status: active
-role: Canonical quality conventions covering readability, modularity, and coherence. Single source of truth for structural standards.
+role: Canonical quality conventions covering readability (P1), modularity (P2),
+  coherence (P3), and robustness (P5). Single source of truth for structural standards.
 principle: One architecture block should represent one clear responsibility.
 responsibilities:
-  - Define quality pillars (readability, modularity, coherence)
+  - Define quality pillars (readability, modularity, coherence, robustness)
   - Provide canon change process template
   - Reference quality rules from all governance files
   - Support verification loops before implementation declaration
+  - Enforce fail-explicit rule, gate-before-action, invariant protection
+  - Enforce regression prevention and independent review preferred
 depends_on:
   - governance-core
   - architecture-source
@@ -272,19 +275,28 @@ impacts:
   - canonical change discipline
   - test quality
   - documentation standards
+  - error handling consistency
+  - invariant protection
+  - regression prevention
 files:
   - docs/CONVENTIONS.md
   - docs/templates/CANON_CHANGE_PROPOSAL.md.template
+  - docs/runs/2026-05-29_1000_robustness-audit/ROBUSTNESS_AUDIT.md
+  - docs/runs/2026-05-29_1000_robustness-audit/PILLAR_5_PROPOSAL.md
 contracts:
   - 1-vbb-conventions
   - 1-vbb-formatter
   - 1-vbb-code-janitor
+  - t-vbb-anti-slop-gate
 tests:
   - tests/test_vbb_architecture.py
 risks:
   - id: QUAL-001
     level: P2
     note: Multiple convention sources can create confusion if not properly cross-referenced.
+  - id: QUAL-002
+    level: P2
+    note: "P.R8 (independent review preferred) is a soft rule — self-review without disclosure cannot be detected technically and relies on human discipline."
 ```
 
 ## Bloc: Audit Memory
