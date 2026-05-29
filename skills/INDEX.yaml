@@ -173,6 +173,9 @@ skills:
   - id: t-vbb-index
     contract: ./t-vbb-index/CONTRACT.yaml
 
+  - id: t-vbb-llm-healthcheck
+    contract: ./t-vbb-llm-healthcheck/CONTRACT.yaml
+
   - id: t-vbb-mode-transition-gate
     contract: ./t-vbb-mode-transition-gate/CONTRACT.yaml
 

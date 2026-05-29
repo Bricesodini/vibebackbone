@@ -18,7 +18,7 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 Global evaluation audit completed (RUN 19, composite score 7.4/10).
 v1.0 Hardening phase completed (RUNs 20A–20D):
 - Test reliability: 81/81 pytest green, CI PASS
-- Contract quality: 63/64 valid (t-vbb-llm-healthcheck has no contract yet), machine-facing EN-clean
+- Contract quality: 64/64 valid (100%), machine-facing EN-clean
 - Agent language: 53/64 SKILL.md body EN-clean, 10 remaining (Phase 4 + spec-validator)
 - Release readiness: CHANGELOG.md, RELEASE_CHECKLIST.md created
 
@@ -67,7 +67,7 @@ stabilized in the same pass.
 
 | ID | Severity | Description | Status |
 |----|----------|-------------|--------|
-| PILOT-001 | P1 | `skills/INDEX.yaml` indexes 43/63 contracts; router/runtime coverage is lower than documented contract-file coverage | Resolved — index now 63/63, linter guard added, runtime executes 63 contracts |
+| PILOT-001 | P1 | `skills/INDEX.yaml` indexes 43/63 contracts; router/runtime coverage is lower than documented contract-file coverage | Resolved — index now 64/64 (v1.0.0-rc.1), linter guard added, runtime executes 64 contracts |
 | PILOT-002 | P1 | Phase router can route unknown/unindexed requests from agent/phase scoring without semantic trigger match | Resolved — router now requires trigger match, regression test green |
 | PILOT-003 | P1 | Two pilotage files claim canonical authority and diverge (`docs/PILOTAGE.md` v2.2 vs `skills/vibebackbone/docs/PILOTAGE.md` v2.1) | Resolved — root pilotage declared canonical, catalog doc demoted to detailed reference |
 | PILOT-004 | P2 | Central status/run artifacts are dated 2026-06-10..13 while local audit date is 2026-05-27 | Resolved — temporal skew documented in `docs/TEMPORAL_PROVENANCE.md`; dashboard reports provenance notes |
@@ -88,6 +88,31 @@ stabilized in the same pass.
 | LANG-001 | P3 | 11 SKILL.md still have FR body content | Accepted — human-readable narrative remains bilingual; machine-facing contracts are EN-clean |
 | LANG-002 | P3 | Prompts still contain FR narrative | Accepted — prompt layer is human-facing by design |
 | REL-001 | P3 | No DEPLOYMENT.md or RUNBOOK.md | Resolved — both files exist and are indexed |
+
+## Latest audit note — quality adoption (2026-06-29)
+
+New audit: [quality-adoption-audit-20260629.md](audits/quality-adoption-audit-20260629.md).
+
+Verdict: `PASS_WITH_LOW_GAPS`. All five canonical quality pillars are demonstrably adopted
+across governance, tooling, and operational workflows. 4 tools enforce P.R1–P.R2,
+8 CI checks, 81 tests, all verification loop commands pass. QA-001 resolved (CONTRACT.yaml created). 2 MEDIUM (QA-002 README EN entry added; QA-003 count verified correct), QA-006 harmonized (P.R8 disclosure in 06 canonical prompt + phase 06 template).
+missing CONTRACT.yaml for `t-vbb-llm-healthcheck`), 2 MEDIUM (QA-002: README FR-only,
+QA-003: prompt count mismatch 27 vs 33), 4 LOW/P2 gaps. Global verdict remains
+`PASS` — all mandatory gaps (QA-001/003/006) resolved. QA-002 (README EN entry) added. QA-004/005/007 remain LOW/open. Verdict upgrade requires QA-002 completion and re-audit.
+
+New risks added:
+
+| ID | Severity | Description | Status |
+|----|----------|-------------|--------|
+| QA-001 | ~~BLOCKER~~ | `t-vbb-llm-healthcheck` missing CONTRACT.yaml — contract coverage 63/64 | **RESOLVED** — CONTRACT.yaml created (v0.3 prompt_skill), added to INDEX.yaml; contract lint 0 errors; coverage 64/64 (100%) |
+| QA-002 | MEDIUM | Root README.md in FR only; no EN entry point | **Open** — add EN README or GUIDE.md |
+| QA-003 | MEDIUM | Prompt inventory mismatch: docs state 33, actual 27 files | **Open** — reconcile counts |
+| QA-004 | LOW | Temporal provenance managed but not automated | **Open** — automate in artifact generators |
+| QA-005 | LOW | Only 4 ADRs for 63-skill catalog; decision traceability gaps possible | **Open** — verify skill-level decision traceability |
+| QA-006 | P2 | P.R8 (independent review) has no technical enforcement; no explicit self-review disclosure in phase 06 template | **Open** — add disclosure requirement to 06 template |
+| QA-007 | LOW | Canon change proposal template never exercised | **Open** — exercise process once to validate |
+
+---
 
 ## Latest audit note — global robustness (2026-05-28)
 

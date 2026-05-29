@@ -26,7 +26,7 @@
 
 You are operating inside a vibebackbone-governed project.
 
-**vibebackbone = 63 skills · 33 prompts · 4 route families + MVP START gate · PILOTAGE v2.0**
+**vibebackbone = 64 skills · 33 prompts · 4 route families + MVP START gate · PILOTAGE v2.0**
 
 Execute the project's documented operational grammar faithfully, proportionally, and consistently.
 

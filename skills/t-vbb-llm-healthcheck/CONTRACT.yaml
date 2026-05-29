@@ -1,0 +1,63 @@
+id: t-vbb-llm-healthcheck
+version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: python_script
+  path: tools/vbb-llm-healthcheck.py
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required: []
+  optional:
+  - docs/LLM_PROVIDERS.md
+  - --full
+outputs:
+  required:
+  - status
+  - summary
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact: null
+gates:
+  before:
+  - id: registry_accessible
+    description: docs/LLM_PROVIDERS.md must be readable
+  success:
+  - id: verdict_produced
+    output_must_contain:
+    - Verdict
+    - LLM Healthcheck
+events:
+  on_success:
+  - skill: t-vbb-session-handoff
+    reason: Record healthcheck outcome in session handoff
+  on_partial:
+  - skill: t-vbb-status-dashboard
+    reason: Report degraded state
+routing:
+  phase_scope:
+  - transverse
+  triggers:
+  - llm healthcheck
+  - llm health
+  - ollama status
+  - model availability
+  - check models
+limits:
+  max_gate_depth: 1
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - provider_status
+  - verdict

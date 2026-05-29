@@ -53,7 +53,7 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 | `docs/RELATIONS.md` | Generated architecture projection |
 | `docs/CONVENTIONS.md` | Quality conventions (5 pillars, v1.1) |
 | `docs/TECH_DEBT.md` | Lightweight source-based technical debt register |
-| `skills/` | 64 skills · 63 contracts (98%) → [skills/](../skills/) |
+| `skills/` | 64 skills · 64 contracts (100%) → [skills/](../skills/) |
 | `prompts/` | 33 prompts (7 canonical + 25 specialized + 1 router) → [prompts/](../prompts/) |
 
 ## Open points

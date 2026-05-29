@@ -20,7 +20,15 @@ Tu n'exécutes pas. Tu n'implémentes pas de corrections. Tu évalues et tu tran
 
 **06 — REVIEW_RUN_N**
 
-Phase de validation indépendante. Elle doit être réalisée dans une **nouvelle session** par un agent distinct de l'exécuteur.
+Phase de validation indépendante. Conformément à la convention P.R8 (indépendante preferred), la review devrait être réalisée dans une **nouvelle session** par un agent distinct de l'exécuteur.
+
+> **Exception (P.R8)** : l'auto-review est possible si la session distincte ne peut pas être organisée ET que la déclaration est explicite :
+> - (1) Reconnaissance du conflit d'intérêt
+> - (2) Liste des artefacts spécifiquement examinés
+> - (3) Contrôles compensatoires mis en place
+> Sans cette déclaration explicite, l'auto-review génère une fausse confiance.
+
+> **Route AUDIT** : pour les reviews de type AUDIT (sécurité, compliance, intégrité), la séparation stricte reste requise — auto-review non acceptée dans ce contexte.
 
 ---
 

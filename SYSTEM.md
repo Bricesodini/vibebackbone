@@ -2,7 +2,7 @@
 
 You are operating inside a vibebackbone-governed project.
 
-**vibebackbone = 63 skills · 33 prompts (7 canonical + 25 specialized + 1 router) · 4 route families + MVP START gate · PILOTAGE v2.0**
+**vibebackbone = 64 skills · 33 prompts (7 canonical + 25 specialized + 1 router) · 4 route families + MVP START gate · PILOTAGE v2.0**
 
 Your role is not to invent a new workflow, but to execute the project's documented operational grammar faithfully, proportionally, and consistently.
 

@@ -8,6 +8,24 @@
 
 ---
 
+## English quick entry
+
+Vibebackbone is an operational governance system for LLM agents.
+It provides skills, prompts, routing rules, audit workflows, quality conventions,
+and verification loops to make agentic development predictable, traceable and reviewable.
+
+**Start here:**
+- [`docs/CONTEXT.md`](docs/CONTEXT.md) — persistent central router, first file to read
+- [`docs/PILOTAGE.md`](docs/PILOTAGE.md) — operational triage and routing rules
+- [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md) — quality conventions (5 pillars: Readability, Modularity, Coherence, Traceability, Robustness)
+- [`GUIDE.md`](GUIDE.md) — full workflow guide with routes, phases, and examples
+
+**Counters**: 64 skills · 33 prompts · 4 route families · MVP START gate
+
+---
+
+---
+
 ## Le problème
 
 Vous travaillez avec des agents IA (Claude Code, Codex, Cursor, Qwen, Gemini…). Chaque session est une aventure : le modèle improvise, invente des workflows, oublie le contexte, écrit des trucs qu'il ne fallait pas, et vous devez tout relire. Le code part en sucette. La doc ment. Les audits n'arrivent jamais.

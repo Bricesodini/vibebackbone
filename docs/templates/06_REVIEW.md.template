@@ -48,3 +48,13 @@ artifacts_produced:
 
 - **Résultat à acter** : <...>
 - **Points ouverts à reporter** : <...>
+
+## Déclaration d'auto-review (si applicable)
+
+> Obligatoire uniquement si la session de review n'est PAS distincte de la session d'exécution (P.R8).
+> Sans cette déclaration, l'auto-review génère une fausse confiance.
+
+- [ ] **Conflit d'intérêt** : l'agent de review est le même que l'agent d'exécution — conflit acknowledged
+- [ ] **Artefacts examinés** : liste explicite des fichiers et artefacts revus
+- [ ] **Contrôles compensatoires** : mesures prises pour limiter le biais (ex: lecture seules, pas de modification, checklist systématique)
+- [ ] **Limitations reconnues** : points que l'auto-review ne peut pas couvrir fidelement
