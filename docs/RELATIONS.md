@@ -20,6 +20,7 @@ graph TD
   contract-tooling["Contract Tooling<br/>tooling · active"]
   architecture-source["Architecture Source<br/>governance · active"]
   distribution-setup["Distribution Setup<br/>distribution · active"]
+  quality-conventions["Quality Conventions<br/>governance · active"]
   audit-memory["Audit Memory<br/>data · active"]
   skills-catalog --> governance-core
   prompt-library --> governance-core
@@ -31,6 +32,8 @@ graph TD
   distribution-setup --> governance-core
   distribution-setup --> skills-catalog
   distribution-setup --> prompt-library
+  quality-conventions --> governance-core
+  quality-conventions --> architecture-source
   audit-memory --> governance-core
   audit-memory --> architecture-source
 ```
@@ -40,7 +43,6 @@ graph TD
 | Block | Risks |
 |-------|-------|
 | `skills-catalog` | SKILL-001: Contract index drift reduces route and runtime coverage. |
-| `contract-tooling` | TOOL-001: Contracts remain declarative until an executor enforces gates and state transitions. |
 | `architecture-source` | ARCH-001: The projection must never become a competing source of truth. |
 | `distribution-setup` | SETUP-001: Adapter counts can diverge from canonical catalog counts. |
 
@@ -48,10 +50,11 @@ graph TD
 
 | Block | Depends on | Impacts | Files |
 |-------|------------|---------|-------|
-| `governance-core` | - | task triage, audit routing, session startup, session closeout | `AGENTS.md`, `SYSTEM.md`, `docs/CONTEXT.md`, `docs/PILOTAGE.md`, `docs/PROJECT_MODE.md`, `docs/SESSION_RULES.md`, `skills/vibebackbone/**` |
+| `governance-core` | - | task triage, audit routing, session startup, session closeout | `AGENTS.md`, `SYSTEM.md`, `docs/CONTEXT.md`, `docs/PILOTAGE.md`, `docs/PROJECT_MODE.md`, `docs/SESSION_RULES.md`, `docs/CONVENTIONS.md`, `skills/vibebackbone/**` |
 | `skills-catalog` | `governance-core` | route execution, audit skills, structured task support | `skills/*/SKILL.md`, `skills/*/CONTRACT.yaml`, `skills/INDEX.yaml` |
 | `prompt-library` | `governance-core`, `skills-catalog` | session entry, user-facing workflow selection, provider command generation | `prompts/*.md`, `prompts/canonical/*.md`, `PROMPTS_ARCHITECTURE.md` |
-| `contract-tooling` | `skills-catalog`, `governance-core` | CI confidence, release readiness, implementation-readiness audits | `tools/vbb-contract-lint.py`, `tools/vbb-contract-runtime.py`, `tools/vbb-phase-router.py`, `tools/vbb-project-init.py`, `tools/vbb-status-dashboard.py` |
+| `contract-tooling` | `skills-catalog`, `governance-core` | CI confidence, release readiness, implementation-readiness audits | `tools/vbb-contract-lint.py`, `tools/vbb-contract-runtime.py`, `tools/vbb-executor.py`, `tools/vbb-phase-router.py`, `tools/vbb-project-init.py`, `tools/vbb-status-dashboard.py` |
 | `architecture-source` | `governance-core`, `contract-tooling` | dependency mapping, refactoring impact analysis, sensitive zone visualization, agentic coding framing | `docs/ARCHITECTURE.md`, `docs/RELATIONS.md`, `docs/adr/*.md`, `docs/PILOTAGE.md`, `tools/vbb-architecture.py`, `tests/test_vbb_architecture.py`, `scripts/vbb-ci-local.sh`, `.github/workflows/vbb-contracts.yml`, `skills/t-vbb-dependency-mapper/SKILL.md`, `skills/t-vbb-impact-analyzer/SKILL.md` |
 | `distribution-setup` | `governance-core`, `skills-catalog`, `prompt-library` | Claude Code integration, Codex integration, Pi integration, OpenCode integration | `setup.sh`, `tests/smoke-install.sh`, `scripts/vbb-ci-local.sh`, `.github/workflows/vbb-contracts.yml`, `docs/DEPLOYMENT.md` |
-| `audit-memory` | `governance-core`, `architecture-source` | session resume, release readiness, implementation risk register | `docs/AUDIT_STATUS.md`, `docs/audits/*.md`, `docs/runs/**/*.md`, `docs/TEMPORAL_PROVENANCE.md`, `docs/TECH_DEBT.md` |
+| `quality-conventions` | `governance-core`, `architecture-source` | code readability standards, module organization, canonical change discipline, test quality, documentation standards | `docs/CONVENTIONS.md`, `docs/templates/CANON_CHANGE_PROPOSAL.md.template` |
+| `audit-memory` | `governance-core`, `architecture-source` | session resume, release readiness, implementation risk register | `docs/AUDIT_STATUS.md`, `docs/audits/*.md`, `docs/runs/**/*.md`, `docs/TEMPORAL_PROVENANCE.md`, `docs/TECH_DEBT.md`, `docs/templates/CANON_CHANGE_PROPOSAL.md.template` |

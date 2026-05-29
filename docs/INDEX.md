@@ -16,6 +16,7 @@ updated: 2026-05-28
 | Rôle | Fichier |
 |------|---------|
 | MOC central, premier-fichier-à-lire | [`CONTEXT.md`](CONTEXT.md) |
+| Conventions qualité transverses | [`CONVENTIONS.md`](CONVENTIONS.md) |
 | Demarrage MVP depuis zero | [`MVP_START_PROTOCOL.md`](MVP_START_PROTOCOL.md) |
 | Routage opérationnel des tâches | [`PILOTAGE.md`](PILOTAGE.md) |
 | Mode du dépôt | [`PROJECT_MODE.md`](PROJECT_MODE.md) |
@@ -23,6 +24,13 @@ updated: 2026-05-28
 | Provenance temporelle | [`TEMPORAL_PROVENANCE.md`](TEMPORAL_PROVENANCE.md) |
 | Registre léger de dette technique | [`TECH_DEBT.md`](TECH_DEBT.md) |
 | Mémoire de reprise (local, gitignored) | `SESSION.md` |
+
+## Conventions
+
+| Sujet | Fichier |
+|-------|--------|
+| Conventions qualité | [`CONVENTIONS.md`](CONVENTIONS.md) |
+| Template de changement de canon | [`templates/CANON_CHANGE_PROPOSAL.md.template`](templates/CANON_CHANGE_PROPOSAL.md.template) |
 
 ## Protocole agentique
 

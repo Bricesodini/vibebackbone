@@ -94,6 +94,14 @@ Principle: "Fail open = fail dangerous."
 3. `docs/SESSION.md` → local, gitignored
 4. `docs/AUDIT_STATUS.md` → audit dashboard
 5. `docs/audits/` · `docs/runs/` → on demand
+6. `docs/CONVENTIONS.md` → quality conventions (readability, modularity, coherence)
+
+## Quality standards
+
+Quality conventions are canonical in `docs/CONVENTIONS.md`.
+Agents must follow them by default.
+Any canon change requires a documented proposal and human validation
+(`docs/templates/CANON_CHANGE_PROPOSAL.md.template`).
 
 ---
 

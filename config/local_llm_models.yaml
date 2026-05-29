@@ -1,0 +1,93 @@
+# ═══════════════════════════════════════════════
+# Local LLM Models — Configuration
+# Edité par Hermes / mis à jour manuellement
+# Format : YAML-like, une section par provider
+# ═══════════════════════════════════════════════
+#
+# COMMENT METTRE À JOUR :
+# 1. Mettre à jour ce fichier (nano ou write_file)
+# 2. LLM context window = 1000 tokens
+# ═══════════════════════════════════════════════
+
+# ─── OLLAMA (Mac M1 Max local) ───────────────────────────────────────────
+ollama_mac:
+  endpoint      : "http://127.0.0.1:11434/v1"
+  status        : "primary"          # primary | backup | test
+  endpoint_label: "Mac M1 Max"
+
+  models:
+    - id        : "qwen3.6-27b-agent-nvfp4-64k:latest"
+      role      : "agent"           # agent | coding | vlm
+      quant     : "NVFP4"
+      size_gb   : 19
+      context_k : 64
+      speed_gen : "13.7 t/s"
+      speed_prompt: "26.4 t/s"
+      notes     : "Qwen3.6 27B agentic — inference Metal,最好的性价比"
+      active    : true
+
+    - id        : "qwen3.6-27b-code-nvfp4-64k:latest"
+      role      : "coding"
+      quant     : "NVFP4"
+      size_gb   : 19
+      context_k : 64
+      notes     : "Code-specialized variant"
+      active    : false
+
+    - id        : "gemma4:26b"
+      role      : "vlm"             # experimental — pas de MTP assistant
+      quant     : "Q4_K_M"
+      context_k : 64
+      notes     : "Vision support — pas de MTP sur Apple Silicon"
+      active    : false
+
+# ─── OLLAMA (PC RTX 3090) ─────────────────────────────────────────────────
+ollama_pc:
+  endpoint      : "http://192.168.40.4:11434/v1"
+  status        : "reserved_gpu"    # images / VLM / inference lourde — PAS de tasks textuelles
+  endpoint_label: "PC RTX 3090 Ubuntu"
+  usage         : "image generation, VLM tasks, heavy inference"
+  # Pas de model attaché pour l'instant — a venir selon loaded models
+
+# ─── N8N internal (Synology) ───────────────────────────────────────────────
+n8n_llm:
+  endpoint      : "http://192.168.40.7:8899/v1"   # Gemma 4 via mlx_lm.server
+  status        : "internal"
+  endpoint_label: "Synology n8n / mlx-lm Mac Exp"
+
+  models:
+    - id        : "mlx-community/gemma-4-26b-a4b-it-4bit"
+      role      : "llm"
+      context_k : 64
+      notes     : "Gemma 4 26B-A4B — utilise par n8n workflows"
+      active    : false
+
+    - id        : "mlx-community/gemma-4-26b-a4b-it-4bit"
+      role      : "vlm"
+      notes     : "VLM server sur port 8899 — Gemma 4 26B-A4B"
+      active    : false
+
+# ─── MODÈLES CLOUD (fallback) ─────────────────────────────────────────────
+cloud_fallback:
+  models:
+    - id        : "deepseek-v4-flash:cloud"
+      role      : "agent"
+      context_k : 1000               # 1M tokens context
+      notes     : "Default cloud — economiser pour complex tasks"
+      active    : false              # depend du provider actuel
+
+# ═══════════════════════════════════════════════
+# PATTERN DE SWAP RAPIDE
+# ═══════════════════════════════════════════════
+#
+# Pour changer le vault-agent vers un autre model :
+# 1. Editer ce fichier → marker le nouveau model `active: true`
+# 2. previous_model `active: false`
+# 3. Hermes reload → pick up le changement
+#
+# Templates de subagent (pour recreation rapide) :
+# - Mac primary  : endpoint=http://127.0.0.1:11434 , model=qwen3.6-27b-agent-nvfp4-64k:latest
+# - RTX 3090     : endpoint=http://192.168.40.4:11434 , model=luce-dflash
+# - Cloud flash  : provider=deepseek-v4-flash:cloud
+#
+# ═══════════════════════════════════════════════

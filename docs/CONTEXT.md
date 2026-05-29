@@ -3,7 +3,7 @@ context_role: moc-central
 phase: transverse
 status: active
 run_id: permanent
-updated: 2026-05-28
+updated: 2026-05-29
 temporal_provenance: TEMPORAL_PROVENANCE.md
 ---
 
@@ -24,7 +24,8 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Route** : STRUCTURED
 - **Phase** : v1.0 Hardening — complete
 - **Version** : 1.0.0-rc.1
-- **Contracts** : 63/64 (98%) — machine-facing EN-clean
+- **Contracts** : 64/64 (100%) — machine-facing EN-clean, contract lint 0 errors
+- **Quality conventions**: canonical source in [CONVENTIONS.md](CONVENTIONS.md) (readability, modularity, coherence) · change process via [CANON_CHANGE_PROPOSAL template](templates/CANON_CHANGE_PROPOSAL.md.template)
 - **SKILL.md EN** : partial — see [AUDIT_STATUS.md](AUDIT_STATUS.md#risks-identified--status)
 - **Architecture** : structured source active → [ARCHITECTURE.md](ARCHITECTURE.md) · projection [RELATIONS.md](RELATIONS.md)
 - **Front pipeline**: propagation-first routing active (ADR-0002 + ADR-0003)
@@ -50,6 +51,7 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 | `docs/` | Governance, runs, audits → [INDEX.md](INDEX.md) |
 | `docs/ARCHITECTURE.md` | Canonical structured architecture source |
 | `docs/RELATIONS.md` | Generated architecture projection |
+| `docs/CONVENTIONS.md` | Quality conventions (readability, modularity, coherence) |
 | `docs/TECH_DEBT.md` | Lightweight source-based technical debt register |
 | `skills/` | 64 skills · 63 contracts (98%) → [skills/](../skills/) |
 | `prompts/` | 33 prompts (7 canonical + 25 specialized + 1 router) → [prompts/](../prompts/) |
@@ -60,6 +62,7 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 2. 🟡 Temporal skew acknowledged in [TEMPORAL_PROVENANCE.md](TEMPORAL_PROVENANCE.md) — *low*
 3. ⬜ EN README/GUIDE for international adoption — *medium*
 4. ⬜ Implementation-readiness stabilization before reuse — *high*
+5. 🟡 Quality audit gaps (OPS-001/002, AI governance skill, migration policy) — *high*
 
 ## Key decisions
 

@@ -1,0 +1,137 @@
+---
+run_id: ""
+phase: "03_DECISION"
+status: "PROPOSED|APPROVED|REJECTED|MIGRATING|CLOSED"
+agent: ""
+created_at: ""
+human_validated_by: ""
+---
+# Canon Change Proposal
+
+## Current Canon
+
+What is the current active convention being challenged?
+
+> *Copy the relevant section from `docs/CONVENTIONS.md` or `docs/ARCHITECTURE.md`.*
+
+## Problem
+
+Why does the current canon need to change?
+What breaks, what is unclear, what limits the system?
+
+> *Be specific. Avoid vague statements.*
+
+## Proposed Canon
+
+What is the new logic proposed?
+
+> *Be precise. State what changes, not just that it should change.*
+
+## Benefits
+
+What improves if the proposed canon is adopted?
+
+1. ...
+2. ...
+3. ...
+
+## Risks
+
+What could break or degrade if the proposed canon is adopted?
+
+1. ...
+2. ...
+3. ...
+
+## Impact Analysis
+
+### Files
+
+| File | Change type | Description |
+|------|-------------|-------------|
+| | | |
+
+### Modules / Architecture Blocks
+
+| Block | Impact | Action |
+|-------|---------|--------|
+| | | |
+
+### Skills
+
+| Skill | Change needed | Priority |
+|-------|---------------|----------|
+| | | |
+
+### Prompts
+
+| Prompt | Change needed | Priority |
+|--------|---------------|----------|
+| | | |
+
+### Tests
+
+| Test | Must pass | Currently passing |
+|------|-----------|-------------------|
+| | | |
+
+## Migration Plan
+
+How do we transition from current to proposed canon without breaking consumers?
+
+### Phase 1 — Communication
+- [ ] Affected parties notified
+- [ ] Migration timeline communicated
+
+### Phase 2 — Parallel state (optional, if backward compatibility required)
+- [ ] New canon active alongside old canon
+- [ ] Clear deprecation signal on old canon
+
+### Phase 3 — Cutover
+- [ ] Old canon removed
+- [ ] New canon in sole effect
+- [ ] Documentation updated
+- [ ] Tests updated
+
+### Phase 4 — Verification
+- [ ] Architecture lint passed
+- [ ] Contract lint passed
+- [ ] Local CI passed
+- [ ] Relevant pytest suite passed
+- [ ] Documentation links updated
+- [ ] No competing canon remains undocumented
+
+## Backward Compatibility
+
+Can existing consumers adopt the change without breaking?
+
+- [ ] Fully backward compatible — no action required from consumers
+- [ ] Grace period required — migration plan above
+- [ ] Breaking change — consumer migration required, timeline documented
+
+## Human Decision
+
+- [ ] **Approved** — proceed with migration plan
+- [ ] **Rejected** — document rationale, close proposal
+- [ ] **Needs revision** — return to author with feedback
+
+**Validator signature**: _________________________ **Date**: _________________________
+
+## Verification Loop
+
+Required before implementation can be declared complete:
+
+- [ ] `python tools/vbb-architecture.py lint` → PASS
+- [ ] `python tools/vbb-contract-lint.py` → 0 errors
+- [ ] `python tools/vbb-loop-closure-check.py` → PASS
+- [ ] `pytest tests/ -q` → all green
+- [ ] `bash scripts/vbb-ci-local.sh` → all green
+- [ ] `python tools/vbb-architecture.py graph --write` → RELATIONS.md updated
+- [ ] Documentation links updated (INDEX.md, ARCHITECTURE.md references)
+- [ ] Closeout created in `docs/runs/{run_id}/07_CLOSEOUT.md`
+
+## Closeout Notes
+
+*To be filled after verification loop passes.*
+
+**Final status**: _____________ **Closed by**: _____________ **Date**: _____________

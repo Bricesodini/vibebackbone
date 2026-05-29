@@ -139,6 +139,20 @@ provider adapters, CI, or architecture-sensitive tooling:
 3. run `python tools/vbb-architecture.py lint`;
 4. treat a lint failure as a blocked implementation until the reference is fixed.
 
+## Quality conventions
+
+`docs/CONVENTIONS.md` is the canonical source for quality conventions
+(readability, modularity, coherence). Agents must follow these by default.
+Any canon change requires a documented proposal via
+`docs/templates/CANON_CHANGE_PROPOSAL.md.template` and human validation.
+Verification loop (mandatory before declaring implementation complete):
+
+```bash
+python tools/vbb-architecture.py lint
+python tools/vbb-contract-lint.py
+pytest tests/ -q
+```
+
 ## Communication style
 
 - concise

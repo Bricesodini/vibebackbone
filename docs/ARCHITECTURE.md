@@ -2,7 +2,7 @@
 context_role: canonical-architecture
 phase: transverse
 status: active
-updated: 2026-05-28
+updated: 2026-05-29
 ---
 
 # ARCHITECTURE — Canonical Structured Source
@@ -56,6 +56,7 @@ files:
   - docs/PILOTAGE.md
   - docs/PROJECT_MODE.md
   - docs/SESSION_RULES.md
+  - docs/CONVENTIONS.md
   - skills/vibebackbone/**
 contracts:
   - vibebackbone
@@ -249,6 +250,43 @@ risks:
     note: Adapter counts can diverge from canonical catalog counts.
 ```
 
+## Bloc: Quality Conventions
+
+```yaml
+id: quality-conventions
+type: governance
+status: active
+role: Canonical quality conventions covering readability, modularity, and coherence. Single source of truth for structural standards.
+principle: One architecture block should represent one clear responsibility.
+responsibilities:
+  - Define quality pillars (readability, modularity, coherence)
+  - Provide canon change process template
+  - Reference quality rules from all governance files
+  - Support verification loops before implementation declaration
+depends_on:
+  - governance-core
+  - architecture-source
+impacts:
+  - code readability standards
+  - module organization
+  - canonical change discipline
+  - test quality
+  - documentation standards
+files:
+  - docs/CONVENTIONS.md
+  - docs/templates/CANON_CHANGE_PROPOSAL.md.template
+contracts:
+  - 1-vbb-conventions
+  - 1-vbb-formatter
+  - 1-vbb-code-janitor
+tests:
+  - tests/test_vbb_architecture.py
+risks:
+  - id: QUAL-001
+    level: P2
+    note: Multiple convention sources can create confusion if not properly cross-referenced.
+```
+
 ## Bloc: Audit Memory
 
 ```yaml
@@ -274,6 +312,7 @@ files:
   - docs/runs/**/*.md
   - docs/TEMPORAL_PROVENANCE.md
   - docs/TECH_DEBT.md
+  - docs/templates/CANON_CHANGE_PROPOSAL.md.template
 contracts:
   - 3-vbb-risk-register
   - t-vbb-session-handoff
