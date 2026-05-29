@@ -144,10 +144,11 @@ If any command fails → do not mark as implemented. Document the failure, corre
 
 ---
 
-## Pillar 4 — Traçabilité
+## Pillar 4 — Traceability / Traçabilité (Embedded Pillar)
 
-Traçabilité is embedded in the system and does not require a separate pillar.
-It is covered by:
+Traceability is a canonical quality pillar, but it is implemented through
+Vibebackbone's existing governance artifacts rather than through a separate
+standalone ruleset. It is covered by:
 
 - ADRs (`docs/adr/`) — timestamped architecture decisions with rationale
 - Run artifacts (`docs/runs/`) — 40+ runs, 92% closeout rate, phase files with frontmatter
@@ -156,8 +157,6 @@ It is covered by:
 - Risk register (`docs/AUDIT_STATUS.md`) — P0/P1/P2/P3 tracked with status
 - Context handoff (`docs/SESSION.md`) — session resume, next action
 - TEMPORAL_PROVENANCE.md — provenance of evidence dates
-
-No separate Traçabilité pillar is needed — it is a built-in property of all artifacts.
 
 ---
 

@@ -254,18 +254,23 @@ risks:
 
 ```yaml
 id: quality-conventions
+name: Quality Conventions
 type: governance
 status: active
-role: Canonical quality conventions covering readability (P1), modularity (P2),
-  coherence (P3), and robustness (P5). Single source of truth for structural standards.
+role: Canonical quality conventions covering P1 Readability, P2 Modularity,
+  P3 Coherence & Convergence, P4 Traceability/Traçabilité (embedded), and
+  P5 Robustness (P.R1–P.R8). Single source of truth for structural standards.
+  Defined in docs/CONVENTIONS.md — this block mirrors it for architecture coverage.
 principle: One architecture block should represent one clear responsibility.
 responsibilities:
-  - Define quality pillars (readability, modularity, coherence, robustness)
+  - Define five quality pillars (readability, modularity, coherence, traceability, robustness)
   - Provide canon change process template
   - Reference quality rules from all governance files
   - Support verification loops before implementation declaration
   - Enforce fail-explicit rule, gate-before-action, invariant protection
   - Enforce regression prevention and independent review preferred
+  - Maintain traceability through ADRs, run artifacts, audit reports,
+    ARCHITECTURE.md, risk register, session handoff, and temporal provenance
 depends_on:
   - governance-core
   - architecture-source

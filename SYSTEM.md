@@ -141,18 +141,23 @@ provider adapters, CI, or architecture-sensitive tooling:
 
 ## Quality conventions
 
-`docs/CONVENTIONS.md` is the canonical source for quality conventions
-(readability, modularity, coherence, robustness). Current pillars: P1 Readability,
-P2 Modularity, P3 Coherence, P4 Traçabilité (embedded), P5 Robustness (P.R1–P.R8).
+`docs/CONVENTIONS.md` is the canonical source for quality conventions.
+Current pillars: P1 Readability · P2 Modularity · P3 Coherence & Convergence
+· P4 Traceability/Traçabilité (embedded) · P5 Robustness (P.R1–P.R8).
 Agents must follow these by default.
 Any canon change requires a documented proposal via
 `docs/templates/CANON_CHANGE_PROPOSAL.md.template` and human validation.
-Verification loop (mandatory before declaring implementation complete):
+
+The mandatory verification loop (P.R2) must pass before any implementation is
+declared complete. Run all six commands in sequence; stop and fix if any fails:
 
 ```bash
 python tools/vbb-architecture.py lint
+python tools/vbb-architecture.py graph --write
 python tools/vbb-contract-lint.py
+python tools/vbb-loop-closure-check.py
 pytest tests/ -q
+bash scripts/vbb-ci-local.sh
 ```
 
 ## Communication style
