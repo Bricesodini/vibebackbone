@@ -94,7 +94,7 @@ Principle: "Fail open = fail dangerous."
 3. `docs/SESSION.md` → local, gitignored
 4. `docs/AUDIT_STATUS.md` → audit dashboard
 5. `docs/audits/` · `docs/runs/` → on demand
-6. `docs/CONVENTIONS.md` → quality conventions (readability, modularity, coherence)
+6. `docs/CONVENTIONS.md` → quality conventions (5 pillars: Readability, Modularity, Coherence, Traçabilité, Robustness)
 
 ## Quality standards
 

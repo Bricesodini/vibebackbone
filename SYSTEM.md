@@ -142,7 +142,9 @@ provider adapters, CI, or architecture-sensitive tooling:
 ## Quality conventions
 
 `docs/CONVENTIONS.md` is the canonical source for quality conventions
-(readability, modularity, coherence). Agents must follow these by default.
+(readability, modularity, coherence, robustness). Current pillars: P1 Readability,
+P2 Modularity, P3 Coherence, P4 Traçabilité (embedded), P5 Robustness (P.R1–P.R8).
+Agents must follow these by default.
 Any canon change requires a documented proposal via
 `docs/templates/CANON_CHANGE_PROPOSAL.md.template` and human validation.
 Verification loop (mandatory before declaring implementation complete):
