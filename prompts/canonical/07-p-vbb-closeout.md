@@ -108,6 +108,13 @@ Si des points ouverts ou des risques existent :
 
 ### Étape 6 — Mettre à jour la mémoire officielle
 
+**Pour la voie AUDIT — vérifications supplémentaires (avant de produire le closeout)** :
+- `docs/runs/{id}/02_AUDIT_REPORT.md` existe et est complet
+- `docs/audits/{type}-{YYYYMMDD-HHMM}.md` existe et est persistant
+- `docs/AUDIT_STATUS.md` mis à jour avec le verdict et les findings
+- Aucun finding P0 sans décision documentée (ACCEPTED / MITIGATED / NEEDS_DECISION)
+- Si un élément est manquant → ne pas produire de closeout, documenter l'absence et signaler
+
 **Obligatoire** :
 1. Vérifier l'invariant de closeout (boucle complète) :
    ```bash

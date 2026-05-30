@@ -134,7 +134,7 @@ For each issue:
 
 - description
 - location
-- severity (low / medium / high / critical)
+- severity (P0/P1/P2/P3 — P0=critical/blocking, P1=major, P2=minor, P3=info)
 - exploitability
 - impact
 - confidence level
