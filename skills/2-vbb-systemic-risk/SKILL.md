@@ -96,6 +96,12 @@ Absolute rules:
 3. Identify critical dependencies and coupling areas.
 4. Build a few failure propagation scenarios.
 5. Prioritize systemic risks.
+6. Classify findings using canonical evidence discipline from `prompts/canonical/02-p-vbb-audit.md`:
+   - Every VERIFIED_FINDING must include an evidence trace: OBSERVATION → SIGNAL → VÉRIFICATION → FINDING
+   - A VERIFIED_FINDING without a trace must be retrograded to HYPOTHESIS
+   - Severity scale: P0/P1/P2/P3 (canonical — extend to P3 for info/trend)
+   - Type: VIOLATION · OBSERVATION · TREND · FALSE_POSITIVE
+   - Decision: ACCEPTED · MITIGATED · DEFER · NEEDS_DECISION
 
 ## OUTPUT CONTRACT
 
@@ -109,10 +115,14 @@ Then update `docs/AUDIT_STATUS.md`.
 Each finding must include:
 
 - ID `SYS-XX`
-- severity `P0/P1/P2`
+- severity `P0/P1/P2/P3`
+- type (VIOLATION · OBSERVATION · TREND · FALSE_POSITIVE)
 - finding
+- evidence level (OBSERVATION · SIGNAL · HYPOTHESIS · VERIFIED_FINDING)
+- evidence trace (mandatory if VERIFIED_FINDING)
 - evidence
 - impact
+- decision (ACCEPTED · MITIGATED · DEFER · NEEDS_DECISION)
 - recommended action
 
 The report must follow the standard Vibebackbone template.

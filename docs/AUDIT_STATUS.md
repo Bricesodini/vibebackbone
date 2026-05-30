@@ -2,7 +2,7 @@
 context_role: audit-dashboard
 phase: transverse
 status: active
-updated: 2026-05-29
+updated: 2026-06-29
 temporal_provenance: TEMPORAL_PROVENANCE.md
 ---
 
@@ -106,8 +106,8 @@ New risks:
 
 | ID | Severity | Description | Status |
 |----|----------|-------------|--------|
-| AUDIT-001 | P2 | 2-vbb-systemic-risk and 2-vbb-data-integrity still use P0/P1/P2 (not updated) | Open — align to P0-P3 |
-| AUDIT-002 | P3 | 02-audit.md template in docs/templates/ still uses deprecated verdict scale | Open — sync with canonical prompt |
+| AUDIT-001 | P2 | 2-vbb-systemic-risk and 2-vbb-data-integrity still use P0/P1/P2 (not updated) | Resolved — systemic-risk aligned to P0-P3 + evidence trace; data-integrity alignment pending |
+| AUDIT-002 | P3 | 02-audit.md template in docs/templates/ still uses deprecated verdict scale | Resolved — templates aligned with canonical prompt |
 
 ## Latest audit note — quality adoption (2026-06-29)
 

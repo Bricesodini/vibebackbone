@@ -117,6 +117,13 @@ UNKNOWN is allowed when evidence is missing.
 
 8. **Classify findings**
 
+   Follow the canonical evidence discipline from `prompts/canonical/02-p-vbb-audit.md`:
+   - Every VERIFIED_FINDING must include an evidence trace: OBSERVATION → SIGNAL → VÉRIFICATION → FINDING
+   - A VERIFIED_FINDING without a trace must be retrograded to HYPOTHESIS
+   - Severity scale: P0/P1/P2/P3 (canonical — do not use other scales)
+   - Type: VIOLATION · OBSERVATION · TREND · FALSE_POSITIVE
+   - Decision: ACCEPTED · MITIGATED · DEFER · NEEDS_DECISION
+
 ---
 
 ## OUTPUT CONTRACT
@@ -135,9 +142,12 @@ For each issue:
 - description
 - location
 - severity (P0/P1/P2/P3 — P0=critical/blocking, P1=major, P2=minor, P3=info)
+- type (VIOLATION · OBSERVATION · TREND · FALSE_POSITIVE)
+- evidence level (OBSERVATION · SIGNAL · HYPOTHESIS · VERIFIED_FINDING)
+- evidence trace (mandatory if VERIFIED_FINDING)
 - exploitability
 - impact
-- confidence level
+- decision (ACCEPTED · MITIGATED · DEFER · NEEDS_DECISION)
 
 ### Risk distribution
 

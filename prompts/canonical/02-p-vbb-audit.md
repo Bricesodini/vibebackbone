@@ -15,9 +15,26 @@ Avant de commencer, déclarer explicitement dans la sortie :
 - **Skill utilisé** : [nom du skill ou "grille générique"]
 - **Artefact cible** : `docs/audits/{type}-{YYYYMMDD-HHMM}.md` + `docs/runs/{id}/02_AUDIT_REPORT.md`
 - **Gouvernance lue** : [fichiers lus avant l'audit — minimum : PILOTAGE.md + INTAKE]
-- **Mode d'exécution** : lecture seule, aucune modification de code
 - **Artefacts requis** : `docs/audits/{type}-{date}.md` (persistant) + `docs/runs/{id}/02_AUDIT_REPORT.md` (session) + mise à jour de `docs/AUDIT_STATUS.md`
 - **Règle de vérification** : une conclusion n'est émise comme "verified" que si elle est soutenue par au moins 2 sources distinctes ou un test confirmé. Dans le doute → HYPOTHESIS ou UNKNOWN.
+
+### Contrat audit lecture seule
+
+Quand l'audit est demandé « sans modifier le code », le comportement suivant s'applique :
+
+**Autorisé** :
+- Lire et rechercher dans le code source
+- Exécuter des commandes de vérification non-destructrices (grep, test dry-run, lint)
+- Créer des artefacts d'audit (rapports, status updates)
+- Mettre à jour `docs/AUDIT_STATUS.md` avec les constats et le verdict
+
+**Interdit** (sauf demande explicite) :
+- Modifier le code source du projet audité
+- Modifier les documents de gouvernance (CONVENTIONS.md, PILOTAGE.md, ARCHITECTURE.md, etc.)
+- Modifier les fichiers de statut ou de configuration en dehors des artefacts d'audit
+- Créer des commits git
+
+Ce contrat s'applique pendant toute la phase 02. La production d'artefacts d'audit est le comportement attendu — ce n'est pas une « modification » au sens de cette règle.
 
 Si cette déclaration n'est pas faite au début → STOP. L'audit ne peut pas commencer sans elle.
 
@@ -90,6 +107,19 @@ Quatre niveaux à distinguer strictement :
 
 > Ne jamais présenter un SIGNAL ou une HYPOTHESIS comme un VERIFIED_FINDING. UNKNOWN est acceptable — documenter "UNKNOWN : [raison]".
 
+### Tracabilité obligatoire de l'évidence
+
+Chaque constat classé VERIFIED_FINDING doit documenter son chemin à travers les niveaux d'évidence :
+
+```
+Evidence trace : OBSERVATION [ce qui a été lu] → SIGNAL [interprétation] → VÉRIFICATION [comment confirmé] → FINDING
+```
+
+Un VERIFIED_FINDING sans trace explicite est rétrogradé en HYPOTHESIS.
+Les constats aux niveaux OBSERVATION et SIGNAL sont documentés mais ne deviennent pas des findings sans vérification.
+
+Cette règle empêche la élévation directe d'un signal en finding confirmé.
+
 ---
 
 ## Travail attendu
@@ -114,6 +144,12 @@ Pour chaque élément du scope :
 1. Observer : lire, analyser, comparer à la référence attendue → OBSERVATION
 2. Constater : formuler un constat factuel (sans jugement de valeur) → SIGNAL ou VERIFIED_FINDING
 3. Classer : qualifier la sévérité (P0/P1/P2/P3), le type (VIOLATION/OBSERVATION/TREND/FALSE_POSITIVE), la décision (ACCEPTED/MITIGATED/DEFER/NEEDS_DECISION)
+
+   **Guidance de classification** — erreurs courantes à éviter :
+   - Un pattern qui enfreint une convention mais est un choix délibéré documenté → Type: VIOLATION, Decision: ACCEPTED (pas NEEDS_DECISION). Ex : un fallback localhost en développement.
+   - Un signal de scanner qui s'avère non exploitable → Type: FALSE_POSITIVE, pas VIOLATION.
+   - Une observation factuelle sans impact actionnable → Type: OBSERVATION ou TREND, pas VIOLATION.
+   - Un constat avec une seule source et pas de test → Evidence Level: SIGNAL, pas VERIFIED_FINDING. Tracer le chemin vers plus d'évidence avant de classer en VERIFIED_FINDING.
 4. Recommander : proposer une action corrective (sans l'implémenter)
 
 Rester en **lecture seule** tout au long de l'audit.
@@ -168,6 +204,7 @@ Mettre à jour `docs/AUDIT_STATUS.md` avec le verdict.
 | **Type** | VIOLATION · OBSERVATION · TREND · FALSE_POSITIVE |
 | **Location** | [fichier:ligne ou module ou domaine] |
 | **Evidence Level** | OBSERVATION · SIGNAL · HYPOTHESIS · VERIFIED_FINDING |
+| **Evidence Trace** | OBSERVATION → SIGNAL → VÉRIFICATION → FINDING (obligatoire si VERIFIED_FINDING) |
 | **Evidence** | [sources — pas d'hypothèse non fondée] |
 | **Decision** | ACCEPTED · MITIGATED · DEFER · NEEDS_DECISION |
 | **Recommendation** | [action corrective suggérée] |

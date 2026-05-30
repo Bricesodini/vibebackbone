@@ -8,9 +8,11 @@ updated: YYYY-MM-DD
 
 # 02_AUDIT_REPORT — [Type d'audit]
 
-**Date** : YYYY-MM-DD HH:mm  
-**Type** : [sécurité | intégrité | ops | architecture | autre]  
-**Auditor** : [Nom ou rôle]  
+**Date** : YYYY-MM-DD HH:mm
+**Type d'audit** : [sécurité | intégrité | ops | architecture | ci | légal | systémique | autre]
+**Skill utilisé** : [nom du skill ou "grille générique"]
+**Scope** : [description du périmètre audité]
+**Auditor** : [Nom ou rôle]
 **Status** : Complété
 
 > **Sections stables P0** : Scope audité · Constats clés · Verdicts · Risques remontés · Recommandations · Handoff — ne pas renommer sans mise à jour corrélative de CONTEXT.md.
@@ -25,49 +27,50 @@ updated: YYYY-MM-DD
 
 ---
 
-## Constats clés
+## Verdict global
 
-### Finding 1
-- **Description** : [quoi]
-- **Sévérité** : [CRITICAL | MAJOR | MINOR | INFO]
-- **Exemple** : [où, dans quel fichier]
+**Verdict** : READY | PARTIAL | BLOCKED | UNKNOWN
 
-### Finding 2
-- **Description** : [quoi]
-- **Sévérité** : [CRITICAL | MAJOR | MINOR | INFO]
-
-[... repeat as needed]
+**Justification** : [Résumé des raisons du verdict]
 
 ---
 
-## Verdicts
+## Constats
 
-| Verdict | Signification |
-|---|---|
-| **READY** | Prêt pour production / release |
-| **PARTIAL** | Quelques findings, continue avec attention |
-| **BLOCKED** | Arret immédiat, corrections requises |
+### [ID — ex: SEC-001, SYS-002, DATA-003]
 
-**Verdict final** : [READY | PARTIAL | BLOCKED]
+| Champ | Valeur |
+|-------|--------|
+| **Severity** | P0 (critical/blocking) · P1 (major) · P2 (minor) · P3 (info/trend) |
+| **Type** | VIOLATION · OBSERVATION · TREND · FALSE_POSITIVE |
+| **Location** | [fichier:ligne ou module ou domaine] |
+| **Evidence Level** | OBSERVATION · SIGNAL · HYPOTHESIS · VERIFIED_FINDING |
+| **Evidence Trace** | OBSERVATION → SIGNAL → VÉRIFICATION → FINDING (obligatoire si VERIFIED_FINDING) |
+| **Evidence** | [sources — pas d'hypothèse non fondée] |
+| **Decision** | ACCEPTED · MITIGATED · DEFER · NEEDS_DECISION |
+| **Recommendation** | [action corrective suggérée] |
+
+[Répéter pour chaque constat]
 
 ---
 
-## Risques remontés
+## Risques consolidés
 
-- **Risque 1** : [description, impact estimé, mitigation]
-- **Risque 2** : [description, impact estimé]
+| Risque | Severity | Probabilité | Impact | Action recommandée |
+|--------|----------|-------------|--------|--------------------|
+| ...    | P0/P1/P2/P3 | High/Medium/Low | High/Medium/Low | ... |
 
 ---
 
-## Recommandations
+## Ce qui est hors scope
 
-1. [Action prioritaire]
-2. [Action secondaire]
+[Ce qui n'a PAS été audité, et pourquoi]
 
 ---
 
 ## Handoff
 
-Agent suivant : pour continuer, lire ce rapport. Si audit déclenche une correction :
-- Créer une nouvelle session phase 03 (DECISION) si decision non évidente
-- Ou créer une nouvelle session phase 04 (PLAN) si décision est clear
+**Phase suivante** : 03_DECISION
+**Nouvelle session recommandée** : Oui (rôle décideur ≠ rôle auditeur)
+**À transmettre** : ce rapport + liste des constats prioritaires
+**Points de vigilance** : [risques à traiter en priorité]

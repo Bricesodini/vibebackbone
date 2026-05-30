@@ -26,9 +26,9 @@ artifacts_produced:
 
 ## Findings
 
-| # | Dimension | Sévérité | Evidence | Verdict |
-|---|-----------|----------|----------|---------|
-| 1 | <dimension> | `BLOCKER|HIGH|MEDIUM|LOW|INFO` | <chemin:ligne ou citation> | <constat> |
+| # | Dimension | Severity | Type | Evidence Level | Evidence Trace | Decision | Verdict |
+|---|-----------|----------|------|----------------|---------------|----------|---------|
+| 1 | <dimension> | `P0|P1|P2|P3` | `VIOLATION|OBSERVATION|TREND|FALSE_POSITIVE` | `OBSERVATION|SIGNAL|HYPOTHESIS|VERIFIED_FINDING` | <OBS→SIG→VÉRIF→FIND si VERIFIED_FINDING> | `ACCEPTED|MITIGATED|DEFER|NEEDS_DECISION` | <constat> |
 
 ## Verdict global
 
