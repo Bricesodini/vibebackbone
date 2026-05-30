@@ -89,6 +89,26 @@ stabilized in the same pass.
 | LANG-002 | P3 | Prompts still contain FR narrative | Accepted — prompt layer is human-facing by design |
 | REL-001 | P3 | No DEPLOYMENT.md or RUNBOOK.md | Resolved — both files exist and are indexed |
 
+## Latest audit note — audit discipline improvement (2026-05-30)
+
+New audit: [audit-discipline-improvement-20260530.md](audits/audit-discipline-improvement-20260530.md).
+
+Verdict: `PARTIAL — remediation implemented`. 5 gaps confirmed (G1 route declaration, G2 evidence model, G3 findings taxonomy, G5 verification gate, G6 closeout discipline). G4 (artifact discipline) governance was sufficient — no gap. Recommended: `MINOR_REMEDIATION`.
+
+Implementation completed:
+- `prompts/canonical/02-p-vbb-audit.md`: DECLARATION INITIALE + evidence discipline model (OBSERVATION/SIGNAL/HYPOTHESIS/VERIFIED_FINDING) + three-axis findings (P0-P3 + type + decision) + deprecated verdict scale corrected
+- `prompts/canonical/07-p-vbb-closeout.md`: AUDIT-specific closeout checklist added
+- `skills/2-vbb-security/SKILL.md`: severity aligned to P0-P1/P2/P3
+
+Verification: architecture lint ✅ 0 errors, contract lint ✅ 0 errors, pytest ✅ 81/81, CI ✅ 7/8 passed.
+
+New risks:
+
+| ID | Severity | Description | Status |
+|----|----------|-------------|--------|
+| AUDIT-001 | P2 | 2-vbb-systemic-risk and 2-vbb-data-integrity still use P0/P1/P2 (not updated) | Open — align to P0-P3 |
+| AUDIT-002 | P3 | 02-audit.md template in docs/templates/ still uses deprecated verdict scale | Open — sync with canonical prompt |
+
 ## Latest audit note — quality adoption (2026-06-29)
 
 New audit: [quality-adoption-audit-20260629.md](audits/quality-adoption-audit-20260629.md).
