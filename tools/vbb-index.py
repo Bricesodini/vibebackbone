@@ -30,6 +30,7 @@ INDEX_SOURCES = [
     "docs/RELATIONS.md",
     "docs/ACTIVITY_LOG.md",
     "docs/TEMPORAL_PROVENANCE.md",
+    "docs/LONG_RUN_RULE.md",
     "README.md",
     "GUIDE.md",
     "AGENTS.md",
