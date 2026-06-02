@@ -32,6 +32,21 @@ def read_file(path: Path) -> str:
         return ""
 
 
+def read_frontmatter(path: Path) -> Dict:
+    """Read YAML frontmatter from a Markdown file."""
+    content = read_file(path)
+    if not content.startswith("---"):
+        return {}
+    end = content.find("\n---", 3)
+    if end == -1:
+        return {}
+    try:
+        import yaml
+        return yaml.safe_load(content[3:end].strip()) or {}
+    except Exception:
+        return {}
+
+
 def count_skills(repo: Path) -> int:
     """Count skill directories that have at least SKILL.md."""
     skills_dir = repo / "skills"
@@ -128,15 +143,16 @@ def get_latest_runs(repo: Path, limit: int = 5) -> List[Dict]:
         closeout = rd / "07_CLOSEOUT.md"
         if not closeout.exists():
             continue
+        fm = read_frontmatter(closeout)
         content = read_file(closeout)
-        voie = "UNKNOWN"
-        verdict = "UNKNOWN"
+        voie = str(fm.get("voie", "UNKNOWN")).strip() or "UNKNOWN"
+        verdict = str(fm.get("status", "UNKNOWN")).strip() or "UNKNOWN"
         for line in content.split("\n")[:20]:
             low = line.lower()
-            if "voie" in low and ":" in line:
+            if voie == "UNKNOWN" and "voie" in low and ":" in line:
                 voie = line.split(":")[-1].strip().strip("*")
-            if "verdict" in low and ("pass" in low or "partial" in low or "fail" in low or "blocked" in low):
-                for kw in ["PASS", "PARTIAL", "FAIL", "BLOCKED"]:
+            if verdict == "UNKNOWN" and "verdict" in low:
+                for kw in ["COMPLETE", "READY", "PASS", "PARTIAL", "FAIL", "BLOCKED"]:
                     if kw in line.upper():
                         verdict = kw
                         break
@@ -210,7 +226,10 @@ def get_temporal_notes(repo: Path) -> List[str]:
         if future_runs:
             notes.append(f"{len(future_runs)} run directories are dated after local date {today}")
     if acknowledged and notes:
-        return ["temporal skew acknowledged by docs/TEMPORAL_PROVENANCE.md"] + notes
+        return [
+            f"local workspace date: {today}",
+            "future-dated historical state acknowledged by docs/TEMPORAL_PROVENANCE.md",
+        ] + notes
     return notes
 
 
@@ -226,6 +245,7 @@ def gather_status(repo: Path) -> Dict:
 
     return {
         "repo": str(repo),
+        "local_date": date.today().isoformat(),
         "verdict": verdict,
         "skills": total,
         "contracts": contracted,

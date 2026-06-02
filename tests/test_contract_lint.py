@@ -39,6 +39,7 @@ RUNTIME = REPO_ROOT / "tools" / "vbb-contract-runtime.py"
 MINIMAL_CONTRACT = textwrap.dedent("""\
     id: test-minimal
     version: "0.3"
+    contract_schema_version: "0.3"
     type: prompt_skill
     formalization_level: declarative
     entrypoint:
@@ -285,10 +286,11 @@ def test_artifact_missing_required_field():
 
 
 def test_unsupported_version():
-    """Contract with unsupported version → linter must report error."""
+    """Contract with unsupported contract schema version → linter must report error."""
     import yaml
     contract = yaml.safe_load(MINIMAL_CONTRACT)
     contract["version"] = "9.9"
+    contract["contract_schema_version"] = "9.9"
 
     with tempfile.TemporaryDirectory() as tmp:
         skills_tmp = Path(tmp) / "skills"

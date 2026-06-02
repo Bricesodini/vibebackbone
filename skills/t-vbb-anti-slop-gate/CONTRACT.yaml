@@ -1,5 +1,6 @@
 id: t-vbb-anti-slop-gate
 version: '0.3'
+contract_schema_version: '0.3'
 type: prompt_skill
 formalization_level: declarative
 entrypoint:

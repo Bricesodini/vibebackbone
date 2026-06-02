@@ -61,6 +61,9 @@ Ces 8 principes opérationnels s'appliquent à TOUT run VBB (toutes routes, tous
 ### Documentation scope
 
 - Every skill must have a machine-readable `CONTRACT.yaml`.
+- `CONTRACT.yaml.contract_schema_version` is the contract schema version; the
+  legacy `version` field is retained as a compatibility alias and must match it.
+  Functional skill versioning remains in `SKILL.md` frontmatter.
 - Every skill must have a human-readable `SKILL.md` in English.
 - Every governance file must declare its role in its frontmatter or header.
 - `docs/ARCHITECTURE.md` is the canonical structured source — never edit `docs/RELATIONS.md` directly.
@@ -170,8 +173,10 @@ Vibebackbone's existing governance artifacts rather than through a separate
 standalone ruleset. It is covered by:
 
 - ADRs (`docs/adr/`) — timestamped architecture decisions with rationale
-- Run artifacts (`docs/runs/`) — 40+ runs, 92% closeout rate, phase files with frontmatter
-- Audit reports (`docs/audits/`) — 17 timestamped reports by theme
+- Run artifacts (`docs/runs/`) — phase files with frontmatter; use
+  `python tools/vbb-status-dashboard.py --full` for current counts
+- Audit reports (`docs/audits/`) — timestamped reports by theme; use
+  `find docs/audits -maxdepth 1 -name '*.md'` for current inventory
 - ARCHITECTURE.md — structured source of truth for architecture blocks
 - Risk register (`docs/AUDIT_STATUS.md`) — P0/P1/P2/P3 tracked with status
 - Context handoff (`docs/SESSION.md`) — session resume, next action

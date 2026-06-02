@@ -189,7 +189,7 @@ def _resolve_path_pattern(path_pattern: str, run_id: str) -> Optional[str]:
 def check_artifact_existence(skill_id: str, contract: Dict, run_id: str) -> List[Dict]:
     """Verify that declared artifacts exist for the run (v0.3+ contracts)."""
     warnings: List[Dict] = []
-    version = str(contract.get("version", "0.1"))
+    version = str(contract.get("contract_schema_version", contract.get("version", "0.1")))
     if version < "0.3":
         return warnings
 

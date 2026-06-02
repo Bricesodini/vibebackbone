@@ -11,6 +11,7 @@ Checks:
   5. Blocking gates have expected_status
   6. Outputs contain required fields
   7. Agents are recognized
+  8. Contract schema version is explicit and supported
 """
 
 import sys
@@ -55,14 +56,25 @@ def load_contract(skill_dir: Path) -> Dict:
 
 def check_yaml_syntax(skill_id: str, contract: Dict) -> List[str]:
     errors = []
-    required_top = ["id", "version", "type", "formalization_level",
+    required_top = ["id", "version", "contract_schema_version", "type", "formalization_level",
                     "entrypoint", "compatibility", "inputs", "outputs",
                     "gates", "events", "routing", "limits", "state_policy"]
     for key in required_top:
         if key not in contract:
             errors.append(f"Missing top-level key: '{key}'")
-    if "version" in contract and str(contract["version"]) not in SUPPORTED_VERSIONS:
-        errors.append(f"Unsupported version: '{contract['version']}' (expected one of {sorted(SUPPORTED_VERSIONS)})")
+    schema_version = str(contract.get("contract_schema_version", contract.get("version", "")))
+    if schema_version and schema_version not in SUPPORTED_VERSIONS:
+        errors.append(
+            f"Unsupported contract_schema_version: '{schema_version}' "
+            f"(expected one of {sorted(SUPPORTED_VERSIONS)})"
+        )
+    if "version" in contract and "contract_schema_version" in contract:
+        legacy_version = str(contract["version"])
+        if legacy_version != schema_version:
+            errors.append(
+                f"version '{legacy_version}' must match contract_schema_version "
+                f"'{schema_version}' while version is retained as a compatibility alias"
+            )
     if "type" in contract and contract["type"] != "prompt_skill":
         errors.append(f"Unsupported type: '{contract['type']}' (expected 'prompt_skill')")
 
@@ -229,7 +241,7 @@ def _check_artifact_mapping(skill_id: str, label: str, artifact: Dict) -> List[s
 def check_artifact(skill_id: str, contract: Dict) -> List[str]:
     """Validate outputs.artifact and outputs.secondary_artifacts (v0.3+)."""
     errors = []
-    version = str(contract.get("version", "0.1"))
+    version = str(contract.get("contract_schema_version", contract.get("version", "0.1")))
 
     # Schema field only required from v0.3 onwards.
     if version < "0.3":

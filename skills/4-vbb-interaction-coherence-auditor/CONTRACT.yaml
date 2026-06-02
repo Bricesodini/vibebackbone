@@ -1,5 +1,6 @@
 id: 4-vbb-interaction-coherence-auditor
 version: '0.3'
+contract_schema_version: '0.3'
 type: prompt_skill
 formalization_level: declarative
 entrypoint:

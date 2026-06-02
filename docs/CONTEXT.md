@@ -34,9 +34,9 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
   - Pass 4→5 gate: 7 keys required (3 from Pass 1, 4 from Pass 4)
   - HARD BLOCK: GENERIC_DESIGN_SYSTEM_RESPONSE before propagation map
 - **Centralization audit** : pass 4 produces `TOKEN_DEFINITION_MAP` + `CENTRALIZATION_ROADMAP`
-- **Tests** : 81/81 pytest green, CI PASS, contract lint 0 errors, architecture lint 0 errors
+- **Tests** : 82/82 pytest green, CI PASS, contract lint 0 errors, architecture lint 0 errors
 - **Token economy** : L0 boot ~2.5K tokens (87% reduction from 19K)
-- **Next action** : Test front pipeline propagation-first behavior in real conditions
+- **Next action** : Continue prompt-system reconciliation from `docs/plans/20260602_0611_audit-remediation.md` or test front pipeline propagation-first behavior in real conditions
 - **Key decisions** : [ADR-0002](docs/adr/0002-surface-first-routing-ui-ux.md) — surface-first routing + centralization audit
 
 ## Risks / audits
@@ -61,7 +61,7 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 1. 🟡 Residual FR in agent-facing assets — *low*
 2. 🟡 Temporal skew acknowledged in [TEMPORAL_PROVENANCE.md](TEMPORAL_PROVENANCE.md) — *low*
 3. ⬜ EN README/GUIDE for international adoption — *medium*
-4. ⬜ Implementation-readiness stabilization before reuse — *high*
+4. ✅ Deep framework remediation implemented — `docs/runs/2026-06-02_1220_deep-framework-remediation/`
 5. 🟡 Quality audit gaps (AI governance skill, migration policy) — *high*
 6. ✅ OPS-001/002/003 CLOSED — robustness findings resolved (2026-05-28 + 2026-05-29)
 

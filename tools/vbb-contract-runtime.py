@@ -294,7 +294,7 @@ def check_artifact_existence(skill_id: str, contract: Dict, run_id: str) -> List
       - path patterns with non-{run_id} vars → skipped (cannot resolve at runtime)
     """
     warnings: List[Dict] = []
-    version = str(contract.get("version", "0.1"))
+    version = str(contract.get("contract_schema_version", contract.get("version", "0.1")))
     if version < "0.3":
         return warnings  # pre-v0.3 contracts don't declare artifacts
 

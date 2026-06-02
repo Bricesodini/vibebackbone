@@ -81,6 +81,7 @@ role: Catalog of reusable agent skills and their machine-facing contracts.
 responsibilities:
   - Store SKILL.md files
   - Store CONTRACT.yaml files
+  - Distinguish SKILL.md functional versions from CONTRACT.yaml schema versions
   - Maintain indexed contract coverage
 depends_on:
   - governance-core
@@ -114,6 +115,7 @@ responsibilities:
   - Provide canonical phase prompts
   - Provide specialized route prompts
   - Expose a Markdown phase router
+  - Map advertised prompt short names to concrete Markdown files
 depends_on:
   - governance-core
   - skills-catalog

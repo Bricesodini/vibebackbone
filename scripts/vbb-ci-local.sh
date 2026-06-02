@@ -9,7 +9,13 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
-PYTHON="python3"
+if [ -z "${PYTHON:-}" ]; then
+  if command -v python >/dev/null 2>&1; then
+    PYTHON="python"
+  else
+    PYTHON="python3"
+  fi
+fi
 PASS=0
 FAIL=0
 WARN=0
@@ -59,7 +65,7 @@ PY
 )
   if [ -n "$missing" ]; then
     echo "Missing Python dependencies: $missing"
-    echo "Run: python3 -m pip install -r requirements.txt"
+    echo "Run: $PYTHON -m pip install -r requirements.txt"
     exit 1
   fi
 }

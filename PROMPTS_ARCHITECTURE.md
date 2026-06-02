@@ -25,6 +25,19 @@ prompts/
 
 ## Comment démarrer
 
+### Noms courts deployes
+
+Les agents peuvent recevoir des noms courts. Ils doivent etre resolus vers les
+fichiers Markdown reels avant lecture :
+
+| Nom court | Fichier prompt |
+|-----------|----------------|
+| `quick-task` | `1-p-vbb-quick-task.md` |
+| `structured-task` | `1-p-vbb-structured-task.md` |
+| `audit-task` | `2-p-vbb-audit-task.md` |
+| `release-check` | `2-p-vbb-release-check.md` |
+| `session-handoff` | `t-p-vbb-session-handoff.md` |
+
 ### 1. Ouvrir une session
 
 ```

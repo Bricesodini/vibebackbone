@@ -34,6 +34,8 @@ assert_dir_has_files "$TMP_HOME/.config/opencode/commands" -name 'vbb-*.md'
 [ -d "$TMP_HOME/.config/opencode/commands" ] && grep -qR "vibebackbone:generated" "$TMP_HOME/.config/opencode/commands"
 
 grep -n "Vibebackbone Prompt Library" "$TMP_HOME/.codex/AGENTS.md" >/dev/null
+grep -n "quick-task.*1-p-vbb-quick-task.md" "$TMP_HOME/.codex/AGENTS.md" >/dev/null
+grep -n "structured-task.*1-p-vbb-structured-task.md" "$TMP_HOME/.codex/AGENTS.md" >/dev/null
 
 # Check skills + governance still deployed
 test -L "$TMP_HOME/.agents/skills/vibebackbone"

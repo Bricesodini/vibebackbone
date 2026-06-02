@@ -286,13 +286,13 @@ Avoid:
 Prompt templates are available at:
 `/Users/bricesodini/.agents/prompts/vibebackbone/`
 They are session entrypoints, not skills.
-When the user asks to use a Vibebackbone prompt such as:
-- `quick-task`
-- `structured-task`
-- `audit-task`
-- `release-check`
-- `session-handoff`
-read the matching Markdown prompt from that directory and apply it before execution.
+Resolve prompt short names to Markdown files before reading them:
+- `quick-task` -> `1-p-vbb-quick-task.md`
+- `structured-task` -> `1-p-vbb-structured-task.md`
+- `audit-task` -> `2-p-vbb-audit-task.md`
+- `release-check` -> `2-p-vbb-release-check.md`
+- `session-handoff` -> `t-p-vbb-session-handoff.md`
+Read the resolved Markdown prompt from that directory and apply it before execution.
 Do not invent prompt behavior from the name alone. If the prompt file is missing, state that explicitly and proceed only as best-effort.
 
 <!-- vibebackbone:generated:end -->
@@ -548,13 +548,13 @@ Avoid:
 Prompt templates are available at:
 `/Users/bricesodini/.agents/prompts/vibebackbone/`
 They are session entrypoints, not skills.
-When the user asks to use a Vibebackbone prompt such as:
-- `quick-task`
-- `structured-task`
-- `audit-task`
-- `release-check`
-- `session-handoff`
-read the matching Markdown prompt from that directory and apply it before execution.
+Resolve prompt short names to Markdown files before reading them:
+- `quick-task` -> `1-p-vbb-quick-task.md`
+- `structured-task` -> `1-p-vbb-structured-task.md`
+- `audit-task` -> `2-p-vbb-audit-task.md`
+- `release-check` -> `2-p-vbb-release-check.md`
+- `session-handoff` -> `t-p-vbb-session-handoff.md`
+Read the resolved Markdown prompt from that directory and apply it before execution.
 Do not invent prompt behavior from the name alone. If the prompt file is missing, state that explicitly and proceed only as best-effort.
 
 <!-- vibebackbone:generated:end -->
@@ -810,13 +810,13 @@ Avoid:
 Prompt templates are available at:
 `/Users/bricesodini/.agents/prompts/vibebackbone/`
 They are session entrypoints, not skills.
-When the user asks to use a Vibebackbone prompt such as:
-- `quick-task`
-- `structured-task`
-- `audit-task`
-- `release-check`
-- `session-handoff`
-read the matching Markdown prompt from that directory and apply it before execution.
+Resolve prompt short names to Markdown files before reading them:
+- `quick-task` -> `1-p-vbb-quick-task.md`
+- `structured-task` -> `1-p-vbb-structured-task.md`
+- `audit-task` -> `2-p-vbb-audit-task.md`
+- `release-check` -> `2-p-vbb-release-check.md`
+- `session-handoff` -> `t-p-vbb-session-handoff.md`
+Read the resolved Markdown prompt from that directory and apply it before execution.
 Do not invent prompt behavior from the name alone. If the prompt file is missing, state that explicitly and proceed only as best-effort.
 
 <!-- vibebackbone:generated:end -->
@@ -1072,13 +1072,13 @@ Avoid:
 Prompt templates are available at:
 `/Users/bricesodini/.agents/prompts/vibebackbone/`
 They are session entrypoints, not skills.
-When the user asks to use a Vibebackbone prompt such as:
-- `quick-task`
-- `structured-task`
-- `audit-task`
-- `release-check`
-- `session-handoff`
-read the matching Markdown prompt from that directory and apply it before execution.
+Resolve prompt short names to Markdown files before reading them:
+- `quick-task` -> `1-p-vbb-quick-task.md`
+- `structured-task` -> `1-p-vbb-structured-task.md`
+- `audit-task` -> `2-p-vbb-audit-task.md`
+- `release-check` -> `2-p-vbb-release-check.md`
+- `session-handoff` -> `t-p-vbb-session-handoff.md`
+Read the resolved Markdown prompt from that directory and apply it before execution.
 Do not invent prompt behavior from the name alone. If the prompt file is missing, state that explicitly and proceed only as best-effort.
 
 <!-- vibebackbone:generated:end -->
@@ -1334,13 +1334,13 @@ Avoid:
 Prompt templates are available at:
 `/Users/bricesodini/.agents/prompts/vibebackbone/`
 They are session entrypoints, not skills.
-When the user asks to use a Vibebackbone prompt such as:
-- `quick-task`
-- `structured-task`
-- `audit-task`
-- `release-check`
-- `session-handoff`
-read the matching Markdown prompt from that directory and apply it before execution.
+Resolve prompt short names to Markdown files before reading them:
+- `quick-task` -> `1-p-vbb-quick-task.md`
+- `structured-task` -> `1-p-vbb-structured-task.md`
+- `audit-task` -> `2-p-vbb-audit-task.md`
+- `release-check` -> `2-p-vbb-release-check.md`
+- `session-handoff` -> `t-p-vbb-session-handoff.md`
+Read the resolved Markdown prompt from that directory and apply it before execution.
 Do not invent prompt behavior from the name alone. If the prompt file is missing, state that explicitly and proceed only as best-effort.
 
 <!-- vibebackbone:generated:end -->
@@ -1596,13 +1596,13 @@ Avoid:
 Prompt templates are available at:
 `/Users/bricesodini/.agents/prompts/vibebackbone/`
 They are session entrypoints, not skills.
-When the user asks to use a Vibebackbone prompt such as:
-- `quick-task`
-- `structured-task`
-- `audit-task`
-- `release-check`
-- `session-handoff`
-read the matching Markdown prompt from that directory and apply it before execution.
+Resolve prompt short names to Markdown files before reading them:
+- `quick-task` -> `1-p-vbb-quick-task.md`
+- `structured-task` -> `1-p-vbb-structured-task.md`
+- `audit-task` -> `2-p-vbb-audit-task.md`
+- `release-check` -> `2-p-vbb-release-check.md`
+- `session-handoff` -> `t-p-vbb-session-handoff.md`
+Read the resolved Markdown prompt from that directory and apply it before execution.
 Do not invent prompt behavior from the name alone. If the prompt file is missing, state that explicitly and proceed only as best-effort.
 
 <!-- vibebackbone:generated:end -->
@@ -1858,13 +1858,13 @@ Avoid:
 Prompt templates are available at:
 `/Users/bricesodini/.agents/prompts/vibebackbone/`
 They are session entrypoints, not skills.
-When the user asks to use a Vibebackbone prompt such as:
-- `quick-task`
-- `structured-task`
-- `audit-task`
-- `release-check`
-- `session-handoff`
-read the matching Markdown prompt from that directory and apply it before execution.
+Resolve prompt short names to Markdown files before reading them:
+- `quick-task` -> `1-p-vbb-quick-task.md`
+- `structured-task` -> `1-p-vbb-structured-task.md`
+- `audit-task` -> `2-p-vbb-audit-task.md`
+- `release-check` -> `2-p-vbb-release-check.md`
+- `session-handoff` -> `t-p-vbb-session-handoff.md`
+Read the resolved Markdown prompt from that directory and apply it before execution.
 Do not invent prompt behavior from the name alone. If the prompt file is missing, state that explicitly and proceed only as best-effort.
 
 <!-- vibebackbone:generated:end -->

@@ -83,6 +83,17 @@ def test_latest_runs():
     data = json.loads(out)
     assert isinstance(data["latest_runs"], list)
     assert len(data["latest_runs"]) > 0, "Expected at least one latest run"
+    assert data["latest_runs"][0]["voie"] != "UNKNOWN"
+    assert data["latest_runs"][0]["verdict"] != "UNKNOWN"
+
+
+def test_temporal_local_date_exposed():
+    """Temporal provenance includes local workspace date in JSON output."""
+    rc, out, _ = _run_dashboard(["--json"])
+    assert rc == 0
+    data = json.loads(out)
+    assert "local_date" in data
+    assert isinstance(data["temporal_notes"], list)
 
 
 def test_next_action():

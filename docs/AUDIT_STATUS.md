@@ -109,6 +109,32 @@ New risks:
 | AUDIT-001 | P2 | 2-vbb-systemic-risk and 2-vbb-data-integrity still use P0/P1/P2 (not updated) | Resolved — systemic-risk aligned to P0-P3 + evidence trace; data-integrity alignment pending |
 | AUDIT-002 | P3 | 02-audit.md template in docs/templates/ still uses deprecated verdict scale | Resolved — templates aligned with canonical prompt |
 
+## Local audit note — deep framework audit (2026-06-02)
+
+New audit: [deep-framework-audit-20260602-1208.md](audits/deep-framework-audit-20260602-1208.md).
+
+Verdict: `PARTIAL — remediation implemented`. Core checks were strong
+(contract lint PASS, architecture lint PASS, runtime dry-run stable,
+`pytest tests/ -q` PASS with 81 tests). The remediation pass restored local CI
+reproducibility, reclassified the ad-hoc closeout run as `CLOTURE`, clarified
+contract schema version semantics, aligned public counters, removed the tracked
+backup artifact, replaced stale static traceability counters, mapped prompt
+short names to concrete files, and made temporal provenance explicit in the
+status dashboard.
+
+New risks added:
+
+| ID | Severity | Description | Status |
+|----|----------|-------------|--------|
+| VBB-DEEP-001 | P1 | `scripts/vbb-ci-local.sh` pins `python3`; local `python3` lacks pytest while conda `python` passes 81 tests | Resolved — CI now honors `PYTHON` or falls back to available `python`; local CI PASS |
+| VBB-DEEP-002 | P1 | Latest run `20260602_0817_pr-operational-principles` fails canonical loop closure invariant | Resolved — closeout has valid `CLOTURE` frontmatter; loop closure PASS |
+| VBB-DEEP-003 | P1 | `SKILL.md` frontmatter version differs from `CONTRACT.yaml.version` on 64/64 skills; linter does not encode intended semantics | Resolved — ADR-0004 defines semantics; `contract_schema_version` added and linted |
+| VBB-DEEP-004 | P2 | `docs/INDEX.md` announces 63 skills while active inventory and README show 64 | Resolved — `docs/INDEX.md` now announces 64 skills |
+| VBB-DEEP-005 | P2 | Future-dated governance/runs remain visible in current local status despite temporal provenance mitigation | Mitigated — dashboard exposes local date and future-dated historical state explicitly |
+| VBB-DEEP-006 | P2 | Tracked backup file `skills/vibebackbone/docs/PILOTAGE.md.bak` remains in canonical skill docs | Resolved — tracked backup removed |
+| VBB-DEEP-007 | P3 | `docs/CONVENTIONS.md` traceability counters are stale against current run/audit counts | Resolved — static counters replaced by dashboard/inventory references |
+| VBB-DEEP-008 | P2 | AGENTS prompt short names do not resolve to files at `/Users/bot/.agents/prompts/vibebackbone/` in this workspace | Resolved — short names mapped to concrete prompt files in AGENTS/setup/docs |
+
 ## Latest audit note — quality adoption (2026-06-29)
 
 New audit: [quality-adoption-audit-20260629.md](audits/quality-adoption-audit-20260629.md).
