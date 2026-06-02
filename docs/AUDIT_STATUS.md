@@ -176,7 +176,7 @@ New audit: [20260602_0649_audit_vibebackbone.md](audits/20260602_0649_audit_vibe
 | ID | Sévérité | Catégorie | Constat | Plan |
 |---|---:|---|---|---|
 | VBB-AUDIT-001 | P1 | Prompts | Double système prompts (lifecycle + canonical) non-réconcilié : 27+7 prompts sans mapping | [Plan](plans/20260602_0611_audit-remediation.md) Run 3 |
-| VBB-AUDIT-002 | P1 | Conventions | P.R1–P.R8 référencés par 3/4 SOUL.md mais nichés sous Pillar 5 (`###`), pas exposés en `##` | Plan Run 1 |
+| VBB-AUDIT-002 | P1 | Conventions | P.R1–P.R8 référencés par 3/4 SOUL.md mais nichés sous Pillar 5 (`###`), pas exposés en `##` | **RÉSOLU** — section `## P.R1–P.R8 — Operational Principles` ajoutée en haut de CONVENTIONS.md (table de mapping) + cross-refs dans vbb-fast-worker/struct-worker/close-worker SOUL.md (Run 1, commit) |
 | VBB-AUDIT-005 | P1 | Skills | Versioning SKILL.md frontmatter (1.0/1.1/2.0) ≠ CONTRACT.yaml (0.3), non-détecté par vbb-contract-lint.py | Plan Run 2 |
 
 **Plan de remediation :** `docs/plans/20260602_0611_audit-remediation.md` — 3 runs STRUCTURED séquencés, Run 1 (P.R1–P.R8 exposé) en premier, Run 3 (prompts dual-system) bloqué par décision Brice.

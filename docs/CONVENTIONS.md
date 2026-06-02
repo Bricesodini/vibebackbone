@@ -17,6 +17,25 @@ No parallel truth. No competing canonical logic. No silent divergence.
 
 ---
 
+## P.R1–P.R8 — Operational Principles
+
+Ces 8 principes opérationnels s'appliquent à TOUT run VBB (toutes routes, tous workers). Chaque SOUL.md y fait référence.
+
+| ID | Principe | Définition courte |
+|---|---|---|
+| P.R1 | Fail Explicitly | Échec visible, pas de catch silencieux |
+| P.R2 | One Verification Loop | Un seul point de vérification par assertion |
+| P.R3 | Gate Before Action | Validation préalable à toute mutation |
+| P.R4 | Invariant Protection | État partagé protégé contre mutation accidentelle |
+| P.R5 | Regression Prevention First | Régression = priorité #1 sur nouveau test |
+| P.R6 | Error Handling by Layer | Erreur traitée au bon niveau (route/worker/cody) |
+| P.R7 | Escalate on Risk Class Change | Si la classe de risque augmente, STOP et reclassifie |
+| P.R8 | Independent Review Preferred | Préférer un reviewer indépendant à une self-review |
+
+> Définitions détaillées : voir `### P.R1 — Fail Explicitly` etc. sous [Pillar 5 — Robustness](#pillar-5--robustness).
+
+---
+
 ## Pillar 1 — Readability
 
 ### Naming
