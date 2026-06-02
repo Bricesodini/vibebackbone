@@ -9,8 +9,8 @@ Covers:
 
 from __future__ import annotations
 
-from tools.proxy.audit import AuditLog
-from tools.proxy.crypto import select_backend
+from proxy.audit import AuditLog
+from proxy.crypto import select_backend
 
 
 def test_audit_file_is_created_and_binary(proxy_workspace, secret_key):

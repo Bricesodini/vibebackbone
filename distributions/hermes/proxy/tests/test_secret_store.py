@@ -10,8 +10,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from tools.proxy.crypto import select_backend
-from tools.proxy.secret_store import SecretStore, load_or_create_key
+from proxy.crypto import select_backend
+from proxy.secret_store import SecretStore, load_or_create_key
 
 
 def test_roundtrip_is_correct(proxy_workspace, secret_key):

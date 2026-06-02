@@ -24,8 +24,8 @@ from pathlib import Path
 
 import pytest
 
-from tools.proxy.config import load_config
-from tools.proxy.server import make_handler  # type: ignore[attr-definitions]
+from proxy.config import load_config
+from proxy.server import make_handler  # type: ignore[attr-definitions]
 
 
 def _free_port() -> int:
@@ -61,13 +61,13 @@ def _build_server_context(config_path: Path):
     server module exposes ``make_handler(ctx)`` so we instantiate the
     bound handler and use ``cls``'s globals to reach the context.
     """
-    from tools.proxy.config import load_actions as _load_actions
-    from tools.proxy.crypto import select_backend
-    from tools.proxy.hmac_auth import HmacVerifier
-    from tools.proxy.actions import ActionDispatcher
-    from tools.proxy.secret_store import SecretStore, load_or_create_key
-    from tools.proxy.audit import AuditLog
-    from tools.proxy import server as server_mod
+    from proxy.config import load_actions as _load_actions
+    from proxy.crypto import select_backend
+    from proxy.hmac_auth import HmacVerifier
+    from proxy.actions import ActionDispatcher
+    from proxy.secret_store import SecretStore, load_or_create_key
+    from proxy.audit import AuditLog
+    from proxy import server as server_mod
     cfg = load_config(config_path)
     backend = select_backend(cfg.crypto.backend)
     hmac_key = cfg.hmac.key_path.read_bytes()

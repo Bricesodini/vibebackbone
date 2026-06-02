@@ -14,11 +14,23 @@ exactly that and returns the path to the rendered config.
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 
 import pytest
 
-from tools.proxy.crypto import generate_key, select_backend
+# RUN 1 stabilization: the proxy code was migrated from
+# tools/proxy/ to distributions/hermes/proxy/ (ADR 0013 Phase 3).
+# The test files previously used the old import path. The cleanest
+# fix is to expose the new location as a top-level ``proxy`` package
+# on sys.path so test modules can do ``from proxy.X import Y``
+# (avoids the ``distributions.hermes.proxy`` notation, which is
+# awkward for paths with hyphens). See RUN 1 brief 2026-06-13.
+_PROXY_PKG_PARENT = Path(__file__).resolve().parents[1]
+if str(_PROXY_PKG_PARENT) not in sys.path:
+    sys.path.insert(0, str(_PROXY_PKG_PARENT))
+
+from proxy.crypto import generate_key, select_backend
 
 
 @pytest.fixture
@@ -131,16 +143,16 @@ import socket as _socket
 import threading as _threading
 from http.server import HTTPServer as _HTTPServer
 
-from tools.proxy.actions import ActionDispatcher as _ActionDispatcher
-from tools.proxy.audit import AuditLog as _AuditLog
-from tools.proxy.config import load_actions as _load_actions
-from tools.proxy.config import load_config as _load_config
-from tools.proxy.crypto import select_backend as _select_backend
-from tools.proxy.hmac_auth import HmacVerifier as _HmacVerifier
-from tools.proxy.secret_store import SecretStore as _SecretStore
-from tools.proxy.secret_store import load_or_create_key as _load_or_create_key
-from tools.proxy.server import make_handler as _make_handler
-from tools.proxy import server as _server_mod
+from proxy.actions import ActionDispatcher as _ActionDispatcher
+from proxy.audit import AuditLog as _AuditLog
+from proxy.config import load_actions as _load_actions
+from proxy.config import load_config as _load_config
+from proxy.crypto import select_backend as _select_backend
+from proxy.hmac_auth import HmacVerifier as _HmacVerifier
+from proxy.secret_store import SecretStore as _SecretStore
+from proxy.secret_store import load_or_create_key as _load_or_create_key
+from proxy.server import make_handler as _make_handler
+from proxy import server as _server_mod
 
 
 def _live_free_port() -> int:

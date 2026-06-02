@@ -18,8 +18,8 @@ from pathlib import Path
 
 import pytest
 
-from tools.proxy.errors import ProxyError
-from tools.proxy.hmac_auth import HmacVerifier
+from proxy.errors import ProxyError
+from proxy.hmac_auth import HmacVerifier
 
 
 def _signed_body(hmac_key: Path, **overrides) -> tuple[bytes, str]:

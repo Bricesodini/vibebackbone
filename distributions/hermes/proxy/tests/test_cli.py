@@ -1,4 +1,4 @@
-"""End-to-end tests for the ``tools.proxy.cli`` module.
+"""End-to-end tests for the proxy CLI module.
 
 The tests run the CLI in a subprocess (the way an operator would)
 and assert on its exit code and output. The CLI must NEVER print
@@ -20,14 +20,26 @@ from pathlib import Path
 
 import pytest
 
-from tools.proxy.actions import ActionDispatcher
-from tools.proxy.audit import AuditLog
-from tools.proxy.config import load_actions, load_config
-from tools.proxy.crypto import select_backend
-from tools.proxy.hmac_auth import HmacVerifier
-from tools.proxy.secret_store import SecretStore, load_or_create_key
-from tools.proxy.server import make_handler  # type: ignore[attr-definitions]
-from tools.proxy import server as server_mod
+from proxy.actions import ActionDispatcher
+from proxy.audit import AuditLog
+from proxy.config import load_actions, load_config
+from proxy.crypto import select_backend
+from proxy.hmac_auth import HmacVerifier
+from proxy.secret_store import SecretStore, load_or_create_key
+from proxy.server import make_handler  # type: ignore[attr-definitions]
+from proxy import server as server_mod
+
+
+# RUN 1 stabilization: the proxy code (and its CLI entry point) was
+# migrated from ``tools/proxy/`` to ``distributions/hermes/proxy/``
+# (ADR 0013 Phase 3). The CLI subprocess invocation now targets the
+# new location. We expose the new package as a top-level ``proxy``
+# via PYTHONPATH (mirroring the ``conftest.py`` sys.path trick for
+# the in-process test code).
+# PYTHONPATH must point to the directory that *contains* the ``proxy``
+# package (i.e. ``distributions/hermes/``), not the package itself.
+_PROXY_PKG_PARENT = str(Path(__file__).resolve().parents[2])
+_RUN_DIR = str(Path(__file__).resolve().parents[3])  # repo root (was tools/)
 
 
 def _free_port() -> int:
@@ -87,9 +99,10 @@ def cli_live_server(proxy_workspace, hmac_key, config_path):
 def test_cli_vault_read_success(cli_live_server):
     env = os.environ.copy()
     env["VBB_PROXY_HMAC_KEY"] = str(cli_live_server["key_path"])
+    env["PYTHONPATH"] = _PROXY_PKG_PARENT + os.pathsep + env.get("PYTHONPATH", "")
     proc = subprocess.run(
         [
-            sys.executable, "-m", "tools.proxy.cli",
+            sys.executable, "-m", "proxy.cli",
             "--url", f"http://127.0.0.1:{cli_live_server['port']}",
             "--timeout", "5",
             "vault_read", "fixture",
@@ -97,7 +110,7 @@ def test_cli_vault_read_success(cli_live_server):
         capture_output=True,
         text=True,
         env=env,
-        cwd=str(Path(__file__).resolve().parents[3]),
+        cwd=_RUN_DIR,
     )
     assert proc.returncode == 0, (
         f"CLI failed: rc={proc.returncode} stdout={proc.stdout!r} "
@@ -123,9 +136,11 @@ def test_cli_daemon_unavailable(tmp_path):
     fake_key.write_bytes(_os.urandom(32))
     fake_key.chmod(0o600)
 
+    env = _os.environ.copy()
+    env["PYTHONPATH"] = _PROXY_PKG_PARENT + os.pathsep + env.get("PYTHONPATH", "")
     proc = subprocess.run(
         [
-            sys.executable, "-m", "tools.proxy.cli",
+            sys.executable, "-m", "proxy.cli",
             "--url", "http://127.0.0.1:1",
             "--hmac-key", str(fake_key),
             "--timeout", "1",
@@ -133,7 +148,8 @@ def test_cli_daemon_unavailable(tmp_path):
         ],
         capture_output=True,
         text=True,
-        cwd=str(Path(__file__).resolve().parents[3]),
+        env=env,
+        cwd=_RUN_DIR,
     )
     assert proc.returncode != 0
     assert "E_DAEMON_UNAVAILABLE" in proc.stderr
@@ -142,11 +158,14 @@ def test_cli_daemon_unavailable(tmp_path):
 
 
 def test_cli_help_exits_zero():
+    env = os.environ.copy()
+    env["PYTHONPATH"] = _PROXY_PKG_PARENT + os.pathsep + env.get("PYTHONPATH", "")
     proc = subprocess.run(
-        [sys.executable, "-m", "tools.proxy.cli", "--help"],
+        [sys.executable, "-m", "proxy.cli", "--help"],
         capture_output=True,
         text=True,
-        cwd=str(Path(__file__).resolve().parents[3]),
+        env=env,
+        cwd=_RUN_DIR,
     )
     assert proc.returncode == 0
     assert "vault_read" in proc.stdout

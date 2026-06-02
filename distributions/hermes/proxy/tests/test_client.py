@@ -32,8 +32,8 @@ import re
 
 import pytest
 
-from tools.proxy.client import ProxyClient
-from tools.proxy.errors import ProxyClientError
+from proxy.client import ProxyClient
+from proxy.errors import ProxyClientError
 
 
 _UUID4_RE = re.compile(

@@ -11,9 +11,9 @@ from __future__ import annotations
 
 import pytest
 
-from tools.proxy.actions import ActionDispatcher
-from tools.proxy.config import load_actions
-from tools.proxy.errors import ProxyError
+from proxy.actions import ActionDispatcher
+from proxy.config import load_actions
+from proxy.errors import ProxyError
 
 
 def _dispatcher(config_path, vault_read_fixture):
