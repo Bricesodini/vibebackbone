@@ -23,7 +23,7 @@ be installed at `~/.hermes/bin/` (operator responsibility; outside scope).
 This run provides only:
 
 - `docs/hermes/INSTALL.md` — this document (F-015 step 1).
-- `scripts/hermes/verify.sh` — non-destructive verification (F-015 step 2).
+- `distributions/hermes/verify/verify.sh` — non-destructive verification (F-015 step 2).
 
 `scripts/hermes/install.sh` (F-015 step 3, **destructive**) is **DEFERRED**
 to a follow-up run requiring explicit user confirmation. See §9.
@@ -51,7 +51,7 @@ corrupting an existing `~/.hermes/profiles/vbb-*/` setup.
 | `VBB_HOME` | `$HOME/02_Dev/vibebackbone` | VBB Core repo (parent of `tools/`, `docs/`, `scripts/`). |
 
 `verify.sh` auto-detects VBB Core from its own location
-(`scripts/hermes/verify.sh` → `../../`), so `VBB_HOME` does not need to be
+(`distributions/hermes/verify/verify.sh` → `../../..`), so `VBB_HOME` does not need to be
 exported for in-tree runs. Set `VBB_HOME_OVERRIDE=1` to force auto-detection
 even if `VBB_HOME` is set.
 
@@ -93,7 +93,7 @@ must **not** contain any hardcoded `/Users/bot/.hermes/bin/cody-check`.
 From the VBB Core repo root:
 
 ```bash
-bash scripts/hermes/verify.sh
+bash distributions/hermes/verify/verify.sh
 ```
 
 - Exit `0` → all checks PASS, environment is ready.
@@ -135,7 +135,7 @@ mkdir -p "${HERMES_HOME}/profiles/vbb-struct-worker"
 #    template, or use the repo's profile sources if/when they exist).
 
 # 3. Re-run verify.sh to confirm the new profile is detected.
-bash scripts/hermes/verify.sh
+bash distributions/hermes/verify/verify.sh
 ```
 
 This is intentionally manual: every step is an explicit operator decision,

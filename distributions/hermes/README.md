@@ -3,36 +3,44 @@
 The currently active distribution of VBB Core for the Hermes agent runtime,
 with Cody as the orchestrator.
 
-## What belongs here (future state)
+## What belongs here
 
-- `install/INSTALL.md` (← current `docs/hermes/INSTALL.md`)
-- `verify/verify.sh` (← current `scripts/hermes/verify.sh`)
-- `proxy/` (← current `tools/proxy/`, 17 files)
-- `proxy/adr/` (← current `docs/adr/0006-0012`, 7 ADRs)
-- `bypass-lint/` (← current `tools/vbb-bypass-lint.py` + `tools/vbb-bypass-lint/`)
-- `profiles-template/` (← current `providers/templates/example-consumer-repo/`)
-- `docs/` (← current `docs/proxy/`)
+- `install/INSTALL.md` (← was `docs/hermes/INSTALL.md`, migrated Phase 2)
+- `verify/verify.sh` (← was `scripts/hermes/verify.sh`, migrated Phase 3)
+- `proxy/` (← was `tools/proxy/`, 17 source files + fixtures/ + tests/, migrated Phase 3)
+- `proxy/adr/` (← was `docs/adr/0006-0012`, 7 ADRs, migrated Phase 2)
+- `bypass-lint/` (← was `tools/vbb-bypass-lint.py` + `tools/vbb-bypass-lint/`, migrated Phase 3)
+- `profiles-template/` (← planned, was `providers/templates/example-consumer-repo/`, **NOT YET MIGRATED**)
+- `docs/` (← was `docs/proxy/`, migrated Phase 2)
 
 ## What does NOT belong here
 
 - `~/.hermes/profiles/vbb-*/SOUL.md` — these stay in the runtime, not in the repo
 - `skills/`, `prompts/`, `tools/vbb-*.py` — Core canon, not duplicated
 
-## Current state (Phase 1 = this run)
+## Current state (Phase 3 complete)
 
-`distributions/hermes/` is EMPTY (sentinel only). The 7 source locations
-above are still in their current positions. Phases 2-3 (gated on Brice
-accepting ADR 0013) will migrate them. Until then, this distribution
-behaves identically to its current state — no behavioral change.
+Phases 1, 2, and 3 of ADR 0013 (LIGHT REORG) are complete. The Hermes/Cody
+distribution now owns its install doc, verify script, proxy cluster (code +
+tests + 7 ADRs), and anti-bypass linter under `distributions/hermes/`. The
+only remaining item is `profiles-template/` (planned, not yet migrated).
+`docs/adr/0001-0005` (Core ADRs) and `tools/vbb-*.py` (Core tools) remain in
+their Core locations, untouched.
 
 ## Status
 
-Placeholder. Sentinel created, migration pending.
+Phase 1 (sentinel): DONE
+Phase 2 (docs migration): DONE
+Phase 3 (scripts/outils/proxy migration): DONE
+Phase 4 (Pi/Claude migration): DEFERRED (out of ADR 0013 scope)
+Phase 5 (final CI validation): pending Phase 4
 
 ## See also
 
-- `docs/hermes/INSTALL.md` — current install doc (will move Phase 2)
-- `scripts/hermes/verify.sh` — current verify (will move Phase 3)
-- `tools/proxy/` — current proxy (will move Phase 3)
+- `distributions/hermes/install/INSTALL.md` — current install doc
+- `distributions/hermes/verify/verify.sh` — current verify (28/28 PASS)
+- `distributions/hermes/proxy/` — current proxy cluster
+- `distributions/hermes/proxy/adr/` — current 7 proxy ADRs
+- `distributions/hermes/bypass-lint/` — current anti-bypass linter
 - `docs/adr/0013-repo-organization-core-vs-distributions.md` — this decision
 - `docs/DISTRIBUTIONS.md` §Hermes/Cody

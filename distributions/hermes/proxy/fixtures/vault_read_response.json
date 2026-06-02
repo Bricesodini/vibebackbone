@@ -1,0 +1,10 @@
+{
+  "secret_id": "fixture",
+  "value": "STUB-POC-VAULT-READ-VALUE-XXXX",
+  "value_preview": "STUB***",
+  "metadata": {
+    "source": "fixture",
+    "description": "Controlled mock for the vault_read POC action. Never expose real secrets in this file.",
+    "created_at": "2026-06-02T00:00:00Z"
+  }
+}

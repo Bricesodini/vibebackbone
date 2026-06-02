@@ -12,8 +12,10 @@ CODY_CHECK="${CODY_CHECK:-${HERMES_HOME}/bin/cody-check}"
 
 # SCRIPT_DIR: directory of this script (so the script is relocatable).
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# REPO_ROOT: parent of scripts/hermes/ (i.e. VBB Core repo root).
-REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+# REPO_ROOT: parent of distributions/hermes/verify/ (i.e. VBB Core repo root).
+# As of ADR 0013 Phase 3, the script lives at distributions/hermes/verify/verify.sh,
+# so 3 levels up (../../../) point to the repo root.
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 # If the operator did not explicitly override VBB_HOME, use the auto-detected
 # repo root. This makes in-tree runs work without exporting anything.
 if [ -z "${VBB_HOME_OVERRIDE:-}" ]; then
