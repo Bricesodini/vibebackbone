@@ -95,7 +95,20 @@ def _invoke_commit_msg_hook(message: str):
     This avoids the chicken-and-egg problem of `git commit` triggering
     the test environment's own hooks. The hook script reads $1 (path
     to message file) and applies rule #6.
+
+    Ensures the hook is executable before invocation (CI checkouts can
+    strip +x when the executable bit is not tracked in git).
     """
+    # Ensure the hook script is executable. CI checkouts may strip +x
+    # when the bit is not tracked in git index (default behavior on
+    # fresh checkouts). Make it deterministic for the test.
+    if not os.access(COMMIT_MSG_HOOK_SRC, os.X_OK):
+        try:
+            current = COMMIT_MSG_HOOK_SRC.stat().st_mode
+            COMMIT_MSG_HOOK_SRC.chmod(current | 0o755)
+        except OSError:
+            pass  # if chmod fails, the call below will surface the error
+
     with tempfile.NamedTemporaryFile("w", suffix=".msg", delete=False) as f:
         f.write(message)
         msg_path = f.name
