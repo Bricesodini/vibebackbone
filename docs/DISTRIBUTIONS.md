@@ -46,9 +46,11 @@ Core** for a specific agent runtime. A distribution consumes VBB Core
 against a particular agent process, profile system, or platform. A
 distribution:
 - **Imports / extends VBB Core** — it does not fork it.
-- **Is isolated outside this repository** — distributions do not live in the
-  VBB Core tree, on purpose: it preserves the agent-agnostic property of
-  Core and avoids coupling Core to a specific runtime.
+- **Is isolated as a folder (`distributions/`)** on purpose: it preserves the
+  agent-agnostic property of Core and avoids coupling Core to a specific
+  runtime. Distributions live in this repo under `distributions/` (e.g.
+  `distributions/hermes/`, `distributions/pi/`, `distributions/claude/`) but
+  remain logically separated from the VBB Core tree at the root.
 - **Owns only what's specific** — provider paths, profile manifests,
   orchestration scripts, secrets, runtime configs, integration points.
 - **Inherits canon** — any canon change in Core propagates to the distribution

@@ -25,8 +25,9 @@ and verification loops to make agentic development predictable, traceable and re
 > **VBB Core vs Distributions.** This repository holds **VBB Core** — the
 > generic, agent-agnostic method (skills, prompts, tools, templates, governance
 > docs). Operational declinations for a specific agent runtime are called
-> **Distributions** and live **outside this repo**. The currently active
-> distribution is **Hermes/Cody** (under `~/.hermes/profiles/vbb-*/`). For the
+> **Distributions** and live **inside this repo at `distributions/`**. The currently active
+> distribution is **Hermes/Cody** (under `distributions/hermes/` and the runtime
+> profile at `~/.hermes/profiles/vbb-*/`). For the
 > full distinction, Core ↔ Distribution propagation rules, and worked examples
 > (ADR/POC gate, profiles SOUL.md, security proxy), see
 > [`docs/DISTRIBUTIONS.md`](docs/DISTRIBUTIONS.md). Enforced by

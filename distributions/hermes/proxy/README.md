@@ -17,5 +17,5 @@ chmod 700 ~/.hermes/proxy
 python3 -m pytest tools/proxy/tests/ -v
 ```
 
-See `docs/proxy/POC_USAGE.md` for the full request/response contract
-and `docs/proxy/POC_CLOSEOUT.md` for the closeout.
+See `distributions/hermes/docs/POC_USAGE.md` for the full request/response contract
+and `distributions/hermes/docs/POC_CLOSEOUT.md` for the closeout.
