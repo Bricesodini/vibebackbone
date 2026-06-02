@@ -32,6 +32,21 @@ governance. Generated copies must not be pasted back into this file.
 10. **UI/UX routing discipline:** requests mentioning UI/UX, visual architecture,
     graphic centralization, design system, or surface mapping must invoke the
     `vibebackbone` orchestrator first for ENGINE_ONLY routing.
+11. **ADR + POC + Integration Gate:** for non-trivial work, run
+    `python ~/02_Dev/vibebackbone/tools/vbb-gate-check.py <run_dir>` **before**
+    code, between TRIAGE and EXECUTE (Cody boot loop Step 5.5). See
+    `~/02_Dev/vibebackbone/GUIDE.md` §10bis (alias §ADR+POC+Integration-Gate).
+    If `can_code_start=false` → STOP, do not delegate.
+12. **Core ↔ Distribution propagation rule:**
+    - **Core → Distribution (impact check):** before any structural change to
+      VBB Core (`GUIDE.md`, `CONVENTIONS.md`, `PILOTAGE.md`, `docs/templates/`,
+      `skills/`, `tools/`, `providers/`), check the impact on all active
+      distributions (currently Hermes/Cody in `~/.hermes/profiles/vbb-*/`).
+    - **Distribution → Core (promote-or-keep):** before any change to a
+      distribution, ask "is this specific to this distribution, or should it
+      be promoted to Core?". If it encodes a generic rule (gate, contract,
+      routing, quality), promote; if it is glue (persona, path, secret), keep.
+    - Both directions are recorded in `docs/DISTRIBUTIONS.md` §Decisions log.
 
 ## Runtime Behavior
 
@@ -42,6 +57,8 @@ governance. Generated copies must not be pasted back into this file.
 - Before important modifications: restate the goal, expose a short plan, stay
   read-only until the plan is explicit, then execute step by step.
 - If risk increases during execution, stop and escalate.
+- **Remember Critical Rule #11:** Core changes ripple to all distributions;
+  Distribution changes must justify their placement (Core vs distribution).
 
 ## Startup Checklist
 

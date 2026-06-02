@@ -3,6 +3,13 @@
 **Version** : 1.0 · **Date** : 2026-05-28 · **Public** : humains (devs, leads, PM)
 **Couche** : L3 — référence, pas chargé au boot. Charger via `tools/vbb-index.py search` ou skill `0-vbb-guide`.
 
+> **Portée de ce guide.** Ce document décrit **VBB Core** — la méthode générique
+> (skills, prompts, gates, conventions, routage). Pour la déclinaison
+> opérationnelle **Hermes/Cody** (profils SOUL.md, orchestrateur Cody, registry
+> projet, security proxy), voir [`docs/DISTRIBUTIONS.md`](docs/DISTRIBUTIONS.md)
+> et `~/.hermes/profiles/vbb-cody-orchestrator/SOUL.md`. La séparation Core vs
+> Distribution est régie par [AGENTS.md Critical Rule #11](AGENTS.md#critical-rules).
+
 Ce guide est un compagnon **pédagogique** du `README.md`. Le README dit *ce qu'est* vibebackbone. Ce guide dit *comment l'utiliser pour de vrai*, avec des cas d'usages concrets, des dialogues réalistes avec un agent, et les pièges à éviter.
 
 > Si vous avez 30 minutes, lisez les sections 1 à 5.
@@ -921,6 +928,8 @@ C'est une dérive classique. Réagir :
 
 ---
 
+<!-- Legacy alias: older worker SOUL.md files reference this section as §ADR+POC+Integration-Gate -->
+## ADR+POC+Integration-Gate
 ## 10bis. ADR + POC + Integration Gate (chantier 2026-06-13)
 
 > Section ajoutée par le chantier "ADR + POC + Integration Gate" (aussi

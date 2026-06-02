@@ -22,6 +22,16 @@ and verification loops to make agentic development predictable, traceable and re
 
 **Counters**: 64 skills · 33 prompts · 4 route families · MVP START gate
 
+> **VBB Core vs Distributions.** This repository holds **VBB Core** — the
+> generic, agent-agnostic method (skills, prompts, tools, templates, governance
+> docs). Operational declinations for a specific agent runtime are called
+> **Distributions** and live **outside this repo**. The currently active
+> distribution is **Hermes/Cody** (under `~/.hermes/profiles/vbb-*/`). For the
+> full distinction, Core ↔ Distribution propagation rules, and worked examples
+> (ADR/POC gate, profiles SOUL.md, security proxy), see
+> [`docs/DISTRIBUTIONS.md`](docs/DISTRIBUTIONS.md). Enforced by
+> [AGENTS.md Critical Rule #11](AGENTS.md#critical-rules).
+
 ---
 
 ---
@@ -47,6 +57,53 @@ Le résultat ? Un orchestrateur silencieux qui :
 ---
 
 ## Ce que contient ce repo
+
+This repository is **VBB Core** — the generic, agent-agnostic method. The
+structural layout of Core:
+
+```
+vibebackbone/             ← VBB Core (this repo)
+├── AGENTS.md            ← agent-facing critical rules
+├── GUIDE.md             ← long-form human guide
+├── CONVENTIONS.md       ← quality pillars P1–P5 + rules P.R1–P.R8
+├── docs/                ← canonical governance
+│   ├── CONTEXT.md
+│   ├── PILOTAGE.md
+│   ├── ARCHITECTURE.md
+│   ├── CONVENTIONS.md (mirror)
+│   ├── templates/       ← ADR, POC, INTEGRATION_GATE, 01-07 phases
+│   └── ...
+├── skills/              ← 64 injectable skills
+├── prompts/             ← 33 prompts (7 canon + 25 specialised + 1 router)
+├── providers/           ← Claude Code, Codex, Pi, OpenCode adapters
+├── tools/               ← vbb-architecture.py, vbb-gate-check.py, vbb-contract-lint.py, ...
+└── tests/, scripts/     ← CI and verification loops
+```
+
+A **Distribution** (e.g. **Hermes/Cody**) is an operational declination of
+Core for a specific agent runtime. Distributions are isolated **outside** this
+repo, on purpose — it keeps Core agent-agnostic. See
+[`docs/DISTRIBUTIONS.md`](docs/DISTRIBUTIONS.md) for the full distinction and
+the Core ↔ Distribution propagation rules (enforced by
+[AGENTS.md Critical Rule #11](AGENTS.md#critical-rules)).
+
+## VBB Core vs Distributions
+
+| Concern                         | VBB Core (this repo)                       | Distribution (e.g. Hermes/Cody)                              |
+|---------------------------------|--------------------------------------------|--------------------------------------------------------------|
+| What it is                      | Generic method, agent-agnostic             | Operational declination for one agent runtime                |
+| Where it lives                  | This repository                            | Outside the repo (e.g. `~/.hermes/profiles/vbb-*/`)           |
+| Examples of content             | Skills, prompts, templates, gates, linters | `SOUL.md` personas, orchestrator boot loop, registry, secrets |
+| ADR/POC/Integration Gate        | ✅ `tools/vbb-gate-check.py`, templates, `GUIDE.md` §10bis | consumes Core (worker SOUL.md calls the tool) |
+| Quality conventions             | ✅ `CONVENTIONS.md`, P.R1–P.R8             | inherits + applies                                            |
+| Provider-specific glue          | n/a (provider adapters live in Core)       | Persona, paths, runtime config, secrets, hooks                |
+| Security proxy (e.g. credential isolation) | n/a (operational)                | Lives in distribution, governed by proxy ADRs                |
+
+**Rule of thumb:** if a rule applies to **any** agent runtime, it belongs in
+Core. If it is glue to one specific runtime, it stays in the distribution.
+The bidirectional propagation rule (Core→Dist impact check, Dist→Core
+promote-or-keep) is in [AGENTS.md Critical Rule #11](AGENTS.md#critical-rules)
+and tracked in [`docs/DISTRIBUTIONS.md` §Decisions log](docs/DISTRIBUTIONS.md#7-decisions-log).
 
 ```
 vibebackbone/
