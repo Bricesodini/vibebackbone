@@ -7,10 +7,33 @@ Usage:
     python3 tools/vbb-loop-closure-check.py <run_id>
     python3 tools/vbb-loop-closure-check.py --run-id <run_id>
     VBB_RUN_ID=<run_id> python3 tools/vbb-loop-closure-check.py
+    python3 tools/vbb-loop-closure-check.py <run_id> --strict
+    python3 tools/vbb-loop-closure-check.py <run_id> --json
 
-Exit codes:
+Exit codes (default mode, --strict=False, retrocompatible):
     0  PASS  — all required artifacts present and valid
     1  FAIL  — one or more required artifacts missing or invalid
+    2  GATE_BLOCKED — no run_id resolvable (usage error in default mode)
+
+Exit codes (--strict mode, used by Cody as COMPLETE gate):
+    0  PASS  — all required artifacts present and valid
+    2  GATE_BLOCKED — loop-closure FAIL on the given run_id.
+                     FINAL_STATUS=COMPLETE is FORBIDDEN in this state.
+                     stderr carries the explicit blocking message.
+    3  TOOL_BROKEN — internal error (unexpected exception).
+                     The gate cannot decide; treat as FAIL.
+    64 USAGE_ERROR — --strict was set without a --run_id (or equivalent
+                     positional / VBB_RUN_ID env). The strict gate requires
+                     an explicit run_id to evaluate.
+
+--json output (when --json is passed) wraps the report with:
+    {
+      "exit_intent": "PASS" | "FAIL" | "GATE_BLOCKED",
+      "run_id": "<resolved run_id or null>",
+      "voie": "<resolved voie or null>",
+      "errors": [<list of error strings>],
+      "report": [<list of report lines, same as stdout text>]
+    }
 
 Invariant (from docs/runs/README.md):
     Voie RAPIDE-ZERO   → no docs/runs/ required (Activity Log only)
@@ -279,6 +302,29 @@ def main() -> int:
         metavar="DIR",
         help="Override docs/runs/ directory (used in tests)",
     )
+    parser.add_argument(
+        "--strict",
+        dest="strict",
+        action="store_true",
+        default=False,
+        help=(
+            "Enable COMPLETE-gate semantics: FAIL on the resolved run_id "
+            "returns exit 2 (GATE_BLOCKED), missing --run_id returns exit 64 "
+            "(USAGE_ERROR), internal errors return exit 3 (TOOL_BROKEN). "
+            "FINAL_STATUS=COMPLETE is FORBIDDEN when this gate exits non-zero. "
+            "Default: False (retrocompatible with the original PASS=0/FAIL=1 contract)."
+        ),
+    )
+    parser.add_argument(
+        "--json",
+        dest="json_output",
+        action="store_true",
+        default=False,
+        help=(
+            "Emit a JSON wrapper with exit_intent, run_id, voie, errors, "
+            "and the textual report. Exit codes are unchanged."
+        ),
+    )
     args = parser.parse_args()
 
     run_id = args.run_id or args.run_id_flag or os.environ.get("VBB_RUN_ID")
@@ -294,24 +340,108 @@ def main() -> int:
             )
             if candidates:
                 run_id = candidates[0].name
-                print(
-                    f"[info] No run_id given — using most recent: {run_id}",
-                    file=sys.stderr,
-                )
+                if not args.strict:
+                    print(
+                        f"[info] No run_id given — using most recent: {run_id}",
+                        file=sys.stderr,
+                    )
+
+    # ---- --strict mode: explicit run_id is required ----
+    if args.strict and not run_id:
+        msg = (
+            "GATE FAILED: --run_id required in --strict mode. "
+            "Provide the run_id via positional arg, --run-id, or VBB_RUN_ID env. "
+            "The strict gate cannot evaluate a closure without a target run_id."
+        )
+        if args.json_output:
+            import json as _json
+            print(_json.dumps({
+                "exit_intent": "GATE_BLOCKED",
+                "run_id": None,
+                "voie": None,
+                "errors": [msg],
+                "report": [],
+            }, indent=2))
+        else:
+            print(msg, file=sys.stderr)
+        return 64
 
     if not run_id:
-        print(
+        msg = (
             "Error: run_id is required.\n"
-            "Usage: vbb-loop-closure-check.py <run_id>",
-            file=sys.stderr,
+            "Usage: vbb-loop-closure-check.py <run_id>"
         )
-        return 1
+        if args.json_output:
+            import json as _json
+            print(_json.dumps({
+                "exit_intent": "GATE_BLOCKED",
+                "run_id": None,
+                "voie": None,
+                "errors": [msg],
+                "report": [],
+            }, indent=2))
+        else:
+            print(msg, file=sys.stderr)
+        return 1  # retrocompatible exit for "no run_id" in default mode
 
-    passed, report_lines = check_run(run_id, runs_dir=base)
-    for line in report_lines:
-        print(line)
+    # ---- Core check ----
+    try:
+        passed, report_lines = check_run(run_id, runs_dir=base)
+    except Exception as exc:  # noqa: BLE001 — we want to surface ANY error as TOOL_BROKEN
+        msg = (
+            f"GATE FAILED: vbb-loop-closure-check internal error on "
+            f"run_id={run_id}: {type(exc).__name__}: {exc}"
+        )
+        if args.json_output:
+            import json as _json
+            print(_json.dumps({
+                "exit_intent": "GATE_BLOCKED",
+                "run_id": run_id,
+                "voie": None,
+                "errors": [msg],
+                "report": [],
+            }, indent=2))
+        else:
+            print(msg, file=sys.stderr)
+        return 3  # TOOL_BROKEN — same in both modes (an internal error is an
+                  # internal error).
 
-    return 0 if passed else 1
+    if args.json_output:
+        import json as _json
+        # Build errors list from report (lines starting with "  ✗ ")
+        errors = [ln.lstrip().lstrip("✗").strip() for ln in report_lines
+                  if ln.strip().startswith("✗")]
+        # Extract resolved voie from report
+        voie = None
+        for ln in report_lines:
+            if ln.strip().startswith("Voie"):
+                voie = ln.split(":", 1)[1].strip() if ":" in ln else None
+                break
+        exit_intent = "PASS" if passed else "GATE_BLOCKED"
+        print(_json.dumps({
+            "exit_intent": exit_intent,
+            "run_id": run_id,
+            "voie": voie,
+            "errors": errors,
+            "report": report_lines,
+        }, indent=2))
+    else:
+        for line in report_lines:
+            print(line)
+
+    if passed:
+        return 0
+
+    # FAIL — branch on strict mode
+    if args.strict:
+        msg = (
+            f"GATE FAILED: loop-closure FAIL on run_id={run_id}. "
+            f"FINAL_STATUS=COMPLETE is not allowed. Fix closure before retrying."
+        )
+        print(msg, file=sys.stderr)
+        return 2  # GATE_BLOCKED
+
+    return 1  # retrocompatible FAIL
 
 
 if __name__ == "__main__":
