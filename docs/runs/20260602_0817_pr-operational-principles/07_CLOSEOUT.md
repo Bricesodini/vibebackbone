@@ -1,7 +1,7 @@
 # Closeout — 2026-06-02 08:17
 **Route:** STRUCTURED (Run 1 — VBB-AUDIT-002 P.R1-P.R8 exposés)
 **Branch:** main
-**Commit SHA:** <pending>
+**Commit SHA:** 0bda185
 **Project:** vibebackbone
 
 ---
@@ -38,11 +38,24 @@ réorganisés. IDs P.R1-P.R8 préservés.
 | Fichier | Type de changement | Lignes delta |
 |---------|--------------------|--------------|
 | docs/CONVENTIONS.md | Ajout section `## P.R1–P.R8 — Operational Principles` (table de mapping) | +19 |
-| ~/.hermes/profiles/vbb-fast-worker/SOUL.md | Ajout ligne cross-ref P.R1–P.R8 | +1 |
-| ~/.hermes/profiles/vbb-struct-worker/SOUL.md | Ajout ligne cross-ref P.R1–P.R8 | +1 |
-| ~/.hermes/profiles/vbb-close-worker/SOUL.md | Ajout ligne cross-ref P.R1–P.R8 | +1 |
+| ~/.hermes/profiles/vbb-fast-worker/SOUL.md | Ajout ligne cross-ref P.R1–P.R8 | +1 (hors repo vibebackbone — runtime Hermes) |
+| ~/.hermes/profiles/vbb-struct-worker/SOUL.md | Ajout ligne cross-ref P.R1–P.R8 | +1 (hors repo vibebackbone — runtime Hermes) |
+| ~/.hermes/profiles/vbb-close-worker/SOUL.md | Ajout ligne cross-ref P.R1–P.R8 | +1 (hors repo vibebackbone — runtime Hermes) |
 | docs/AUDIT_STATUS.md | Statut VBB-AUDIT-002 : "Plan Run 1" → "RÉSOLU" + note | 1 ligne éditée |
-| docs/runs/20260602_0817_pr-operational-principles/07_CLOSEOUT.md | Création (cet artefact) | +N |
+| docs/runs/20260602_0817_pr-operational-principles/07_CLOSEOUT.md | Création (cet artefact) | +120 |
+
+### Diff stat (commit vibebackbone repo)
+
+```
+docs/AUDIT_STATUS.md                               |   2 +-
+docs/CONVENTIONS.md                                |  19 ++++
+.../07_CLOSEOUT.md                                 | 120 +++++++++++++++++++++
+3 files changed, 140 insertions(+), 1 deletion(-)
+```
+
+> Note: les 3 fichiers SOUL.md modifiés vivent dans `~/.hermes/profiles/`
+> (runtime Hermes, hors repo vibebackbone). Ils ne sont pas dans le diff stat
+> ci-dessus mais leurs modifications sont effectives et persistentantes.
 
 ## Architecture
 
@@ -68,7 +81,7 @@ pas une modification de leur contenu.
 
 ## Commit
 
-SHA: <pending — to be filled after commit>
+SHA: 0bda185
 Branch: main
 Message: `docs(conventions): expose P.R1-P.R8 as operational principles (VBB-AUDIT-002)`
 
@@ -83,6 +96,8 @@ AUDIT_STATUS.md: VBB-AUDIT-002 marked RÉSOLU.
 Refs: VBB-AUDIT-002
 Refs: docs/plans/20260602_0611_audit-remediation.md (Run 1)
 ```
+
+Push: ✅ `5f8677e..0bda185 main -> main` (https://github.com/Bricesodini/vibebackbone.git)
 
 ## P.R8 disclosure
 
@@ -106,7 +121,7 @@ PROGRESS (emitted at 131s elapsed, threshold 90s):
 - files_touched_so_far: 5
 
 FINAL_STATUS:
-  elapsed_seconds: 140
+  elapsed_seconds: 269
   budget_initial: 180
   progress_emitted: true
   progress_count: 1
@@ -114,7 +129,8 @@ FINAL_STATUS:
   timeout_closeout_emitted: false
   verdict: COMPLETE
   files_touched: [docs/CONVENTIONS.md, ~/.hermes/profiles/vbb-fast-worker/SOUL.md, ~/.hermes/profiles/vbb-struct-worker/SOUL.md, ~/.hermes/profiles/vbb-close-worker/SOUL.md, docs/AUDIT_STATUS.md, docs/runs/20260602_0817_pr-operational-principles/07_CLOSEOUT.md]
-  tests_run: [vbb-contract-lint.py, vbb-contract-runtime.py --dry-run]
+  tests_run: [vbb-contract-lint.py, vbb-contract-runtime.py run --all --dry-run]
   tests_missing: []
   risks: [None — scope strictly documentation, no P.R6 risk re-handling, no security/integrity/compliance touch]
-  open_points: [Run 2 (VBB-AUDIT-005) et Run 3 (VBB-AUDIT-001) restent à exécuter selon le plan 20260602_0611]
+  open_points: [Run 2 (VBB-AUDIT-005 versioning) et Run 3 (VBB-AUDIT-001 prompts dual-system) restent à exécuter selon le plan 20260602_0611. Budget 180s dépassé (269s réel) — cause principale: la découverte tardive que les SOUL.md vivent dans ~/.hermes/profiles/ (hors repo) a forcé un re-découpage de la documentation du diff stat. Aucun blocker fonctionnel.]
+  budget_note: Over budget by 89s due to repo boundary discovery for SOUL.md files. All functional requirements met.
