@@ -199,6 +199,30 @@ bash ~/vibebackbone/setup.sh --uninstall
 
 ---
 
+## Hermes/Cody distribution (optional)
+
+If you also run the Hermes/Cody orchestrator on the same machine, it ships
+**5 worker SOUL.md files** that reference VBB Core tools via portable paths:
+
+- `~/.hermes/profiles/vbb-cody-orchestrator/SOUL.md`
+- `~/.hermes/profiles/vbb-fast-worker/SOUL.md`
+- `~/.hermes/profiles/vbb-struct-worker/SOUL.md`
+- `~/.hermes/profiles/vbb-audit-worker/SOUL.md`
+- `~/.hermes/profiles/vbb-close-worker/SOUL.md`
+
+These files call VBB tools using the portable form:
+
+```bash
+${CODY_CHECK:-${HERMES_HOME:-$HOME/.hermes}/bin/cody-check} <subcommand>
+python ~/02_Dev/vibebackbone/tools/vbb-gate-check.py <run_dir>
+```
+
+The `CODY_CHECK` / `HERMES_HOME` env vars let the same SOUL.md work on any
+machine without modification. See `docs/DISTRIBUTIONS.md` for the
+distribution-vs-core separation rules.
+
+---
+
 ## 9. Troubleshooting
 
 **"Skill not found"**

@@ -179,6 +179,16 @@ that triggered the decision.
 **Author**: <agent or human>
 ```
 
+### 2026-06-13 — Hermes/Cody packaging strategy (F-015)
+**Decision**: Documentation + verify script first, then install script. Never overwrite existing profiles without backup.
+**Trigger**: Audit 20260602_1645 + audit post-766bbf3, Q8 verdict FIX BEFORE INSTALL.
+**Reason**: F-015 was newly identified as a P0 packaging blocker. The distribution must be installable on a new machine without ambiguity about what gets created, where, and how. Splitting packaging into (1) docs, (2) verify script, (3) install script allows each step to be validated independently and reduces the risk of corrupting an existing `~/.hermes/profiles/vbb-*/` setup.
+**Impact**:
+  - VBB Core (this repo) gains: `docs/hermes/INSTALL.md` (future), `scripts/hermes/verify.sh` (future), `scripts/hermes/install.sh` (future).
+  - Distribution: profiles stay under `~/.hermes/profiles/vbb-*/`. No overwrite without backup.
+  - Next chantier: create `docs/hermes/INSTALL.md` (this run) and `scripts/hermes/verify.sh` (this run). Defer `scripts/hermes/install.sh` to a follow-up chantier (it is destructive, requires explicit confirmation).
+**Author**: vbb-struct-worker (delegated by Cody, audit-driven)
+
 ### Example entry (illustrative)
 
 ```

@@ -55,6 +55,19 @@ Full details (sequences, alternatives, artifact conventions): [ROUTER_MATRIX.md]
 4. End of session ? → CLOSEOUT: t-vbb-commit-ready → git commit → git push → SESSION.md → CONTEXT.md
 ```
 
+### Pre-execution gate (Cody boot loop Step 5.5)
+
+Before any worker touches the repo on a STRUCTURED or AUDIT route, the run
+directory must pass the VBB gate:
+
+```bash
+python ~/02_Dev/vibebackbone/tools/vbb-gate-check.py <run_dir>
+```
+
+The gate is clause-aware (ADR + POC + Integration), refuses to start a run
+that does not conform, and is the same gate that worker SOUL.md reference
+via `CODY_CHECK`. Exit 0 = proceed, non-zero = STOP and report the failure.
+
 ---
 
 ## Escalation rule
