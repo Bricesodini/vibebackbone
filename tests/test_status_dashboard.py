@@ -297,6 +297,71 @@ def test_latest_runs_missing_runs_dir():
         assert mod.get_latest_runs(repo, limit=5) == []
 
 
+def test_get_open_risks_no_p1_when_resolved():
+    """Regression test for QOA-004 (RUN 4): when AUDIT_STATUS.md marks all
+    P1 risks as RESOLVED, ``get_open_risks`` must return zero P1 entries.
+
+    Before RUN 4, the dashboard masked active P1s because the AUDIT_STATUS
+    risk table kept stale "Open" statuses for risks that were already fixed
+    by RUN 1/2/3. This test pins the post-RUN-4 invariant: the dashboard
+    surfaces only the genuinely-open P1s, and zero P1 means the table is
+    consistent.
+    """
+    mod = _import_dashboard()
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = Path(tmp)
+        audit = repo / "docs" / "AUDIT_STATUS.md"
+        audit.parent.mkdir(parents=True)
+        audit.write_text(
+            "## Risks identified & status\n"
+            "\n"
+            "<!-- Last updated 2026-06-13 (RUN 4) — 3 P1 resolved, 1 P1 closed (this entry) -->\n"
+            "\n"
+            "| ID | Severity | Description | Status |\n"
+            "|----|----------|-------------|--------|\n"
+            "| QOA-001 | P1 | Core/Distribution boundary | **RESOLVED** — RUN 2 commit 89bbe3d |\n"
+            "| QOA-002 | P1 | Hermes proxy migration incomplete | **RESOLVED** — RUN 1 commit d1ca51f |\n"
+            "| QOA-003 | P1 | Loop-closure lexical sort | **RESOLVED** — RUN 3 commit 6772422 |\n"
+            "| QOA-004 | P1 | Status dashboard masks open risks | **RESOLVED*** — RUN 4 fix |\n"
+            "| QOA-005 | P2 | Quality-adoption note | Open — reconcile QA table |\n"
+        )
+        risks = mod.get_open_risks(repo)
+        p1_open = [r for r in risks if r["severity"] == "P1"]
+        assert p1_open == [], (
+            f"Expected zero P1 risks after RUN 4 RESOLVED update, "
+            f"but get_open_risks returned: {p1_open}"
+        )
+        # Sanity: the P2 stays visible.
+        p2_open = [r for r in risks if r["severity"] == "P2"]
+        assert any(r["id"] == "QOA-005" for r in p2_open), (
+            f"Expected QOA-005 (P2, still Open) to be reported, got: {p2_open}"
+        )
+
+
+def test_get_open_risks_reports_stale_p1():
+    """Companion to test_get_open_risks_no_p1_when_resolved: when a P1 is
+    still marked Open in AUDIT_STATUS.md, ``get_open_risks`` must surface
+    it. This is the dashboard's job — to never mask an active P1.
+    """
+    mod = _import_dashboard()
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = Path(tmp)
+        audit = repo / "docs" / "AUDIT_STATUS.md"
+        audit.parent.mkdir(parents=True)
+        audit.write_text(
+            "## Risks identified & status\n"
+            "\n"
+            "| ID | Severity | Description | Status |\n"
+            "|----|----------|-------------|--------|\n"
+            "| QOA-099 | P1 | Stale P1 from previous run | Open — not yet fixed |\n"
+        )
+        risks = mod.get_open_risks(repo)
+        p1_open = [r for r in risks if r["severity"] == "P1"]
+        assert any(r["id"] == "QOA-099" for r in p1_open), (
+            f"Expected QOA-099 P1 to be reported, got: {p1_open}"
+        )
+
+
 # --- Direct execution fallback ---
 if __name__ == "__main__":
     try:

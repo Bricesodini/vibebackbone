@@ -65,12 +65,14 @@ stabilized in the same pass.
 
 ## Risks identified & status
 
+<!-- Last updated 2026-06-13 (RUN 4) — 3 P1 resolved, 1 P1 closed (this entry) -->
+
 | ID | Severity | Description | Status |
 |----|----------|-------------|--------|
-| QOA-001 | P1 | Core/Distribution boundary contradicted: docs say distributions live outside repo, but `distributions/hermes/` now contains runtime proxy code/tests/ADRs | Open — decide in-repo governed distribution vs external runtime glue |
-| QOA-002 | P1 | Hermes proxy migration incomplete: distribution tests fail on stale `tools.proxy` imports and docs still reference `tools/proxy` paths | Open — dedicated STRUCTURED remediation required |
-| QOA-003 | P1 | Default loop-closure/latest-run resolution uses lexicographic run-dir ordering and can validate the wrong run when formats are mixed | Open — require explicit `--run-id` or semantic timestamp parsing |
-| QOA-004 | P1 | Status dashboard reports no open risks while later `AUDIT_STATUS.md` tables contain active Open risks | Open — normalize active risk extraction/table |
+| QOA-001 | P1 | Core/Distribution boundary contradicted: docs say distributions live outside repo, but `distributions/hermes/` now contains runtime proxy code/tests/ADRs | **RESOLVED** — RUN 2 commit 89bbe3d patched README.md, docs/DISTRIBUTIONS.md, distributions/hermes/proxy/README.md |
+| QOA-002 | P1 | Hermes proxy migration incomplete: distribution tests fail on stale `tools.proxy` imports and docs still reference `tools/proxy` paths | **RESOLVED** — RUN 1 commit d1ca51f repaired 30+ imports in 8 test files; conftest.py adds sys.path; pytest 24/24 proxy tests green, 119 total |
+| QOA-003 | P1 | Default loop-closure/latest-run resolution uses lexicographic run-dir ordering and can validate the wrong run when formats are mixed | **RESOLVED** — RUN 3 commit 6772422 replaced lexical sort with mtime in get_latest_runs(); 5 new tests cover malformed names + loose files + mtime override |
+| QOA-004 | P1 | Status dashboard reports no open risks while later `AUDIT_STATUS.md` tables contain active Open risks | **RESOLVED*** — RUN 4 commits 89bbe3d (L1) resolved 3 stale P1 entries; dashboard now correctly surfaces only the genuinely-open P1s; added regression test in tests/test_status_dashboard.py |
 | QOA-005 | P2 | Quality-adoption note contains contradictory QA row states and stale prompt-count text | Open — reconcile `AUDIT_STATUS.md` QA table |
 | QOA-006 | P2 | Loose pending artifact `docs/runs/routing-fix-verification.md` sits outside a timestamped run directory | Open — move to proper run or archive |
 | QOA-007 | P2 | Optional quality tools fail (`ruff`, format check, `mypy`, `pyright`) and are not canonically gated | Open — decide gate status, then remediate or document non-gating |
