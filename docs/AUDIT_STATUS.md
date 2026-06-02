@@ -163,6 +163,24 @@ New audit: [pilotage-framework-20260527-1905.md](audits/pilotage-framework-20260
 
 This audit was run against the local workspace date `2026-05-27`, which is earlier than several existing central artifacts dated `2026-06-10` through `2026-06-13`. It therefore treats the future-dated status files as evidence with a temporal provenance risk rather than as unquestioned current state.
 
+## Latest audit note — Vibebackbone framework audit (2026-06-02)
+
+New audit: [20260602_0649_audit_vibebackbone.md](audits/20260602_0649_audit_vibebackbone.md).
+
+**Verdict :** `PARTIAL` — framework structurellement sain (Pillars 1-5, INDEX.yaml 64/64, 11 outils Python, cody-check fonctionnel) mais souffre de redondances skills/prompts + conventions implicites.
+
+**Findings :** 11 (0 P0, 2 P1, 5 P2, 4 P3).
+
+**Top 3 P1 :**
+
+| ID | Sévérité | Catégorie | Constat | Plan |
+|---|---:|---|---|---|
+| VBB-AUDIT-001 | P1 | Prompts | Double système prompts (lifecycle + canonical) non-réconcilié : 27+7 prompts sans mapping | [Plan](plans/20260602_0611_audit-remediation.md) Run 3 |
+| VBB-AUDIT-002 | P1 | Conventions | P.R1–P.R8 référencés par 3/4 SOUL.md mais nichés sous Pillar 5 (`###`), pas exposés en `##` | Plan Run 1 |
+| VBB-AUDIT-005 | P1 | Skills | Versioning SKILL.md frontmatter (1.0/1.1/2.0) ≠ CONTRACT.yaml (0.3), non-détecté par vbb-contract-lint.py | Plan Run 2 |
+
+**Plan de remediation :** `docs/plans/20260602_0611_audit-remediation.md` — 3 runs STRUCTURED séquencés, Run 1 (P.R1–P.R8 exposé) en premier, Run 3 (prompts dual-system) bloqué par décision Brice.
+
 ## Latest audit note — MVP start readiness (2026-05-27)
 
 New audit: [mvp-start-readiness-20260527-2142.md](audits/mvp-start-readiness-20260527-2142.md).

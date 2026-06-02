@@ -43,13 +43,94 @@ STRUCTURED triggers:
 - architecture-adjacent structure
 - significant implementation flow
 
-Constraints:
+**Constraints:**
 
 - Do not skip the plan.
 - Do not claim canonical compliance without governance grounding.
 - Keep the result aligned with project documentation.
 
-Output format:
+**LONG-RUN RULE:**
+
+This task follows the LONG-RUN RULE from `docs/PILOTAGE.md`.
+
+**Budget (STRUCTURED):**
+- Initial: 180s
+- Extension 1: +300s
+- Extension 2: +600s
+- Hard max: 1200s (20 min)
+- PROGRESS threshold: 90s (50% of initial — PROGRESS required if elapsed > 90s)
+
+**OUTPUT CONTRACT (mandatory):**
+
+Every STRUCTURED task MUST produce these blocks:
+
+**1. PROGRESS** (if elapsed > 90s — at least one before FINAL_STATUS):
+```
+PROGRESS:
+  phase: planning|editing|testing|closeout
+  done: ""
+  next: ""
+  files_touched: []
+  risks: []
+  estimated_remaining: ""
+  needs_extension: true|false
+```
+
+**2. EXTENSION_REQUEST** (if more time needed — before current budget expires):
+```
+EXTENSION_REQUEST:
+  reason: ""
+  additional_time_seconds: 300
+  scope_unchanged: true|false
+  next_bounded_step: ""
+  risk_changed: true|false
+```
+
+**3. TIMEOUT_CLOSEOUT** (if hard timeout or controlled stop):
+```
+TIMEOUT_CLOSEOUT:
+  completed: ""
+  incomplete: ""
+  files_touched: []
+  tests_run: []
+  tests_missing: []
+  risks: []
+  resume_from: ""
+  recommended_next_prompt: ""
+```
+
+**4. FINAL_STATUS** (always required at end of output):
+```
+FINAL_STATUS:
+  elapsed_seconds: 120
+  budget_initial: 180
+  progress_emitted: true|false
+  progress_count: 0
+  extension_requested: true|false
+  timeout_closeout_emitted: true|false
+  verdict: COMPLETE|EXTENDED|PARTIAL_CONTROL|FAILED_SILENT_TIMEOUT|BLOCKED
+  files_touched: []
+  tests_run: []
+  tests_missing: []
+  risks: []
+  open_points: []
+```
+
+**Rules:**
+- FINAL_STATUS is ALWAYS required.
+- PROGRESS is required if elapsed > 90s.
+- EXTENSION_REQUEST is required before any extension.
+- TIMEOUT_CLOSEOUT is required on hard timeout or controlled stop.
+- No silent timeout is acceptable.
+
+**Cody grants extension only if:**
+- phase is clear
+- files touched are known
+- next step is bounded
+- `risk_changed: false`
+- `scope_unchanged: true` or explicitly approved
+
+**Output format:**
 
 - Goal
 - Why this is STRUCTURED
@@ -62,6 +143,13 @@ Output format:
 - Action
 - Result
 - Open points
+
+**FINAL_STATUS block (mandatory — always last):**
+The FINAL_STATUS block must appear both:
+1. At the end of the output text (in the delegate summary)
+2. Written inside the `07_CLOSEOUT.md` artifact file on disk
+
+The 07_CLOSEOUT.md must end with `## LONG_RUN_SUMMARY` section containing the FINAL_STATUS block.
 
 ---
 

@@ -63,6 +63,147 @@ FAST task that reveals impact on data, auth, security, compliance, production, o
 
 Full procedure (stop, partial closeout, new session): [SESSION_RULES.md § Escalation](SESSION_RULES.md#escalation--new-session)
 
+---
+
+## LONG-RUN RULE
+
+A timeout is a **checkpoint, not a failure**. No worker may disappear silently.
+
+### Required formats
+
+Workers must emit these blocks at appropriate boundaries:
+
+**PROGRESS** (mid-run heartbeat — see thresholds below):
+```yaml
+PROGRESS:
+  phase: planning|editing|testing|closeout
+  done: ""
+  next: ""
+  files_touched: []
+  risks: []
+  estimated_remaining: ""
+  needs_extension: true|false
+```
+
+**EXTENSION_REQUEST** (before timeout — mandatory before any extension is granted):
+```yaml
+EXTENSION_REQUEST:
+  reason: ""
+  additional_time_seconds: 300
+  scope_unchanged: true|false
+  next_bounded_step: ""
+  risk_changed: true|false
+```
+
+**TIMEOUT_CLOSEOUT** (mandatory on hard timeout or controlled stop):
+```yaml
+TIMEOUT_CLOSEOUT:
+  completed: ""
+  incomplete: ""
+  files_touched: []
+  tests_run: []
+  tests_missing: []
+  risks: []
+  resume_from: ""
+  recommended_next_prompt: ""
+```
+
+**FINAL_STATUS** (mandatory for every worker — always at end of output):
+```yaml
+FINAL_STATUS:
+  elapsed_seconds: 120
+  budget_initial: 180
+  progress_emitted: true|false
+  progress_count: 0
+  extension_requested: true|false
+  timeout_closeout_emitted: true|false
+  verdict: COMPLETE|EXTENDED|PARTIAL_CONTROL|FAILED_SILENT_TIMEOUT|BLOCKED
+  files_touched: []
+  tests_run: []
+  tests_missing: []
+  risks: []
+  open_points: []
+```
+
+### Budgets by route
+
+| Route | Initial | Extension 1 | Extension 2 | Hard max | PROGRESS threshold (50%) |
+|-------|---------|-------------|-------------|----------|-------------------------|
+| **FAST** | 60s | +120s | — | 5 min | **30s** |
+| **STRUCTURED** | 180s | +300s | +600s | 20 min | **90s** |
+| **AUDIT** | 180s | +300s | — | 15 min | **90s** |
+| **CLOSEOUT** | 90s | +180s | — | 5 min | **45s** |
+
+### OUTPUT CONTRACT rules
+
+These rules are **mandatory** for all workers.
+
+**Rule 1 — FINAL_STATUS always required (in both summary AND durable artifact).**
+Every worker output MUST end with a `FINAL_STATUS` block. Additionally, if the worker produces a durable artifact (`07_CLOSEOUT.md`, audit report, or similar), the `FINAL_STATUS` block MUST be included in that file on disk. The delegate summary alone is NOT a durable record.
+
+**Rule 2 — PROGRESS required when elapsed > threshold.**
+If `elapsed_seconds > PROGRESS threshold`, at least one `PROGRESS` block is REQUIRED before `FINAL_STATUS`.
+
+**Rule 3 — EXTENSION_REQUEST required before extension.**
+If a worker needs more time, it MUST emit `EXTENSION_REQUEST` before the current budget expires. Cody grants or denies.
+
+**Rule 4 — TIMEOUT_CLOSEOUT required on hard timeout or controlled stop.**
+If `hard_max` is reached or the run is intentionally stopped, the worker MUST produce `TIMEOUT_CLOSEOUT` instead of `FINAL_STATUS`.
+
+### Scenarios
+
+**Scenario A — Completed within PROGRESS threshold:**
+- `FINAL_STATUS` (verdict: COMPLETE)
+- `PROGRESS`: not required
+- Durable artifact? → write FINAL_STATUS into it if it exists
+
+**Scenario B — Completed after PROGRESS threshold:**
+- `FINAL_STATUS` (verdict: COMPLETE or EXTENDED)
+- `PROGRESS`: at least 1 block REQUIRED
+- `EXTENSION_REQUEST`: if extension was needed and granted
+- Durable artifact? → write FINAL_STATUS into it if it exists
+
+**Scenario C — Hard timeout or controlled stop:**
+- `TIMEOUT_CLOSEOUT` (verdict: PARTIAL_CONTROL or FAILED_SILENT_TIMEOUT)
+- `PROGRESS`: if emitted before the stop
+- Durable artifact? → write TIMEOUT_CLOSEOUT into it if it exists
+
+**Scenario D — Worker disappeared silently:**
+- No `FINAL_STATUS` and no `TIMEOUT_CLOSEOUT` in output
+- Cody verdict: `FAILED_SILENT_TIMEOUT`
+
+### Durability classification
+
+When evaluating FINAL_STATUS and verdict, Cody classifies durability:
+
+| Condition | Durability |
+|----------|------------|
+| FINAL_STATUS in durable artifact (07_CLOSEOUT.md, audit report, etc.) | `COMPLETE_DURABLE` |
+| FINAL_STATUS only in delegate summary, no durable artifact | `PARTIAL_DURABLE` |
+| TIMEOUT_CLOSEOUT in durable artifact | `COMPLETE_DURABLE` |
+| TIMEOUT_CLOSEOUT only in summary | `PARTIAL_DURABLE` |
+| No FINAL_STATUS and no TIMEOUT_CLOSEOUT | `FAILED_SILENT_TIMEOUT` |
+
+`PARTIAL_DURABLE` is not a failure, but it means the record depends on the session summary. Prefer writing blocks into durable artifacts.
+
+### Extension conditions
+
+Cody may grant an extension only if:
+- phase is clear
+- files touched are known
+- next step is bounded
+- `risk_changed: false`
+- `scope_unchanged: true` or explicitly approved
+
+### Verdict vocabulary
+
+- `COMPLETE` — task finished, all required blocks present
+- `EXTENDED` — task finished after granted extension
+- `LONG_RUN_CONTROL_VALIDATED` — system handled the long run correctly (complete or extended)
+- `PARTIAL_CONTROL` — timeout reached but TIMEOUT_CLOSEOUT produced, resume point clear
+- `FAILED_SILENT_TIMEOUT` — worker disappeared without TIMEOUT_CLOSEOUT
+- `BLOCKED` — cannot determine next step from available state
+
 MVP START escalation:
 
 - critical ambiguity -> blocking questions
