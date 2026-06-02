@@ -1,0 +1,39 @@
+{
+  "_comment": "Vibebackbone subagent overrides — model: local d'abord, fallback: Ollama Cloud",
+  "_source": "docs/LLM_PROVIDERS.md",
+  "vbb-scouter": {
+    "model": "ollama/qwen3.6-27b-agent-nvfp4-64k:latest",
+    "fallbackModels": ["ollama/deepseek-v4-flash:cloud"],
+    "thinking": "medium"
+  },
+  "vbb-reviewer": {
+    "model": "ollama/qwen3.6-27b-agent-nvfp4-64k:latest",
+    "fallbackModels": ["ollama/deepseek-v4-flash:cloud"],
+    "thinking": "medium"
+  },
+  "vbb-worker": {
+    "model": "ollama/qwen3.6-27b-agent-nvfp4-64k:latest",
+    "fallbackModels": ["ollama/deepseek-v4-flash:cloud"],
+    "thinking": "high"
+  },
+  "vbb-researcher": {
+    "model": "ollama/qwen3.6-27b-agent-nvfp4-64k:latest",
+    "fallbackModels": ["ollama/deepseek-v4-flash:cloud"],
+    "thinking": "medium"
+  },
+  "vbb-planner": {
+    "model": "ollama/qwen3.6-27b-agent-nvfp4-64k:latest",
+    "fallbackModels": ["ollama/deepseek-v4-flash:cloud"],
+    "thinking": "high"
+  },
+  "vbb-oracle": {
+    "model": "ollama/qwen3.6-27b-agent-nvfp4-64k:latest",
+    "fallbackModels": ["ollama/deepseek-v4-flash:cloud"],
+    "thinking": "high"
+  },
+  "vbb-context-builder": {
+    "model": "ollama/qwen3.6-27b-agent-nvfp4-64k:latest",
+    "fallbackModels": ["ollama/deepseek-v4-flash:cloud"],
+    "thinking": "medium"
+  }
+}

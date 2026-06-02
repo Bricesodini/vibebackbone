@@ -59,13 +59,13 @@ curl -s http://localhost:11434/api/tags | jq
 ### Pour changer le modèle local
 
 1. Modifier ce fichier (`model` dans le tableau "LLMs Locaux")
-2. Mettre à jour `.pi/subagent-overrides.json`
+2. Mettre à jour `distributions/pi/overrides.template.json` (path canonique depuis ADR 0013 Phase 4 ; le symlink `.pi/subagent-overrides.json` historique n'est plus utilisé)
 3. Relancer les subagents
 
 ### Pour ajouter un fallback supplémentaire
 
 ```json
-// Editer .pi/subagent-overrides.json
+// Editer distributions/pi/overrides.template.json
 {
   "vbb-worker": {
     "model": "ollama/qwen3.6-27b-agent-nvfp4-64k:latest",

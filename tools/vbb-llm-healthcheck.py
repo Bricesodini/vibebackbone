@@ -18,7 +18,7 @@ from typing import Optional
 
 # --- Configuration ---
 REGISTRY_PATH = Path(__file__).parent.parent / "docs" / "LLM_PROVIDERS.md"
-OVERRIDES_PATH = Path(__file__).parent.parent / ".pi" / "subagent-overrides.json"
+OVERRIDES_PATH = Path(__file__).parent.parent / "distributions" / "pi" / "overrides.template.json"
 
 # Providers locaux standards
 PROVIDERS = {

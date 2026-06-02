@@ -220,6 +220,81 @@ that triggered the decision.
   - **Phase 3 (out of scope this run)**: `scripts/hermes/verify.sh` → `distributions/hermes/verify/`, `tools/proxy/` → `distributions/hermes/proxy/`, `tools/vbb-bypass-lint*` → `distributions/hermes/bypass-lint/`, pre-commit whitelist extended, `test_framework_gate_hook.sh` path ported to `$REPO_ROOT`.
 |**Author**: vbb-struct-worker (delegated by Cody, ADR 0013 Phase 2 implementation)
 
+### 2026-06-13 — Hermes/Cody scripts/outils/proxy migration (ADR 0013 Phase 3)
+|**Decision**: Migrate runtime scripts, the proxy cluster, and the anti-bypass linter under `distributions/hermes/`. ADR 0001-0005 (Core canon) and `tools/vbb-*.py` (Core tools) remain untouched.
+|**Trigger**: ADR 0013 Accepted (LIGHT REORG, fd46388). Phase 1 (sentinel) + Phase 2 (docs) already landed. Phase 3 prep R1 (commit a8af630) extended the pre-commit-framework-gate hook whitelist to `distributions/*`, unblocking the move.
+|**Reason**: Phase 2 stopped at docs because the runtime cluster (17 proxy files + bypass-lint + verify.sh) had not yet been migrated. ADR 0013 §5 mandates LIGHT REORG — runtime artifacts specific to Hermes (proxy code, anti-bypass linter, verify script) belong in the distribution, not in VBB Core's `tools/` and `scripts/` trees. The verify script's `REPO_ROOT` auto-detection was adjusted from `../..` to `../../..` (3 levels up) to compensate for the new path depth; VBB_HOME default (`$HOME/02_Dev/vibebackbone`) is preserved.
+|**Impact**:
+  - **New canonical paths** (source of truth from this run onward):
+    - `distributions/hermes/proxy/` (← was `tools/proxy/`, 17 source files + `fixtures/` + `tests/`, untracked `mv`; cluster was untracked)
+    - `distributions/hermes/bypass-lint/vbb-bypass-lint.py` (← was `tools/vbb-bypass-lint.py`, untracked `mv`)
+    - `distributions/hermes/bypass-lint/` (← was `tools/vbb-bypass-lint/`, untracked `mv`; contains `__init__.py`, `README.md`, `tests/`)
+    - `distributions/hermes/verify/verify.sh` (← was `scripts/hermes/verify.sh`, tracked `git mv`)
+  - **Untouched (Core canon, not distribution-owned)**:
+    - `docs/adr/0001-0005*.md` — Core ADRs, stay in `docs/adr/`
+    - `tools/vbb-*.py` (architecture, contract-lint, gate-check, phase-router, loop-closure-check, etc.) — Core tools
+    - `docs/audits/20260602_*.md` (3 files) — historical audits, immutable
+    - `distributions/hermes/proxy/adr/0006-0012*.md` — already in place since Phase 2
+  - **Documentation patched**:
+    - `distributions/hermes/README.md` — sentinel updated; migration items marked DONE (verify, proxy, bypass-lint); profiles-template still planned.
+    - `distributions/hermes/install/INSTALL.md` — 4 references to `scripts/hermes/verify.sh` patched to `distributions/hermes/verify/verify.sh`; §4 path-note (`../../`) updated to `../../..`; §11 already correct from Phase 2.
+    - `docs/DISTRIBUTIONS.md` — this entry (Phase 3 historical record). §4 and §6.3 already correctly describe the proxy at the distribution level (no path references to patch).
+  - **Tests patched**:
+    - `distributions/hermes/bypass-lint/tests/conftest.py` — `TOOLS_DIR = Path(__file__).resolve().parents[2]` adjusted to `parents[1]` (now `distributions/hermes/bypass-lint/`) so `LINTER_PATH` resolves to the new `vbb-bypass-lint.py` location.
+    - `distributions/hermes/bypass-lint/tests/test_cli.py` — same `parents[2]` → `parents[1]` adjustment.
+    - `distributions/hermes/bypass-lint/tests/test_allowlist.py` — `parents[3]` → `parents[2]` (was resolving to `~/02_Dev/vibebackbone/` from old `tools/vbb-bypass-lint/tests/`); regression test for `tools/proxy/` retained as documentation (guarded by `if proxy.exists()`).
+  - **Linter guidance strings**: `distributions/hermes/bypass-lint/vbb-bypass-lint.py` contains ~25 guidance messages referencing `tools/proxy/client.py` (e.g. "Use tools/proxy/client.py with action 'nas_exec' instead."). These are guidance strings, not resolved paths; they remain pointing at the old path so that historical forensics in audit logs still match. Future work (Phase 4+) may update them to `distributions/hermes/proxy/client.py`.
+  - **Phase 3 verification (28/28 PASS)**: `bash distributions/hermes/verify/verify.sh` exits 0 with all 28 checks PASS (VBB Core tools, Hermes profiles, SOUL.md portability F-004, cody-check resolvability).
+  - **Pre-commit hook**: a8af630 extended the pre-commit-framework-gate whitelist to `distributions/*` (R1 prep), so the framework-gate hook will not block commits that touch only `distributions/hermes/`.
+  - **Historical decision-log entries above (F-015 2026-06-13, Phase 2 2026-06-13)**: preserved verbatim per immutability convention. They continue to record the pre-Phase-3 paths they referenced. This entry supersedes them for all new code/docs.
+  - **Out of scope this run**: Phase 4 (Pi/Claude migration), Phase 5 (final CI validation), `setup.sh` modifications (none required), Hermes profile modifications (none required), `install.sh` creation (DEFERRED per F-015).
+|**Author**: vbb-struct-worker (delegated by Cody, ADR 0013 Phase 3 implementation)
+
+### 2026-06-13 — Pi and Claude Code root → distributions migration (ADR 0013 Phase 4)
+|**Decision**: Pi and Claude Code migrated from root to `distributions/{pi,claude}/` with symlinks for runtime compatibility. `.claude/` untouched (Claude Code runtime generates it).
+|**Trigger**: Audit 2026-06-13 Phase 4 + ADR 0013 Accepted (LIGHT REORG, fd46388). Phase 1 (sentinels, cb1984c) + Phase 2 (docs, d7f9130) + Phase 3 (runtime, d5add57) already landed; Phase 4 was the last remaining Core-vs-Distribution move for Pi and Claude Code.
+|**Reason**: Symlinks preserve runtime compatibility (Pi `mode projet` reads `SYSTEM.md` at root, Claude Code `@import` reads `CLAUDE.md` at root, `setup.sh` deploys `~/.pi/agent/SYSTEM.md` from `$REPO_ROOT/SYSTEM.md`) while making the Core vs Distribution split readable for humans. Migrating the file without a symlink would have broken Pi's discovery heuristic and required editing `setup.sh` (out of scope per Phase 3 closeout).
+|**Impact**:
+  - **New canonical paths** (source of truth from this run onward):
+    - `distributions/pi/SYSTEM.md` (← was `SYSTEM.md` at root, tracked `git mv`)
+    - `distributions/pi/overrides.template.json` (← was `.pi/subagent-overrides.json`, untracked `mv` — file was gitignored under `.pi/`)
+    - `distributions/claude/CLAUDE.md` (← was `CLAUDE.md` at root, tracked `git mv`)
+  - **Symlinks created at root** (runtime compat):
+    - `SYSTEM.md` → `distributions/pi/SYSTEM.md` (relative)
+    - `CLAUDE.md` → `distributions/claude/CLAUDE.md` (relative)
+  - **Files patched (1 Core tool, 1 user doc)**:
+    - `tools/vbb-llm-healthcheck.py` L21 — `OVERRIDES_PATH` updated from `.pi/subagent-overrides.json` to `distributions/pi/overrides.template.json` (the only Core-tool reference to the old path; verified via `grep -rn subagent-overrides`).
+    - `docs/LLM_PROVIDERS.md` L62 + L68 — user-facing operational doc updated to reference the new path (additive note: "le symlink `.pi/subagent-overrides.json` historique n'est plus utilisé" to preserve the historical context).
+  - **Distributions READMEs updated/created**:
+    - `distributions/pi/README.md` — status flipped from `anticipated / placeholder` to `active`; lists migrated items + unchanged items (e.g. `setup.sh` needs no patch because of symlinks).
+    - `distributions/claude/README.md` (new) — ≤ 30 lines, Role/What-belongs/What-does-NOT-belong/Status/See-also sections, status: active.
+  - **Untouched (per constraints)**:
+    - `.claude/settings.local.json` — KEEP ROOT (Claude Code runtime generates it, gitignored, per-machine).
+    - `.claude/` directory at root — runtime-owned.
+    - `setup.sh` — 0 lines modified (verified via `git diff setup.sh`); symlinks at root transparently preserve its `$REPO_ROOT/SYSTEM.md` lookup.
+    - `.github/workflows/` — CI, untouched.
+    - `tools/vbb-*.py` (other than `vbb-llm-healthcheck.py`) — Core canon, untouched.
+    - `docs/adr/0001-0005*.md` — Core ADRs, untouched.
+    - `docs/adr/0006-0012*.md` — proxy ADRs, already in `distributions/hermes/proxy/adr/` since Phase 2, untouched.
+    - `docs/adr/0013-repo-organization-core-vs-distributions.md` — the ADR itself, untouched (its §5 / §6 already describe the planned Phase 4 paths; the historical "current `SYSTEM.md`" mentions on L23 and L147 of ADR 0013 are now historical and remain in place per immutability convention).
+    - `install.sh` — not created (DEFERRED per F-015).
+    - Hermes profiles (`~/.hermes/profiles/vbb-*/`) — 0 modifications.
+    - Proxy code — already migrated in Phase 3, untouched.
+    - `docs/audits/20260602_*.md` (3 files) — historical audits, immutable, left untracked.
+  - **Verification** (post-migration):
+    - `readlink SYSTEM.md` → `distributions/pi/SYSTEM.md` ✓
+    - `readlink CLAUDE.md` → `distributions/claude/CLAUDE.md` ✓
+    - `test -f distributions/pi/SYSTEM.md` → exists ✓
+    - `test -f distributions/pi/overrides.template.json` → exists ✓
+    - `test -f distributions/claude/CLAUDE.md` → exists ✓
+    - `python tools/vbb-architecture.py lint` → 0 error ✓
+    - `python tools/vbb-contract-lint.py` → 0 error ✓
+    - `bash distributions/hermes/verify/verify.sh` → 28/28 PASS ✓
+    - `python3 -m pytest tests/ -q` → 95/95 vert (2 skipped, baseline) ✓
+    - `git diff setup.sh` → vide (0 modification) ✓
+  - **Out of scope this run**: Phase 5 (final CI validation), `install.sh` creation, Hermes profile migration, proxy migration (already done in Phase 3), documentation harmonisation of pre-Phase-4 entries above (immutability convention).
+|**Author**: vbb-struct-worker (delegated by Cody, ADR 0013 Phase 4 implementation)
+
 ### Example entry (illustrative)
 
 ```
