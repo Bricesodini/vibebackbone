@@ -1,6 +1,6 @@
 # ADR 0013 — Repository Organization: VBB Core vs Distributions (LIGHT REORG)
 
-**Status**: Proposed
+**Status**: Accepted
 **Date**: 2026-06-13
 **Route**: STRUCTURED
 **Décideurs**: Brice Sodini (validation future), Hermes (orchestration, `vbb-struct-worker`), Cody (delegation)
@@ -105,7 +105,7 @@ the 30-second reading *more* confusing, not less. A single top-level
 
 ## Hypotheses
 
-- (H1) Brice will validate the LIGHT REORG strategy in a future run, transitioning this ADR from `Proposed` to `Accepted`.
+- (H1) Brice has validated the LIGHT REORG strategy (2026-06-13), transitioning this ADR from `Proposed` to `Accepted`.
 - (H2) No migration (Phase 2-5) is attempted before the ADR is `Accepted`. Phase 1 is purely additive by design.
 - (H3) `setup.sh` (1484 lines) is already distribution-aware; no modification is required for Phase 1.
 - (H4) The 5 sentinels are sufficient to make the Core vs Distribution split readable in 30 seconds for a new operator, without moving a single existing file.
@@ -122,7 +122,7 @@ the 30-second reading *more* confusing, not less. A single top-level
 
 ```yaml
 FINAL_STATUS:
-  status: PROPOSED
+  status: ACCEPTED
   date: 2026-06-13
   route: STRUCTURED
   decisions_count: 1
@@ -148,5 +148,5 @@ FINAL_STATUS:
     - phase_5: distributions/examples/ consolidation if needed
   risks_open: 5 (R1-R5, see Risks section)
   hypotheses: 4 (H1-H4, see Hypotheses section)
-  verdict: PROPOSED_PENDING_BRICE_REVIEW
+  verdict: ACCEPTED_BY_BRICE_2026-06-13
 ```
