@@ -126,22 +126,53 @@ def extract_next_action(repo: Path) -> str:
     return ""
 
 
+def _find_closeout(run_dir: Path) -> Optional[Path]:
+    """Locate the closeout file inside a run directory.
+
+    Accepts the canonical ``07_CLOSEOUT.md`` first, then falls back to any
+    file matching ``*CLOSEOUT*.md`` (case-insensitive). Returns ``None`` if
+    no closeout file is present.
+    """
+    canonical = run_dir / "07_CLOSEOUT.md"
+    if canonical.is_file():
+        return canonical
+    matches = [p for p in run_dir.glob("*CLOSEOUT*.md") if p.is_file()]
+    if not matches:
+        return None
+    # Prefer the most recently modified closeout candidate to defend against
+    # stale duplicates from partial re-runs.
+    return max(matches, key=lambda p: p.stat().st_mtime)
+
+
 def get_latest_runs(repo: Path, limit: int = 5) -> List[Dict]:
-    """Get N most recent run directories with their voie and status."""
+    """Get N most recent run directories with their voie and status.
+
+    Selection rules (RUN 3 stabilisation, 2026-06-03):
+      * Only directories are considered (``README.md``, ``routing-fix-verification.md``
+        and any other loose files in ``docs/runs/`` are excluded).
+      * Sort key is the **directory mtime** (not the lexical name). mtime is robust
+        to inconsistent naming (``20260602_0817_…`` vs ``2026-06-13_2200_…``) and
+        to future-dated folder names that the lexical sort would mishandle.
+      * Closeout detection accepts the canonical ``07_CLOSEOUT.md`` first, then
+        falls back to any ``*CLOSEOUT*.md`` file (handles in-progress runs that
+        write ``CLOSEOUT.md`` before the standard rename).
+    """
     runs_dir = repo / "docs" / "runs"
     if not runs_dir.exists():
         return []
-    run_dirs = sorted(
-        [d for d in runs_dir.iterdir() if d.is_dir()],
-        key=lambda d: d.name,
-        reverse=True
-    )
-    runs = []
-    for rd in run_dirs[:limit * 2]:  # extra buffer in case some lack closeout
+    # Filter: directories only. iterdir() yields loose files too; the
+    # ``is_dir()`` check defensively drops ``README.md`` and any other
+    # parasitic artefact that may land in ``docs/runs/``.
+    run_dirs = [d for d in runs_dir.iterdir() if d.is_dir()]
+    # Sort by mtime (newest first). mtime is the most reliable proxy for
+    # "most recent" because it is independent of the folder name format.
+    run_dirs.sort(key=lambda d: d.stat().st_mtime, reverse=True)
+    runs: List[Dict] = []
+    for rd in run_dirs[: limit * 2]:  # extra buffer in case some lack closeout
         if len(runs) >= limit:
             break
-        closeout = rd / "07_CLOSEOUT.md"
-        if not closeout.exists():
+        closeout = _find_closeout(rd)
+        if closeout is None:
             continue
         fm = read_frontmatter(closeout)
         content = read_file(closeout)

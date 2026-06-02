@@ -102,6 +102,14 @@ def compact_run(run_dir: Path) -> Optional[str]:
         return None
 
     # Read all phase artifacts in order
+    # NOTE (RUN 3, 2026-06-03): the lexical sort is intentional here, not a
+    # bug like in tools/vbb-status-dashboard.py:get_latest_runs. Phase
+    # artifacts are named with fixed two-digit numeric prefixes
+    # (01_INTAKE.md, 02_AUDIT.md, …, 07_CLOSEOUT.md) so lexical order
+    # coincides with execution order. The dashboard sort, by contrast, deals
+    # with run *directory* names where the prefix format is heterogeneous
+    # (e.g. "2026-06-13_2200_…" vs "20260602_0817_…") and required switching
+    # to mtime. Do not "fix" this sort without re-reading that rationale.
     phase_files = sorted(run_dir.glob("*.md"))
     if not phase_files:
         print(f"Error: no markdown files found in {run_dir}", file=sys.stderr)
