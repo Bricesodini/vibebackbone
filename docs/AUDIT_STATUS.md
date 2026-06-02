@@ -67,6 +67,15 @@ stabilized in the same pass.
 
 | ID | Severity | Description | Status |
 |----|----------|-------------|--------|
+| QOA-001 | P1 | Core/Distribution boundary contradicted: docs say distributions live outside repo, but `distributions/hermes/` now contains runtime proxy code/tests/ADRs | Open — decide in-repo governed distribution vs external runtime glue |
+| QOA-002 | P1 | Hermes proxy migration incomplete: distribution tests fail on stale `tools.proxy` imports and docs still reference `tools/proxy` paths | Open — dedicated STRUCTURED remediation required |
+| QOA-003 | P1 | Default loop-closure/latest-run resolution uses lexicographic run-dir ordering and can validate the wrong run when formats are mixed | Open — require explicit `--run-id` or semantic timestamp parsing |
+| QOA-004 | P1 | Status dashboard reports no open risks while later `AUDIT_STATUS.md` tables contain active Open risks | Open — normalize active risk extraction/table |
+| QOA-005 | P2 | Quality-adoption note contains contradictory QA row states and stale prompt-count text | Open — reconcile `AUDIT_STATUS.md` QA table |
+| QOA-006 | P2 | Loose pending artifact `docs/runs/routing-fix-verification.md` sits outside a timestamped run directory | Open — move to proper run or archive |
+| QOA-007 | P2 | Optional quality tools fail (`ruff`, format check, `mypy`, `pyright`) and are not canonically gated | Open — decide gate status, then remediate or document non-gating |
+| QOA-008 | P2 | `distributions/**` code is absent from architecture source and CI test coverage | Open — add governed distribution block/CI or explicitly exclude from Core claims |
+| QOA-009 | P3 | Static status counters drift from measured state (`82/82` docs vs `95 passed, 2 skipped`; runtime dry-run counts changed) | Open — replace static counters with generated references |
 | PILOT-001 | P1 | `skills/INDEX.yaml` indexes 43/63 contracts; router/runtime coverage is lower than documented contract-file coverage | Resolved — index now 64/64 (v1.0.0-rc.1), linter guard added, runtime executes 64 contracts |
 | PILOT-002 | P1 | Phase router can route unknown/unindexed requests from agent/phase scoring without semantic trigger match | Resolved — router now requires trigger match, regression test green |
 | PILOT-003 | P1 | Two pilotage files claim canonical authority and diverge (`docs/PILOTAGE.md` v2.2 vs `skills/vibebackbone/docs/PILOTAGE.md` v2.1) | Resolved — root pilotage declared canonical, catalog doc demoted to detailed reference |
@@ -178,6 +187,20 @@ New risks added:
 | LLM-LOAD-001 | P1 | Codex generated-block replacement previously left stale nested governance content in the installed runtime file | Resolved — `setup.sh` now replaces from first generated marker to last generated marker; smoke regression added |
 | LLM-LOAD-002 | P2 | Five `SKILL.md` files exceed 13 KB and remain likely context-heavy when invoked | Open — compress into operational core + references |
 | LLM-LOAD-003 | P2 | Cody reliability gate v2 targets out-of-repo Hermes runtime files and needs a dedicated run boundary | Open |
+
+## Local audit note — quality organization pass (2026-06-02)
+
+New audit: [quality-organization-audit-20260602-2354.md](audits/quality-organization-audit-20260602-2354.md).
+
+Verdict: `PARTIAL`. Core catalog and canonical VBB checks are strong
+(architecture lint PASS, contract lint PASS, pytest 95 passed / 2 skipped,
+local CI 8/8), but the recent organization changes introduced P1 risks around
+Core/Distribution truth, Hermes proxy migration, default loop-closure
+resolution, and dashboard risk visibility.
+
+New risks added: QOA-001 through QOA-009 in the active risk table above.
+Recommended next route: STRUCTURED remediation for QOA-001/QOA-002/QOA-008,
+then tooling/governance remediation for QOA-003/QOA-004.
 
 ## Latest audit note — quality adoption (2026-06-29)
 

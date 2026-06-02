@@ -36,13 +36,13 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Centralization audit** : pass 4 produces `TOKEN_DEFINITION_MAP` + `CENTRALIZATION_ROADMAP`
 - **Tests** : 82/82 pytest green, CI PASS, contract lint 0 errors, architecture lint 0 errors
 - **Token economy** : L0 boot ~2.5K tokens (87% reduction from 19K)
-- **Next action** : Compress the largest `SKILL.md` files or execute `docs/plans/20260602_cody-reliability-gate-v2.md` as a dedicated run; prompt-system reconciliation remains tracked in `docs/plans/20260602_0611_audit-remediation.md`
+- **Next action** : Remediate the quality organization audit: decide Core/Distribution placement, repair Hermes proxy migration, and fix loop-closure/dashboard false-green risks. Source: [quality-organization-audit-20260602-2354.md](audits/quality-organization-audit-20260602-2354.md)
 - **Key decisions** : [ADR-0002](docs/adr/0002-surface-first-routing-ui-ux.md) — surface-first routing + centralization audit
 
 ## Risks / audits
 
 - **Global verdict** : 🟡 PARTIAL → [AUDIT_STATUS.md](AUDIT_STATUS.md)
-- **P0/P1** : 0 open, 1 mitigating P1 · **P2** : 0 open, 2 historical mitigated · Detail: [AUDIT_STATUS.md](AUDIT_STATUS.md#risks-identified--status)
+- **P0/P1** : 4 open P1 · **P2** : 4 open · **P3** : 1 open · Detail: [AUDIT_STATUS.md](AUDIT_STATUS.md#risks-identified--status)
 
 ## Structural artifacts
 
@@ -66,6 +66,7 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 6. ✅ OPS-001/002/003 CLOSED — robustness findings resolved (2026-05-28 + 2026-05-29)
 7. ✅ Documentation foundation pass — `AGENTS.md` compacted, stale 0641 audit archived, active findings extracted (2026-06-02)
 8. ✅ LLM load surface pass — installed Codex AGENTS repaired, historical root docs archived, large skill hotspots mapped (2026-06-02)
+9. 🔴 Quality organization audit — Core/Distribution boundary, Hermes proxy migration, loop closure, and dashboard risk visibility require remediation (2026-06-02)
 
 ## Key decisions
 
