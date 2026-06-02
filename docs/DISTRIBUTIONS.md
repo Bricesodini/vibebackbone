@@ -295,6 +295,40 @@ that triggered the decision.
   - **Out of scope this run**: Phase 5 (final CI validation), `install.sh` creation, Hermes profile migration, proxy migration (already done in Phase 3), documentation harmonisation of pre-Phase-4 entries above (immutability convention).
 |**Author**: vbb-struct-worker (delegated by Cody, ADR 0013 Phase 4 implementation)
 
+### 2026-06-13 — ADR 0013 fully implemented (Phase 5 validation finale)
+
+**Decision**: ADR 0013 LIGHT REORG marked fully implemented. Phases 1-4 closed, Phase 5 validation verte. ADR status remains `Accepted` per VBB convention (no `Implemented` status in historical ADRs); implementation is traced in this entry.
+
+**Trigger**: Phase 5 validation finale (commit pending). Phases 1-4 commits: cd4899a (sentinels), d7f9130 (docs), a8af630 (R1 hook), d5add57 (scripts/outils/proxy), beecb28 (Pi + Claude).
+
+**Reason**: All four migrations complete. No new file moves planned. Validate that the Core vs Distribution split is now readable in 30 seconds for any new operator.
+
+**Impact**:
+  - VBB Core (this repo) gains: confirmed canonical structure with sentinels + 3 active distributions.
+  - Distributions: `hermes/` (active, ~40 files: install/verify/docs/proxy/bypass-lint), `pi/` (active, 3 files: SYSTEM.md + overrides.template.json + README), `claude/` (active, 2 files: CLAUDE.md + README), `examples/` (placeholder).
+  - Active symlinks: `SYSTEM.md` → `distributions/pi/SYSTEM.md`, `CLAUDE.md` → `distributions/claude/CLAUDE.md`.
+  - KEEP ROOT: `.claude/settings.local.json` (Claude Code runtime generates it).
+  - 7 ADRs proxy (0006-0012) live under `distributions/hermes/proxy/adr/`.
+  - 4 Core ADRs (0001-0004) live under `docs/adr/`.
+
+**Canonical paths (2026-06-13 post Phase 5)**:
+  | Concept | Path |
+  |---|---|
+  | VBB Core canon | repo root + `docs/` + `skills/` + `prompts/` + `tools/vbb-*.py` + `providers/` |
+  | VBB Core ADR | `docs/adr/0001-0004` |
+  | VBB Core decision log | `docs/DISTRIBUTIONS.md` §7 |
+  | Distribution Hermes | `distributions/hermes/{install,verify,docs,proxy,bypass-lint}` |
+  | Distribution Hermes ADR | `distributions/hermes/proxy/adr/0006-0012` |
+  | Distribution Pi | `distributions/pi/{SYSTEM.md,overrides.template.json,README.md}` |
+  | Distribution Claude | `distributions/claude/{CLAUDE.md,README.md}` |
+  | Distribution examples | `distributions/examples/README.md` |
+  | Runtime symlinks | `SYSTEM.md`, `CLAUDE.md` (root, symlinks → distributions) |
+  | Runtime-generated (KEEP ROOT) | `.claude/settings.local.json` |
+  | Verify script (distribution) | `distributions/hermes/verify/verify.sh` |
+  | Pre-commit hook | `scripts/hooks/pre-commit-framework-gate` (whitelist includes `distributions/*` since R1 prep) |
+
+**Author**: Hermes (orchestration), vbb-audit-worker (validation READ-ONLY)
+
 ### Example entry (illustrative)
 
 ```
