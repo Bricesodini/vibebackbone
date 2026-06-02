@@ -200,6 +200,26 @@ that triggered the decision.
   - `verify.sh` covers 28 checks across VBB Core tools, Hermes profile presence, SOUL.md portability (F-004), and cody-check resolvability. Exits 0 on full PASS, 1 on any FAIL (with per-check hints).
 |**Author**: vbb-struct-worker (delegated by Cody, F-015 implementation step 1+2)
 
+### 2026-06-13 — Hermes/Cody documentation migration (ADR 0013 Phase 2)
+|**Decision**: Migrate Hermes-only documentation to `distributions/hermes/`. Do NOT rewrite historical decision-log entries; append a forward-pointing note instead.
+|**Trigger**: ADR 0013 Accepted (LIGHT REORG, fd46388). F-015 decision log entries above (2026-06-13) recorded pre-migration paths (`docs/hermes/INSTALL.md`, `scripts/hermes/verify.sh`). These paths are now historical; the live source of truth is under `distributions/hermes/`.
+|**Reason**: ADR 0013 §5 mandates LIGHT REORG — Core canon stays in `docs/`, distributions own their docs/scripts/runtime. Phase 2 migrates documentation only (scripts/proxy runtime stay for Phase 3). Historical entries above are preserved verbatim (immutability convention) and supersede the obsolete path references for new code via this addendum.
+|**Impact**:
+  - **New canonical paths** (source of truth from this run onward):
+    - `distributions/hermes/install/INSTALL.md` (← was `docs/hermes/INSTALL.md`, tracked `git mv`)
+    - `distributions/hermes/docs/POC_USAGE.md` (← was `docs/proxy/POC_USAGE.md`, untracked `mv`)
+    - `distributions/hermes/docs/POC_CLOSEOUT.md` (← was `docs/proxy/POC_CLOSEOUT.md`, untracked `mv`)
+    - `distributions/hermes/proxy/adr/0006-0012*.md` (← was `docs/adr/0006-0012*.md`, 7 untracked ADRs)
+  - **Untouched (Core canon, not distribution-owned)**:
+    - `docs/adr/0001-0004*.md`, `docs/adr/0013*.md`, `docs/adr/README.md` — Core ADRs, stay in `docs/adr/`
+    - `docs/audits/20260602_*.md` (3 files) — historical audits, immutable, keep old paths
+    - `docs/archive/audits/` — historical, immutable
+  - **Cross-references in Core canon** (`AGENTS.md`, `PILOTAGE.md`, `RUNBOOK.md`, `DEPLOYMENT.md`, `LONG_RUN_RULE.md`, `README.md`, `GUIDE.md`): 0 obsolete references found, no patches required.
+  - **Cross-references in Core canon** (`DISTRIBUTIONS.md`): 4 occurrences of `docs/hermes/INSTALL.md` found in this decision log (historical F-015 entries l.187, 189, 193, 197). Preserved verbatim per immutability convention. This entry supersedes them for all future references.
+  - **Distribution README updated**: `distributions/hermes/README.md` (sentinel) was already correct from Phase 1 (planned paths).
+  - **Phase 3 (out of scope this run)**: `scripts/hermes/verify.sh` → `distributions/hermes/verify/`, `tools/proxy/` → `distributions/hermes/proxy/`, `tools/vbb-bypass-lint*` → `distributions/hermes/bypass-lint/`, pre-commit whitelist extended, `test_framework_gate_hook.sh` path ported to `$REPO_ROOT`.
+|**Author**: vbb-struct-worker (delegated by Cody, ADR 0013 Phase 2 implementation)
+
 ### Example entry (illustrative)
 
 ```

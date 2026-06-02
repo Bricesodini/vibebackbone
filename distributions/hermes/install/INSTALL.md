@@ -148,3 +148,15 @@ no implicit copies, no destructive overwrites.
   Rule #12 (the distribution owns its own profiles).
 - `GUIDE.md` §10bis — ADR + POC + Integration Gate workflow (Core).
 - `GUIDE.md` §10 — general distribution governance.
+
+## 11. Location note (added by ADR 0013 Phase 2)
+
+As of the 2026-06-13 Phase 2 migration of ADR 0013 (LIGHT REORG), the
+canonical path of this document is:
+
+- `distributions/hermes/install/INSTALL.md` (current, source of truth)
+
+The §2 line referencing `docs/hermes/INSTALL.md` records the path at the
+time of the F-015 step 1 delivery run and is preserved verbatim as part
+of the historical record. All new cross-references must use the current
+`distributions/hermes/install/INSTALL.md` path.
