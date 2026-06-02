@@ -99,10 +99,121 @@ def _read(path: Path) -> str:
         return ""
 
 
+# Negation patterns: lines and clauses that negate the keyword context.
+# Two strategies combined:
+#  1. Per-line negation cues ("pas de", "aucun", "sans", "hors périmètre: X", ...)
+#     — these strip the NEGATED CLAUSE only, not the whole line.
+#     E.g. "Sans changer l'API, migrer le storage" → "migrer le storage"
+#  2. Whole sections (### Hors périmètre / ### Out of scope) — everything below
+#     the header up to the next ### or end of file is stripped.
+#
+# A negation clause is bounded by a cue word + (comma | "et" | "ou" | end of
+# negated verb phrase). When the cue is at line start, the clause runs from the
+# cue to the first comma/conjunction; the rest of the line is preserved.
+
+# Cue words that introduce a negated clause. The clause runs from the cue to
+# the first comma or coordinating conjunction AFTER the cue.
+_NEGATION_CUE_RE = re.compile(
+    r"(?ix)"
+    r"\b(?:"
+    r"  pas\s+de(?:s)?|"
+    r"  aucun|aucune|"
+    r"  sans(?:\s+(?:changer|rompre|casser|modifier|toucher|impact))?|"
+    r"  hors\s+p[ée]rim[èe]tre\s*:|"
+    r"  no\s+change|"
+    r"  ne\s+\w+\s+pas|"
+    r"  n'?applique(?:nt|rait)?|"
+    r"  not\s+applicable|"
+    r"  n/a"
+    r")"
+)
+
+# End-of-clause marker after a negation cue.
+_NEGATION_CLAUSE_END_RE = re.compile(
+    r"(?ix)"
+    r"\s*(?:,\s*|\s+et\s+|\s+ou\s+|\s+ni\s+|\.\s*$)"
+)
+
+
+def _strip_clause(line: str) -> str:
+    """If a line starts with a negation cue, strip the negated clause only.
+
+    Examples:
+      "Sans changer l'API publique, migrer le storage"
+        → "migrer le storage"
+      "- pas de changement d'API"  (no comma after cue)
+        → ""  (whole line is the negation)
+      "- pas de changement d'API, garder le reste"
+        → "- garder le reste"
+      "remplacer le storage sans casser l'API"
+        → "remplacer le storage"  (cue in the middle: strip from cue to clause end)
+    """
+    m = _NEGATION_CUE_RE.search(line)
+    if not m:
+        return line
+    cue_start = m.start()
+    # Find clause end AFTER the cue match
+    rest = line[m.end():]
+    end_m = _NEGATION_CLAUSE_END_RE.search(rest)
+    if end_m:
+        clause_end = m.end() + end_m.end()
+        # Keep text before cue + text after clause (preserving leading "- " if any)
+        return line[:cue_start] + line[clause_end:].lstrip()
+    # No end marker found: the whole remainder is the negated clause
+    # → drop it. But preserve leading list-bullet prefix.
+    prefix_match = re.match(r"^(\s*-\s*)", line[:cue_start])
+    if prefix_match:
+        return prefix_match.group(1).rstrip() + "\n"
+    return ""
+
+
+_NEGATION_LINE_RE = re.compile(
+    r"(?im)^(?P<line>[^\n]*)$"
+)
+
+
+def _strip_line_negations(text: str) -> str:
+    """Apply per-line clause stripping. Preserves non-negated text on each line."""
+    out_lines = []
+    for line in text.split("\n"):
+        out_lines.append(_strip_clause(line))
+    return "\n".join(out_lines)
+
+
+# Section headers that signal "this whole block is out of scope".
+# Match the header line and everything up to the next "##" or "###" header.
+_NEGATION_SECTION_RE = re.compile(
+    r"(?im)"                                   # case-insensitive, multi-line
+    r"^\s*#{2,4}\s*(?:Hors\s+p[ée]rim[èe]tre|Out\s+of\s+scope|"
+    r"               Exclusions?|N/?A\s+scope)\s*$"
+    r"[^\n]*(?:\n(?!#{1,4}\s)[^\n]*)*"         # body lines until next # header
+)
+
+
+def _strip_negations(text: str) -> str:
+    """Remove lines, clauses, and sections that negate the keyword context.
+
+    Stripped:
+      - Per-line negation clauses: "Sans ...", "pas de ...", "aucun ...",
+        "hors périmètre: X", etc. Only the NEGATED PORTION is removed;
+        the rest of the line is preserved.
+      - Whole sections: `### Hors périmètre` / `### Out of scope` /
+        `### Exclusions` / `### N/A scope` (and all body lines up to next header)
+    """
+    text = _NEGATION_SECTION_RE.sub("", text)
+    text = _strip_line_negations(text)
+    return text
+
+
 def detect_required(text: str) -> Tuple[bool, bool]:
-    """Return (adr_required, poc_required) from intake text."""
-    adr_required = bool(re.search(ADR_KEYWORDS, text, re.IGNORECASE))
-    poc_required = bool(re.search(POC_KEYWORDS, text, re.IGNORECASE))
+    """Return (adr_required, poc_required) from intake text.
+
+    Negation-aware: clauses like "hors périmètre", "pas de", "sans" are stripped
+    before keyword matching to avoid false positives on exclusions.
+    """
+    cleaned = _strip_negations(text)
+    adr_required = bool(re.search(ADR_KEYWORDS, cleaned, re.IGNORECASE))
+    poc_required = bool(re.search(POC_KEYWORDS, cleaned, re.IGNORECASE))
     return adr_required, poc_required
 
 
@@ -119,19 +230,29 @@ def find_adr_ref(text: str) -> Optional[Tuple[str, str]]:
 
 
 def find_adr_globally(text: str) -> Optional[Path]:
-    """Search for the latest ACCEPTED ADR whose slug matches a keyword in text.
-    Fallback: any ADR ACCEPTED whose slug substring appears in text.
+    """Search for the latest ACCEPTED ADR whose slug contains a relevant keyword.
+
+    The fallback match requires that at least one ADR_KEYWORD (security, auth,
+    storage, database, stack, protocol, etc.) appears in the slug. Random
+    substring matches on common tokens (like "contract" matching anywhere) are
+    rejected — only keywords that triggered `adr_required=True` in the first
+    place may unlock a fallback match.
     """
     if not ADR_DIR.is_dir():
         return None
-    tokens = [t.lower() for t in re.findall(r"[a-z][a-z0-9\-]{3,}", text)]
+    # Extract the keywords actually present in the text (the ones that flipped
+    # adr_required=True). We restrict fallback matching to those.
+    relevant = [k.lower() for k in re.findall(ADR_KEYWORDS, text, re.IGNORECASE)]
+    if not relevant:
+        return None
     candidates: List[Tuple[int, Path]] = []
     for adr in sorted(ADR_DIR.glob("*.md")):
         if not ADR_ACCEPTED_RE.search(_read(adr)):
             continue
         slug = adr.stem.split("-", 1)[-1] if "-" in adr.stem else adr.stem
-        for tok in tokens:
-            if tok in slug or slug in tok:
+        slug_lower = slug.lower()
+        for kw in relevant:
+            if kw in slug_lower:
                 candidates.append((len(slug), adr))
                 break
     if not candidates:
