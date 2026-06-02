@@ -50,3 +50,30 @@ artifacts_produced:
 
 - **Première action concrète** : <...>
 - **Points de vigilance** : <...>
+
+---
+
+## §X.Ybis — Integration Gate (ADR + POC) (additif 2026-06-13)
+
+> Section ajoutée par le chantier "ADR + POC + Integration Gate".
+> Ne pas supprimer — voir `docs/GUIDE.md` §ADR+POC+Integration-Gate.
+
+### ADR Status
+
+- **ADR référencé** : <docs/adr/{nnnn}-{slug}.md OU "aucun (non requis)">
+- **Statut attendu** : `ACCEPTED` ou `SUPERSEDED`
+- **Verdict** : <PASS|BLOCKED>
+
+### POC Status
+
+- **POC référencé** : <docs/runs/{id}/POC.md OU "aucun (non requis)">
+- **Verdict attendu** : `GO`
+- **Verdict gate** : <PASS|BLOCKED>
+
+### Gates
+
+- [ ] **ADR_REQUIRED? → Y/N** — si Y, `docs/adr/{nnnn}-{slug}.md` ACCEPTED ?
+- [ ] **POC_REQUIRED? → Y/N** — si Y, `docs/runs/.../POC.md` verdict=GO ?
+- [ ] **CAN_CODE_START? → YES/NO** — YES seulement si (ADR pas requis OU ADR ACCEPTED) **ET** (POC pas requis OU POC=GO)
+
+Vérification automatique : `python tools/vbb-gate-check.py docs/runs/{run_id} --json`

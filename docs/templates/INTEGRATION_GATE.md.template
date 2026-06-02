@@ -1,0 +1,69 @@
+---
+template_id: "INTEGRATION_GATE"
+version: "1.0"
+lane_eligible:
+  - "STRUCTUREE"
+related:
+  - "docs/templates/ADR.md.template"
+  - "docs/templates/POC.md.template"
+  - "docs/CONVENTIONS.md#pr3--gate-before-action"
+verifier: "tools/vbb-gate-check.py"
+---
+
+# INTEGRATION_GATE — {run_id}
+
+**Run**: <docs/runs/{YYYY-MM-DD_HHmm_slug}/>  
+**Date**: <YYYY-MM-DD>  
+**Voie**: <RAPIDE|STRUCTUREE|AUDIT|CLOTURE>  
+**Statut gate**: <PASS|BLOCKED> (calculé par `tools/vbb-gate-check.py`)
+
+> Rappel P.R3 — "Gate Before Action" : aucun code n'est écrit tant que
+> les trois cases `## Gates` ne sont pas toutes validées.
+
+## ADR Status
+
+- **ADR référencé** : <docs/adr/{nnnn}-{slug}.md OU "aucun (non requis)">
+- **Statut attendu** : `ACCEPTED` ou `SUPERSEDED`
+- **Statut observé** : <PROPOSED|ACCEPTED|REJECTED|SUPERSEDED>
+- **Verdict** : <PASS si ACCEPTED|SUPERSEDED, sinon BLOCKED>
+
+## POC Status
+
+- **POC référencé** : <docs/runs/{id}/POC.md OU "aucun (non requis)">
+- **Verdict attendu** : `GO`
+- **Verdict observé** : <GO|NO-GO|PIVOT>
+- **Verdict gate** : <PASS si GO, sinon BLOCKED>
+
+## Gates
+
+- [ ] **ADR_REQUIRED? → Y/N**
+  - Si Y : `docs/adr/{nnnn}-{slug}.md` existe ET `**Status**: ACCEPTED` ?
+- [ ] **POC_REQUIRED? → Y/N**
+  - Si Y : `docs/runs/.../POC.md` existe ET `Décision: GO` ?
+- [ ] **CAN_CODE_START? → YES / NO**
+  - YES seulement si (ADR pas requis OU ADR ACCEPTED) **ET** (POC pas requis OU POC=GO)
+
+## Calcul automatique
+
+```bash
+python tools/vbb-gate-check.py docs/runs/{run_id} --json
+```
+
+Sortie attendue si PASS :
+
+```json
+{
+  "adr_required": false,
+  "adr_present_and_accepted": true,
+  "poc_required": false,
+  "poc_present_and_go": true,
+  "can_code_start": true,
+  "blockers": []
+}
+```
+
+## Handoff
+
+- **Si CAN_CODE_START = YES** → passer à `04_PLAN.md` → `05_EXECUTION.md` → `07_CLOSEOUT.md`
+- **Si CAN_CODE_START = NO** → STOP → renseigner `blockers[]` dans le 07_CLOSEOUT
+  et revenir à la phase qui lève le blocage (ADR ou POC manquant).

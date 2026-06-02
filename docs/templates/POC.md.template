@@ -1,0 +1,65 @@
+---
+template_id: "POC"
+version: "1.0"
+lane_eligible:
+  - "STRUCTUREE"
+  - "AUDIT"
+related:
+  - "docs/templates/ADR.md.template"
+  - "docs/CONVENTIONS.md#pr3--gate-before-action"
+---
+
+# POC — {slug}
+
+**Statut**: <DRAFT|IN_PROGRESS|CONCLUDED>  
+**Date**: <YYYY-MM-DD>  
+**Liée à ADR**: <docs/adr/{nnnn}-{slug}.md OU "aucune">  
+**Liée à RUN**: <docs/runs/{run_id}/>
+
+## Hypothèse
+
+<une seule phrase : "Nous supposons que <X> est réalisable en <Y> sous <Z>.">
+
+## Test (concret, exécutable)
+
+```bash
+# commande reproductible, ou script <path>
+<commande exacte que n'importe qui peut relancer>
+```
+
+## Critère de réussite (mesurable)
+
+<un seul énoncé booléen ou chiffré :
+"GO si <métrique observable> = <valeur seuil>" >
+
+## Résultat observé
+
+- **Date d'exécution** : <YYYY-MM-DD HH:MM>
+- **Sortie littérale** : <coller stdout/stderr clé, ou résumé 1 phrase>
+- **Métrique mesurée** : <valeur> (seuil attendu : <valeur>)
+
+## Décision
+
+- **Verdict** : <GO | NO-GO | PIVOT>
+- **Justification** : <1 phrase>
+
+## Bilan
+
+<une phrase : que retenir pour l'ADR ou le run aval ?
+Ex: "Hypothèse validée → ADR 0013 peut être ACCEPTED." OU
+"Hypothèse invalidée → pivoter vers l'approche B (cf. ADR NNNN § Alternatives).">
+
+---
+
+## LONG_RUN_SUMMARY
+
+```yaml
+FINAL_STATUS: <GO|NO-GO|PIVOT>
+adr_link: <docs/adr/{nnnn}-{slug}.md OU null>
+hypothesis_validated: <true|false|partial>
+metric_observed: "<valeur>"
+metric_threshold: "<valeur>"
+reproducible: <true|false>
+verified_at: "<YYYY-MM-DDTHH:MM:SSZ>"
+verified_by: "<agent|human>"
+```

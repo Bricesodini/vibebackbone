@@ -1,0 +1,87 @@
+---
+template_id: "ADR"
+version: "1.0"
+lane_eligible:
+  - "STRUCTUREE"
+  - "AUDIT"
+related:
+  - "docs/adr/README.md"
+  - "docs/CONVENTIONS.md#pr3--gate-before-action"
+---
+
+# ADR — {nnnn}-{slug}
+
+**Status**: <PROPOSED|ACCEPTED|REJECTED|SUPERSEDED by NNNN>  
+**Date**: <YYYY-MM-DD>  
+**Route**: <RAPIDE|STRUCTUREE|AUDIT|CLOTURE>  
+**Décideurs**: <rôle(s) ou nom(s) — qui tranche>  
+**Liée à**: <ADR NNNN OU vide>  
+**Liée à POC**: <chemin docs/runs/{id}/POC.md OU vide>
+
+## Contexte
+
+<quel problème, quelle tension, quel constat déclenche la décision ?
+1 à 3 paragraphes courts. Citer ADR amont, audit, incident, ou observation terrain.>
+
+## Décision
+
+<la décision elle-même, formulée comme un énoncé assertif unique.
+Pas de conditionnel. Pas de "nous pourrions". On tranche.>
+
+## Conséquences
+
+### Positives
+- <effet positif observable>
+
+### Négatives / coûts
+- <coût, dette, lock-in>
+
+### Neutres
+- <changement sans valeur ajoutée/retrait>
+
+## Alternatives rejetées (≥ 2)
+
+### Alternative A — <nom>
+- **Description** : <...>
+- **Pourquoi rejetée** : <1 phrase>
+
+### Alternative B — <nom>
+- **Description** : <...>
+- **Pourquoi rejetée** : <1 phrase>
+
+## Risques
+
+| Risque | Probabilité | Impact | Mitigation |
+|--------|-------------|--------|------------|
+| <...> | <faible|moyenne|forte> | <faible|moyen|fort> | <...> |
+
+## Hypothèses
+
+- <hypothèse technique, métier ou organisationnelle dont la décision dépend>
+- <si l'hypothèse tombe, la décision doit être reconsidérée>
+
+## Références
+
+- ADR amont : <NNNN OU lien>
+- Audits : <docs/audits/...>
+- POCs : <docs/runs/.../POC.md>
+- Docs externes : <lien>
+
+---
+
+## LONG_RUN_SUMMARY
+
+```yaml
+FINAL_STATUS: <PROPOSED|ACCEPTED|REJECTED|SUPERSEDED>
+decision_class: <ARCHITECTURE|GOUVERNANCE|STACK|SECURITY|PROCESS|DURABLE_CONVENTION>
+reversible: <true|false>
+depends_on:
+  - <ADR NNNN OU POC chemin OU vide>
+blocks:
+  - <runs/chemins qui attendent cette décision OU vide>
+supersedes:
+  - <ADR NNNN OU vide>
+verified_at: "<YYYY-MM-DDTHH:MM:SSZ>"
+verified_by: "<agent|human>"
+verified_method: "<audit|linkage-check|human-review>"
+```

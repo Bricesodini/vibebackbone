@@ -22,6 +22,7 @@ Ce guide est un compagnon **pédagogique** du `README.md`. Le README dit *ce qu'
 8. [Configuration avancée](#8-configuration-avancée)
 9. [Anti-patterns — ce qui casse vibebackbone](#9-anti-patterns--ce-qui-casse-vibebackbone)
 10. [FAQ pratique](#10-faq-pratique)
+10bis. [ADR + POC + Integration Gate](#10bis-adr--poc--integration-gate-chantier-2026-06-13)
 11. [Cheatsheet](#11-cheatsheet)
 12. [Où aller ensuite](#12-où-aller-ensuite)
 
@@ -917,6 +918,75 @@ C'est comme se relire le lendemain plutôt qu'à chaud.
 C'est une dérive classique. Réagir :
 
 > "Stop. Cite-moi le chemin exact du prompt que tu invoques. S'il n'existe pas dans `prompts/` ou `prompts/canonical/`, choisis-en un réel ou crée explicitement le besoin dans un 01_INTAKE."
+
+---
+
+## 10bis. ADR + POC + Integration Gate (chantier 2026-06-13)
+
+> Section ajoutée par le chantier "ADR + POC + Integration Gate" (aussi
+> référencé sous la forme compacte `ADR+POC+Integration-Gate` dans SESSION.md
+> et les SOUL.md workers).
+> Cross-ref : `docs/CONVENTIONS.md` §P.R3, `docs/templates/ADR.md.template`,
+> `docs/templates/POC.md.template`, `docs/templates/INTEGRATION_GATE.md.template`,
+> `tools/vbb-gate-check.py`.
+
+**Pour les chantiers non-triviaux touchant sécurité, secrets, auth,
+déploiement, stockage, comm inter-services, archi agentique, choix de
+stack, ou convention durable VBB, exiger un ADR.**
+
+**Pour les chantiers dépendant d'une hypothèse technique non validée
+(SSH/NAS/cloud, API externe, GitHub Actions, MCP, Telegram, Docker/deploy,
+LLM local, secret store, orchestration multi-agent), exiger un POC.**
+
+Trois gates à passer avant d'écrire la première ligne de code :
+
+| Gate | Question | Si OUI |
+|------|----------|--------|
+| **ADR_REQUIRED?** | Le chantier touche-t-il un des domaines ADR ci-dessus ? | `docs/adr/{nnnn}-{slug}.md` doit exister avec `**Status**: ACCEPTED` |
+| **POC_REQUIRED?** | Le chantier dépend-il d'une hypothèse technique non validée ? | `docs/runs/.../POC.md` doit exister avec `Décision: GO` |
+| **CAN_CODE_START?** | Composite : (ADR non requis OU ADR ACCEPTED) ET (POC non requis OU POC=GO) | YES ⇒ coder ; NO ⇒ STOP, return `verdict: BLOCKED_GATE` |
+
+### Flux cible
+
+```
+RICO → ADR Gate → POC Gate → Integration Gate → RecoPlan → Execution → Review → Closeout
+```
+
+- RICO détecte les domaines / hypothèses déclenchantes
+- ADR Gate : `python tools/vbb-gate-check.py docs/runs/{run_id} --json`
+- POC Gate : idem (POC vérifié si requis)
+- Integration Gate : agrège les deux + sort un JSON `{can_code_start, blockers}`
+- RecoPlan / Execution / Review / Closeout : mieux alimentés par les artefacts ADR/POC produits en amont
+
+### Tool
+
+```bash
+python tools/vbb-gate-check.py <run_dir>          # texte, exit 0 ou 1
+python tools/vbb-gate-check.py <run_dir> --json   # JSON
+```
+
+Sortie JSON :
+
+```json
+{
+  "adr_required": true,
+  "adr_present_and_accepted": true,
+  "poc_required": false,
+  "poc_present_and_go": true,
+  "can_code_start": true,
+  "blockers": []
+}
+```
+
+Stdlib only, ≤ 200 LOC, pas de framework, pas d'import LLM. S'intègre dans le
+pattern `cody-check` (cohérence avec l'existant).
+
+### Règle worker (SOUL.md §ADR/POC Gate)
+
+Tout worker VBB (fast / struct / audit / close) DOIT appeler
+`vbb-gate-check.py` au début de son exécution. Si `CAN_CODE_START=false` →
+STOP, retourner `{verdict: BLOCKED_GATE, blockers: [...]}`. Ne JAMAIS
+commencer à coder un chantier risqué sans gate vert.
 
 ---
 
