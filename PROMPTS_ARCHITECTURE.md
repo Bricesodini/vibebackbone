@@ -1,7 +1,7 @@
 # PROMPTS_ARCHITECTURE — Guide utilisateur des prompts Vibebackbone
 
 **Version** : 1.0 | **Date** : 2026-06-13
-**Basé sur** : `PROMPTS_ALIGNMENT_DECISION.md` · `PROMPTS_AGENTIC_ALIGNMENT_AUDIT.md`
+**Basé sur** : `docs/archive/prompt-migration/PROMPTS_ALIGNMENT_DECISION.md` · `docs/archive/prompt-migration/PROMPTS_AGENTIC_ALIGNMENT_AUDIT.md`
 
 ---
 
@@ -328,8 +328,8 @@ Source complète : `docs/SESSION_RULES.md`
 | `docs/SESSION_RULES.md` | Quand rester / changer de session |
 | `docs/MEMORY_AND_HANDOFF.md` | Artefacts persistants et handoffs |
 | `docs/PILOTAGE.md` | Triage et voies d'exécution |
-| `PROMPTS_ALIGNMENT_DECISION.md` | Décision d'architecture (pourquoi cette structure) |
-| `PROMPTS_AGENTIC_ALIGNMENT_AUDIT.md` | Audit d'alignement (diagnostic original) |
+| `docs/archive/prompt-migration/PROMPTS_ALIGNMENT_DECISION.md` | Décision d'architecture (pourquoi cette structure) |
+| `docs/archive/prompt-migration/PROMPTS_AGENTIC_ALIGNMENT_AUDIT.md` | Audit d'alignement (diagnostic original) |
 
 ---
 

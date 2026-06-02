@@ -335,12 +335,23 @@ PY
   # 6. Codex AGENTS.md — remove generated block only
   if [ -f "$CODEX_AGENTS" ] && command -v python3 &>/dev/null; then
     python3 - "$CODEX_AGENTS" <<'PY'
-import sys, re
+import sys
 path = sys.argv[1]
 with open(path) as f:
     content = f.read()
-pattern = r'<!-- vibebackbone:generated:start -->.*?<!-- vibebackbone:generated:end -->\n*'
-cleaned = re.sub(pattern, '', content, flags=re.DOTALL)
+start = "<!-- vibebackbone:generated:start -->"
+end = "<!-- vibebackbone:generated:end -->"
+first = content.find(start)
+last = content.rfind(end)
+if first != -1 and last != -1 and last >= first:
+    last += len(end)
+    while last < len(content) and content[last] in "\r\n":
+        last += 1
+    cleaned = content[:first] + content[last:]
+elif first != -1:
+    cleaned = content[:first]
+else:
+    cleaned = content
 with open(path, "w") as f:
     f.write(cleaned)
 if not cleaned.strip():
@@ -559,23 +570,35 @@ mkdir -p "$HOME/.codex"
 
 if needs_python; then
   python3 - "$CODEX_AGENTS" "$AGENTS_SRC" "$SYSTEM_SRC" "$SYSTEM_AVAILABLE" "$FORCE_GOVERNANCE" "$PROMPTS_SRC" "$PROMPTS_AVAILABLE" <<'PY'
-import sys, os, re
+import sys, os
 path, agents_src, system_src, system_available, force_governance, prompts_src, prompts_available = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7]
 force = force_governance.lower() == "true"
 system_available_flag = system_available.lower() == "true"
 prompts_available_flag = prompts_available.lower() == "true"
+START = "<!-- vibebackbone:generated:start -->"
+END = "<!-- vibebackbone:generated:end -->"
+
+def replace_generated_block(content, new_block):
+    first = content.find(START)
+    if first == -1:
+        return None
+    last = content.rfind(END)
+    if last == -1 or last < first:
+        return content[:first] + new_block.rstrip() + "\n"
+    last += len(END)
+    while last < len(content) and content[last] in "\r\n":
+        last += 1
+    return content[:first] + new_block.rstrip() + "\n" + content[last:]
 
 def build_block(agents_src, system_src, system_available_flag, prompts_src, prompts_available_flag):
     lines = [
         "\n<!-- vibebackbone:generated:start -->\n",
-        "# Vibebackbone Governance\n",
         f"<!-- Source: {agents_src} -->\n",
         open(agents_src).read(),
     ]
     if system_available_flag:
         lines.extend([
             "\n---\n",
-            "# Vibebackbone Runtime Behavior\n",
             f"<!-- Source: {system_src} -->\n",
             open(system_src).read(),
         ])
@@ -601,12 +624,11 @@ def build_block(agents_src, system_src, system_available_flag, prompts_src, prom
 if os.path.exists(path):
     with open(path) as f:
         content = f.read()
-    has_markers = "<!-- vibebackbone:generated:start -->" in content
+    has_markers = START in content
 
     if has_markers:
-        pattern = r'<!-- vibebackbone:generated:start -->.*?<!-- vibebackbone:generated:end -->\n*'
         new_block = build_block(agents_src, system_src, system_available_flag, prompts_src, prompts_available_flag)
-        content = re.sub(pattern, new_block.rstrip() + "\n", content, flags=re.DOTALL)
+        content = replace_generated_block(content, new_block)
         with open(path, "w") as f:
             f.write(content)
         print("✓ Codex: generated block updated")

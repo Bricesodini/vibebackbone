@@ -158,6 +158,27 @@ Residual items kept active:
 | DOC-002 | P2 | Code-audit detector skills overlap and still need a detector responsibility matrix | Open |
 | DOC-003 | P3 | Historical references to absent/non-current prompt names remain possible in old reports | Mitigated — archived reports preserved as history, not active truth |
 
+## Local documentation note — LLM load surface (2026-06-02)
+
+New audit: [doc-context-20260602-1329.md](audits/doc-context-20260602-1329.md).
+
+Verdict: `PARTIAL — boot surface repaired; skill-level compression remains open`.
+The installed Codex governance file was repaired after a nested-marker bug left
+legacy generated content attached. `~/.codex/AGENTS.md` dropped from 253.8 KB /
+7296 lines to 12.3 KB / 344 lines after `setup.sh` was fixed and rerun.
+
+Root-level historical prompt migration reports and a local AGENTS backup were
+archived under `docs/archive/`. Active load pressure is now concentrated in
+large `SKILL.md` files and a few common canonical prompts.
+
+New risks added:
+
+| ID | Severity | Description | Status |
+|----|----------|-------------|--------|
+| LLM-LOAD-001 | P1 | Codex generated-block replacement previously left stale nested governance content in the installed runtime file | Resolved — `setup.sh` now replaces from first generated marker to last generated marker; smoke regression added |
+| LLM-LOAD-002 | P2 | Five `SKILL.md` files exceed 13 KB and remain likely context-heavy when invoked | Open — compress into operational core + references |
+| LLM-LOAD-003 | P2 | Cody reliability gate v2 targets out-of-repo Hermes runtime files and needs a dedicated run boundary | Open |
+
 ## Latest audit note — quality adoption (2026-06-29)
 
 New audit: [quality-adoption-audit-20260629.md](audits/quality-adoption-audit-20260629.md).

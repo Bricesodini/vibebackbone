@@ -229,6 +229,7 @@ responsibilities:
   - Install skills and prompts through symlinks or generated commands
   - Deploy AGENTS.md and SYSTEM.md to supported providers
   - Support idempotent install and uninstall
+  - Replace stale Codex generated governance blocks, including nested legacy markers
 depends_on:
   - governance-core
   - skills-catalog

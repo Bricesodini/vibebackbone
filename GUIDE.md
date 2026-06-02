@@ -881,8 +881,8 @@ Vous n'avez **pas besoin de connaître les 33**. Vous utilisez le router en cas 
 ### Q5 — "Et si je veux modifier vibebackbone lui-même ?"
 
 C'est exactement le cycle qui a produit ce guide :
-1. Audit (`PROMPTS_AGENTIC_ALIGNMENT_AUDIT.md`)
-2. Décision (`PROMPTS_ALIGNMENT_DECISION.md`)
+1. Audit (`docs/archive/prompt-migration/PROMPTS_AGENTIC_ALIGNMENT_AUDIT.md`)
+2. Décision (`docs/archive/prompt-migration/PROMPTS_ALIGNMENT_DECISION.md`)
 3. Plan + Execution + Review + Closeout
 4. Documentation (ce guide)
 

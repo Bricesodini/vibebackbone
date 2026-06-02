@@ -6,6 +6,28 @@ echo "Testing install with HOME=$TMP_HOME"
 
 # Run first install (should create everything)
 HOME="$TMP_HOME" bash "$ROOT/setup.sh"
+
+# Regression: old Codex files may contain nested generated markers. A reinstall
+# must replace the whole generated region, not only the first inner block.
+cat > "$TMP_HOME/.codex/AGENTS.md" <<'EOF'
+custom prefix
+<!-- vibebackbone:generated:start -->
+outer stale
+<!-- vibebackbone:generated:start -->
+inner stale
+<!-- Source: /Users/bricesodini/01_ai-stack/vibebackbone/AGENTS.md -->
+<!-- vibebackbone:generated:end -->
+outer stale tail
+<!-- vibebackbone:generated:end -->
+custom suffix
+EOF
+HOME="$TMP_HOME" bash "$ROOT/setup.sh" > "$TMP_HOME/install-nested.log"
+test "$(grep -c "vibebackbone:generated:start" "$TMP_HOME/.codex/AGENTS.md")" -eq 1
+test "$(grep -c "vibebackbone:generated:end" "$TMP_HOME/.codex/AGENTS.md")" -eq 1
+! grep -q "/Users/bricesodini/01_ai-stack" "$TMP_HOME/.codex/AGENTS.md"
+grep -q "custom prefix" "$TMP_HOME/.codex/AGENTS.md"
+grep -q "custom suffix" "$TMP_HOME/.codex/AGENTS.md"
+
 HOME="$TMP_HOME" bash "$ROOT/setup.sh" > "$TMP_HOME/install-second.log"
 grep -qE "Done — [0-9]+ skills" "$TMP_HOME/install-second.log"
 
@@ -42,7 +64,7 @@ test -L "$TMP_HOME/.agents/skills/vibebackbone"
 grep -n "vibebackbone/AGENTS.md" "$TMP_HOME/.claude/CLAUDE.md" >/dev/null
 grep -n "vibebackbone/SYSTEM.md" "$TMP_HOME/.claude/CLAUDE.md" >/dev/null
 grep -n "vibebackbone:generated:start" "$TMP_HOME/.codex/AGENTS.md" >/dev/null
-grep -n "Vibebackbone Runtime Behavior" "$TMP_HOME/.codex/AGENTS.md" >/dev/null
+grep -n "SYSTEM.md" "$TMP_HOME/.codex/AGENTS.md" >/dev/null
 ls -l "$TMP_HOME/.pi/agent/AGENTS.md" >/dev/null
 ls -l "$TMP_HOME/.pi/agent/SYSTEM.md" >/dev/null
 python3 -m json.tool "$TMP_HOME/.config/opencode/opencode.json" >/dev/null
