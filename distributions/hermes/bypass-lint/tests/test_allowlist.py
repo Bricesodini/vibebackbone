@@ -9,13 +9,22 @@ from vbb_bypass_lint import LintConfig, lint_paths
 
 
 def test_proxy_dir_is_allowlisted(tmp_dir: Path, allowed_paths_setup: Path):
-    """A file under tools/proxy/ that contains forbidden patterns must NOT be flagged."""
+    """A file under the proxy directory (canonical tools/proxy/ layout in
+    the tmp sandbox, real path distributions/hermes/proxy/ in the repo
+    post-Phase 3) that contains forbidden patterns must NOT be flagged.
+
+    The tmp fixture intentionally uses the pre-Phase-3 "tools/proxy/" path
+    because the linter's DEFAULT_ALLOWED_PATHS still references that prefix
+    for forensic/test-sandbox reasons (see vbb-bypass-lint.py docstring).
+    """
     root = allowed_paths_setup
     proxy_file = root / "tools" / "proxy" / "client.py"
     assert proxy_file.exists()
     report = lint_paths([proxy_file], config=LintConfig())
     assert not report.findings, (
-        f"tools/proxy/ must be exempt; got findings: {report.findings}"
+        f"tools/proxy/ must be exempt (tmp fixture mirrors the original "
+        f"layout; DEFAULT_ALLOWED_PATHS still uses this prefix); "
+        f"got findings: {report.findings}"
     )
 
 
@@ -31,22 +40,29 @@ def test_adr_dir_is_allowlisted(tmp_dir: Path, allowed_paths_setup: Path):
 
 
 def test_other_paths_are_NOT_allowlisted(tmp_dir: Path, allowed_paths_setup: Path):
-    """A file under tools/ (NOT tools/proxy/) that contains forbidden patterns
-    must be flagged. The same is true for prompts/, skills/, scripts/."""
+    """A file under tools/ (NOT under any exempt path — neither the
+    pre-Phase-3 tools/proxy/ nor the real distributions/hermes/proxy/
+    post-Phase 3) that contains forbidden patterns must be flagged.
+    The same is true for prompts/, skills/, scripts/."""
     root = allowed_paths_setup
     bad = root / "tools" / "naughty.sh"
     bad.write_text("ssh root@nas\n", encoding="utf-8")
     report = lint_paths([bad], config=LintConfig())
-    assert report.findings, "tools/naughty.sh must NOT be exempt (not under tools/proxy/)"
+    assert report.findings, (
+        "tools/naughty.sh must NOT be exempt (not under tools/proxy/ "
+        "or any other allowed prefix)"
+    )
 
 
 def test_linter_self_is_allowlisted(tmp_dir: Path):
     """The linter module itself contains all forbidden patterns as regex strings;
-    it must be exempt from scanning itself."""
-    # As of ADR 0013 Phase 3, the linter lives at
-    # distributions/hermes/bypass-lint/vbb-bypass-lint.py, so parents[1]
-    # of this test file is the bypass-lint/ dir (was parents[2] = tools/
-    # at the old location tools/vbb-bypass-lint/tests/test_allowlist.py).
+    it must be exempt from scanning itself.
+
+    As of ADR 0013 Phase 3, the linter lives at
+    distributions/hermes/bypass-lint/vbb-bypass-lint.py, so parents[1]
+    of this test file is the bypass-lint/ dir. (Pre-Phase 3, the
+    equivalent test referenced the old tools/vbb-bypass-lint/tests/
+    location.)"""
     linter_path = (
         Path(__file__).resolve().parents[1] / "vbb-bypass-lint.py"
     )
@@ -62,17 +78,17 @@ def test_linter_self_is_allowlisted(tmp_dir: Path):
 
 
 def test_linter_tests_dir_is_allowlisted(tmp_dir: Path):
-    """The linter's own tests dir contains example violations on purpose."""
-    # As of ADR 0013 Phase 3, this test is at
-    # distributions/hermes/bypass-lint/tests/test_allowlist.py, so
-    # parents[1] is the bypass-lint/ dir.
+    """The linter's own tests dir contains example violations on purpose.
+
+    As of ADR 0013 Phase 3, this test is at
+    distributions/hermes/bypass-lint/tests/test_allowlist.py, so
+    parents[1] is the bypass-lint/ dir. (Pre-Phase 3, the test lived
+    at tools/vbb-bypass-lint/tests/, with parents[2] pointing to tools/.)"""
     tests_dir = Path(__file__).resolve().parents[1]  # distributions/hermes/bypass-lint/
     config = LintConfig()
     # repo_root from tests_dir: parents[3] of tests_dir = repo root.
-    # (Originally tests_dir.parents[2] when at tools/vbb-bypass-lint/tests/
-    # resolved to tools/ which was the comment in the old version; the
-    # intent is "any ancestor that lets is_allowed compute relative paths",
-    # which works at any depth that contains the exempt paths.)
+    # The intent is "any ancestor that lets is_allowed compute relative paths",
+    # which works at any depth that contains the exempt paths.
     repo_root = tests_dir.parents[3]  # repo root
     assert config.is_allowed(tests_dir, repo_root), (
         "distributions/hermes/bypass-lint/tests/ must be allowlisted"
@@ -86,12 +102,12 @@ def test_repo_proxy_and_adr_dont_trigger_findings(tmp_dir: Path):
     Either the scan returns 0 findings (exempt) or the regression is real.
 
     As of ADR 0013 Phase 3, the proxy cluster lives at
-    distributions/hermes/proxy/ (was tools/proxy/ before Phase 3).
+    distributions/hermes/proxy/. (Pre-Phase 3, it lived at tools/proxy/.)
     The check is guarded by `if <path>.exists():` so missing paths are
     silently skipped (no false failures during transitional periods).
     """
     # parents[2] of this test file = repo root (was parents[3] = repo root
-    # when at tools/vbb-bypass-lint/tests/test_allowlist.py).
+    # pre-Phase 3, when this test lived at tools/vbb-bypass-lint/tests/).
     repo = Path(__file__).resolve().parents[2]  # repo root
     config = LintConfig()
     # New canonical location (ADR 0013 Phase 3).

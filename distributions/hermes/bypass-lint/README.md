@@ -11,22 +11,22 @@ binaries (`ssh`, `gh auth`, `docker login`, `vault read`, `curl -H
 
 ```bash
 # Default scan (report mode — exit 0 unless CRITICAL findings)
-python tools/vbb-bypass-lint.py
+python distributions/hermes/bypass-lint/vbb-bypass-lint.py
 
 # Explicit paths
-python tools/vbb-bypass-lint.py tools/ prompts/ skills/
+python distributions/hermes/bypass-lint/vbb-bypass-lint.py tools/ prompts/ skills/
 
 # Strict mode (CI) — exit 1 on HIGH+CRITICAL
-python tools/vbb-bypass-lint.py --strict
+python distributions/hermes/bypass-lint/vbb-bypass-lint.py --strict
 
 # Machine-readable output
-python tools/vbb-bypass-lint.py --json
+python distributions/hermes/bypass-lint/vbb-bypass-lint.py --json
 
 # Include docs/ in the scan (default skips docs/)
-python tools/vbb-bypass-lint.py --docs
+python distributions/hermes/bypass-lint/vbb-bypass-lint.py --docs
 
 # Scan the entire repo (no path filtering)
-python tools/vbb-bypass-lint.py --all
+python distributions/hermes/bypass-lint/vbb-bypass-lint.py --all
 ```
 
 ## CLI options
@@ -56,8 +56,8 @@ python tools/vbb-bypass-lint.py --all
 
 Each pattern is anchored with context (`ssh `, `gh auth`, `docker login`, etc.)
 to avoid false positives in prose. The full list lives at the top of
-`tools/vbb-bypass-lint.py` (`DEFAULT_FORBIDDEN_PATTERNS`) and is the source of
-truth for what is forbidden, derived from ADR 0011 §3 Règle 1.
+`distributions/hermes/bypass-lint/vbb-bypass-lint.py` (`DEFAULT_FORBIDDEN_PATTERNS`)
+and is the source of truth for what is forbidden, derived from ADR 0011 §3 Règle 1.
 
 | Category | Severity |
 | --- | --- |
@@ -85,11 +85,11 @@ truth for what is forbidden, derived from ADR 0011 §3 Règle 1.
 
 The following paths are never scanned (exempt from the forbidden patterns):
 
-- `tools/proxy/` — proxy code itself, contains the reference list of
+- `distributions/hermes/proxy/` — proxy code itself, contains the reference list of
   forbidden patterns in comments, docstrings and tests.
 - `docs/adr/` — ADR reference documents.
-- `tools/vbb-bypass-lint.py` — this linter.
-- `tools/vbb-bypass-lint/tests/` — this linter's tests.
+- `distributions/hermes/bypass-lint/vbb-bypass-lint.py` — this linter.
+- `distributions/hermes/bypass-lint/tests/` — this linter's tests.
 
 ## Documentation markers
 
@@ -110,7 +110,7 @@ if they would otherwise match a forbidden pattern:
 ## Tests
 
 ```bash
-python -m pytest tools/vbb-bypass-lint/tests/ -v
+python -m pytest distributions/hermes/bypass-lint/tests/ -v
 ```
 
 37 unit tests, all passing, covering pattern detection, allowlist

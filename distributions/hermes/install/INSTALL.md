@@ -1,6 +1,9 @@
 # Hermes/Cody — Installation Guide
 
-Status: VERIFY-ONLY. Install script (`scripts/hermes/install.sh`) is DEFERRED.
+Status: VERIFY-ONLY. Install script (`distributions/hermes/install/install.sh`,
+DEFERRED in F-015 step 3 — destructive) is **not yet authored**. All references
+to `scripts/hermes/install.sh` below describe the F-015 future plan, not a
+shipped artifact.
 See `docs/DISTRIBUTIONS.md` (F-015, 2026-06-13) and §9 below.
 
 ## 1. Role of the Hermes/Cody distribution
@@ -22,11 +25,16 @@ be installed at `~/.hermes/bin/` (operator responsibility; outside scope).
 
 This run provides only:
 
-- `docs/hermes/INSTALL.md` — this document (F-015 step 1).
+- `distributions/hermes/install/INSTALL.md` — this document (F-015 step 1,
+  originally authored at `docs/hermes/INSTALL.md` and migrated here in
+  ADR 0013 Phase 2; the historical path is preserved in §11 for the record).
 - `distributions/hermes/verify/verify.sh` — non-destructive verification (F-015 step 2).
 
-`scripts/hermes/install.sh` (F-015 step 3, **destructive**) is **DEFERRED**
-to a follow-up run requiring explicit user confirmation. See §9.
+`distributions/hermes/install/install.sh` (F-015 step 3, **destructive**)
+is **DEFERRED** to a follow-up run requiring explicit user confirmation.
+See §9. (Pre-Phase 3, the planned location for this script was
+`scripts/hermes/install.sh`; that path is now superseded by
+`distributions/hermes/install/` per ADR 0013.)
 
 The split is intentional: each step is independently auditable, and a verify
 step before any destructive install dramatically reduces the risk of
@@ -115,9 +123,11 @@ it never writes, copies, or modifies anything.
 
 ## 9. Install script status
 
-`scripts/hermes/install.sh` is **DEFERRED** (F-015 step 3). It will be
-authored in a follow-up run with explicit operator confirmation before it
-touches `~/.hermes/profiles/vbb-*/`.
+`distributions/hermes/install/install.sh` is **DEFERRED** (F-015 step 3).
+It will be authored in a follow-up run with explicit operator
+confirmation before it touches `~/.hermes/profiles/vbb-*/`. (Pre-Phase 3,
+the planned path for this script was `scripts/hermes/install.sh`; that
+location is now superseded by `distributions/hermes/install/` per ADR 0013.)
 
 Reason (F-015, 2026-06-13): the install is destructive (creates/overwrites
 files in the operator's Hermes profile tree), and splitting packaging into

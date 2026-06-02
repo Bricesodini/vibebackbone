@@ -14,7 +14,7 @@ governance, tools, canonical docs).
 
 - `distributions/` — operational declinations for specific agent runtimes (ADR 0013)
 - `~/.hermes/profiles/vbb-*/` — Hermes runtime state, never in the repo
-- `tools/proxy/`, `docs/hermes/`, `scripts/hermes/` — currently here, moving in Phases 2-3
+- `distributions/hermes/proxy/`, `distributions/hermes/install/INSTALL.md`, `distributions/hermes/verify/verify.sh`, `distributions/hermes/bypass-lint/` — moved out of Core by ADR 0013 Phases 2-3
 - `docs/adr/0006-0012` — proxy-distribution ADRs, currently UNTRACKED, moving in Phase 3
 - `.pi/`, `.claude/` — distribution-specific config (moving in Phase 4)
 

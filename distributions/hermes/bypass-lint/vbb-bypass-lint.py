@@ -7,16 +7,28 @@ close des outils sensibles" (10 categories of forbidden patterns).
 
 Scope (default):
   - SOUL.md (if present at repo root)
-  - tools/ (excluding tools/proxy/ and tools/vbb-bypass-lint*)
+  - tools/ (excluding distributions/hermes/proxy/ and distributions/hermes/bypass-lint*)
   - prompts/
   - skills/
   - scripts/
   - docs/ only with --docs (excluding docs/adr/)
 
-Allowed paths (always exempt):
-  - tools/proxy/  (proxy code itself, contains the reference list)
+Allowed paths (always exempt — see DEFAULT_ALLOWED_PATHS below):
+  - distributions/hermes/proxy/  (proxy code itself, contains the reference list)
   - docs/adr/     (ADR reference docs)
-  - tools/vbb-bypass-lint.py and tools/vbb-bypass-lint/  (this linter and its tests)
+  - distributions/hermes/bypass-lint/vbb-bypass-lint.py and
+    distributions/hermes/bypass-lint/  (this linter and its tests)
+
+NOTE: DEFAULT_ALLOWED_PATHS and the suggestion strings below still reference the
+old pre-Phase-3 paths (tools/proxy, tools/vbb-bypass-lint*) for two reasons:
+  1. The tests in test_allowlist.py build a tmp sandbox that mirrors the
+     original Vibebackbone layout, so the prefix-match logic continues to work
+     against the canonical "tools/proxy"-style fixtures.
+  2. The suggestion strings are forensic guidance: when a contributor
+     commits a "ssh root@nas" pattern, the suggestion "Use tools/proxy/client.py
+     with action 'nas_exec' instead" matches what historical audit logs
+     contain, so log greps still resolve.
+See docs/DISTRIBUTIONS.md §"Linter guidance strings" for the full rationale.
 
 Mode:
   - report  (default): prints findings; exit 0 unless at least one CRITICAL
