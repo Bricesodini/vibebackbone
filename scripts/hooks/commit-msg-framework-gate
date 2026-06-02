@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# commit-msg-framework-gate
+# Hook commit-msg (2/2 de la framework commit gate).
+# Responsabilité : valider le MESSAGE d'un commit framework déclaratif.
+#
+# Comportement :
+#  - Reçoit $1 = path du fichier message (git passe COMMIT_EDITMSG).
+#  - Lit le message complet (sujet + corps).
+#  - WIP detection : préfixe wip:|draft:|chore:|docs:|style: → exit 0.
+#  - Sinon, exige :
+#      * un tableau markdown "| Claim | Evidence | Status |"
+#      * OU une ligne "approve: brice"
+#  - Si ni l'un ni l'autre : exit 1 avec stderr explicite.
+#
+# Bash pur, pas de dépendance externe.
+
+set -u
+
+MSG_FILE="${1:-}"
+if [ -z "$MSG_FILE" ] || [ ! -f "$MSG_FILE" ]; then
+    # Pas de fichier message → laisser passer (git ne devrait jamais
+    # enchaîner commit-msg sans fichier, mais on est défensif).
+    exit 0
+fi
+
+MSG="$(cat "$MSG_FILE")"
+
+# WIP detection : premier mot/préfixe (insensible à la casse).
+first_word="$(printf '%s' "$MSG" | head -1 | awk '{ print tolower($1) }')"
+case "$first_word" in
+    wip:*|draft:*|chore:*|docs:*|style:*)
+        exit 0
+        ;;
+esac
+
+# Commit déclaratif : exige un tableau markdown OU approve: brice
+if printf '%s' "$MSG" | grep -qiE '\|[[:space:]]*Claim[[:space:]]*\|[[:space:]]*Evidence[[:space:]]*\|[[:space:]]*Status[[:space:]]*\|'; then
+    exit 0
+fi
+
+if printf '%s' "$MSG" | grep -q '^approve:[[:space:]]*brice[[:space:]]*$'; then
+    exit 0
+fi
+
+# Aucun des deux → BLOQUÉ
+cat >&2 <<'MSG'
+BLOCKED by cody-reliability-gate: framework commit requires:
+  - a markdown evidence table: "| Claim | Evidence | Status |"
+  - OR an explicit opt-in: "approve: brice" on its own line
+
+Context: CODY RELIABILITY GATE rule #6 (commit-msg hook).
+  Docs: ~/.hermes/profiles/vbb-cody-orchestrator/SOUL.md
+  Tool: ~/.hermes/bin/cody-reliability-gate
+  Skill: ~/.hermes/skills/cody-reliability-gate/SKILL.md
+
+Override (not recommended): git commit --no-verify
+MSG
+exit 1

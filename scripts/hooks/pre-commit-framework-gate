@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# pre-commit-framework-gate
+# Hook pre-commit (1/2 de la framework commit gate).
+# Responsabilité : détecter les commits hors-scope.
+#
+# Comportement :
+#  1. Lit les fichiers modifiés (git diff --cached --name-only).
+#  2. Si aucun fichier n'est dans le repo vibebackbone (docs/, skills/,
+#     prompts/, tools/, scripts/, .hermes/), exit 0 silencieusement.
+#  3. Sinon, exit 0 (la validation du message est faite par
+#     commit-msg-framework-gate — ce hook ne s'en mêle pas).
+#
+# Bash pur, pas de dépendance externe.
+
+set -u
+
+STAGED="$(git diff --cached --name-only 2>/dev/null || true)"
+
+in_repo=0
+if [ -n "$STAGED" ]; then
+    while IFS= read -r f; do
+        case "$f" in
+            docs/*|skills/*|prompts/*|tools/*|scripts/*|.hermes/*)
+                in_repo=1
+                break
+                ;;
+        esac
+    done <<< "$STAGED"
+fi
+
+# Hors-scope : exit 0 silencieux.
+# In-scope : exit 0 — le commit-msg-hook fera la validation du message.
+exit 0
