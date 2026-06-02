@@ -113,6 +113,46 @@ else
     fail=$((fail+1))
 fi
 
+# Test 8 (ADR 0013 Phase 3 prep, R1) — distributions/* is now in whitelist
+# Staged file distributions/hermes/proxy/adr/0006-foo.md + WIP commit →
+# pre-commit-hook should detect it as in_repo (in-scope), not block.
+# We use a wip: prefix so commit-msg-hook lets it through.
+rc=$(invoke_hook "distrib_wip" "distributions/hermes/proxy/adr/0006-foo.md" "wip: extend whitelist to distributions/*")
+if [ "$rc" = "0" ]; then
+    echo "  PASS test_8_distributions_in_whitelist (ADR 0013 R1)"
+    pass=$((pass+1))
+else
+    echo "  FAIL test_8_distributions_in_whitelist (ADR 0013 R1): expected 0, got $rc"
+    fail=$((fail+1))
+fi
+
+# Test 9 (ADR 0013 Phase 3 prep, R1) — distributions/hermes/install/INSTALL.md
+# in-scope + declarative commit WITH table → exit 0
+rc=$(invoke_hook "distrib_table" "distributions/hermes/install/INSTALL.md" "feat(distributions): add install path
+| Claim | Evidence | Status |
+|---|---|---|
+| hook whitelist updated | diff shows distributions/* added | DONE |
+| in-scope detection works | test 8 PASS | DONE |")
+if [ "$rc" = "0" ]; then
+    echo "  PASS test_9_distributions_with_table (ADR 0013 R1)"
+    pass=$((pass+1))
+else
+    echo "  FAIL test_9_distributions_with_table (ADR 0013 R1): expected 0, got $rc"
+    fail=$((fail+1))
+fi
+
+# Test 10 (ADR 0013 Phase 3 prep, R1) — path truly out of scope still
+# passes silently (exit 0, classified as out-of-repo). This proves
+# the protection is NOT weakened for legit out-of-scope paths.
+rc=$(invoke_hook "still_out_of_scope" "somewhere_else/foo.md" "wip: trivial out-of-scope change")
+if [ "$rc" = "0" ]; then
+    echo "  PASS test_10_out_of_scope_still_silent (ADR 0013 R1)"
+    pass=$((pass+1))
+else
+    echo "  FAIL test_10_out_of_scope_still_silent (ADR 0013 R1): expected 0, got $rc"
+    fail=$((fail+1))
+fi
+
 echo ""
 echo "Results: $pass passed, $fail failed"
 exit $fail

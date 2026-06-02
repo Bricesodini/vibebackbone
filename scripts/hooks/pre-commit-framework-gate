@@ -6,11 +6,16 @@
 # Comportement :
 #  1. Lit les fichiers modifiés (git diff --cached --name-only).
 #  2. Si aucun fichier n'est dans le repo vibebackbone (docs/, skills/,
-#     prompts/, tools/, scripts/, .hermes/), exit 0 silencieusement.
+#     prompts/, tools/, scripts/, distributions/, .hermes/), exit 0
+#     silencieusement.
 #  3. Sinon, exit 0 (la validation du message est faite par
 #     commit-msg-framework-gate — ce hook ne s'en mêle pas).
 #
 # Bash pur, pas de dépendance externe.
+#
+# Note 2026-06-13 (ADR 0013 Phase 3 prep, R1) : `distributions/*` ajouté
+# à la whitelist car les artefacts distribution (hermes/, pi/, examples/)
+# sont désormais des citoyens de premier plan du repo. ADR 0013 Accepted.
 
 set -u
 
@@ -20,7 +25,7 @@ in_repo=0
 if [ -n "$STAGED" ]; then
     while IFS= read -r f; do
         case "$f" in
-            docs/*|skills/*|prompts/*|tools/*|scripts/*|.hermes/*)
+            docs/*|skills/*|prompts/*|tools/*|scripts/*|distributions/*|.hermes/*)
                 in_repo=1
                 break
                 ;;
