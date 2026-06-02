@@ -180,14 +180,25 @@ that triggered the decision.
 ```
 
 ### 2026-06-13 — Hermes/Cody packaging strategy (F-015)
-**Decision**: Documentation + verify script first, then install script. Never overwrite existing profiles without backup.
-**Trigger**: Audit 20260602_1645 + audit post-766bbf3, Q8 verdict FIX BEFORE INSTALL.
-**Reason**: F-015 was newly identified as a P0 packaging blocker. The distribution must be installable on a new machine without ambiguity about what gets created, where, and how. Splitting packaging into (1) docs, (2) verify script, (3) install script allows each step to be validated independently and reduces the risk of corrupting an existing `~/.hermes/profiles/vbb-*/` setup.
-**Impact**:
+|**Decision**: Documentation + verify script first, then install script. Never overwrite existing profiles without backup.
+|**Trigger**: Audit 20260602_1645 + audit post-766bbf3, Q8 verdict FIX BEFORE INSTALL.
+|**Reason**: F-015 was newly identified as a P0 packaging blocker. The distribution must be installable on a new machine without ambiguity about what gets created, where, and how. Splitting packaging into (1) docs, (2) verify script, (3) install script allows each step to be validated independently and reduces the risk of corrupting an existing `~/.hermes/profiles/vbb-*/` setup.
+|**Impact**:
   - VBB Core (this repo) gains: `docs/hermes/INSTALL.md` (future), `scripts/hermes/verify.sh` (future), `scripts/hermes/install.sh` (future).
   - Distribution: profiles stay under `~/.hermes/profiles/vbb-*/`. No overwrite without backup.
   - Next chantier: create `docs/hermes/INSTALL.md` (this run) and `scripts/hermes/verify.sh` (this run). Defer `scripts/hermes/install.sh` to a follow-up chantier (it is destructive, requires explicit confirmation).
-**Author**: vbb-struct-worker (delegated by Cody, audit-driven)
+|**Author**: vbb-struct-worker (delegated by Cody, audit-driven)
+
+### 2026-06-13 — Hermes/Cody install layer step 1+2 (F-015)
+|**Decision**: Provide `docs/hermes/INSTALL.md` + `scripts/hermes/verify.sh` only. `install.sh` remains DEFERRED.
+|**Trigger**: F-015 packaging strategy. Previous run (5885d87) decided the strategy; this run implements the first two steps (documentation + verification).
+|**Reason**: Verify-only is non-destructive. Operator can confirm environment readiness before any destructive install. `install.sh` is reserved for a follow-up run with explicit user confirmation (per F-015 step 3).
+|**Impact**:
+  - VBB Core (this repo) gains: `docs/hermes/INSTALL.md` + `scripts/hermes/verify.sh`.
+  - Distribution: zero changes under `~/.hermes/profiles/vbb-*/`. `verify.sh` reads them but never writes.
+  - Operator workflow: clone repo → set VBB_HOME/HERMES_HOME/CODY_CHECK → run `bash scripts/hermes/verify.sh` → expect PASS.
+  - `verify.sh` covers 28 checks across VBB Core tools, Hermes profile presence, SOUL.md portability (F-004), and cody-check resolvability. Exits 0 on full PASS, 1 on any FAIL (with per-check hints).
+|**Author**: vbb-struct-worker (delegated by Cody, F-015 implementation step 1+2)
 
 ### Example entry (illustrative)
 
