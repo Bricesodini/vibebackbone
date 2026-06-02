@@ -67,6 +67,7 @@ updated: 2026-05-28
 |------|--------------|
 | Rapports d'audit horodatés | [`audits/`](audits/) |
 | Traces du runtime de contrat | [`audits/vbb-runtime/`](audits/vbb-runtime/) |
+| Audits/plans archivés ou supplantés | [`archive/`](archive/) |
 
 ## Outils
 

@@ -3,7 +3,7 @@ context_role: moc-central
 phase: transverse
 status: active
 run_id: permanent
-updated: 2026-05-29
+updated: 2026-06-02
 temporal_provenance: TEMPORAL_PROVENANCE.md
 ---
 
@@ -36,7 +36,7 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Centralization audit** : pass 4 produces `TOKEN_DEFINITION_MAP` + `CENTRALIZATION_ROADMAP`
 - **Tests** : 82/82 pytest green, CI PASS, contract lint 0 errors, architecture lint 0 errors
 - **Token economy** : L0 boot ~2.5K tokens (87% reduction from 19K)
-- **Next action** : Continue prompt-system reconciliation from `docs/plans/20260602_0611_audit-remediation.md` or test front pipeline propagation-first behavior in real conditions
+- **Next action** : Continue prompt-system reconciliation from `docs/plans/20260602_0611_audit-remediation.md`; remaining doc-foundation drift is tracked in `docs/audits/doc-context-20260602-1316.md`
 - **Key decisions** : [ADR-0002](docs/adr/0002-surface-first-routing-ui-ux.md) — surface-first routing + centralization audit
 
 ## Risks / audits
@@ -64,6 +64,7 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 4. ✅ Deep framework remediation implemented — `docs/runs/2026-06-02_1220_deep-framework-remediation/`
 5. 🟡 Quality audit gaps (AI governance skill, migration policy) — *high*
 6. ✅ OPS-001/002/003 CLOSED — robustness findings resolved (2026-05-28 + 2026-05-29)
+7. ✅ Documentation foundation pass — `AGENTS.md` compacted, stale 0641 audit archived, active findings extracted (2026-06-02)
 
 ## Key decisions
 

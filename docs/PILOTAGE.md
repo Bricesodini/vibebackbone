@@ -235,7 +235,7 @@ Principle: "Fail open = fail dangerous."
 3. `docs/SESSION.md` → local, gitignored
 4. `docs/AUDIT_STATUS.md` → audit dashboard
 5. `docs/audits/` · `docs/runs/` → on demand
-6. `docs/CONVENTIONS.md` → quality conventions (5 pillars: Readability, Modularity, Coherence, Traçabilité, Robustness)
+6. `docs/CONVENTIONS.md` → quality conventions (5 pillars: Readability, Modularity, Coherence, Traçabilité, Robustness P.R1-P.R8)
 
 ## Quality standards
 
@@ -243,6 +243,14 @@ Quality conventions are canonical in `docs/CONVENTIONS.md`.
 Agents must follow them by default.
 Any canon change requires a documented proposal and human validation
 (`docs/templates/CANON_CHANGE_PROPOSAL.md.template`).
+
+The operational robustness rules P.R1-P.R8 are part of Pillar 5, not a separate
+parallel canon. In practice:
+
+- P.R1/P.R2: declare invariants and run the verification loop before completion.
+- P.R3/P.R4: expose ambiguity and preserve traceability through durable artifacts.
+- P.R5/P.R6: protect rollback paths and avoid silent failure.
+- P.R7/P.R8: prevent regression and prefer independent review, or disclose self-review.
 
 ---
 

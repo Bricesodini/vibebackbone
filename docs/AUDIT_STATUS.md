@@ -135,6 +135,29 @@ New risks added:
 | VBB-DEEP-007 | P3 | `docs/CONVENTIONS.md` traceability counters are stale against current run/audit counts | Resolved — static counters replaced by dashboard/inventory references |
 | VBB-DEEP-008 | P2 | AGENTS prompt short names do not resolve to files at `/Users/bot/.agents/prompts/vibebackbone/` in this workspace | Resolved — short names mapped to concrete prompt files in AGENTS/setup/docs |
 
+## Local documentation note — foundation cleanup (2026-06-02)
+
+New audit: [doc-context-20260602-1316.md](audits/doc-context-20260602-1316.md).
+
+Verdict: `PASS_WITH_RESIDUAL_DOC_GAPS`. The documentation foundation was
+deduplicated without deleting historical evidence. `AGENTS.md` is now a compact
+source file instead of a recursively generated bundle. The stale local audit
+`20260602_0641_audit_vibebackbone.md` was reviewed, useful residual findings
+were extracted, and the full report was moved to `docs/archive/audits/`.
+
+Archived as non-active evidence:
+
+- `docs/archive/audits/20260602_0641_audit_vibebackbone.md`
+- `docs/archive/plans/20260602_cody-reliability-gate.md`
+
+Residual items kept active:
+
+| ID | Severity | Description | Status |
+|----|----------|-------------|--------|
+| DOC-001 | P2 | Prompt-system reconciliation still needs a final matrix for canonical, specialized, router, and short-name entrypoints | Open — continue from `docs/plans/20260602_0611_audit-remediation.md` |
+| DOC-002 | P2 | Code-audit detector skills overlap and still need a detector responsibility matrix | Open |
+| DOC-003 | P3 | Historical references to absent/non-current prompt names remain possible in old reports | Mitigated — archived reports preserved as history, not active truth |
+
 ## Latest audit note — quality adoption (2026-06-29)
 
 New audit: [quality-adoption-audit-20260629.md](audits/quality-adoption-audit-20260629.md).

@@ -43,6 +43,7 @@ responsibilities:
   - Define route families and escalation rules
   - Preserve document hierarchy
   - Prevent parallel truth between governance, sessions and code
+  - Keep AGENTS.md as a compact source file, not a recursively generated artifact
 depends_on: []
 impacts:
   - task triage
@@ -328,6 +329,7 @@ impacts:
 files:
   - docs/AUDIT_STATUS.md
   - docs/audits/*.md
+  - docs/archive/**/*.md
   - docs/runs/**/*.md
   - docs/TEMPORAL_PROVENANCE.md
   - docs/TECH_DEBT.md
