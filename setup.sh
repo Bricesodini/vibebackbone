@@ -248,74 +248,12 @@ PY
 source "$REPO_ROOT/core/setup.sh"
 core_install
 
-# ── 3. Claude Code — settings.json ──────────────────────────────────────────
-if needs_python; then
-  mkdir -p "$HOME/.claude"
-  [ ! -f "$CLAUDE_SETTINGS" ] && echo '{}' > "$CLAUDE_SETTINGS"
-  python3 - "$CLAUDE_SETTINGS" <<'PY'
-import json, sys
-path = sys.argv[1]
-with open(path) as f:
-    cfg = json.load(f)
-skills = cfg.get("skills", [])
-entry = "~/.agents/skills"
-if entry not in skills:
-    skills.append(entry)
-    cfg["skills"] = skills
-    with open(path, "w") as f:
-        json.dump(cfg, f, indent=2)
-    print(f"✓ Claude Code: settings.json patched with {entry!r}")
-else:
-    print(f"✓ Claude Code: settings.json already includes {entry!r}")
-PY
-fi
-
-# ── 4. Claude Code — CLAUDE.md block ─────────────────────────────────────────
-echo ""
-echo "Deploying governance (AGENTS.md + SYSTEM.md)..."
-
-mkdir -p "$HOME/.claude"
-touch "$CLAUDE_MD"
-
-if needs_python; then
-  python3 - "$CLAUDE_MD" "$AGENTS_SRC" "$SYSTEM_SRC" "$SYSTEM_AVAILABLE" <<'PY'
-import sys, re
-path, agents_src, system_src, system_available = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
-with open(path) as f:
-    content = f.read()
-
-system_available_flag = system_available.lower() == "true"
-
-block_lines = ["\n# vibebackbone", f"@{agents_src}"]
-if system_available_flag:
-    block_lines.append(f"@{system_src}")
-new_block = "\n".join(block_lines) + "\n"
-
-pattern = r'(?:\n)?# vibebackbone\n(?:@[^\n]*\n)+'
-if re.search(pattern, content):
-    content = re.sub(pattern, new_block, content)
-    with open(path, "w") as f:
-        f.write(content)
-    if system_available_flag:
-        print("✓ Claude Code: AGENTS.md + SYSTEM.md reference updated")
-    else:
-        print("✓ Claude Code: AGENTS.md reference updated (SYSTEM.md missing)")
-else:
-    with open(path, "a") as f:
-        f.write(new_block)
-    if system_available_flag:
-        print("✓ Claude Code: AGENTS.md + SYSTEM.md reference added")
-    else:
-        print("✓ Claude Code: AGENTS.md reference added (SYSTEM.md missing)")
-PY
-else
-  echo "⚠ Claude Code: python3 not found — CLAUDE.md patch skipped"
-fi
-
-# ── 5. Claude Code — prompt commands ─────────────────────────────────────────
-CLAUDE_PROMPTS_OK=0
-CLAUDE_PROMPTS_SKIP=0
-generate_prompt_commands "$CLAUDE_COMMANDS" "Claude prompts" "CLAUDE_PROMPTS_OK" "CLAUDE_PROMPTS_SKIP"
+# ── 3-5. Claude Code — settings.json + CLAUDE.md block + prompt commands ────
+# Claude logic moved to distributions/claude/setup.sh (Phase 2C). Globals
+# set by claude_install (CLAUDE_PROMPTS_OK, CLAUDE_PROMPTS_SKIP) feed the
+# summary below.
+source "$REPO_ROOT/distributions/claude/setup.sh"
+claude_install
 
 # ── 6. Codex — compiled AGENTS.md ───────────────────────────────────────────
 mkdir -p "$HOME/.codex"

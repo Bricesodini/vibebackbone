@@ -74,8 +74,6 @@ do
 done
 # Provider-specific sections remain in setup.sh
 for marker in \
-    "Claude Code — settings.json" \
-    "Claude Code — CLAUDE.md block" \
     "Codex — compiled AGENTS.md" \
     "OpenCode — instructions" \
     "OpenCode — prompt commands" \
@@ -99,6 +97,23 @@ if grep -qE "^# ── 7\. Pi — symlinks" "$SETUP" 2>/dev/null; then
     ok "Pi section header comment preserved in setup.sh (routeur context)"
 else
     fail "Pi section header comment MISSING in setup.sh"
+fi
+# Claude sections moved to distributions/claude/setup.sh in Phase 2C
+for marker in \
+    "Claude Code — settings.json" \
+    "Claude Code — CLAUDE.md block"
+do
+    if grep -qF "$marker" "$REPO_ROOT/distributions/claude/setup.sh" 2>/dev/null; then
+        ok "marker present (Claude, in distributions/claude/setup.sh): $marker"
+    else
+        fail "marker MISSING (Claude, in distributions/claude/setup.sh): $marker"
+    fi
+done
+# Sanity: the §3-5 Claude header comments stay in setup.sh as routeur context
+if grep -qE "^# ── 3-5\. Claude Code" "$SETUP" 2>/dev/null; then
+    ok "Claude section header comment preserved in setup.sh (routeur context)"
+else
+    fail "Claude section header comment MISSING in setup.sh"
 fi
 
 # --- 4. Public flags ---------------------------------------------------------
