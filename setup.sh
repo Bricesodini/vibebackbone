@@ -410,42 +410,10 @@ else
 fi
 
 # ── 7. Pi — symlinks (AGENTS + SYSTEM + prompts) ────────────────────────────
-mkdir -p "$HOME/.pi/agent"
-symlink_if_absent "$AGENTS_SRC" "$PI_AGENTS" "Pi: AGENTS.md"
-if [ "$SYSTEM_AVAILABLE" = true ]; then
-  symlink_if_absent "$SYSTEM_SRC" "$PI_SYSTEM" "Pi: SYSTEM.md"
-fi
-
-PI_PROMPTS_OK=0
-PI_PROMPTS_SKIP=0
-
-if [ "$PROMPTS_AVAILABLE" = true ]; then
-  mkdir -p "$PI_PROMPTS"
-  for src in "$PROMPTS_SRC"/*.md; do
-    [ -f "$src" ] || continue
-    name=$(basename "$src")
-    [[ "$name" == "README.md" || "$name" == "INDEX.md" ]] && continue
-    dst="$PI_PROMPTS/$name"
-    if [ -L "$dst" ]; then
-      # Existing symlink → always replace (covers old source, case-insensitivity)
-      rm "$dst"
-    elif [ -e "$dst" ] && [ ! -L "$dst" ]; then
-      if [ "$FORCE_GOVERNANCE" = true ]; then
-        backup_file "$dst"
-        rm "$dst"
-      else
-        echo "⚠ Pi prompts: existing custom $name skipped"
-        PI_PROMPTS_SKIP=$((PI_PROMPTS_SKIP + 1))
-        continue
-      fi
-    fi
-    ln -sfn "$src" "$dst"
-    PI_PROMPTS_OK=$((PI_PROMPTS_OK + 1))
-  done
-  if [ "$PI_PROMPTS_SKIP" -eq 0 ]; then
-    echo "✓ Pi prompts: $PI_PROMPTS_OK prompts linked"
-  fi
-fi
+# Pi logic moved to distributions/pi/setup.sh (Phase 2B). Globals set by
+# pi_install (PI_PROMPTS_OK, PI_PROMPTS_SKIP) feed the summary below.
+source "$REPO_ROOT/distributions/pi/setup.sh"
+pi_install
 
 # ── 8. OpenCode — instructions ───────────────────────────────────────────────
 mkdir -p "$HOME/.config/opencode"

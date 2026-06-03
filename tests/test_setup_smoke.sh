@@ -77,17 +77,29 @@ for marker in \
     "Claude Code — settings.json" \
     "Claude Code — CLAUDE.md block" \
     "Codex — compiled AGENTS.md" \
-    "Pi — symlinks" \
     "OpenCode — instructions" \
     "OpenCode — prompt commands" \
     "uninstall"
 do
     if grep -qF "$marker" "$SETUP" 2>/dev/null; then
-        ok "marker present (provider): $marker"
+        ok "marker present (provider, in setup.sh): $marker"
     else
-        fail "marker MISSING (provider): $marker"
+        fail "marker MISSING (provider, in setup.sh): $marker"
     fi
 done
+# Pi section moved to distributions/pi/setup.sh in Phase 2B
+if grep -qF "Pi — symlinks" "$REPO_ROOT/distributions/pi/setup.sh" 2>/dev/null; then
+    ok "marker present (Pi, in distributions/pi/setup.sh): Pi — symlinks"
+else
+    fail "marker MISSING (Pi, in distributions/pi/setup.sh): Pi — symlinks"
+fi
+# Sanity: the §7 Pi section header must NOT be a code block in setup.sh anymore
+# (it stays as a comment header, which is acceptable for context)
+if grep -qE "^# ── 7\. Pi — symlinks" "$SETUP" 2>/dev/null; then
+    ok "Pi section header comment preserved in setup.sh (routeur context)"
+else
+    fail "Pi section header comment MISSING in setup.sh"
+fi
 
 # --- 4. Public flags ---------------------------------------------------------
 echo ""
