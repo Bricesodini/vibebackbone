@@ -74,7 +74,6 @@ do
 done
 # Provider-specific sections remain in setup.sh
 for marker in \
-    "Codex — compiled AGENTS.md" \
     "OpenCode — instructions" \
     "OpenCode — prompt commands" \
     "uninstall"
@@ -85,6 +84,18 @@ do
         fail "marker MISSING (provider, in setup.sh): $marker"
     fi
 done
+# Codex section moved to distributions/codex/setup.sh in Phase 2D
+if grep -qF "Codex — compiled AGENTS.md" "$REPO_ROOT/distributions/codex/setup.sh" 2>/dev/null; then
+    ok "marker present (Codex, in distributions/codex/setup.sh): Codex — compiled AGENTS.md"
+else
+    fail "marker MISSING (Codex, in distributions/codex/setup.sh): Codex — compiled AGENTS.md"
+fi
+# Sanity: the §6 Codex header comment stays in setup.sh as routeur context
+if grep -qE "^# ── 6\. Codex — compiled AGENTS\.md" "$SETUP" 2>/dev/null; then
+    ok "Codex section header comment preserved in setup.sh (routeur context)"
+else
+    fail "Codex section header comment MISSING in setup.sh"
+fi
 # Pi section moved to distributions/pi/setup.sh in Phase 2B
 if grep -qF "Pi — symlinks" "$REPO_ROOT/distributions/pi/setup.sh" 2>/dev/null; then
     ok "marker present (Pi, in distributions/pi/setup.sh): Pi — symlinks"

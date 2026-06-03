@@ -256,96 +256,13 @@ source "$REPO_ROOT/distributions/claude/setup.sh"
 claude_install
 
 # ── 6. Codex — compiled AGENTS.md ───────────────────────────────────────────
-mkdir -p "$HOME/.codex"
-
-if needs_python; then
-  python3 - "$CODEX_AGENTS" "$AGENTS_SRC" "$SYSTEM_SRC" "$SYSTEM_AVAILABLE" "$FORCE_GOVERNANCE" "$PROMPTS_SRC" "$PROMPTS_AVAILABLE" <<'PY'
-import sys, os
-path, agents_src, system_src, system_available, force_governance, prompts_src, prompts_available = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7]
-force = force_governance.lower() == "true"
-system_available_flag = system_available.lower() == "true"
-prompts_available_flag = prompts_available.lower() == "true"
-START = "<!-- vibebackbone:generated:start -->"
-END = "<!-- vibebackbone:generated:end -->"
-
-def replace_generated_block(content, new_block):
-    first = content.find(START)
-    if first == -1:
-        return None
-    last = content.rfind(END)
-    if last == -1 or last < first:
-        return content[:first] + new_block.rstrip() + "\n"
-    last += len(END)
-    while last < len(content) and content[last] in "\r\n":
-        last += 1
-    return content[:first] + new_block.rstrip() + "\n" + content[last:]
-
-def build_block(agents_src, system_src, system_available_flag, prompts_src, prompts_available_flag):
-    lines = [
-        "\n<!-- vibebackbone:generated:start -->\n",
-        f"<!-- Source: {agents_src} -->\n",
-        open(agents_src).read(),
-    ]
-    if system_available_flag:
-        lines.extend([
-            "\n---\n",
-            f"<!-- Source: {system_src} -->\n",
-            open(system_src).read(),
-        ])
-    if prompts_available_flag:
-        lines.extend([
-            "\n---\n",
-            "# Vibebackbone Prompt Library\n",
-            "Prompt templates are available at:\n",
-            f"`{os.path.expanduser('~/.agents/prompts/vibebackbone/')}`\n",
-            "They are session entrypoints, not skills.\n",
-            "Resolve prompt short names to Markdown files before reading them:\n",
-            "- `quick-task` -> `1-p-vbb-quick-task.md`\n",
-            "- `structured-task` -> `1-p-vbb-structured-task.md`\n",
-            "- `audit-task` -> `2-p-vbb-audit-task.md`\n",
-            "- `release-check` -> `2-p-vbb-release-check.md`\n",
-            "- `session-handoff` -> `t-p-vbb-session-handoff.md`\n",
-            "Read the resolved Markdown prompt from that directory and apply it before execution.\n",
-            "Do not invent prompt behavior from the name alone. If the prompt file is missing, state that explicitly and proceed only as best-effort.\n",
-        ])
-    lines.append("\n<!-- vibebackbone:generated:end -->\n")
-    return "".join(lines)
-
-if os.path.exists(path):
-    with open(path) as f:
-        content = f.read()
-    has_markers = START in content
-
-    if has_markers:
-        new_block = build_block(agents_src, system_src, system_available_flag, prompts_src, prompts_available_flag)
-        content = replace_generated_block(content, new_block)
-        with open(path, "w") as f:
-            f.write(content)
-        print("✓ Codex: generated block updated")
-        sys.exit(0)
-    else:
-        if force:
-            from datetime import datetime as _dt
-            backup_path = f"{path}.backup.{_dt.now().strftime('%Y%m%d-%H%M%S')}"
-            import shutil
-            shutil.copy(path, backup_path)
-            print(f"✓ Codex: backup created at {backup_path}")
-            new_block = build_block(agents_src, system_src, system_available_flag, prompts_src, prompts_available_flag)
-            with open(path, "w") as f:
-                f.write(new_block)
-            print("✓ Codex: generated AGENTS.md created (custom file backed up and replaced)")
-        else:
-            print("⚠ Codex: existing custom AGENTS.md skipped (use --force-governance)")
-        sys.exit(0)
-
-new_block = build_block(agents_src, system_src, system_available_flag, prompts_src, prompts_available_flag)
-with open(path, "w") as f:
-    f.write(new_block)
-print("✓ Codex: generated AGENTS.md created")
-PY
-else
-  echo "⚠ Codex: python3 not found — compiled AGENTS.md generation skipped"
-fi
+# Codex logic moved to distributions/codex/setup.sh (Phase 2D). Mechanical
+# relocation only — no simplification, no refactoring, no content change.
+# Same START/END markers, same generated content, same update strategy,
+# same uninstall behavior. See distributions/codex/setup.sh for the
+# verbatim extracted block.
+source "$REPO_ROOT/distributions/codex/setup.sh"
+codex_install
 
 # ── 7. Pi — symlinks (AGENTS + SYSTEM + prompts) ────────────────────────────
 # Pi logic moved to distributions/pi/setup.sh (Phase 2B). Globals set by

@@ -1,3 +1,14 @@
+---
+run_id: "2026-06-14_1200_setup-split-phase-2B-pi"
+phase: "07_CLOSEOUT"
+voie: "STRUCTUREE"
+status: "READY"
+agent: "vbb-cody-orchestrator (delegated by Hermes for setup split refactor)"
+started_at: "2026-06-14T10:00:00Z"
+next_phase: null
+artifacts_produced: []
+---
+
 # Closeout — Setup split Phase 2B : Pi extraction
 
 **Run ID** : 2026-06-14_1200_setup-split-phase-2B-pi
