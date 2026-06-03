@@ -55,10 +55,15 @@ def test_review_tier_text_output_structure() -> None:
     assert p.returncode == 0
     out = p.stdout
     assert "Review-Tier Advisory" in out
-    assert "blocking=" in out
     assert "ADVISORY only" in out
     # Tier line is either "Tier : Tn" or "Tier : UNMAPPED"
     assert "Tier :" in out
+    # blocking/Mode line is present whenever a real tier is computed.
+    # When working tree is clean (no diff), the output is UNMAPPED and
+    # the blocking= line is omitted — that's expected behavior.
+    if "Tier : UNMAPPED" not in out:
+        assert "blocking=" in out
+        assert "Mode :" in out
 
 
 # --- JSON contract ----------------------------------------------------------
