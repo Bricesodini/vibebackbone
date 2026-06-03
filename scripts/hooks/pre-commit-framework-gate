@@ -11,6 +11,23 @@
 #  3. Sinon, exit 0 (la validation du message est faite par
 #     commit-msg-framework-gate — ce hook ne s'en mêle pas).
 #
+# Extension Phase 2 Run 1 (P0-1 §4.4, 2026-06-13) :
+#  - Si un fichier `*/07_CLOSEOUT.md` est staged, le hook appelle
+#    `tools/vbb-loop-closure-check.py` avec `--validate-claims` sur le
+#    run_id correspondant. Si erreur → bloque le commit (exit 1).
+#  - Si un fichier `*/04_PLAN.md` est staged, le hook appelle le tool
+#    avec `--validate-plan` (P0-2 §4.1). Si erreur → bloque.
+#  - Si un fichier `*/05_EXECUTION.md` est staged dans un run
+#    STRUCTUREE/AUDIT/CLOSEOUT, le hook appelle le tool avec
+#    `--validate-test-audit` (P0-3 §4.1).
+#  - Tous ces checks sont **additifs et tolérants** : un échec affiche
+#    un message clair mais n'altère pas le flow des commits hors-scope.
+#  - Note P0-5 §4.2 (2026-06-13) : echo informatif "checking credentials
+#    (Core rule §13)" — la credentials gate Core (vbb-credentials-gate.py)
+#    est différée (catégorie D, hors scope Phase 2 Run 1) ; pour l'instant
+#    le hook Core ne fait qu'un message de log. Le tool distribution
+#    bypass-lint (Hermes) reste la référence distribution-level.
+#
 # Bash pur, pas de dépendance externe.
 #
 # Note 2026-06-13 (ADR 0013 Phase 3 prep, R1) : `distributions/*` ajouté
@@ -19,18 +36,98 @@
 
 set -u
 
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+PYTHON="${PYTHON:-python3}"
+command -v python >/dev/null 2>&1 && PYTHON="${PYTHON_OVERRIDE:-python}"
+
 STAGED="$(git diff --cached --name-only 2>/dev/null || true)"
 
 in_repo=0
+closeout_staged=""
+plan_staged=""
+execution_staged=""
 if [ -n "$STAGED" ]; then
     while IFS= read -r f; do
         case "$f" in
             docs/*|skills/*|prompts/*|tools/*|scripts/*|distributions/*|.hermes/*)
                 in_repo=1
-                break
+                case "$f" in
+                    */07_CLOSEOUT.md) closeout_staged="$f" ;;
+                    */04_PLAN.md)     plan_staged="$f" ;;
+                    */05_EXECUTION.md) execution_staged="$f" ;;
+                esac
                 ;;
         esac
     done <<< "$STAGED"
+fi
+
+# ── P0-1 §4.4 — claims evidence on staged 07_CLOSEOUT.md ──────────────
+if [ -n "$closeout_staged" ] && [ -f "$REPO_ROOT/tools/vbb-loop-closure-check.py" ]; then
+    # Extract run_id from the staged closeout path:
+    # docs/runs/<run_id>/07_CLOSEOUT.md → <run_id>
+    run_id="$(printf '%s' "$closeout_staged" | awk -F/ '{print $3}')"
+    if [ -n "$run_id" ] && [ -d "$REPO_ROOT/docs/runs/$run_id" ]; then
+        echo "[pre-commit] P0-1: validating claims in $closeout_staged (run_id=$run_id) …"
+        if ! "$PYTHON" "$REPO_ROOT/tools/vbb-loop-closure-check.py" "$run_id" \
+                --strict --validate-claims --runs-dir "$REPO_ROOT/docs/runs" \
+                >/dev/null 2>&1; then
+            echo "[pre-commit] P0-1 FAIL: 07_CLOSEOUT.md has claims without evidence." >&2
+            echo "[pre-commit] Run:" >&2
+            echo "    $PYTHON $REPO_ROOT/tools/vbb-loop-closure-check.py $run_id --strict --validate-claims" >&2
+            echo "[pre-commit] Fix the closeout, re-stage, then re-commit." >&2
+            exit 1
+        fi
+    fi
+fi
+
+# ── P0-2 §4.1 — plan sections on staged 04_PLAN.md ───────────────────
+if [ -n "$plan_staged" ] && [ -f "$REPO_ROOT/tools/vbb-loop-closure-check.py" ]; then
+    run_id="$(printf '%s' "$plan_staged" | awk -F/ '{print $3}')"
+    if [ -n "$run_id" ] && [ -d "$REPO_ROOT/docs/runs/$run_id" ]; then
+        echo "[pre-commit] P0-2: validating plan sections in $plan_staged (run_id=$run_id) …"
+        if ! "$PYTHON" "$REPO_ROOT/tools/vbb-loop-closure-check.py" "$run_id" \
+                --strict --validate-plan --runs-dir "$REPO_ROOT/docs/runs" \
+                >/dev/null 2>&1; then
+            echo "[pre-commit] P0-2 FAIL: 04_PLAN.md has missing/empty/placeholder sections." >&2
+            echo "[pre-commit] Run:" >&2
+            echo "    $PYTHON $REPO_ROOT/tools/vbb-loop-closure-check.py $run_id --strict --validate-plan" >&2
+            exit 1
+        fi
+    fi
+fi
+
+# ── P0-3 §4.1 — test audit on staged 05_EXECUTION.md ─────────────────
+if [ -n "$execution_staged" ] && [ -f "$REPO_ROOT/tools/vbb-loop-closure-check.py" ]; then
+    run_id="$(printf '%s' "$execution_staged" | awk -F/ '{print $3}')"
+    if [ -n "$run_id" ] && [ -d "$REPO_ROOT/docs/runs/$run_id" ]; then
+        # Skip if voie is not STRUCTUREE/AUDIT/CLOSEOUT
+        intake="$REPO_ROOT/docs/runs/$run_id/01_INTAKE.md"
+        if [ -f "$intake" ]; then
+            voie="$(awk '/^voie:/{ $1=""; sub(/^ /,""); print; exit }' "$intake" | tr -d '"' | tr -d "'" | tr -d '\r')"
+            case "$voie" in
+                STRUCTUREE|AUDIT|CLOSEOUT)
+                    echo "[pre-commit] P0-3: validating test audit for $execution_staged (run_id=$run_id, voie=$voie) …"
+                    if ! "$PYTHON" "$REPO_ROOT/tools/vbb-loop-closure-check.py" "$run_id" \
+                            --strict --validate-test-audit --runs-dir "$REPO_ROOT/docs/runs" \
+                            >/dev/null 2>&1; then
+                        echo "[pre-commit] P0-3 FAIL: STRUCTUREE/AUDIT/CLOSEOUT run is missing a recent test audit report." >&2
+                        echo "[pre-commit] Fix: invoke t-vbb-test-coverage-mapper or 1-vbb-test-mirage-detector," >&2
+                        echo "[pre-commit]      or add 'no test surface' to 05_EXECUTION.md." >&2
+                        exit 1
+                    fi
+                    ;;
+            esac
+        fi
+    fi
+fi
+
+# ── P0-5 §4.2 — credentials check visibility (Core rule §13) ────────
+# Phase 2 Run 1 : echo informatif uniquement. Le tool Core
+# `vbb-credentials-gate.py` est différé (catégorie D, hors scope). Le
+# tool `distributions/hermes/bypass-lint/vbb-bypass-lint.py` reste la
+# référence distribution-level pour les patterns Hermes.
+if [ -n "$STAGED" ]; then
+    echo "[pre-commit] P0-5: checking credentials (Core rule §13) — pattern list deferred to distribution tools."
 fi
 
 # Hors-scope : exit 0 silencieux.

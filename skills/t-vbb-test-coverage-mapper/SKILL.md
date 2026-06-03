@@ -88,6 +88,25 @@ Absolute rules:
 4. Prioritize the 3–5 tests most effective at reducing risk.
 5. Explicitly flag unknowns instead of guessing.
 
+## Invocation guidance (Phase 2 Run 1, P0-3 §4.3)
+
+Recommended invocation points:
+
+- End of a STRUCTURED route run (Cody boot loop Step 5.5 — GATE CHECK).
+- Before `t-vbb-commit-ready` (Cody boot loop Step 9).
+- The companion skill `1-vbb-test-mirage-detector` is invoked on the AUDIT
+  route (Phase 1 of a run) to detect tests that give a false impression of
+  safety.
+
+The presence of a recent report (`docs/audits/test-coverage-*.md` or
+`docs/audits/test-mirage-*.md`, mtime < 7 days) is checked by
+`vbb-loop-closure-check.py --validate-test-audit` for routes STRUCTURED /
+AUDIT / CLOSEOUT. If absent, the closeout must declare "no test surface"
+explicitly (verbatim, case-insensitive) or the loop-closure check fails.
+
+This is a contract — the skill does not need to be re-invented, only
+invoked systematically.
+
 ## OUTPUT CONTRACT
 
 Ensure `docs/audits/` exists.

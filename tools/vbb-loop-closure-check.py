@@ -44,15 +44,18 @@ Invariant (from docs/runs/README.md):
     Voie CLOTURE       → 07_CLOSEOUT only (special case, no 01_INTAKE required)
 """
 
+import re
 import sys
 import os
 import argparse
+import time
 import yaml
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 REPO_ROOT = Path(__file__).parent.parent.resolve()
 RUNS_DIR = REPO_ROOT / "docs" / "runs"
+AUDITS_DIR = REPO_ROOT / "docs" / "audits"
 
 # Voie → required phase file stems (matches filenames in docs/runs/{slug}/)
 VOIE_REQUIRED_PHASES: Dict[str, List[str]] = {
@@ -105,6 +108,322 @@ def read_frontmatter(path: Path) -> Tuple[Optional[Dict], Optional[str]]:
     return fm, None
 
 
+# ---------------------------------------------------------------------------
+# P0-1 — Claims evidence validation (extension, Phase 2 Run 1)
+# ---------------------------------------------------------------------------
+#
+# Spec: docs/strategy/phase-1-contractualisation/phase-1-p0-1-evidence-claims.md
+# Category: C (règle déjà documentée dans Cody SOUL §6 mais non vérifiée
+# mécaniquement par le loop-closure).
+#
+# Comportement: pour chaque ligne qui matche un claim "fixed/passes/repaired/
+# aligned/closed/merged" dans le 07_CLOSEOUT.md (sections "Résultat" et
+# "Décisions prises" uniquement), vérifier qu'au moins une des 3 preuves est
+# présente dans la même section (≤10 lignes):
+#   1. Ligne "Evidence:" ou "Preuve:"
+#   2. Bloc de code avec output cité (✓ / passed / 0 error)
+#   3. Section "KNOWN LIMITATION:" ou "Volontairement non traité:"
+
+CLAIM_VERB_RE = re.compile(
+    r"^\s*-\s+(fixed|passes|repaired|aligned|closed|merged)\s*:",
+    re.IGNORECASE,
+)
+# Evidence marker can appear anywhere in the window (start of line OR
+# inline within a claim like "fixed: bar (Evidence: ...)").
+EVIDENCE_MARKER_RE = re.compile(
+    r"(?:^|\s)\b(?:Evidence|Preuve)\s*:",
+    re.IGNORECASE,
+)
+# Output markers — accepted in any position within the window.
+OUTPUT_MARKER_RE = re.compile(
+    r"(?:[✓✗]|passed|0\s+errors?|0\s+erreurs?|exit\s+0|\bok\b|PASS|FAIL)",
+    re.IGNORECASE,
+)
+KNOWN_LIMITATION_RE = re.compile(
+    r"^\s*(?:[-*]\s*)?(?:KNOWN\s+LIMITATION|Volontairement\s+non\s+traité)\s*:",
+    re.IGNORECASE,
+)
+RESULT_SECTION_RE = re.compile(
+    r"(?im)^#{1,6}\s*(?:R[ée]sultat|D[ée]cisions?\s+prises)\s*$"
+)
+END_SECTION_RE = re.compile(r"(?im)^#{1,6}\s+\S")
+PLACEHOLDER_RE = re.compile(r"<\s*[A-Za-z][^>]*\s*>")
+
+
+def _extract_scanned_sections(closeout_text: str) -> List[Tuple[str, str]]:
+    """Yield (header, body) for sections 'Résultat' and 'Décisions prises'.
+
+    Body is taken until the next markdown header of any depth, or end of
+    document. The 'Décisions prises' header accepts singular/plural.
+    """
+    sections: List[Tuple[str, str]] = []
+    lines = closeout_text.splitlines()
+    i = 0
+    n = len(lines)
+    while i < n:
+        line = lines[i]
+        m = re.match(
+            r"^#{1,6}\s*(R[ée]sultat|D[ée]cisions?\s+prises)\s*$",
+            line,
+            re.IGNORECASE,
+        )
+        if not m:
+            i += 1
+            continue
+        header = m.group(1)
+        body_lines: List[str] = []
+        i += 1
+        while i < n:
+            nxt = lines[i]
+            if re.match(r"^#{1,6}\s+\S", nxt):
+                break
+            body_lines.append(nxt)
+            i += 1
+        sections.append((header, "\n".join(body_lines)))
+    return sections
+
+
+def validate_claims_evidence(closeout_path: Path) -> List[str]:
+    """Check that every claim in 07_CLOSEOUT.md has an Evidence line nearby.
+
+    Scans only sections 'Résultat' and 'Décisions prises' to avoid false
+    positives on artefacts list or handoff sections. Returns a list of error
+    strings (empty = all claims are properly evidenced).
+    """
+    errors: List[str] = []
+    if not closeout_path.exists():
+        return errors  # existence check is the caller's responsibility
+    try:
+        text = closeout_path.read_text(encoding="utf-8")
+    except OSError as exc:
+        return [f"{closeout_path.name}: cannot read: {exc}"]
+
+    scanned = _extract_scanned_sections(text)
+    if not scanned:
+        return errors  # no claims in 'Résultat' or 'Décisions prises' → PASS
+
+    for header, body in scanned:
+        # KNOWN LIMITATION at the section level exempts the whole section
+        if KNOWN_LIMITATION_RE.search(body):
+            continue
+        lines = body.splitlines()
+        for idx, ln in enumerate(lines):
+            if not CLAIM_VERB_RE.match(ln):
+                continue
+            # Skip quoted lines (citations)
+            if ln.lstrip().startswith(">"):
+                continue
+            # Look ahead up to 10 lines for evidence
+            window = "\n".join(lines[idx: idx + 11])
+            has_evidence = bool(EVIDENCE_MARKER_RE.search(window))
+            has_output = bool(OUTPUT_MARKER_RE.search(window))
+            has_known = bool(KNOWN_LIMITATION_RE.search(window))
+            if not (has_evidence or has_output or has_known):
+                errors.append(
+                    f"{closeout_path.name}: section '{header}' has claim "
+                    f"without evidence: {ln.strip()[:80]}"
+                )
+    return errors
+
+
+# ---------------------------------------------------------------------------
+# P0-2 — Plan sections validation (extension, Phase 2 Run 1)
+# ---------------------------------------------------------------------------
+#
+# Spec: docs/strategy/phase-1-contractualisation/phase-1-p0-2-grill-plan.md
+# Category: C (le template existe depuis longtemps mais le contenu n'est pas
+# validé mécaniquement — un plan peut être vide ou contenir des <...>).
+#
+# Comportement: pour chaque section canonique du 04_PLAN.md, vérifier que
+# (1) l'ancre existe (regex FR ou EN), (2) elle a ≥1 ligne de contenu non-
+# whitespace, (3) aucun placeholder <...> ne reste.
+
+PLAN_SECTION_ANCHORS: List[Tuple[str, Tuple[str, ...]]] = [
+    ("Objectif",        (r"objectif", r"but", r"goal")),
+    ("Pré-conditions",  (r"pr[ée]-conditions", r"pr[ée]requis", r"preconditions?", r"prerequisites?")),
+    ("Étapes ordonnées",(r"[ée]tapes?\s+ordonn[ée]es?", r"steps?\s+ordonn[ée]es?",
+                          r"ordered\s+steps?", r"steps?")),
+    ("Critères d'acceptation", (
+        r"crit[èe]res?\s+d'acceptation", r"crit[èe]res?\s+de\s+acceptation",
+        r"definition\s+of\s+done", r"definition\s+of\s+done\s+\(dod\)",
+        r"acceptance\s+criteria",
+    )),
+    ("Plan de rollback global", (
+        r"plan\s+de\s+rollback\s+global", r"plan\s+de\s+rollback",
+        r"rollback",
+    )),
+    ("Risques identifiés", (
+        r"risques?\s+identifi[ée]s?", r"risques?",
+    )),
+]
+
+
+def _find_section_header(body_lines: List[str], patterns: Tuple[str, ...]) -> Optional[int]:
+    """Return the line index of the first matching header (case-insensitive)."""
+    pat = re.compile(
+        r"^#{1,6}\s*(?:" + "|".join(patterns) + r")\b",
+        re.IGNORECASE,
+    )
+    for i, ln in enumerate(body_lines):
+        if pat.match(ln.strip()):
+            return i
+    return None
+
+
+def _section_body(body_lines: List[str], start: int) -> List[str]:
+    """Return body lines from after `start` until next header or EOF."""
+    out: List[str] = []
+    for ln in body_lines[start + 1:]:
+        if re.match(r"^#{1,6}\s+\S", ln):
+            break
+        out.append(ln)
+    return out
+
+
+def validate_plan_sections(plan_path: Path) -> List[str]:
+    """Check that a 04_PLAN.md has the 6 canonical sections filled in.
+
+    Returns list of error strings (empty = all sections present and non-empty).
+    """
+    errors: List[str] = []
+    if not plan_path.exists():
+        return [f"{plan_path.name}: missing"]
+    try:
+        text = plan_path.read_text(encoding="utf-8")
+    except OSError as exc:
+        return [f"{plan_path.name}: cannot read: {exc}"]
+
+    # Strip frontmatter
+    body = text
+    if body.startswith("---"):
+        end = body.find("\n---", 3)
+        if end != -1:
+            body = body[end + 4:]
+
+    body_lines = body.splitlines()
+    for canonical_name, patterns in PLAN_SECTION_ANCHORS:
+        idx = _find_section_header(body_lines, patterns)
+        if idx is None:
+            errors.append(
+                f"{plan_path.name}: MISSING_SECTION: {canonical_name}"
+            )
+            continue
+        section_body = _section_body(body_lines, idx)
+        # Require at least 1 non-whitespace line of content
+        non_empty = [ln for ln in section_body if ln.strip()]
+        if not non_empty:
+            errors.append(
+                f"{plan_path.name}: EMPTY_SECTION: {canonical_name}"
+            )
+            continue
+        # Reject remaining placeholders
+        joined = "\n".join(non_empty)
+        m = PLACEHOLDER_RE.search(joined)
+        if m:
+            errors.append(
+                f"{plan_path.name}: PLACEHOLDER_IN_SECTION: "
+                f"{canonical_name}: {m.group(0)}"
+            )
+    return errors
+
+
+# ---------------------------------------------------------------------------
+# P0-3 — Test audit check (extension, Phase 2 Run 1)
+# ---------------------------------------------------------------------------
+#
+# Spec: docs/strategy/phase-1-contractualisation/phase-1-p0-3-test-coverage.md
+# Category: A (3 skills/outils EXISTENT — on n'invente rien, on contractualise
+# leur invocation). Le check vérifie qu'au moins un rapport d'audit test a
+# été produit dans la fenêtre de fraîcheur (par défaut 7 jours).
+#
+# Voies concernées: STRUCTUREE, AUDIT, CLOSEOUT. Si `05_EXECUTION.md` contient
+# la phrase "no test surface" (case-insensitive), le check passe (tolérance).
+
+TEST_AUDIT_GLOBS = ("test-coverage-*.md", "test-mirage-*.md")
+TEST_AUDIT_FRESHNESS_DAYS = 7
+NO_TEST_SURFACE_MARKER = "no test surface"
+
+
+def _find_recent_test_audit(
+    audits_dir: Path,
+    max_age_seconds: int,
+    now: Optional[float] = None,
+) -> List[Path]:
+    """Return a list of test-audit reports newer than max_age_seconds."""
+    if not audits_dir.is_dir():
+        return []
+    if now is None:
+        now = time.time()
+    cutoff = now - max_age_seconds
+    found: List[Path] = []
+    for glob in TEST_AUDIT_GLOBS:
+        for p in audits_dir.glob(glob):
+            try:
+                mtime = p.stat().st_mtime
+            except OSError:
+                continue
+            if mtime >= cutoff:
+                found.append(p)
+    return found
+
+
+def validate_test_audit(
+    run_dir: Path,
+    audits_dir: Optional[Path] = None,
+    max_age_days: int = TEST_AUDIT_FRESHNESS_DAYS,
+    now: Optional[float] = None,
+) -> Tuple[List[str], List[str]]:
+    """Check that a STRUCTUREE/AUDIT/CLOSEOUT run has a fresh test audit.
+
+    Returns (errors, info_lines). info_lines is non-empty on PASS, describing
+    which report satisfied the check.
+    """
+    errors: List[str] = []
+    info: List[str] = []
+
+    audits = audits_dir if audits_dir is not None else AUDITS_DIR
+    if not audits.is_dir():
+        return (
+            [f"test-audit: SKIP (audits dir not found: {audits})"],
+            info,
+        )
+
+    # Tolerance 1: explicit "no test surface" in 05_EXECUTION.md
+    execution_path = run_dir / "05_EXECUTION.md"
+    if execution_path.exists():
+        try:
+            exec_text = execution_path.read_text(encoding="utf-8")
+        except OSError:
+            exec_text = ""
+        if NO_TEST_SURFACE_MARKER.lower() in exec_text.lower():
+            info.append(
+                "test-audit: PASS (explicit 'no test surface' in 05_EXECUTION.md)"
+            )
+            return errors, info
+
+    reports = _find_recent_test_audit(
+        audits,
+        max_age_seconds=max_age_days * 86400,
+        now=now,
+    )
+    if reports:
+        info.append(
+            "test-audit: PASS ("
+            + ", ".join(p.name for p in sorted(reports))
+            + f", < {max_age_days} days)"
+        )
+        return errors, info
+
+    errors.append(
+        f"test-audit: FAIL — no test audit report in {audits} "
+        f"(looked for: {', '.join(TEST_AUDIT_GLOBS)}, "
+        f"freshness ≤ {max_age_days} days). "
+        f"Run t-vbb-test-coverage-mapper or 1-vbb-test-mirage-detector, "
+        f"or add 'no test surface' to 05_EXECUTION.md."
+    )
+    return errors, info
+
+
 def validate_artifact(path: Path) -> List[str]:
     """Check that a phase artifact file has valid frontmatter.
 
@@ -146,8 +465,27 @@ def validate_artifact(path: Path) -> List[str]:
 # Core check
 # ---------------------------------------------------------------------------
 
-def check_run(run_id: str, runs_dir: Optional[Path] = None) -> Tuple[bool, List[str]]:
+def check_run(
+    run_id: str,
+    runs_dir: Optional[Path] = None,
+    *,
+    validate_claims: bool = False,
+    validate_plan: bool = False,
+    validate_test_audit_for_voies: Optional[Tuple[str, ...]] = (
+        "STRUCTUREE", "AUDIT", "CLOSEOUT",
+    ),
+    audits_dir: Optional[Path] = None,
+) -> Tuple[bool, List[str]]:
     """Verify the closure invariant for the given run_id.
+
+    Optional extensions (all OFF by default, retrocompatible):
+      - validate_claims: also call validate_claims_evidence on 07_CLOSEOUT
+        (P0-1, spec: phase-1-p0-1-evidence-claims.md).
+      - validate_plan: also call validate_plan_sections on 04_PLAN
+        (P0-2, spec: phase-1-p0-2-grill-plan.md).
+      - validate_test_audit_for_voies: if voie ∈ this tuple, also call
+        validate_test_audit (P0-3, spec: phase-1-p0-3-test-coverage.md).
+        Pass an empty tuple to disable the test-audit check.
 
     Returns (passed: bool, report_lines: List[str]).
     """
@@ -254,6 +592,44 @@ def check_run(run_id: str, runs_dir: Optional[Path] = None) -> Tuple[bool, List[
             else:
                 report.append(f"  ✓ {phase_stem}.md")
 
+    # Step 4bis — optional extensions (P0-1, P0-2, P0-3)
+    # P0-1 — claims evidence on 07_CLOSEOUT
+    if validate_claims and (run_dir / "07_CLOSEOUT.md").exists():
+        claim_errors = validate_claims_evidence(run_dir / "07_CLOSEOUT.md")
+        if claim_errors:
+            errors.extend(claim_errors)
+        else:
+            report.append("  ✓ claims evidence (07_CLOSEOUT.md)")
+
+    # P0-2 — plan sections on 04_PLAN
+    if validate_plan:
+        plan_path = run_dir / "04_PLAN.md"
+        if plan_path.exists():
+            plan_errors = validate_plan_sections(plan_path)
+            if plan_errors:
+                errors.extend(plan_errors)
+            else:
+                report.append("  ✓ plan sections (04_PLAN.md)")
+        else:
+            # Only relevant if the voie requires 04_PLAN
+            if voie and "04_PLAN" in VOIE_REQUIRED_PHASES.get(voie, []):
+                errors.append(
+                    "04_PLAN.md: missing "
+                    f"(required for voie {voie}, --validate-plan)"
+                )
+
+    # P0-3 — test audit on STRUCTUREE/AUDIT/CLOSEOUT
+    if (
+        validate_test_audit_for_voies
+        and voie in validate_test_audit_for_voies
+    ):
+        ta_errors, ta_info = validate_test_audit(
+            run_dir, audits_dir=audits_dir
+        )
+        for line in ta_info:
+            report.append(f"  {line}")
+        errors.extend(ta_errors)
+
     # Step 5 — final verdict
     report.append("")
     if errors:
@@ -325,6 +701,46 @@ def main() -> int:
             "and the textual report. Exit codes are unchanged."
         ),
     )
+    parser.add_argument(
+        "--validate-claims",
+        dest="validate_claims",
+        action="store_true",
+        default=False,
+        help=(
+            "P0-1: also validate that every claim in 07_CLOSEOUT.md "
+            "(sections 'Résultat' and 'Décisions prises') is followed by an "
+            "Evidence/Preuve line, an output marker, or a KNOWN LIMITATION."
+        ),
+    )
+    parser.add_argument(
+        "--validate-plan",
+        dest="validate_plan",
+        action="store_true",
+        default=False,
+        help=(
+            "P0-2: also validate that 04_PLAN.md has the 6 canonical sections "
+            "present, non-empty, and free of <...> placeholders."
+        ),
+    )
+    parser.add_argument(
+        "--validate-test-audit",
+        dest="validate_test_audit",
+        action="store_true",
+        default=False,
+        help=(
+            "P0-3: for STRUCTUREE/AUDIT/CLOSEOUT runs, require a recent "
+            "test-coverage-*.md or test-mirage-*.md report in docs/audits/ "
+            "(< 7 days) or an explicit 'no test surface' in 05_EXECUTION.md."
+        ),
+    )
+    parser.add_argument(
+        "--audits-dir",
+        metavar="DIR",
+        help=(
+            "Override docs/audits/ directory (used in tests). "
+            "Only relevant with --validate-test-audit."
+        ),
+    )
     args = parser.parse_args()
 
     run_id = args.run_id or args.run_id_flag or os.environ.get("VBB_RUN_ID")
@@ -386,7 +802,20 @@ def main() -> int:
 
     # ---- Core check ----
     try:
-        passed, report_lines = check_run(run_id, runs_dir=base)
+        passed, report_lines = check_run(
+            run_id,
+            runs_dir=base,
+            validate_claims=args.validate_claims,
+            validate_plan=args.validate_plan,
+            validate_test_audit_for_voies=(
+                ("STRUCTUREE", "AUDIT", "CLOSEOUT")
+                if args.validate_test_audit
+                else ()
+            ),
+            audits_dir=(
+                Path(args.audits_dir) if args.audits_dir else None
+            ),
+        )
     except Exception as exc:  # noqa: BLE001 — we want to surface ANY error as TOOL_BROKEN
         msg = (
             f"GATE FAILED: vbb-loop-closure-check internal error on "

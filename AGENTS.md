@@ -47,6 +47,19 @@ governance. Generated copies must not be pasted back into this file.
       be promoted to Core?". If it encodes a generic rule (gate, contract,
       routing, quality), promote; if it is glue (persona, path, secret), keep.
     - Both directions are recorded in `docs/DISTRIBUTIONS.md` §Decisions log.
+13. **Credentials gate (canon):** No secret, token, API key, or private key
+    may be committed to the repository. The Core rule is canonical; the
+    `tools/vbb-credentials-gate.py` enforcement tool is **deferred to a
+    future run** (Phase 2 P0-5-D, currently category D = out of scope). The
+    pre-commit hook `scripts/hooks/pre-commit-framework-gate` logs an
+    explicit "checking credentials" message and may invoke the
+    distribution-level `vbb-bypass-lint.py` if present. A distribution
+    may extend the pattern list via a `vbb-credentials-patterns.txt.overrides`
+    file (out of scope this run) but the Core rule always applies.
+
+    **This rule is canon and survives even when the enforcement tool is
+    absent** — humans and agents must manually verify no secret is
+    committed. Track: this is a known gap until P0-5-D lands.
 
 ## Runtime Behavior
 
@@ -90,6 +103,35 @@ python tools/vbb-loop-closure-check.py
 pytest tests/ -q
 bash scripts/vbb-ci-local.sh
 ```
+
+## Pre-merge Gate Checklist (CANON)
+
+> Added 2026-06-13 (Phase 2 Run 1, P0-1 §4.2). Synchronized with
+> `docs/CONVENTIONS.md` Pillar 3 §Verification loop and Pillar 5 P.R2.
+
+Before any `FINAL_STATUS=COMPLETE`, the run must pass **5 verifications in
+this exact order**. These 5 verifications are the single source of truth
+for the closeout (the "5 P.R2 obligatoires"). They are summarized in the
+shell block above and in the per-run closeout "P.R2" table.
+
+| # | Command                                          | What it checks                           |
+|---|--------------------------------------------------|------------------------------------------|
+| 1 | `python tools/vbb-architecture.py lint`          | `docs/ARCHITECTURE.md` blocks valid      |
+| 2 | `python tools/vbb-architecture.py graph --write` | `docs/RELATIONS.md` regenerated          |
+| 3 | `python tools/vbb-contract-lint.py`              | Published contracts lint clean           |
+| 4 | `python tools/vbb-loop-closure-check.py <run> --strict` | Closure invariant satisfied       |
+| 5 | `pytest tests/ -q && bash scripts/vbb-ci-local.sh`     | Test suite + local CI pass        |
+
+If any one fails → **DO NOT** mark `FINAL_STATUS=COMPLETE`. Document the
+failure in `07_CLOSEOUT.md` §Points ouverts, fix in scope, then re-run
+the loop. The `--strict` flag on `vbb-loop-closure-check.py` returns
+exit code 2 (GATE_BLOCKED) on FAIL — that is the explicit blocker
+signal that COMPLETE is forbidden.
+
+For routes **FAST-MINIMAL / FAST-ZERO** this gate is **SKIP**: the
+closeout must declare the voie explicitly and may skip the 5-command
+loop. All other routes (FAST-STANDARD, STRUCTURED, AUDIT, CLOSEOUT)
+must execute it.
 
 ## Prompt Library
 

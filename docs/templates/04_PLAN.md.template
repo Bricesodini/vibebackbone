@@ -46,6 +46,18 @@ artifacts_produced:
 
 - <risque + mitigation>
 
+## Analyse d'impact
+
+- **Effectuée ?** : <OUI (via `t-vbb-impact-analyzer`) | NON (justifié : <raison>)>
+- **Périmètre d'impact** : <fichiers/blocs ARCHITECTURE.md potentiellement affectés>
+- **Risques d'effet de bord** : <issus de l'analyse OU "Aucun identifié">
+
+> Section ajoutée 2026-06-13 (Phase 2 Run 1, P0-2 §4.2). Skill
+> `t-vbb-impact-analyzer` est l'outil canonique pour OUI. Si NON,
+> la justification est obligatoire (champ non vide). La vérification
+> est faite par `vbb-loop-closure-check.py --validate-plan` (warning,
+> non-bloquant pour FAST-MINIMAL/FAST-ZERO).
+
 ## Handoff vers `<next_phase>`
 
 - **Première action concrète** : <...>

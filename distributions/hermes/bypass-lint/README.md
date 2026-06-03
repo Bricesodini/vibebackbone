@@ -3,6 +3,17 @@
 **v0.1** — Anti-bypass linter for the Vibebackbone confidentiality proxy.
 Reference: [ADR 0011 §3 Règle 1](../../../docs/adr/0011-proxy-bypass-prevention.md).
 
+> **Phase 2 Run 1 (P0-5-A §4.5) — 2026-06-13:** The Core credentials gate
+> enforcement tool (`tools/vbb-credentials-gate.py`) is **deferred to a
+> future run** (Phase 2 P0-5-D, category D, out of scope this run). Until
+> then, this bypass-lint remains the canonical credentials/anti-bypass
+> enforcement **at the distribution level** for Hermes. The Core rule
+> (AGENTS.md §Critical Rule #13) is canonical but currently relies on
+> manual verification + this distribution-level tool. See
+> `docs/strategy/phase-1-contractualisation/phase-1-p0-5-sensitive-changes.md`
+> §5 for the full classification (4.5 = A, decision: do not modify this
+> file beyond this note).
+
 The linter scans the Vibebackbone codebase for direct invocations of sensitive
 binaries (`ssh`, `gh auth`, `docker login`, `vault read`, `curl -H
 "Authorization: ..."`, etc.) and reports them as `CRITICAL` or `HIGH` findings.

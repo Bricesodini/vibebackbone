@@ -74,6 +74,16 @@ POC_KEYWORDS = (
     r"|llm|model|ollama|vllm|mlx|keychain|vault|orchestration|multi-?agent)\b"
 )
 
+# Rule 4 (Phase 2 Run 1, P0-5-A §4.6): mode-transition recommendation
+# If the intake mentions "deploy", "production", "prod", "migration",
+# the t-vbb-mode-transition-gate skill is RECOMMENDED (warning, not
+# blocker). The skill already exists; this check just makes the
+# recommendation visible. Skip if docs/PROJECT_MODE.md is absent
+# (micro-project without notion of mode).
+MODE_TRANSITION_KEYWORDS = (
+    r"\b(deploy|deployment|production|prod|migration|release|rollout)\b"
+)
+
 # Status accepted for an ADR
 ADR_ACCEPTED_RE = re.compile(r"\*\*Status\*\*\s*:\s*(ACCEPTED|SUPERSEDED)", re.IGNORECASE)
 POC_GO_RE = re.compile(
@@ -296,6 +306,51 @@ def check_poc(run_dir: Path) -> Tuple[bool, Optional[Path], str]:
     return False, poc, "POC_VERDICT_ABSENT"
 
 
+def check_mode_transition(run_dir: Path) -> Dict:
+    """Phase 2 Run 1, P0-5-A §4.6.
+
+    Returns a small dict:
+        {
+            "recommended": bool,
+            "reason": "...",
+            "skill": "t-vbb-mode-transition-gate" or None,
+            "status": "RECOMMENDED" | "SKIPPED_NO_PROJECT_MODE" | "NOT_NEEDED",
+        }
+    """
+    intake_text = _read(run_dir / "01_INTAKE.md")
+    if not intake_text:
+        return {
+            "recommended": False,
+            "reason": "no intake",
+            "skill": None,
+            "status": "NOT_NEEDED",
+        }
+    # Strip negations to avoid false positives (e.g. "pas de deploy en prod")
+    cleaned = _strip_negations(intake_text)
+    if not re.search(MODE_TRANSITION_KEYWORDS, cleaned, re.IGNORECASE):
+        return {
+            "recommended": False,
+            "reason": "no mode-transition keyword in intake",
+            "skill": None,
+            "status": "NOT_NEEDED",
+        }
+    # Keyword matched. Is there a PROJECT_MODE.md?
+    project_mode = REPO_ROOT / "docs" / "PROJECT_MODE.md"
+    if not project_mode.exists():
+        return {
+            "recommended": False,
+            "reason": "docs/PROJECT_MODE.md absent (micro-project without notion of mode)",
+            "skill": None,
+            "status": "SKIPPED_NO_PROJECT_MODE",
+        }
+    return {
+        "recommended": True,
+        "reason": "mode-transition keyword detected in intake",
+        "skill": "t-vbb-mode-transition-gate",
+        "status": "RECOMMENDED",
+    }
+
+
 def evaluate(run_dir: Path) -> Dict:
     """Main gate evaluation. Returns dict suitable for JSON output."""
     blockers: List[str] = []
@@ -320,6 +375,7 @@ def evaluate(run_dir: Path) -> Dict:
 
     adr_ok, adr_path, adr_blocker = check_adr(run_dir)
     poc_ok, poc_path, poc_blocker = check_poc(run_dir)
+    mode_transition = check_mode_transition(run_dir)
 
     if adr_required and not adr_ok:
         blockers.append(adr_blocker or "ADR_NOT_ACCEPTED")
@@ -339,6 +395,7 @@ def evaluate(run_dir: Path) -> Dict:
         "poc_path": str(poc_path) if poc_path else None,
         "can_code_start": can_start,
         "blockers": blockers,
+        "mode_transition": mode_transition,
         "exit_intent": "PASS" if can_start else "FAIL",
     }
 
