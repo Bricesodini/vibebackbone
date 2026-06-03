@@ -49,7 +49,7 @@ DEFAULT_CONFIG: Final[dict[str, Any]] = {
     },
     "actions_path": "~/.hermes/proxy/actions.yaml",
     "fixtures": {
-        "vault_read_response_path": "tools/proxy/fixtures/vault_read_response.json",
+        "vault_read_response_path": "distributions/hermes/proxy/fixtures/vault_read_response.json",
     },
     "payload": {
         "max_bytes": 65536,  # 64 KB hard cap (ADR 0012).
