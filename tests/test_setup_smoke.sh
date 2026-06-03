@@ -60,10 +60,20 @@ done
 
 # --- 3. Critical section markers (Phase 0 contract = no behavior change) -----
 echo ""
-echo "3. setup.sh structure markers (must still be present pre-Phase-1)"
+echo "3. setup.sh + core/setup.sh structure markers (Core in core/, providers in setup.sh)"
+# Sections that moved to core/setup.sh in Phase 2A
 for marker in \
     "Universal skills symlink" \
-    "Universal prompts symlink" \
+    "Universal prompts symlink"
+do
+    if grep -qF "$marker" "$SETUP_LIB" 2>/dev/null || grep -qF "$marker" "$REPO_ROOT/core/setup.sh" 2>/dev/null; then
+        ok "marker present (Core): $marker"
+    else
+        fail "marker MISSING: $marker"
+    fi
+done
+# Provider-specific sections remain in setup.sh
+for marker in \
     "Claude Code — settings.json" \
     "Claude Code — CLAUDE.md block" \
     "Codex — compiled AGENTS.md" \
@@ -73,9 +83,9 @@ for marker in \
     "uninstall"
 do
     if grep -qF "$marker" "$SETUP" 2>/dev/null; then
-        ok "marker present: $marker"
+        ok "marker present (provider): $marker"
     else
-        fail "marker MISSING: $marker"
+        fail "marker MISSING (provider): $marker"
     fi
 done
 

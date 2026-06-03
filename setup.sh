@@ -241,84 +241,12 @@ PY
 
 [ "${1}" = "--uninstall" ] && uninstall
 
-# ── Pre-flight checks ─────────────────────────────────────────────────────────
-
-if [ ! -f "$AGENTS_SRC" ]; then
-  echo "✗ AGENTS.md not found at $AGENTS_SRC — aborting"
-  exit 1
-fi
-
-if [ ! -d "$SKILLS_SRC" ]; then
-  echo "✗ skills/ directory not found at $SKILLS_SRC — aborting"
-  exit 1
-fi
-
-PROMPTS_AVAILABLE=false
-if [ -d "$PROMPTS_SRC" ]; then
-  PROMPTS_AVAILABLE=true
-else
-  echo "⚠ prompts/ not found — prompt deployment skipped"
-fi
-
-SYSTEM_AVAILABLE=false
-if [ -f "$SYSTEM_SRC" ]; then
-  SYSTEM_AVAILABLE=true
-else
-  echo "⚠ SYSTEM.md not found — runtime behavior deployment skipped"
-fi
-
-PROMPT_CANONICAL_COUNT=0
-PROMPT_COUNT=0
-PROMPT_ADAPTER_COUNT=0
-if [ "$PROMPTS_AVAILABLE" = true ]; then
-  PROMPT_CANONICAL_COUNT=$(find "$PROMPTS_SRC/canonical" -type f -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
-  PROMPT_COUNT=$(count_prompts_total "$PROMPTS_SRC")
-  PROMPT_ADAPTER_COUNT=$(count_prompt_adapters "$PROMPTS_SRC")
-fi
-
-SKILL_COUNT=$(count_skills "$SKILLS_SRC")
-
-# ── 1. Universal skills symlink ──────────────────────────────────────────────
-echo "Installing vibebackbone..."
-echo "  Repo : $REPO_ROOT"
-echo ""
-
-mkdir -p "$GLOBAL_SKILLS"
-[ -L "$LINK_NAME" ] && rm "$LINK_NAME"
-SKILLS_REL="$(relpath "$GLOBAL_SKILLS" "$SKILLS_SRC")"
-ln -sfn "$SKILLS_REL" "$LINK_NAME"
-echo "✓ ~/.agents/skills/vibebackbone → skills symlink (Pi, OpenCode, Codex)"
-
-# ── 2. Universal prompts symlink ─────────────────────────────────────────────
-if [ "$PROMPTS_AVAILABLE" = true ]; then
-  mkdir -p "$GLOBAL_PROMPTS"
-  if [ -L "$PROMPTS_LINK" ]; then
-    if _is_vbb_symlink "$PROMPTS_LINK" "$PROMPTS_SRC"; then
-      echo "✓ Prompts: ~/.agents/prompts/vibebackbone already linked"
-    else
-      # Symlink exists but points to a different source → replace
-      rm "$PROMPTS_LINK"
-      PROMPTS_REL="$(relpath "$GLOBAL_PROMPTS" "$PROMPTS_SRC")"
-      ln -sfn "$PROMPTS_REL" "$PROMPTS_LINK"
-      echo "✓ Prompts: ~/.agents/prompts/vibebackbone symlink updated (was pointing elsewhere)"
-    fi
-  elif [ -e "$PROMPTS_LINK" ] && [ ! -L "$PROMPTS_LINK" ]; then
-    if [ "$FORCE_GOVERNANCE" = true ]; then
-      backup_file "$PROMPTS_LINK"
-      rm -rf "$PROMPTS_LINK"
-      PROMPTS_REL="$(relpath "$GLOBAL_PROMPTS" "$PROMPTS_SRC")"
-      ln -sfn "$PROMPTS_REL" "$PROMPTS_LINK"
-      echo "✓ Prompts: ~/.agents/prompts/vibebackbone backed up and symlinked"
-    else
-      echo "⚠ Prompts: existing custom ~/.agents/prompts/vibebackbone skipped"
-    fi
-  else
-    [ -L "$PROMPTS_LINK" ] && rm "$PROMPTS_LINK"
-    PROMPTS_REL="$(relpath "$GLOBAL_PROMPTS" "$PROMPTS_SRC")"
-    ln -sfn "$PROMPTS_REL" "$PROMPTS_LINK"
-    echo "✓ Prompts: ~/.agents/prompts/vibebackbone symlinked"
-  fi
-fi
+# ── Core install (pre-flight + universal symlinks) ─────────────────────────
+# Core logic moved to core/setup.sh (Phase 2A). Globals set by core_install
+# (PROMPTS_AVAILABLE, SYSTEM_AVAILABLE, *_COUNT) feed the per-provider
+# sections below.
+source "$REPO_ROOT/core/setup.sh"
+core_install
 
 # ── 3. Claude Code — settings.json ──────────────────────────────────────────
 if needs_python; then
