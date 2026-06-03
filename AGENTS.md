@@ -25,6 +25,10 @@ governance. Generated copies must not be pasted back into this file.
 8. **Search tools:** prefer `python tools/vbb-index.py search "query"`,
    `python tools/vbb-status-dashboard.py`, and
    `python tools/vbb-context-compactor.py docs/runs/<id>`.
+   Optional advisory: `python tools/vbb-status-dashboard.py --review-tier --json`
+   summarizes the change set as a T1-T8 review tier (advisory only,
+   `blocking=false`, never gates, never enforces — see
+   `docs/strategy/p0-4-review-matrix-poc.md`).
 9. **Quality conventions:** follow `docs/CONVENTIONS.md` by default. Canonical
    pillars: P1 Readability, P2 Modularity, P3 Coherence, P4 Traceability,
    P5 Robustness with P.R1-P.R8. Canon changes require
