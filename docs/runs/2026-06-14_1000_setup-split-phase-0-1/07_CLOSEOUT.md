@@ -4,7 +4,8 @@
 **Type** : POC behavior-preserving (Phase 0 + Phase 1)
 **Date** : 2026-06-14
 **Branche** : main
-**Commit** : (à compléter après commit)
+**Commit** : `50333e3` (aea1bb2..50333e3)
+**CI databaseId** : smoke 26907155450 ✓, vbb-contracts 26907155452 ✓ (success sur les deux)
 
 ---
 
