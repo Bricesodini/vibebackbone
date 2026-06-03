@@ -18,11 +18,153 @@ Displays: verdict, skills, contracts, tests, latest runs, open risks,
 import sys
 import json
 import argparse
+import importlib.util
+import subprocess
 from datetime import date
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 REPO_ROOT = Path(__file__).parent.parent.resolve()
+
+# --- P0-4 review-tier integration (opt-in, advisory only) ------------------
+# Imported lazily via importlib because the module filename has hyphens.
+_POC_TOOL_PATH = Path(__file__).parent / "vbb-review-threshold-poc.py"
+
+
+def _load_review_tier_poc():
+    """Lazy-load tools/vbb-review-threshold-poc.py. Returns the module or None."""
+    if not _POC_TOOL_PATH.exists():
+        return None
+    spec = importlib.util.spec_from_file_location(
+        "vbb_review_threshold_poc", _POC_TOOL_PATH,
+    )
+    if spec is None or spec.loader is None:
+        return None
+    mod = importlib.util.module_from_spec(spec)
+    try:
+        spec.loader.exec_module(mod)  # type: ignore[union-attr]
+    except Exception:
+        return None
+    return mod
+
+
+def _git_changed_paths(repo: Path, staged: bool = False) -> List[str]:
+    """Return changed file paths. staged=True → staged only, else working tree."""
+    cmd = ["git", "-C", str(repo), "diff", "--name-only"]
+    if staged:
+        cmd = ["git", "-C", str(repo), "diff", "--cached", "--name-only"]
+    try:
+        out = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=10,
+            check=False,
+        )
+    except (subprocess.TimeoutExpired, OSError):
+        return []
+    return [ln.strip() for ln in out.stdout.splitlines() if ln.strip()]
+
+
+# Per-tier suggested actions (advisory, never enforced).
+_TIER_SUGGESTED_ACTIONS: Dict[str, List[str]] = {
+    "T1": ["quick read", "no review required"],
+    "T2": ["run pytest locally", "verify no flaky test introduced"],
+    "T3": ["run architecture lint + contract lint", "sanity-check side effects"],
+    "T4": ["verify skill/template still loads", "re-read example in doc"],
+    "T5": ["re-read CONVENTIONS.md and P.R1-P.R8",
+           "notify Brice if changing Pillar 1-5"],
+    "T6": ["run full P.R2 suite (arch+contract+loop-closure+pytest+ci-local)",
+           "request Brice review before push"],
+    "T7": ["audit credential surface", "run vbb-bypass-lint --strict",
+           "request Brice explicit review"],
+    "T8": ["audit action whitelist", "verify audit log wiring",
+           "request Brice explicit review + dry-run prod mirror"],
+}
+
+
+def compute_review_tier(repo: Path, paths: Optional[List[str]] = None) -> Dict:
+    """Compute advisory review-tier info. Returns a dict ready for JSON."""
+    poc = _load_review_tier_poc()
+    if poc is None:
+        return {
+            "review_tier": None,
+            "label": "POC module unavailable",
+            "reasons": [f"vbb-review-threshold-poc.py not found at {_POC_TOOL_PATH}"],
+            "suggested_actions": ["re-run calibration POC or fix import path"],
+            "blocking": False,
+            "confidence": "low",
+            "mode": "advisory",
+            "files_analyzed": 0,
+        }
+    if paths is None:
+        # Default: working-tree changes (unstaged + untracked not in diff)
+        paths = _git_changed_paths(repo, staged=False)
+    result = poc.review_tier(paths)
+    tier = result.get("tier")
+    label = result.get("tier_label", "UNMAPPED")
+    # The POC label embeds the rank (e.g. "T6 — architecture / ...")
+    # The dashboard label is the human summary (e.g. "Core tooling / governance").
+    short_label = label.split(" — ", 1)[1] if " — " in label else label
+    if tier is None:
+        return {
+            "review_tier": None,
+            "label": "UNMAPPED",
+            "reasons": result.get("reasons", []),
+            "suggested_actions": ["verify file paths — none matched VBB tier patterns"],
+            "blocking": False,
+            "confidence": "low",
+            "mode": "advisory",
+            "files_analyzed": len(paths),
+            "warning": result.get("warning"),
+        }
+    rank = result["tier_rank"]
+    # Confidence heuristic: if multiple tiers matched AND MAX dominates by
+    # margin > 1, confidence is high. If single tier matched, high. Otherwise medium.
+    matched = result.get("matched_tiers", [])
+    confidence = "high" if rank >= 7 or len(matched) <= 1 else "medium"
+    return {
+        "review_tier": tier,
+        "label": short_label,
+        "reasons": result.get("reasons", []),
+        "suggested_actions": _TIER_SUGGESTED_ACTIONS.get(tier, []),
+        "blocking": False,
+        "confidence": confidence,
+        "mode": "advisory",
+        "files_analyzed": len(paths),
+    }
+
+
+def format_review_tier_text(info: Dict, paths: List[str]) -> str:
+    """Human-readable rendering of the review-tier advisory."""
+    lines: List[str] = []
+    lines.append("VBB Review-Tier Advisory (P0-4 opt-in, advisory only)")
+    lines.append("=" * 60)
+    tier = info.get("review_tier")
+    if tier is None:
+        lines.append("  Tier : UNMAPPED")
+        if info.get("warning"):
+            lines.append(f"  Note : {info['warning']}")
+    else:
+        lines.append(f"  Tier : {tier} — {info.get('label', '?')}")
+        lines.append(f"  Mode : {info.get('mode', 'advisory')} (blocking={info.get('blocking', False)})")
+        lines.append(f"  Confidence : {info.get('confidence', '?')}")
+        if info.get("reasons"):
+            lines.append("  Reasons :")
+            for r in info["reasons"]:
+                lines.append(f"    - {r}")
+        if info.get("suggested_actions"):
+            lines.append("  Suggested actions (advisory) :")
+            for a in info["suggested_actions"]:
+                lines.append(f"    - {a}")
+    lines.append(f"  Files analyzed : {info.get('files_analyzed', 0)}")
+    if paths:
+        lines.append("  Changed files :")
+        for p in paths[:20]:  # cap display
+            lines.append(f"    - {p}")
+        if len(paths) > 20:
+            lines.append(f"    ... ({len(paths) - 20} more)")
+    lines.append("")
+    lines.append("  NOTE: this is ADVISORY only. It does not gate, block, or")
+    lines.append("  enforce anything. Use it to decide who should review.")
+    return "\n".join(lines)
 
 
 def read_file(path: Path) -> str:
@@ -380,6 +522,14 @@ def main() -> int:
         "--repo", type=str, default=None,
         help="Path to repo root (default: auto-detect)"
     )
+    parser.add_argument(
+        "--review-tier", action="store_true",
+        help="Compute and display the P0-4 review-tier advisory (opt-in, non-blocking)"
+    )
+    parser.add_argument(
+        "--tier", action="store_true",
+        help="Alias for --review-tier"
+    )
 
     args = parser.parse_args()
 
@@ -388,6 +538,16 @@ def main() -> int:
     if not repo.exists():
         print(f"Error: repo not found: {repo}", file=sys.stderr)
         return 1
+
+    # P0-4 review-tier advisory (opt-in branch)
+    if args.review_tier or args.tier:
+        paths = _git_changed_paths(repo, staged=False)
+        info = compute_review_tier(repo, paths=paths)
+        if args.json:
+            print(json.dumps(info, indent=2))
+        else:
+            print(format_review_tier_text(info, paths))
+        return 0
 
     status = gather_status(repo)
 
