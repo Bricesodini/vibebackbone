@@ -231,6 +231,49 @@ def test_test_audit_with_recent_report_passes() -> None:
         )
 
 
+def test_claims_fixed_price_not_detected_as_bugfix() -> None:
+    """Regression: '- fixed-price contract signed' must NOT be detected as
+    a bugfix claim (CLAIM_VERB_RE must require 'fixed' followed by ':',
+    not 'fixed' as a word-prefix).
+    """
+    run_id = "2026-06-13_1209_fixed-price"
+    with tempfile.TemporaryDirectory() as tmp:
+        run_dir = Path(tmp) / run_id
+        run_dir.mkdir()
+        _build_complete_run(run_dir, run_id)
+        # closeout with the regression pattern
+        body = textwrap.dedent("""\
+            ## Résultat
+
+            - fixed-price contract signed (Evidence: pm_decision.md §3)
+            - passes: contract lint clean
+
+            ## Décisions prises
+
+            (none)
+        """)
+        (run_dir / "07_CLOSEOUT.md").write_text(_FM.format(
+            run_id=run_id, phase="07_CLOSEOUT", body=body,
+        ))
+        proc = _invoke(run_dir, "--validate-claims", "--json")
+        assert proc.returncode == 0, (
+            f"expected 0, got {proc.returncode}\n"
+            f"stderr: {proc.stderr}\nstdout: {proc.stdout}"
+        )
+        import json
+        report = json.loads(proc.stdout)
+        # Must be a real PASS, not a silent false positive
+        assert report.get("exit_intent") == "PASS", (
+            f"expected PASS, got {report.get('exit_intent')!r}\n"
+            f"errors: {report.get('errors')}"
+        )
+        # No error must mention 'fixed-price' as a missed claim
+        for err in report.get("errors", []):
+            assert "fixed-price" not in str(err).lower(), (
+                f"false positive on 'fixed-price': {err}"
+            )
+
+
 def test_test_audit_no_surface_marker_passes() -> None:
     run_id = "2026-06-13_1205_no-test-surface"
     with tempfile.TemporaryDirectory() as tmp:
@@ -261,8 +304,9 @@ def test_test_audit_no_surface_marker_passes() -> None:
 if __name__ == "__main__":
     test_claims_coherent_passes()
     test_claims_unsupported_fails()
+    test_claims_fixed_price_not_detected_as_bugfix()
     test_plan_complete_passes()
     test_plan_missing_sections_fails()
     test_test_audit_with_recent_report_passes()
     test_test_audit_no_surface_marker_passes()
-    print("OK — 6 tests passed")
+    print("OK — 7 tests passed")
