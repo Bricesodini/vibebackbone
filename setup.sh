@@ -270,50 +270,14 @@ codex_install
 source "$REPO_ROOT/distributions/pi/setup.sh"
 pi_install
 
-# ── 8. OpenCode — instructions ───────────────────────────────────────────────
-mkdir -p "$HOME/.config/opencode"
-if needs_python; then
-  python3 - "$OPENCODE_JSON" "$AGENTS_SRC" "$SYSTEM_SRC" "$SYSTEM_AVAILABLE" <<'PY'
-import json, sys, os
-path, agents_src, system_src, system_available = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
-system_available_flag = system_available.lower() == "true"
-
-if os.path.exists(path):
-    with open(path) as f:
-        cfg = json.load(f)
-else:
-    cfg = {"$schema": "https://opencode.ai/config.json"}
-
-instructions = cfg.get("instructions", [])
-changes = []
-
-if agents_src not in instructions:
-    instructions.append(agents_src)
-    changes.append("AGENTS.md")
-
-if system_available_flag and system_src not in instructions:
-    instructions.append(system_src)
-    changes.append("SYSTEM.md")
-
-if changes:
-    cfg["instructions"] = instructions
-    with open(path, "w") as f:
-        json.dump(cfg, f, indent=2)
-    print(f"✓ OpenCode: {', '.join(changes)} instruction(s) added")
-else:
-    already = ["AGENTS.md"]
-    if system_available_flag:
-        already.append("SYSTEM.md")
-    print(f"✓ OpenCode: {', '.join(already)} already referenced")
-PY
-else
-  echo "⚠ OpenCode: python3 not found — opencode.json patch skipped"
-fi
-
-# ── 9. OpenCode — prompt commands ───────────────────────────────────────────
-OPENCODE_PROMPTS_OK=0
-OPENCODE_PROMPTS_SKIP=0
-generate_prompt_commands "$OPENCODE_COMMANDS" "OpenCode prompts" "OPENCODE_PROMPTS_OK" "OPENCODE_PROMPTS_SKIP"
+# ── 8-9. OpenCode — instructions + prompt commands ─────────────────────────
+# OpenCode logic moved to distributions/opencode/setup.sh (Phase 2E).
+# Mechanical relocation only — same JSON patch, same prompt generation,
+# same stdout messages, same update strategy. Globals set by
+# opencode_install (OPENCODE_PROMPTS_OK, OPENCODE_PROMPTS_SKIP) feed
+# the summary below.
+source "$REPO_ROOT/distributions/opencode/setup.sh"
+opencode_install
 
 # ── 10. Hermes (non-destructive, agent-install only) ────────────────────────
 # Hermes logic moved to distributions/hermes/setup.sh (Phase 2F). This is

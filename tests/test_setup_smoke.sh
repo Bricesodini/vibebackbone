@@ -74,8 +74,6 @@ do
 done
 # Provider-specific sections remain in setup.sh
 for marker in \
-    "OpenCode — instructions" \
-    "OpenCode — prompt commands" \
     "uninstall"
 do
     if grep -qF "$marker" "$SETUP" 2>/dev/null; then
@@ -84,6 +82,23 @@ do
         fail "marker MISSING (provider, in setup.sh): $marker"
     fi
 done
+# OpenCode sections moved to distributions/opencode/setup.sh in Phase 2E
+for marker in \
+    "OpenCode — instructions" \
+    "OpenCode — prompt commands"
+do
+    if grep -qF "$marker" "$REPO_ROOT/distributions/opencode/setup.sh" 2>/dev/null; then
+        ok "marker present (OpenCode, in distributions/opencode/setup.sh): $marker"
+    else
+        fail "marker MISSING (OpenCode, in distributions/opencode/setup.sh): $marker"
+    fi
+done
+# Sanity: the §8-9 OpenCode header comment stays in setup.sh as routeur context
+if grep -qE "^# ── 8-9\. OpenCode" "$SETUP" 2>/dev/null; then
+    ok "OpenCode section header comment preserved in setup.sh (routeur context)"
+else
+    fail "OpenCode section header comment MISSING in setup.sh"
+fi
 # Codex section moved to distributions/codex/setup.sh in Phase 2D
 if grep -qF "Codex — compiled AGENTS.md" "$REPO_ROOT/distributions/codex/setup.sh" 2>/dev/null; then
     ok "marker present (Codex, in distributions/codex/setup.sh): Codex — compiled AGENTS.md"
