@@ -115,6 +115,24 @@ if grep -qE "^# ── 3-5\. Claude Code" "$SETUP" 2>/dev/null; then
 else
     fail "Claude section header comment MISSING in setup.sh"
 fi
+# Hermes section is in distributions/hermes/setup.sh (Phase 2F)
+HERMES_SETUP="$REPO_ROOT/distributions/hermes/setup.sh"
+if [ -f "$HERMES_SETUP" ] && bash -n "$HERMES_SETUP" 2>/dev/null; then
+    ok "distributions/hermes/setup.sh exists and parses"
+else
+    fail "distributions/hermes/setup.sh MISSING or invalid syntax"
+fi
+if [ -f "$REPO_ROOT/distributions/hermes/AGENT_INSTALL.md" ]; then
+    ok "distributions/hermes/AGENT_INSTALL.md exists"
+else
+    fail "distributions/hermes/AGENT_INSTALL.md MISSING"
+fi
+# Sanity: the §10 Hermes header comment stays in setup.sh as routeur context
+if grep -qE "^# ── 10\. Hermes" "$SETUP" 2>/dev/null; then
+    ok "Hermes section header comment preserved in setup.sh (routeur context)"
+else
+    fail "Hermes section header comment MISSING in setup.sh"
+fi
 
 # --- 4. Public flags ---------------------------------------------------------
 echo ""

@@ -398,6 +398,16 @@ OPENCODE_PROMPTS_OK=0
 OPENCODE_PROMPTS_SKIP=0
 generate_prompt_commands "$OPENCODE_COMMANDS" "OpenCode prompts" "OPENCODE_PROMPTS_OK" "OPENCODE_PROMPTS_SKIP"
 
+# ── 10. Hermes (non-destructive, agent-install only) ────────────────────────
+# Hermes logic moved to distributions/hermes/setup.sh (Phase 2F). This is
+# the LAST install step and is strictly read-only: no ~/.hermes/ writes,
+# no profile copy, no secret creation, no proxy mutation. See
+# distributions/hermes/AGENT_INSTALL.md for the operator procedure.
+echo ""
+echo "Hermes/Cody distribution:"
+source "$REPO_ROOT/distributions/hermes/setup.sh"
+hermes_install
+
 # ── Summary ──────────────────────────────────────────────────────────────────
 echo ""
 echo "✓ Done — $SKILL_COUNT skills · $PROMPT_COUNT prompts ($PROMPT_CANONICAL_COUNT canonical templates + $PROMPT_ADAPTER_COUNT adapter commands)"
