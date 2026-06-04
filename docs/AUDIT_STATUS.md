@@ -17,7 +17,7 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 Global evaluation audit completed (RUN 19, composite score 7.4/10).
 v1.0 Hardening phase completed (RUNs 20A–20D):
-- Test reliability: 81/81 pytest green, CI PASS
+- Test reliability: 135 passed, 3 skipped (138 collected), CI PASS
 - Contract quality: 64/64 valid (100%), machine-facing EN-clean
 - Agent language: 53/64 SKILL.md body EN-clean, 10 remaining (Phase 4 + spec-validator)
 - Release readiness: CHANGELOG.md, RELEASE_CHECKLIST.md created
@@ -51,7 +51,7 @@ stabilized in the same pass.
 
 | Run | Target | Result |
 |-----|--------|--------|
-| 20A | Test reliability | ✅ 81/81 pytest green, CI PASS |
+| 20A | Test reliability | ✅ 135 passed, 3 skipped (138 collected), CI PASS |
 | 20B | Contract quality | ✅ 63/63 valid, 44 contracts EN-cleaned |
 | 20C | Agent language | ✅ 4 priority SKILL.md EN-translated, 10 remain |
 | 20D | Release candidate | ✅ CHANGELOG.md, RELEASE_CHECKLIST.md created |

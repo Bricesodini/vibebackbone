@@ -34,9 +34,9 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
   - Pass 4→5 gate: 7 keys required (3 from Pass 1, 4 from Pass 4)
   - HARD BLOCK: GENERIC_DESIGN_SYSTEM_RESPONSE before propagation map
 - **Centralization audit** : pass 4 produces `TOKEN_DEFINITION_MAP` + `CENTRALIZATION_ROADMAP`
-- **Tests** : 82/82 pytest green, CI PASS, contract lint 0 errors, architecture lint 0 errors
+- **Tests** : 135 passed, 3 skipped (138 collected) — see [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Token economy** : L0 boot ~2.5K tokens (87% reduction from 19K)
-- **Next action** : Remediate the quality organization audit: decide Core/Distribution placement, repair Hermes proxy migration, and fix loop-closure/dashboard false-green risks. Source: [quality-organization-audit-20260602-2354.md](audits/quality-organization-audit-20260602-2354.md)
+- **Next action** : documentation hardening — see [audit Pass A (2026-06-14)](../audits/) for the current P1/P2/P3 backlog
 - **Key decisions** : [ADR-0002](docs/adr/0002-surface-first-routing-ui-ux.md) — surface-first routing + centralization audit
 
 ## Risks / audits

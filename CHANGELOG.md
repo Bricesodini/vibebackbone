@@ -5,6 +5,56 @@ All notable changes to vibebackbone are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] — 2026-06-14
+
+### Added
+
+- **Setup Split (Phase 0+1 → 2F)**: monolithique `setup.sh` (807 LOC) extrait
+  en 7 fichiers (routeur `setup.sh` 356 LOC + `setup-lib.sh` 209 LOC + `core/setup.sh`
+  116 LOC + 5 `distributions/<name>/setup.sh` 74-118 LOC). Phases 2A (core),
+  2B (pi), 2C (claude), 2D (codex), 2E (opencode), 2F (hermes). Comportement
+  préservé bit-pour-bit (tests verts avant/après chaque phase).
+- **Hermes/Cody distribution officielle** : `distributions/hermes/` est la
+  distribution active ; son `setup.sh` est **non-destructif** (contrat ADR 0006 +
+  0011 : ne touche jamais `~/.hermes/`). L'installation des profiles est
+  agent-mediated (voir `distributions/hermes/AGENT_INSTALL.md`).
+- **VBB privacy proxy** (POC V1) : `distributions/hermes/proxy/` (14 modules Python,
+  7 ADRs, 61/61 tests verts) ; credentials isolés, action whitelist,
+  chiffrement libsodium SecretStream / AES-256-GCM. ADR 0006-0012.
+- **Phase 2 RUN 1 contractualisation** : `tools/vbb-loop-closure-check.py` étendu
+  avec 3 validations opt-in (claims evidence, plan sections, test audit) ;
+  templates `docs/templates/ADR.md.template`, `POC.md.template`,
+  `INTEGRATION_GATE.md.template` ; pre-commit framework gate étendu.
+- **Mode transition keywords** : `tools/vbb-gate-check.py` détecte les transitions
+  implicites de mode (deploy/codename/exit) et bloque si `can_code_start=false`.
+- **Dashboard review-tier advisory** : `tools/vbb-status-dashboard.py --review-tier
+  --json` (T1-T8, opt-in, `blocking=false`, jamais gate/enforce).
+- **P0-4 Review Matrix POC** : 8 tiers calibrés sur 8 runs historiques
+  (100% accuracy), `tools/vbb-review-threshold-poc.py` (stdlib only).
+- **Bypass-lint distribution-level** : `distributions/hermes/bypass-lint/`
+  (linter anti-bypass, ~30 patterns, mode report, `--strict` opt-in CI).
+
+### Changed
+
+- **Test count** : 69 → **135 passed, 3 skipped (138 collected)**.
+- **Skill count** : 63 → **64** (l'orchestrateur `skills/vibebackbone/` est
+  désormais compté). Compteur déterministe : `find skills -name SKILL.md | wc -l`.
+- **Prompt count** : inchangé à **33** (7 canonical + 25 specialized + 1 router).
+- **VBB Core vs Distribution** : séparation explicite entre *distribution code*
+  (in repo, `distributions/<name>/`) et *distribution runtime* (outside repo,
+  `~/.hermes/profiles/vbb-*/`). Patcher `AGENTS.md` Critical Rule #12,
+  `README.md` tableau, `docs/DISTRIBUTIONS.md` §3.
+- **CI workflows** : `vbb-contracts.yml` étendu avec 24 nouveaux tests ;
+  `smoke` workflow validé sur 5 phases de split.
+
+### Fixed
+
+- **AUDIT_STATUS.md QOA-001 P1** : Core/Distribution boundary contradiction —
+  `README.md`, `AGENTS.md` et `core.README.md` ne disent plus que les
+  distributions vivent "outside the repo".
+- **CHANGELOG.md compteurs** : synchronisés sur 64 skills / 33 prompts /
+  135 tests passed.
+
 ## [1.0.0-rc.1] — 2026-06-13
 
 ### Added

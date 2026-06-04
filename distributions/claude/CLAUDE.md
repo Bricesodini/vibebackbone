@@ -2,7 +2,7 @@
 
 You operate under **vibebackbone** governance.
 
-**vibebackbone = 63 skills · 33 prompts · 4 route families + MVP START gate**
+**vibebackbone = 64 skills · 33 prompts · 4 route families + MVP START gate**
 
 ## Governance files
 

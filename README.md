@@ -76,29 +76,33 @@ vibebackbone/             ← VBB Core (this repo)
 │   └── ...
 ├── skills/              ← 64 injectable skills
 ├── prompts/             ← 33 prompts (7 canon + 25 specialised + 1 router)
-├── providers/           ← Claude Code, Codex, Pi, OpenCode adapters
+├── providers/           ← Reserved templates (example-consumer-repo only)
+├── distributions/       ← Provider-specific adapters (claude/, codex/, pi/, opencode/, hermes/)
 ├── tools/               ← vbb-architecture.py, vbb-gate-check.py, vbb-contract-lint.py, ...
 └── tests/, scripts/     ← CI and verification loops
 ```
 
 A **Distribution** (e.g. **Hermes/Cody**) is an operational declination of
-Core for a specific agent runtime. Distributions are isolated **outside** this
-repo, on purpose — it keeps Core agent-agnostic. See
+Core for a specific agent runtime. Distribution **code** lives in this repo at
+`distributions/<name>/` (e.g. `distributions/hermes/setup.sh`,
+`distributions/claude/setup.sh`); distribution **runtime profiles and
+secrets** live outside the repo at `~/.hermes/profiles/vbb-*/`,
+`~/.claude/`, `~/.codex/`, `~/.pi/`, `~/.config/opencode/`. See
 [`docs/DISTRIBUTIONS.md`](docs/DISTRIBUTIONS.md) for the full distinction and
 the Core ↔ Distribution propagation rules (enforced by
 [AGENTS.md Critical Rule #11](AGENTS.md#critical-rules)).
 
 ## VBB Core vs Distributions
 
-| Concern                         | VBB Core (this repo)                       | Distribution (e.g. Hermes/Cody)                              |
-|---------------------------------|--------------------------------------------|--------------------------------------------------------------|
-| What it is                      | Generic method, agent-agnostic             | Operational declination for one agent runtime                |
-| Where it lives                  | This repository                            | Outside the repo (e.g. `~/.hermes/profiles/vbb-*/`)           |
-| Examples of content             | Skills, prompts, templates, gates, linters | `SOUL.md` personas, orchestrator boot loop, registry, secrets |
-| ADR/POC/Integration Gate        | ✅ `tools/vbb-gate-check.py`, templates, `GUIDE.md` §10bis | consumes Core (worker SOUL.md calls the tool) |
-| Quality conventions             | ✅ `CONVENTIONS.md`, P.R1–P.R8             | inherits + applies                                            |
-| Provider-specific glue          | n/a (provider adapters live in Core)       | Persona, paths, runtime config, secrets, hooks                |
-| Security proxy (e.g. credential isolation) | n/a (operational)                | Lives in distribution, governed by proxy ADRs                |
+| Concern                         | VBB Core (this repo)                       | Distribution code (in repo, `distributions/<name>/`) | Distribution runtime (outside repo, e.g. `~/.hermes/profiles/vbb-*/`) |
+|---------------------------------|--------------------------------------------|------------------------------------------------------|--------------------------------------------------------------------------|
+| What it is                      | Generic method, agent-agnostic             | Operational declination code, per provider          | Per-machine runtime state (profiles, secrets, runtime config)           |
+| Where it lives                  | This repository                            | `distributions/<name>/` (e.g. `distributions/hermes/`) | `~/.hermes/profiles/vbb-*/`, `~/.claude/`, `~/.codex/`, `~/.pi/`, `~/.config/opencode/` |
+| Examples of content             | Skills, prompts, templates, gates, linters | Provider-specific `setup.sh`, `README.md`, `CLAUDE.md`/`SYSTEM.md`, `proxy/`, `bypass-lint/` | `SOUL.md` personas, generated config, secrets, registry, audit logs    |
+| ADR/POC/Integration Gate        | ✅ `tools/vbb-gate-check.py`, templates, `GUIDE.md` §10bis | consumes Core (worker SOUL.md calls the tool) | —                                                                        |
+| Quality conventions             | ✅ `CONVENTIONS.md`, P.R1–P.R8             | inherits + applies                                  | —                                                                        |
+| Provider-specific glue          | n/a (provider adapters live in `distributions/`) | Owns provider-specific glue (paths, settings, hooks) | Runtime state populated by provider-specific setup scripts            |
+| Security proxy (e.g. credential isolation) | n/a (operational)                | Lives in distribution, governed by proxy ADRs (e.g. `distributions/hermes/proxy/`) | Master key, encrypted secrets, runtime proxy state                    |
 
 **Rule of thumb:** if a rule applies to **any** agent runtime, it belongs in
 Core. If it is glue to one specific runtime, it stays in the distribution.
@@ -146,8 +150,11 @@ vibebackbone/
 | **🔧 1** | Structure & dette | Code-janitor, Conventions, Formatter, Tech-debt, Monolith-detector, Logic-duplication-detector, Pattern-inconsistency-detector, Error-handling-auditor, Premature-abstraction-detector, Test-mirage-detector, Intent-decomposer, Code-doc-coherence-auditor, Code-doc-gap-integrator, Doc-harmonizer, API-contract-designer, ADR *(16)* |
 | **🔬 2** | Audits de fond | API-auditor, DB-robustness, Data-integrity, Security, Systemic-risk, Ops, CI, Legal, Performance, Accessibility, Analytics, Spec-validator *(12)* |
 | **📋 3** | Consolidation | Risk-register |
-| **🎨 4** | Front-end UX/UI | User-experience-engine, Interaction-coherence, Visual-identity-layer, Visual-identity-gatekeeper, Design-system-validator, Micro-interaction-refiner, Cognitive-load-optimizer, Front-pipeline-reference, Security-remediation, Product-changelog |
+| **🎨 4** | Front-end UX/UI | User-experience-engine, Interaction-coherence, Visual-identity-layer, Visual-identity-gatekeeper, Design-system-validator, Micro-interaction-refiner, Cognitive-load-optimizer, Front-pipeline-reference, Security-remediation, Product-changelog *(10)* |
 | **🛠️ t-** | Transverse | Dependency-mapper, Impact-analyzer, Docker-audit, Docker-generate, Deploy-runtime, Git-sync, Commit-ready, Test-coverage-mapper, Session-handoff, Project-context-init, Anti-slop-gate, Mode-transition-gate, Status-report, Index, Context-compactor, LLM-healthcheck, Status-dashboard *(17)* |
+| **⚙️** | Orchestrator | `vibebackbone` (boot loop + `PILOTAGE.md` for the orchestrator skill itself) *(1)* |
+
+Total : 7 + 16 + 12 + 1 + 10 + 17 + 1 = **64 skills** (comptés par `find skills -name SKILL.md`).
 
 Chaque skill est un fichier `SKILL.md` standardisé, indépendant, injectable dans n'importe quel agent LLM.
 
@@ -339,6 +346,25 @@ find ~/.agents/prompts/vibebackbone -name '*.md' | wc -l
 cd ~/vibebackbone && git pull
 # Le symlink suit automatiquement — aucune réinstallation requise
 ```
+
+### Architecture du script d'installation
+
+`setup.sh` est un **routeur pur** (~356 LOC) qui délègue à des scripts
+spécialisés par couche. Aucun provider logic n'est inline :
+
+| Fichier | Rôle | LOC approx. |
+|---------|------|-------------|
+| `setup.sh` | Routeur : `source + <couche>_install` pour chaque couche | 356 |
+| `setup-lib.sh` | Helpers transversaux (relpath, symlink, backup, prompt commands) | 209 |
+| `core/setup.sh` | Pre-flight + symlinks universels (`~/.agents/skills/`, `~/.agents/prompts/`) | 116 |
+| `distributions/<provider>/setup.sh` | Glue provider-spécifique (settings.json, compiled block, symlinks Pi) | 74–118 |
+| `distributions/hermes/setup.sh` | **Non-destructif** : ne touche jamais `~/.hermes/` (contrat ADR 0006 + 0011) | 108 |
+
+Pour ajouter une nouvelle distribution : créer `distributions/<name>/setup.sh`
+exposant `<name>_install`, ajouter `source + <name>_install` dans `setup.sh`,
+puis documenter la décision dans `docs/DISTRIBUTIONS.md` §Decisions log.
+Voir [`distributions/README.md`](distributions/README.md) pour la procédure
+complète.
 
 ---
 

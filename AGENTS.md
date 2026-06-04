@@ -44,8 +44,11 @@ governance. Generated copies must not be pasted back into this file.
 12. **Core ↔ Distribution propagation rule:**
     - **Core → Distribution (impact check):** before any structural change to
       VBB Core (`GUIDE.md`, `CONVENTIONS.md`, `PILOTAGE.md`, `docs/templates/`,
-      `skills/`, `tools/`, `providers/`), check the impact on all active
+      `skills/`, `tools/`, `distributions/`), check the impact on all active
       distributions (currently Hermes/Cody in `~/.hermes/profiles/vbb-*/`).
+      Note: distribution **code** lives in `distributions/<name>/` (in repo);
+      distribution **runtime profiles** live outside the repo at
+      `~/.hermes/profiles/vbb-*/`.
     - **Distribution → Core (promote-or-keep):** before any change to a
       distribution, ask "is this specific to this distribution, or should it
       be promoted to Core?". If it encodes a generic rule (gate, contract,

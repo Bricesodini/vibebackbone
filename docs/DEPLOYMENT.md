@@ -38,12 +38,16 @@ C'est tout. Les 64 skills sont maintenant disponibles pour tous vos agents.
 | Commandes prompt spécialisées | provider command dirs | Claude Code, OpenCode, Pi |
 | Patch settings | `~/.claude/settings.json` | Claude Code |
 | `@import` AGENTS.md | `~/.claude/CLAUDE.md` | Claude Code |
-| Symlink AGENTS.md | `~/.codex/AGENTS.md` | Codex |
+| **Compiled block** AGENTS+SYSTEM+Prompt Library | `~/.codex/AGENTS.md` (généré avec markers `<!-- VBB:START -->` / `<!-- VBB:END -->`) | Codex |
 | Symlink AGENTS.md | `~/.pi/agent/AGENTS.md` | Pi |
+| Symlink SYSTEM.md | `~/.pi/agent/SYSTEM.md` | Pi |
 | Patch `instructions` | `~/.config/opencode/opencode.json` | OpenCode |
+| **Non-destructif** : check `~/.hermes/` | n/a (jamais touché par `bash setup.sh`) | Hermes (contrat ADR 0006 + 0011) |
 
-> **Fichiers existants** : si `~/.codex/AGENTS.md` ou `~/.pi/agent/AGENTS.md` ont du contenu,
-> le script les laisse intacts et affiche la commande `ln -sf` à exécuter manuellement.
+> **Fichiers existants** : pour Claude/Pi, le script laisse les fichiers custom
+> intacts et affiche la commande `ln -sf` à exécuter manuellement. Pour **Codex**,
+> le bloc compilé est régénéré (avec backup automatique en `.bak` horodaté)
+> et `--force-governance` permet d'écraser les blocs legacy imbriqués.
 
 ## 3. Vérifier l'installation
 
@@ -68,6 +72,43 @@ ls -la ~/.pi/agent/AGENTS.md
 # Governance OpenCode
 cat ~/.config/opencode/opencode.json
 ```
+
+---
+
+## 3bis. Architecture du script d'installation
+
+`setup.sh` est un **routeur pur** (~356 LOC). Il ne contient aucune logique
+provider inline : chaque couche est extraite dans un fichier dédié.
+
+```
+setup.sh (356 LOC) — routeur
+├── source setup-lib.sh          (helpers : relpath, symlink, backup, generate_prompt_commands)
+├── source core/setup.sh         (pre-flight + symlinks universels)
+├── source distributions/claude/setup.sh    (settings.json + CLAUDE.md block + 26 commands)
+├── source distributions/codex/setup.sh     (compiled AGENTS.md block)
+├── source distributions/pi/setup.sh        (symlinks AGENTS + SYSTEM + prompts)
+├── source distributions/opencode/setup.sh (opencode.json patch + 26 commands)
+└── source distributions/hermes/setup.sh    (non-destructif, n'écrit jamais dans ~/.hermes/)
+```
+
+| Fichier | Rôle | LOC |
+|---------|------|-----|
+| `setup.sh` | Routeur : `source + <couche>_install` pour chaque couche | ~356 |
+| `setup-lib.sh` | Helpers transversaux (relpath, _realpath, _is_vbb_symlink, needs_python, backup_file, symlink_if_absent, generate_prompt_commands) | ~209 |
+| `core/setup.sh` | Pre-flight + symlinks universels `~/.agents/skills/` et `~/.agents/prompts/` | ~116 |
+| `distributions/<provider>/setup.sh` | Glue provider-spécifique | 74–118 |
+| `distributions/hermes/setup.sh` | **Non-destructif** : vérifie la cohérence Hermes sans écrire dans `~/.hermes/` | ~108 |
+
+**Contrat Hermes** : `bash setup.sh` n'écrit **jamais** dans `~/.hermes/`.
+L'installation des profiles Hermes/Cody est agent-mediated, voir
+[`distributions/hermes/AGENT_INSTALL.md`](../distributions/hermes/AGENT_INSTALL.md).
+
+**Pour ajouter une distribution** :
+1. Créer `distributions/<name>/setup.sh` exposant `<name>_install`
+2. Ajouter `source "$REPO_ROOT/distributions/<name>/setup.sh"` + `<name>_install`
+   dans `setup.sh`
+3. Documenter la décision dans `docs/DISTRIBUTIONS.md` §Decisions log
+4. Si la distribution a des templates/docs : créer `distributions/<name>/README.md`
 
 ---
 

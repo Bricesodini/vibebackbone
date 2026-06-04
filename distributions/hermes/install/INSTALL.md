@@ -6,6 +6,15 @@ to `scripts/hermes/install.sh` below describe the F-015 future plan, not a
 shipped artifact.
 See `docs/DISTRIBUTIONS.md` (F-015, 2026-06-13) and §9 below.
 
+> **Note (Phase 2F, 2026-06-14)**: a non-destructive `distributions/hermes/setup.sh`
+> has been authored and is sourced by the root `setup.sh` (last install step,
+> read-only check of the Hermes runtime coherence). It does **not** create or
+> modify any file in `~/.hermes/`. For the full agent-mediated installation
+> procedure (operator-led, with backups and rollback), see
+> [`distributions/hermes/AGENT_INSTALL.md`](../AGENT_INSTALL.md). This `INSTALL.md`
+> remains the canonical "verify-only" doc; `AGENT_INSTALL.md` is the canonical
+> "agent-mediated install" doc.
+
 ## 1. Role of the Hermes/Cody distribution
 
 The Hermes/Cody distribution is the currently active distribution of VBB Core
@@ -134,6 +143,15 @@ files in the operator's Hermes profile tree), and splitting packaging into
 (1) docs, (2) verify, (3) install lets each step be validated
 independently. Installing before a clean verify pass risks corrupting an
 existing setup.
+
+### Non-destructive setup.sh (Phase 2F, 2026-06-14)
+
+`distributions/hermes/setup.sh` is a **read-only** check that the root
+`setup.sh` sources as its last step. It verifies the Hermes runtime
+coherence (expected paths, profiles, proxy contract) **without** writing
+to `~/.hermes/`. It is **not** an installer. To install Hermes profiles,
+follow the agent-mediated procedure in
+[`distributions/hermes/AGENT_INSTALL.md`](../AGENT_INSTALL.md).
 
 ### Manual install (interim, until `install.sh` lands)
 

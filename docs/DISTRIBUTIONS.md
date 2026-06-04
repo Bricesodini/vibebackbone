@@ -27,7 +27,8 @@ VBB Core includes:
   ADR/POC/Gate templates)
 - `skills/` — 64 injectable skills (frontmatter + input/output contract)
 - `prompts/` — 33 prompts (7 canonical + 25 specialised + 1 router)
-- `providers/` — provider adapters (Claude Code, Codex, Pi, OpenCode)
+- `providers/` — reserved templates (`example-consumer-repo/` only)
+- `distributions/<name>/` — provider-specific adapters (claude, codex, pi, opencode, hermes)
 - `tools/` — CLI tooling (`vbb-architecture.py`, `vbb-contract-lint.py`,
   `vbb-gate-check.py`, `vbb-phase-router.py`, `vbb-loop-closure-check.py`, etc.)
 - `AGENTS.md` — agent-facing critical rules
@@ -316,7 +317,7 @@ that triggered the decision.
 **Canonical paths (2026-06-13 post Phase 5)**:
   | Concept | Path |
   |---|---|
-  | VBB Core canon | repo root + `docs/` + `skills/` + `prompts/` + `tools/vbb-*.py` + `providers/` |
+  | VBB Core canon | repo root + `docs/` + `skills/` + `prompts/` + `tools/vbb-*.py` + `setup.sh` + `setup-lib.sh` + `core/setup.sh` + `distributions/` |
   | VBB Core ADR | `docs/adr/0001-0004` |
   | VBB Core decision log | `docs/DISTRIBUTIONS.md` §7 |
   | Distribution Hermes | `distributions/hermes/{install,verify,docs,proxy,bypass-lint}` |

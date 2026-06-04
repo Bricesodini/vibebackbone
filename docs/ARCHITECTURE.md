@@ -230,6 +230,8 @@ responsibilities:
   - Deploy AGENTS.md and SYSTEM.md to supported providers
   - Support idempotent install and uninstall
   - Replace stale Codex generated governance blocks, including nested legacy markers
+  - Source routeur `setup.sh` (no provider logic inline) into per-distribution `setup.sh`
+  - Hermes `setup.sh` is non-destructive: never writes to `~/.hermes/` (ADR 0006 + 0011)
 depends_on:
   - governance-core
   - skills-catalog
@@ -239,15 +241,27 @@ impacts:
   - Codex integration
   - Pi integration
   - OpenCode integration
+  - Hermes/Cody integration (currently active orchestrator)
 files:
-  - setup.sh
-  - tests/smoke-install.sh
+  - setup.sh                          # routeur (~356 LOC, sources the 5 layers below)
+  - setup-lib.sh                      # shared helpers (relpath, symlink, backup, prompt commands)
+  - core/setup.sh                     # pre-flight + universal symlinks (~116 LOC)
+  - distributions/claude/setup.sh     # settings.json + CLAUDE.md block + 26 commands
+  - distributions/codex/setup.sh      # compiled AGENTS.md block (VBB:START/END markers)
+  - distributions/pi/setup.sh         # symlinks AGENTS + SYSTEM + 26 prompts
+  - distributions/opencode/setup.sh   # opencode.json instructions + 26 commands
+  - distributions/hermes/setup.sh     # non-destructive Hermes runtime coherence check
+  - distributions/hermes/proxy/       # VBB privacy proxy (14 modules, 7 ADRs, 61/61 tests)
+  - distributions/hermes/AGENT_INSTALL.md
+  - distributions/hermes/install/INSTALL.md
+  - tests/test_setup_smoke.sh
   - scripts/vbb-ci-local.sh
   - .github/workflows/vbb-contracts.yml
   - docs/DEPLOYMENT.md
 contracts: []
 tests:
-  - tests/smoke-install.sh
+  - tests/test_setup_smoke.sh
+  - distributions/hermes/verify/verify.sh
 risks:
   - id: SETUP-001
     level: P1
