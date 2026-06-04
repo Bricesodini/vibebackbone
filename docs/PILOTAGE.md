@@ -1,6 +1,17 @@
+---
+load_policy: always
+context_role: piloting-router
+phase: transverse
+status: active
+---
+
 # Operational Piloting — vibebackbone
 
 **Version** : 2.2 | **Date** : 2026-06-12 | **Status** : Canonical piloting entry point
+
+`load_policy: always` — this file is part of the canonical boot set, sourced
+by Cody Step 4 (GOVERN). Triage and escalation rules here are the canonical
+source; other governance docs reference this file rather than duplicating.
 
 ---
 

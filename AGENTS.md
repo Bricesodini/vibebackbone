@@ -1,9 +1,19 @@
+---
+load_policy: always
+context_role: agent-grammar
+phase: transverse
+status: active
+---
+
 # Vibebackbone Governance
 
 <!-- Source: /Users/bot/02_dev/vibebackbone/AGENTS.md -->
 
 This file is the compact source of truth for agent-facing Vibebackbone
 governance. Generated copies must not be pasted back into this file.
+
+`load_policy: always` — this file is part of the canonical boot set, sourced
+by every agent profile. Reference-only content is cited by path, not duplicated.
 
 ## Critical Rules
 
@@ -94,51 +104,23 @@ At session start:
 
 At session end:
 
-1. Run the verification appropriate to the route.
+1. Run the verification appropriate to the route — see
+   [`docs/REFERENCE/pre-merge-gate.md`](docs/REFERENCE/pre-merge-gate.md)
+   (canon unique des 5 vérifications P.R2).
 2. Update the required durable artifacts for the route.
 3. Summarize work done, decisions made, and open points.
 4. Commit intentionally and push when closeout requires it.
 
-For architecture, routing, contracts, governance, provider adapters, CI, or
-architecture-sensitive tooling, the mandatory verification loop is:
+## Pre-merge Gate (5 P.R2 obligatoires)
 
-```bash
-python tools/vbb-architecture.py lint
-python tools/vbb-architecture.py graph --write
-python tools/vbb-contract-lint.py
-python tools/vbb-loop-closure-check.py
-pytest tests/ -q
-bash scripts/vbb-ci-local.sh
-```
-
-## Pre-merge Gate Checklist (CANON)
-
-> Added 2026-06-13 (Phase 2 Run 1, P0-1 §4.2). Synchronized with
-> `docs/CONVENTIONS.md` Pillar 3 §Verification loop and Pillar 5 P.R2.
-
-Before any `FINAL_STATUS=COMPLETE`, the run must pass **5 verifications in
-this exact order**. These 5 verifications are the single source of truth
-for the closeout (the "5 P.R2 obligatoires"). They are summarized in the
-shell block above and in the per-run closeout "P.R2" table.
-
-| # | Command                                          | What it checks                           |
-|---|--------------------------------------------------|------------------------------------------|
-| 1 | `python tools/vbb-architecture.py lint`          | `docs/ARCHITECTURE.md` blocks valid      |
-| 2 | `python tools/vbb-architecture.py graph --write` | `docs/RELATIONS.md` regenerated          |
-| 3 | `python tools/vbb-contract-lint.py`              | Published contracts lint clean           |
-| 4 | `python tools/vbb-loop-closure-check.py <run> --strict` | Closure invariant satisfied       |
-| 5 | `pytest tests/ -q && bash scripts/vbb-ci-local.sh`     | Test suite + local CI pass        |
-
-If any one fails → **DO NOT** mark `FINAL_STATUS=COMPLETE`. Document the
-failure in `07_CLOSEOUT.md` §Points ouverts, fix in scope, then re-run
-the loop. The `--strict` flag on `vbb-loop-closure-check.py` returns
-exit code 2 (GATE_BLOCKED) on FAIL — that is the explicit blocker
-signal that COMPLETE is forbidden.
+> Canon unique : [`docs/REFERENCE/pre-merge-gate.md`](docs/REFERENCE/pre-merge-gate.md).
+> The 5 verifications and the canonical shell block are defined there. **Do not
+> duplicate them here.** Added 2026-06-13 (Phase 2 Run 1, P0-1 §4.2).
 
 For routes **FAST-MINIMAL / FAST-ZERO** this gate is **SKIP**: the
-closeout must declare the voie explicitly and may skip the 5-command
-loop. All other routes (FAST-STANDARD, STRUCTURED, AUDIT, CLOSEOUT)
-must execute it.
+closeout must declare the voie explicitly. All other routes
+(FAST-STANDARD, STRUCTURED, AUDIT, CLOSEOUT) must execute it — see the
+reference for the FAIL behavior and `--strict` exit code.
 
 ## Prompt Library
 

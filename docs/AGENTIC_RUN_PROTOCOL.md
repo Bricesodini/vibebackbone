@@ -1,4 +1,5 @@
 ---
+load_policy: reference
 context_role: agentic-protocol
 phase: transverse
 status: active

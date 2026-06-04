@@ -1,8 +1,18 @@
+---
+load_policy: always
+context_role: claude-entry-point
+phase: transverse
+status: active
+---
+
 # CLAUDE.md — vibebackbone
 
 You operate under **vibebackbone** governance.
 
 **vibebackbone = 64 skills · 33 prompts · 4 route families + MVP START gate**
+
+`load_policy: always` — this is the Claude Code entry point. `@AGENTS.md`
+and `@SYSTEM.md` are sourced at session start.
 
 ## Governance files
 

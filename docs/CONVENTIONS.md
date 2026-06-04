@@ -1,9 +1,21 @@
+---
+load_policy: reference
+context_role: quality-conventions-source
+phase: transverse
+status: active
+---
+
 # CONVENTIONS — Vibebackbone Quality Conventions
 
 **Version**: 1.1
 **Date**: 2026-05-29
 **Status**: Canonical but evolvable
 **Context role**: quality-conventions-source
+
+`load_policy: reference` — this file is the canonical source for quality
+conventions. The mandatory verification loop (P.R2) commands themselves
+live in [`docs/REFERENCE/pre-merge-gate.md`](REFERENCE/pre-merge-gate.md)
+(can unique) — they are not duplicated here.
 
 ---
 
@@ -151,20 +163,14 @@ Exceptions are allowed only if all of the following are true:
 
 ### Verification loop (mandatory before declaring complete)
 
-Before any implementation is declared complete:
+Before any implementation is declared complete, run the 5 mandatory
+verifications (P.R2). The canonical shell block and the FAIL behavior
+live in [`docs/REFERENCE/pre-merge-gate.md`](REFERENCE/pre-merge-gate.md)
+(can unique) — they are not duplicated here.
 
-```bash
-python tools/vbb-architecture.py lint
-python tools/vbb-architecture.py graph --write
-python tools/vbb-contract-lint.py
-python tools/vbb-loop-closure-check.py
-pytest tests/ -q
-bash scripts/vbb-ci-local.sh
-```
-
-If any command fails → do not mark as implemented. Document the failure, correct if in scope, re-run the full loop.
-
----
+If any command fails → **do not mark as implemented**. Document the
+failure, fix in scope, then re-run the loop. The `--strict` flag on
+`vbb-loop-closure-check.py` returns exit code 2 (`GATE_BLOCKED`) on FAIL.
 
 ## Pillar 4 — Traceability / Traçabilité (Embedded Pillar)
 
@@ -202,19 +208,16 @@ OPS-001 (now closed) demonstrated this risk.
 
 ### P.R2 — One Verification Loop
 
-Before any implementation may be declared complete, all checks must pass:
+**The single verification loop is canonicalized at
+[`docs/REFERENCE/pre-merge-gate.md`](../REFERENCE/pre-merge-gate.md).**
 
-```bash
-python tools/vbb-architecture.py lint
-python tools/vbb-architecture.py graph --write
-python tools/vbb-contract-lint.py
-python tools/vbb-loop-closure-check.py
-pytest tests/ -q
-bash scripts/vbb-ci-local.sh
-```
+Before any implementation may be declared complete, run the 5 mandatory
+verifications (P.R2). The canonical shell block and the FAIL behavior
+live in the reference above — they are not duplicated here.
 
-If any command fails → **do not mark as implemented**. Document the failure,
-correct if in scope, re-run the full loop.
+If any command fails → **do not mark as implemented**. Document the
+failure, fix in scope, then re-run the loop. The `--strict` flag on
+`vbb-loop-closure-check.py` returns exit code 2 (`GATE_BLOCKED`) on FAIL.
 
 This loop is the canonical verification mechanism for all implementation runs.
 

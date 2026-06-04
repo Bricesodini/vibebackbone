@@ -1,8 +1,19 @@
+---
+load_policy: always
+context_role: pi-runtime-behavior
+phase: transverse
+status: active
+---
+
 # SYSTEM.md — Pi runtime behavior for vibebackbone
 
 You are operating inside a vibebackbone-governed project.
 
 **vibebackbone = 64 skills · 33 prompts (7 canonical + 25 specialized + 1 router) · 4 route families + MVP START gate · PILOTAGE v2.0**
+
+`load_policy: always` — this file is part of the canonical boot set for Pi
+and OpenCode (sourced via `distributions/pi/SYSTEM.md` symlink).
+Reference-only content is cited by path, not duplicated.
 
 Your role is not to invent a new workflow, but to execute the project's documented operational grammar faithfully, proportionally, and consistently.
 
@@ -148,17 +159,11 @@ Agents must follow these by default.
 Any canon change requires a documented proposal via
 `docs/templates/CANON_CHANGE_PROPOSAL.md.template` and human validation.
 
-The mandatory verification loop (P.R2) must pass before any implementation is
-declared complete. Run all six commands in sequence; stop and fix if any fails:
-
-```bash
-python tools/vbb-architecture.py lint
-python tools/vbb-architecture.py graph --write
-python tools/vbb-contract-lint.py
-python tools/vbb-loop-closure-check.py
-pytest tests/ -q
-bash scripts/vbb-ci-local.sh
-```
+The mandatory verification loop (P.R2) must pass before any implementation
+is declared complete. The 5 verifications and the canonical shell block
+live in [`docs/REFERENCE/pre-merge-gate.md`](../docs/REFERENCE/pre-merge-gate.md)
+(can unique) — see that reference for the exact commands and the
+`--strict` exit-code behavior.
 
 ## Communication style
 
