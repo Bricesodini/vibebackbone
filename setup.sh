@@ -78,6 +78,7 @@ Modes:
   --force-governance     Allow controlled overwrites with backup when custom files exist
   --dry-run              Print the installation plan only
   --no-interactive       Skip the confirmation prompt
+  Interactive mode       Use the checkbox menu to toggle providers and switch presets
 EOF
 }
 
@@ -111,15 +112,77 @@ provider_is_selected() {
   return 1
 }
 
+provider_select() {
+  local provider="$1"
+  provider_is_selected "$provider" || SELECTED_PROVIDERS+=("$provider")
+}
+
+provider_deselect() {
+  local provider="$1" item next=()
+  for item in "${SELECTED_PROVIDERS[@]}"; do
+    [ "$item" = "$provider" ] && continue
+    next+=("$item")
+  done
+  SELECTED_PROVIDERS=("${next[@]}")
+}
+
+provider_toggle() {
+  local provider="$1"
+  if provider_is_selected "$provider"; then
+    provider_deselect "$provider"
+  else
+    provider_select "$provider"
+  fi
+}
+
 select_all_providers() {
   SELECTED_PROVIDERS=("${ALL_PROVIDERS[@]}")
+}
+
+select_no_providers() {
+  SELECTED_PROVIDERS=()
 }
 
 enable_selective_mode() {
   if [ "$INSTALL_MODE" != "selective" ]; then
     INSTALL_MODE="selective"
-    SELECTED_PROVIDERS=()
   fi
+}
+
+sync_install_mode() {
+  if [ "$FORCE_GOVERNANCE" = true ]; then
+    INSTALL_MODE="governance"
+    return 0
+  fi
+
+  if [ "${#SELECTED_PROVIDERS[@]}" -eq "${#ALL_PROVIDERS[@]}" ]; then
+    INSTALL_MODE="auto"
+  else
+    INSTALL_MODE="selective"
+  fi
+}
+
+cycle_install_mode() {
+  case "$INSTALL_MODE" in
+    auto)
+      INSTALL_MODE="selective"
+      select_no_providers
+      ;;
+    selective)
+      INSTALL_MODE="governance"
+      select_all_providers
+      FORCE_GOVERNANCE=true
+      ;;
+    governance)
+      FORCE_GOVERNANCE=false
+      select_all_providers
+      INSTALL_MODE="auto"
+      ;;
+    *)
+      INSTALL_MODE="auto"
+      select_all_providers
+      ;;
+  esac
 }
 
 parse_args() {
@@ -190,9 +253,11 @@ parse_args() {
     shift
   done
 
-  if [ "${#SELECTED_PROVIDERS[@]}" -eq 0 ]; then
+  if [ "${#SELECTED_PROVIDERS[@]}" -eq 0 ] && [ "$UNINSTALL_REQUESTED" = false ]; then
     select_all_providers
   fi
+
+  sync_install_mode
 }
 
 validate_selected_providers() {
@@ -237,13 +302,67 @@ confirm_installation() {
     return 0
   fi
 
-  echo ""
-  printf "Continue with this plan? type INSTALL to proceed: "
-  read -r answer
-  if [ "$answer" != "INSTALL" ]; then
-    echo "Aborted."
-    exit 1
-  fi
+  while true; do
+    echo ""
+    echo "Interactive selection:"
+    echo "  [$(provider_is_selected claude && echo x || echo ' ')] 1 Claude Code"
+    echo "  [$(provider_is_selected codex && echo x || echo ' ')] 2 Codex"
+    echo "  [$(provider_is_selected pi && echo x || echo ' ')] 3 Pi"
+    echo "  [$(provider_is_selected opencode && echo x || echo ' ')] 4 OpenCode"
+    echo "  [$(provider_is_selected hermes && echo x || echo ' ')] 5 Hermes/Cody"
+    echo ""
+    echo "  Mode        : $INSTALL_MODE"
+    echo "  Dry-run     : $( [ "$DRY_RUN" = true ] && echo on || echo off )"
+    echo "  Governance  : $( [ "$FORCE_GOVERNANCE" = true ] && echo on || echo off )"
+    echo ""
+    echo "Commands: 1-5 toggle | a all | n none | m mode | d dry-run | g governance | s start | q quit"
+    printf "> "
+    read -r answer || exit 1
+    case "$answer" in
+      1) provider_toggle claude ;;
+      2) provider_toggle codex ;;
+      3) provider_toggle pi ;;
+      4) provider_toggle opencode ;;
+      5) provider_toggle hermes ;;
+      a|A)
+        select_all_providers
+        INSTALL_MODE="auto"
+        ;;
+      n|N)
+        select_no_providers
+        INSTALL_MODE="selective"
+        ;;
+      m|M)
+        cycle_install_mode
+        ;;
+      d|D)
+        if [ "$DRY_RUN" = true ]; then
+          DRY_RUN=false
+        else
+          DRY_RUN=true
+        fi
+        ;;
+      g|G)
+        if [ "$FORCE_GOVERNANCE" = true ]; then
+          FORCE_GOVERNANCE=false
+        else
+          FORCE_GOVERNANCE=true
+          INSTALL_MODE="governance"
+        fi
+        ;;
+      s|S)
+        break
+        ;;
+      q|Q)
+        echo "Aborted."
+        exit 1
+        ;;
+      *)
+        echo "Unknown command."
+        ;;
+    esac
+    sync_install_mode
+  done
 }
 
 run_provider_install() {
