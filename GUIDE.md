@@ -289,7 +289,8 @@ cd ~/vibebackbone
 bash setup.sh
 ```
 
-`setup.sh` déploie quatre couches :
+`setup.sh` affiche d'abord un plan d'installation, puis déploie les couches
+sélectionnées :
 
 | Couche | Cible | Quoi |
 |--------|-------|------|
@@ -298,6 +299,25 @@ bash setup.sh
 | **Commandes prompt** | Provider command dirs | 26 commandes adaptateur spécialisées/router |
 | **AGENTS.md** | Par provider | Grammaire opérationnelle |
 | **SYSTEM.md** | Par provider | Comportement runtime |
+
+Modes d'installation :
+
+| Mode | Flags | Effet |
+|------|-------|-------|
+| **Auto-detect** | `--auto` ou aucun drapeau | Installe le core et les providers disponibles sans sélection manuelle |
+| **Selective install** | `--provider <name>` (répétable) | N'installe que les providers demandés en plus du core |
+| **Advanced / governance** | `--force-governance` | Autorise les remplacements contrôlés des fichiers custom, avec backup |
+
+Flags scriptables :
+
+- `--dry-run` : affiche le plan sans écrire
+- `--no-interactive` : saute la confirmation utilisateur
+- `--provider <name>` : sélection explicite d'un provider
+- `--auto` : revient au mode auto-detect
+- `--force-governance` : active les écritures contrôlées avec sauvegarde
+
+Hermes/Cody reste un contrôle non destructif : `bash setup.sh` n'écrit
+jamais dans `~/.hermes/`.
 
 ### 4.2 Configuration par provider
 

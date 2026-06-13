@@ -19,13 +19,17 @@ cd ~/vibebackbone
 bash setup.sh
 ```
 
-C'est tout. Les 64 skills sont maintenant disponibles pour tous vos agents.
+Après validation du plan d'installation, les 64 skills sont maintenant
+disponibles pour tous vos agents.
 
 **Ce que fait `setup.sh`** :
 - Crée `~/.agents/skills/vibebackbone/` (symlink vers `skills/`)
 - Crée `~/.agents/prompts/vibebackbone/` (symlink vers `prompts/`, 33 prompts disponibles)
 - Génère 26 commandes prompt adaptateur pour Claude Code / OpenCode / Pi (les 7 prompts canoniques restent disponibles via le symlink et la prompt library)
 - Les mises à jour se font via `git pull` (les symlinks suivent automatiquement)
+- Affiche un plan d'installation avant toute écriture
+- Propose les flags scriptables `--auto`, `--provider <name>`, `--dry-run`,
+  `--force-governance`, `--no-interactive`
 
 ---
 
@@ -43,6 +47,14 @@ C'est tout. Les 64 skills sont maintenant disponibles pour tous vos agents.
 | Symlink SYSTEM.md | `~/.pi/agent/SYSTEM.md` | Pi |
 | Patch `instructions` | `~/.config/opencode/opencode.json` | OpenCode |
 | **Non-destructif** : check `~/.hermes/` | n/a (jamais touché par `bash setup.sh`) | Hermes (contrat ADR 0006 + 0011) |
+
+Modes d'installation :
+
+| Mode | Flags | Effet |
+|------|-------|-------|
+| **Auto-detect** | `--auto` ou aucun drapeau | Installe le core et les providers disponibles sans sélection manuelle |
+| **Selective install** | `--provider <name>` (répétable) | Installe uniquement les providers demandés en plus du core |
+| **Advanced / governance** | `--force-governance` | Autorise les remplacements contrôlés des fichiers custom, avec backup |
 
 > **Fichiers existants** : pour Claude/Pi, le script laisse les fichiers custom
 > intacts et affiche la commande `ln -sf` à exécuter manuellement. Pour **Codex**,

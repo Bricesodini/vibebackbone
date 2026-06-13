@@ -29,21 +29,21 @@ python3 -m pip install --user pynacl pytest
 mkdir -p ~/.hermes/proxy/audit
 chmod 700 ~/.hermes/proxy
 
-cp tools/proxy/config.example.yaml  ~/.hermes/proxy/config.yaml
-cp tools/proxy/actions.example.yaml ~/.hermes/proxy/actions.yaml
+cp distributions/hermes/proxy/config.example.yaml  ~/.hermes/proxy/config.yaml
+cp distributions/hermes/proxy/actions.example.yaml ~/.hermes/proxy/actions.yaml
 
 # Generate keys (the daemon refuses to start without them and with wrong perms)
 python3 -c "
 import os
 os.urandom(32).tofile('/tmp/__hmac') if hasattr(os.urandom(32), 'tofile') else None
 open('~/.hermes/proxy/hmac.key', 'wb').write(os.urandom(32))
-from tools.proxy.crypto import generate_key
+from distributions.hermes.proxy.crypto import generate_key
 open('~/.hermes/proxy/secrets.key', 'wb').write(generate_key())
 " 2>/dev/null
 python3 -c "
 import os
 open(os.path.expanduser('~/.hermes/proxy/hmac.key'), 'wb').write(os.urandom(32))
-from tools.proxy.crypto import generate_key
+from distributions.hermes.proxy.crypto import generate_key
 open(os.path.expanduser('~/.hermes/proxy/secrets.key'), 'wb').write(generate_key())
 "
 chmod 600 ~/.hermes/proxy/hmac.key ~/.hermes/proxy/secrets.key
@@ -54,10 +54,10 @@ chmod 600 ~/.hermes/proxy/hmac.key ~/.hermes/proxy/secrets.key
 ## 4. Run the daemon
 
 ```bash
-./tools/proxy/run.sh
+./distributions/hermes/proxy/run.sh
 # or, equivalently:
 PYTHONPATH=. VBB_PROXY_CONFIG=$HOME/.hermes/proxy/config.yaml \
-    python3 -m tools.proxy.daemon
+    python3 -m distributions.hermes.proxy.daemon
 ```
 
 The daemon validates the filesystem permissions at boot and refuses to start if:
@@ -198,7 +198,7 @@ The actual backend used is logged at boot (`vbb.proxy.crypto :: backend=libsodiu
 ## 8. Run the tests
 
 ```bash
-python3 -m pytest tools/proxy/tests/ -v
+python3 -m pytest distributions/hermes/proxy/tests/ -v
 ```
 
 The test suite is hermetic — it builds its own config in a `tmp_path`, generates fresh keys, and spins up the HTTP server in a background thread on a random free port. There is no dependency on `~/.hermes/proxy/`.
@@ -213,7 +213,7 @@ The contract from a caller's perspective is:
 4. POST to `http://127.0.0.1:9911/proxy/v1/exec` with the three headers.
 5. Treat the response as JSON. If `status == "error"`, surface `error.code` to the user (do **not** log the message if it contains a hint about a credential).
 
-The VBB workers (fast, struct, audit, close) should call this endpoint via a thin client helper (e.g. `tools/proxy/client.py`, **V2**). At POC time there is no such helper yet — call sites are expected to inline the four lines above until V2.
+The VBB workers (fast, struct, audit, close) should call this endpoint via a thin client helper (e.g. `distributions/hermes/proxy/client.py`, **V2**). At POC time there is no such helper yet — call sites are expected to inline the four lines above until V2.
 
 ## 10. V2 client & CLI (added 2026-06-02)
 
@@ -223,7 +223,7 @@ V2 ships an official Python client and a thin CLI wrapper so workers no longer h
 
 ```python
 import os
-from tools.proxy.client import ProxyClient
+from distributions.hermes.proxy.client import ProxyClient
 
 client = ProxyClient(
     base_url="http://127.0.0.1:9911",
@@ -249,8 +249,8 @@ The CLI prints `secret_id` and `value_preview` on stdout and exits non-zero on a
 ### 10.3 Hermes / Cody integration example
 
 ```python
-from tools.proxy.client import ProxyClient
-from tools.proxy.errors import ProxyClientError
+from distributions.hermes.proxy.client import ProxyClient
+from distributions.hermes.proxy.errors import ProxyClientError
 
 def vault_lookup(secret_id: str) -> str:
     client = ProxyClient("http://127.0.0.1:9911", hmac_key, requestor="hermes-worker")
@@ -293,11 +293,13 @@ python tools/vbb-bypass-lint.py --strict
 python tools/vbb-bypass-lint.py --json
 ```
 
-By default the linter scans `SOUL.md`, `tools/` (excluding `tools/proxy/`),
-`prompts/`, `skills/`, `scripts/`. `tools/proxy/` and `docs/adr/` are
-**always exempt** because they contain the reference material the linter
-targets. Use `--all` to scan the entire repo (will surface doc-anchored
-"negative examples" as informational findings).
+By default the linter scans `SOUL.md`, `tools/` (excluding the historical
+`tools/proxy/` path retained in legacy docs), `prompts/`, `skills/`,
+`scripts/`. `tools/proxy/` and `docs/adr/` are **always exempt** because they
+contain the reference material the linter targets. The canonical runtime path
+for the proxy cluster is `distributions/hermes/proxy/`; older reports may still
+mention `tools/proxy/` for forensics. Use `--all` to scan the entire repo (will
+surface doc-anchored "negative examples" as informational findings).
 
 ### Patterns detected
 

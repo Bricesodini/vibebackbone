@@ -23,8 +23,13 @@
 #   Pi           → ~/.pi/agent/prompts/*.md   (symlinks)
 #
 # Usage:
-#   bash setup.sh                  # Install (never overwrites custom files)
-#   bash setup.sh --force-governance  # Install and overwrite with backup
+#   bash setup.sh                  # Auto-detect + interactive plan
+#   bash setup.sh --auto           # Explicit auto-detect
+#   bash setup.sh --provider claude --provider pi
+#                                   # Selective install
+#   bash setup.sh --dry-run         # Print the plan only
+#   bash setup.sh --force-governance # Install and overwrite with backup
+#   bash setup.sh --no-interactive   # Skip confirmation prompt
 #   bash setup.sh --uninstall      # Remove
 
 set -e
@@ -54,7 +59,219 @@ OPENCODE_JSON="$HOME/.config/opencode/opencode.json"
 OPENCODE_COMMANDS="$HOME/.config/opencode/commands"
 
 FORCE_GOVERNANCE=false
-[ "${1}" = "--force-governance" ] && FORCE_GOVERNANCE=true
+DRY_RUN=false
+NO_INTERACTIVE=false
+UNINSTALL_REQUESTED=false
+INSTALL_MODE="auto"
+ALL_PROVIDERS=(claude codex pi opencode hermes)
+SELECTED_PROVIDERS=()
+
+usage() {
+  cat <<'EOF'
+Usage:
+  bash setup.sh [--auto] [--provider <name>] [--dry-run] [--force-governance] [--no-interactive]
+  bash setup.sh --uninstall
+
+Modes:
+  --auto                 Install the core + all available providers (default)
+  --provider <name>      Install only the named provider(s) in addition to the core
+  --force-governance     Allow controlled overwrites with backup when custom files exist
+  --dry-run              Print the installation plan only
+  --no-interactive       Skip the confirmation prompt
+EOF
+}
+
+provider_label() {
+  case "$1" in
+    claude) echo "Claude Code" ;;
+    codex) echo "Codex" ;;
+    pi) echo "Pi" ;;
+    opencode) echo "OpenCode" ;;
+    hermes) echo "Hermes/Cody" ;;
+    *) echo "$1" ;;
+  esac
+}
+
+provider_setup_path() {
+  case "$1" in
+    claude) echo "$REPO_ROOT/distributions/claude/setup.sh" ;;
+    codex) echo "$REPO_ROOT/distributions/codex/setup.sh" ;;
+    pi) echo "$REPO_ROOT/distributions/pi/setup.sh" ;;
+    opencode) echo "$REPO_ROOT/distributions/opencode/setup.sh" ;;
+    hermes) echo "$REPO_ROOT/distributions/hermes/setup.sh" ;;
+    *) return 1 ;;
+  esac
+}
+
+provider_is_selected() {
+  local needle="$1" item
+  for item in "${SELECTED_PROVIDERS[@]}"; do
+    [ "$item" = "$needle" ] && return 0
+  done
+  return 1
+}
+
+select_all_providers() {
+  SELECTED_PROVIDERS=("${ALL_PROVIDERS[@]}")
+}
+
+enable_selective_mode() {
+  if [ "$INSTALL_MODE" != "selective" ]; then
+    INSTALL_MODE="selective"
+    SELECTED_PROVIDERS=()
+  fi
+}
+
+parse_args() {
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --help|-h)
+        usage
+        exit 0
+        ;;
+      --uninstall)
+        UNINSTALL_REQUESTED=true
+        ;;
+      --auto)
+        INSTALL_MODE="auto"
+        select_all_providers
+        ;;
+      --provider)
+        shift
+        [ "$#" -gt 0 ] || { echo "✗ --provider requires a provider name"; exit 1; }
+        enable_selective_mode
+        case "$1" in
+          all)
+            select_all_providers
+            INSTALL_MODE="auto"
+            ;;
+          claude|codex|pi|opencode|hermes)
+            provider_is_selected "$1" || SELECTED_PROVIDERS+=("$1")
+            ;;
+          *)
+            echo "✗ unknown provider: $1"
+            exit 1
+            ;;
+        esac
+        ;;
+      --provider=*)
+        provider_value="${1#*=}"
+        enable_selective_mode
+        case "$provider_value" in
+          all)
+            select_all_providers
+            INSTALL_MODE="auto"
+            ;;
+          claude|codex|pi|opencode|hermes)
+            provider_is_selected "$provider_value" || SELECTED_PROVIDERS+=("$provider_value")
+            ;;
+          *)
+            echo "✗ unknown provider: $provider_value"
+            exit 1
+            ;;
+        esac
+        ;;
+      --dry-run)
+        DRY_RUN=true
+        ;;
+      --force-governance)
+        FORCE_GOVERNANCE=true
+        INSTALL_MODE="governance"
+        ;;
+      --no-interactive)
+        NO_INTERACTIVE=true
+        ;;
+      *)
+        echo "✗ unknown flag: $1"
+        usage
+        exit 1
+        ;;
+    esac
+    shift
+  done
+
+  if [ "${#SELECTED_PROVIDERS[@]}" -eq 0 ]; then
+    select_all_providers
+  fi
+}
+
+validate_selected_providers() {
+  local provider path
+  for provider in "${SELECTED_PROVIDERS[@]}"; do
+    path="$(provider_setup_path "$provider")" || true
+    if [ ! -f "$path" ]; then
+      echo "✗ missing provider setup: $path"
+      exit 1
+    fi
+  done
+}
+
+print_install_plan() {
+  local provider
+  local mode_label
+  case "$INSTALL_MODE" in
+    auto) mode_label="auto-detect" ;;
+    selective) mode_label="selective install" ;;
+    governance) mode_label="advanced/governance" ;;
+    *) mode_label="$INSTALL_MODE" ;;
+  esac
+  echo ""
+  echo "Installation plan:"
+  echo "  Mode            : $mode_label"
+  echo "  Governance      : $( [ "$FORCE_GOVERNANCE" = true ] && echo "overwrite with backup" || echo "preserve existing custom files" )"
+  echo "  Dry-run         : $( [ "$DRY_RUN" = true ] && echo "yes" || echo "no" )"
+  echo "  Interactive     : $( [ "$NO_INTERACTIVE" = true ] && echo "no" || echo "yes" )"
+  echo "  Core            : install"
+  for provider in "${ALL_PROVIDERS[@]}"; do
+    if provider_is_selected "$provider"; then
+      echo "  $(printf '%-14s' "$(provider_label "$provider")") : install"
+    else
+      echo "  $(printf '%-14s' "$(provider_label "$provider")") : skip"
+    fi
+  done
+  echo "  Hermes runtime  : verify-only, never writes to ~/.hermes/"
+}
+
+confirm_installation() {
+  if [ "$DRY_RUN" = true ] || [ "$NO_INTERACTIVE" = true ] || [ ! -t 0 ]; then
+    return 0
+  fi
+
+  echo ""
+  printf "Continue with this plan? type INSTALL to proceed: "
+  read -r answer
+  if [ "$answer" != "INSTALL" ]; then
+    echo "Aborted."
+    exit 1
+  fi
+}
+
+run_provider_install() {
+  case "$1" in
+    claude)
+      source "$REPO_ROOT/distributions/claude/setup.sh"
+      claude_install
+      ;;
+    codex)
+      source "$REPO_ROOT/distributions/codex/setup.sh"
+      codex_install
+      ;;
+    pi)
+      source "$REPO_ROOT/distributions/pi/setup.sh"
+      pi_install
+      ;;
+    opencode)
+      source "$REPO_ROOT/distributions/opencode/setup.sh"
+      opencode_install
+      ;;
+    hermes)
+      echo ""
+      echo "Hermes/Cody distribution:"
+      source "$REPO_ROOT/distributions/hermes/setup.sh"
+      hermes_install
+      ;;
+  esac
+}
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
 # Shared helpers (relpath, _realpath, _is_vbb_symlink, needs_python,
@@ -239,55 +456,42 @@ PY
   exit 0
 }
 
-[ "${1}" = "--uninstall" ] && uninstall
+parse_args "$@"
+
+if [ "$UNINSTALL_REQUESTED" = true ]; then
+  uninstall
+fi
 
 # ── Core install (pre-flight + universal symlinks) ─────────────────────────
 # Core logic moved to core/setup.sh (Phase 2A). Globals set by core_install
 # (PROMPTS_AVAILABLE, SYSTEM_AVAILABLE, *_COUNT) feed the per-provider
 # sections below.
 source "$REPO_ROOT/core/setup.sh"
+core_preflight
+validate_selected_providers
+print_install_plan
+confirm_installation
+
+if [ "$DRY_RUN" = true ]; then
+  echo ""
+  echo "✓ Dry-run complete — no files were written"
+  exit 0
+fi
+
 core_install
 
-# ── 3-5. Claude Code — settings.json + CLAUDE.md block + prompt commands ────
-# Claude logic moved to distributions/claude/setup.sh (Phase 2C). Globals
-# set by claude_install (CLAUDE_PROMPTS_OK, CLAUDE_PROMPTS_SKIP) feed the
-# summary below.
-source "$REPO_ROOT/distributions/claude/setup.sh"
-claude_install
+PI_PROMPTS_OK=0
+PI_PROMPTS_SKIP=0
+CLAUDE_PROMPTS_OK=0
+CLAUDE_PROMPTS_SKIP=0
+OPENCODE_PROMPTS_OK=0
+OPENCODE_PROMPTS_SKIP=0
+HERMES_STATUS="skipped"
+HERMES_PROXY_PRESENT="false"
 
-# ── 6. Codex — compiled AGENTS.md ───────────────────────────────────────────
-# Codex logic moved to distributions/codex/setup.sh (Phase 2D). Mechanical
-# relocation only — no simplification, no refactoring, no content change.
-# Same START/END markers, same generated content, same update strategy,
-# same uninstall behavior. See distributions/codex/setup.sh for the
-# verbatim extracted block.
-source "$REPO_ROOT/distributions/codex/setup.sh"
-codex_install
-
-# ── 7. Pi — symlinks (AGENTS + SYSTEM + prompts) ────────────────────────────
-# Pi logic moved to distributions/pi/setup.sh (Phase 2B). Globals set by
-# pi_install (PI_PROMPTS_OK, PI_PROMPTS_SKIP) feed the summary below.
-source "$REPO_ROOT/distributions/pi/setup.sh"
-pi_install
-
-# ── 8-9. OpenCode — instructions + prompt commands ─────────────────────────
-# OpenCode logic moved to distributions/opencode/setup.sh (Phase 2E).
-# Mechanical relocation only — same JSON patch, same prompt generation,
-# same stdout messages, same update strategy. Globals set by
-# opencode_install (OPENCODE_PROMPTS_OK, OPENCODE_PROMPTS_SKIP) feed
-# the summary below.
-source "$REPO_ROOT/distributions/opencode/setup.sh"
-opencode_install
-
-# ── 10. Hermes (non-destructive, agent-install only) ────────────────────────
-# Hermes logic moved to distributions/hermes/setup.sh (Phase 2F). This is
-# the LAST install step and is strictly read-only: no ~/.hermes/ writes,
-# no profile copy, no secret creation, no proxy mutation. See
-# distributions/hermes/AGENT_INSTALL.md for the operator procedure.
-echo ""
-echo "Hermes/Cody distribution:"
-source "$REPO_ROOT/distributions/hermes/setup.sh"
-hermes_install
+for provider in "${SELECTED_PROVIDERS[@]}"; do
+  run_provider_install "$provider"
+done
 
 # ── Summary ──────────────────────────────────────────────────────────────────
 echo ""
@@ -301,19 +505,17 @@ if [ "$PROMPTS_AVAILABLE" = true ] && [ -L "$PROMPTS_LINK" ]; then
 fi
 
 echo "Prompt adapters:"
-if [ "$PROMPTS_AVAILABLE" = true ]; then
-  if [ "$PI_PROMPTS_OK" -gt 0 ] || [ "$PI_PROMPTS_SKIP" -gt 0 ]; then
-    echo "  Pi          : $PI_PROMPTS_OK linked / $PI_PROMPTS_SKIP skipped"
-  fi
-  if [ "$CLAUDE_PROMPTS_OK" -gt 0 ] || [ "$CLAUDE_PROMPTS_SKIP" -gt 0 ]; then
-    echo "  Claude Code : $CLAUDE_PROMPTS_OK generated / $CLAUDE_PROMPTS_SKIP skipped"
-  fi
-  if [ "$OPENCODE_PROMPTS_OK" -gt 0 ] || [ "$OPENCODE_PROMPTS_SKIP" -gt 0 ]; then
-    echo "  OpenCode    : $OPENCODE_PROMPTS_OK generated / $OPENCODE_PROMPTS_SKIP skipped"
-  fi
-  if [ -f "$CODEX_AGENTS" ] && grep -q "Vibebackbone Prompt Library" "$CODEX_AGENTS" 2>/dev/null; then
-    echo "  Codex       : prompt library referenced in AGENTS.md"
-  fi
+if provider_is_selected pi && [ "$PI_PROMPTS_OK" -gt 0 ]; then
+  echo "  Pi          : $PI_PROMPTS_OK linked / $PI_PROMPTS_SKIP skipped"
+fi
+if provider_is_selected claude && [ "$CLAUDE_PROMPTS_OK" -gt 0 ]; then
+  echo "  Claude Code : $CLAUDE_PROMPTS_OK generated / $CLAUDE_PROMPTS_SKIP skipped"
+fi
+if provider_is_selected opencode && [ "$OPENCODE_PROMPTS_OK" -gt 0 ]; then
+  echo "  OpenCode    : $OPENCODE_PROMPTS_OK generated / $OPENCODE_PROMPTS_SKIP skipped"
+fi
+if provider_is_selected codex && [ -f "$CODEX_AGENTS" ] && grep -q "Vibebackbone Prompt Library" "$CODEX_AGENTS" 2>/dev/null; then
+  echo "  Codex       : prompt library referenced in AGENTS.md"
 fi
 
 if [ "$PI_PROMPTS_SKIP" -gt 0 ] || [ "$CLAUDE_PROMPTS_SKIP" -gt 0 ] || [ "$OPENCODE_PROMPTS_SKIP" -gt 0 ]; then
@@ -325,26 +527,29 @@ if [ "$PI_PROMPTS_SKIP" -gt 0 ] || [ "$CLAUDE_PROMPTS_SKIP" -gt 0 ] || [ "$OPENC
 fi
 
 echo "Governance / runtime:"
-if [ -f "$CLAUDE_MD" ] && grep -qF "$AGENTS_SRC" "$CLAUDE_MD" 2>/dev/null; then
+if provider_is_selected claude && [ -f "$CLAUDE_MD" ] && grep -qF "$AGENTS_SRC" "$CLAUDE_MD" 2>/dev/null; then
   echo "  Claude Code : AGENTS + SYSTEM referenced"
 fi
-if [ -f "$CODEX_AGENTS" ] && grep -q "vibebackbone:generated:start" "$CODEX_AGENTS" 2>/dev/null; then
+if provider_is_selected codex && [ -f "$CODEX_AGENTS" ] && grep -q "vibebackbone:generated:start" "$CODEX_AGENTS" 2>/dev/null; then
   if grep -q "Vibebackbone Prompt Library" "$CODEX_AGENTS" 2>/dev/null; then
     echo "  Codex       : AGENTS + SYSTEM + Prompt Library compiled"
   else
     echo "  Codex       : AGENTS + SYSTEM compiled"
   fi
 fi
-if [ -L "$PI_AGENTS" ] && _is_vbb_symlink "$PI_AGENTS" "$AGENTS_SRC"; then
+if provider_is_selected pi && [ -L "$PI_AGENTS" ] && _is_vbb_symlink "$PI_AGENTS" "$AGENTS_SRC"; then
   echo "  Pi          : AGENTS + SYSTEM symlinked"
 fi
-if [ -f "$OPENCODE_JSON" ] && python3 -c "
+if provider_is_selected opencode && [ -f "$OPENCODE_JSON" ] && python3 -c "
 import json, sys
 cfg = json.load(open('$OPENCODE_JSON'))
 found = '$AGENTS_SRC' in cfg.get('instructions', [])
 sys.exit(0 if found else 1)
 " 2>/dev/null; then
   echo "  OpenCode    : AGENTS + SYSTEM referenced"
+fi
+if provider_is_selected hermes; then
+  echo "  Hermes/Cody : verify-only, no ~/.hermes/ writes"
 fi
 
 echo ""

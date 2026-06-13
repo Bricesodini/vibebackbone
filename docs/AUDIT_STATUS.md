@@ -84,9 +84,9 @@ stabilized in the same pass.
 | PILOT-004 | P2 | Central status/run artifacts are dated 2026-06-10..13 while local audit date is 2026-05-27 | Resolved — temporal skew documented in `docs/TEMPORAL_PROVENANCE.md`; dashboard reports provenance notes |
 | PILOT-005 | P2 | Recommended `vbb-index.py search` workflow fails when local `.vbb/index/manifest.json` is absent | Resolved — search now auto-builds missing local index |
 | PILOT-006 | P2 | Status/debt/count documents are stale against measured repo state | Resolved — active status/count docs refreshed; historical run artifacts preserved as history |
-| IMPL-001 | P1 | `setup.sh` adapter inventory reports/deploys `64 skills · 26 prompts` while canonical inventory is 63 skills and 33 prompts | Resolved — setup reports 63 skills, 33 prompts available, 26 adapter commands; smoke install asserts the count |
+| IMPL-001 | P1 | `setup.sh` adapter inventory reports/deploys `64 skills · 26 prompts` while canonical inventory is 63 skills and 33 prompts | Resolved — setup reports 64 skills, 33 prompts available, 26 adapter commands; smoke install asserts the count |
 | IMPL-002 | P1 | Contracts are complete but runtime enforcement remains declarative-only; no executor enforces gates/state/transitions | Resolved — vbb-executor.py implements state machine, full gate evaluation (before/success/after), phase artifact lifecycle, and structured JSON status. ADR-0001 boundary formally enforced.
-| IMPL-003 | P2 | `docs/DEPLOYMENT.md` still documents 62 skills while active inventory is 63 | Resolved — deployment docs now document 63 skills and 33 prompts / 26 adapter commands |
+| IMPL-003 | P2 | `docs/DEPLOYMENT.md` still documents 62 skills while active inventory is 63 | Resolved — deployment docs now document 64 skills and 33 prompts / 26 adapter commands |
 | IMPL-004 | P2 | Python bytecode under `tests/__pycache__/` and `tools/__pycache__/` is tracked | Resolved — tracked bytecode removed and `.gitignore` now excludes Python generated files |
 | IMPL-005 | P2 | GitHub CI and local CI are close but not identical; GitHub does not run the full local pytest step | Resolved — GitHub CI now runs architecture lint and full `pytest tests/ -q`; local CI runs 8 checks |
 | IMPL-006 | P2 | Future-dated historical artifacts are documented but should not be inherited as live state by a new implementation | Resolved — project init now creates fresh `ARCHITECTURE.md` / `RELATIONS.md` placeholders without VBB audit history |
@@ -210,21 +210,22 @@ New audit: [quality-adoption-audit-20260629.md](audits/quality-adoption-audit-20
 
 Verdict: `PASS_WITH_LOW_GAPS`. All five canonical quality pillars are demonstrably adopted
 across governance, tooling, and operational workflows. 4 tools enforce P.R1–P.R2,
-8 CI checks, 81 tests, all verification loop commands pass. QA-001 resolved (CONTRACT.yaml created). 2 MEDIUM (QA-002 README EN entry added; QA-003 count verified correct), QA-006 harmonized (P.R8 disclosure in 06 canonical prompt + phase 06 template).
-missing CONTRACT.yaml for `t-vbb-llm-healthcheck`), 2 MEDIUM (QA-002: README FR-only,
-QA-003: prompt count mismatch 27 vs 33), 4 LOW/P2 gaps. Global verdict remains
-`PASS` — all mandatory gaps (QA-001/003/006) resolved. QA-002 (README EN entry) added. QA-004/005/007 remain LOW/open. Verdict upgrade requires QA-002 completion and re-audit.
+8 CI checks, 81 tests, all verification loop commands pass. QA-001 resolved (CONTRACT.yaml created),
+QA-002 resolved (README EN entry added), QA-003 resolved (prompt count verified at 33),
+QA-006 resolved (P.R8 disclosure in 06 canonical prompt + phase 06 template).
+Global verdict remains `PASS` — the remaining open items are low-severity
+follow-ups: QA-004, QA-005, and QA-007.
 
 New risks added:
 
 | ID | Severity | Description | Status |
 |----|----------|-------------|--------|
 | QA-001 | ~~BLOCKER~~ | `t-vbb-llm-healthcheck` missing CONTRACT.yaml — contract coverage 63/64 | **RESOLVED** — CONTRACT.yaml created (v0.3 prompt_skill), added to INDEX.yaml; contract lint 0 errors; coverage 64/64 (100%) |
-| QA-002 | MEDIUM | Root README.md in FR only; no EN entry point | **Open** — add EN README or GUIDE.md |
-| QA-003 | MEDIUM | Prompt inventory mismatch: docs state 33, actual 27 files | **Open** — reconcile counts |
+| QA-002 | MEDIUM | Root README.md in FR only; no EN entry point | **RESOLVED** — English quick entry added to README.md |
+| QA-003 | MEDIUM | Prompt inventory mismatch: docs state 33, actual 27 files | **RESOLVED** — inventory verified at 33 files (7 canonical + 25 specialized + 1 router) |
 | QA-004 | LOW | Temporal provenance managed but not automated | **Open** — automate in artifact generators |
 | QA-005 | LOW | Only 4 ADRs for 63-skill catalog; decision traceability gaps possible | **Open** — verify skill-level decision traceability |
-| QA-006 | P2 | P.R8 (independent review) has no technical enforcement; no explicit self-review disclosure in phase 06 template | **Open** — add disclosure requirement to 06 template |
+| QA-006 | P2 | P.R8 (independent review) has no technical enforcement; no explicit self-review disclosure in phase 06 template | **RESOLVED** — disclosure requirement added to canonical audit/closeout templates |
 | QA-007 | LOW | Canon change proposal template never exercised | **Open** — exercise process once to validate |
 
 ---

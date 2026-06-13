@@ -33,6 +33,21 @@ and verification loops to make agentic development predictable, traceable and re
 > [`docs/DISTRIBUTIONS.md`](docs/DISTRIBUTIONS.md). Enforced by
 > [AGENTS.md Critical Rule #11](AGENTS.md#critical-rules).
 
+## Périmètre et maturité
+
+| Statut | Ce que cela signifie | Exemples |
+|--------|----------------------|----------|
+| **Stable core** | Canonique, installé par défaut, et considéré comme la base du système | `AGENTS.md`, `SYSTEM.md`, `docs/`, `skills/`, `prompts/`, `setup.sh`, `setup-lib.sh`, `core/setup.sh`, `distributions/{claude,codex,pi,opencode}/setup.sh` |
+| **Distribution active** | Code spécifique à un runtime agentique installé via le routeur, mais distinct du core | `distributions/hermes/`, `distributions/hermes/proxy/`, `distributions/hermes/bypass-lint/` |
+| **Optionnel / externe** | État ou runtime installé hors dépôt, seulement si l’environnement cible l’exige | `~/.agents/`, `~/.claude/`, `~/.codex/`, `~/.pi/`, `~/.config/opencode/`, `~/.hermes/profiles/...` |
+| **POC / expérimental** | Preuve de concept, transition ou exploration à lire comme telle | `docs/strategy/p0-4-review-matrix-poc.md`, `distributions/hermes/docs/POC_USAGE.md`, `distributions/hermes/docs/POC_CLOSEOUT.md` |
+| **Template / réserve** | Gabarit ou réserve de futurs clients, pas une fonctionnalité livrée | `providers/templates/`, `distributions/examples/` |
+| **Archive** | Historique conservé pour traçabilité, pas vérité active | `docs/archive/` |
+
+**Règle de lecture** : si un fichier ne porte pas un de ces statuts explicitement,
+lisez-le comme du core stable par défaut, puis vérifiez la section ou le dossier
+qui lui donne son niveau de maturité.
+
 ---
 
 ---
@@ -76,8 +91,8 @@ vibebackbone/             ← VBB Core (this repo)
 │   └── ...
 ├── skills/              ← 64 injectable skills
 ├── prompts/             ← 33 prompts (7 canon + 25 specialised + 1 router)
-├── providers/           ← Reserved templates (example-consumer-repo only)
-├── distributions/       ← Provider-specific adapters (claude/, codex/, pi/, opencode/, hermes/)
+├── providers/           ← Templates / reserve (example-consumer-repo only)
+├── distributions/       ← Active distribution code + provider adapters (claude/, codex/, pi/, opencode/, hermes/)
 ├── tools/               ← vbb-architecture.py, vbb-gate-check.py, vbb-contract-lint.py, ...
 └── tests/, scripts/     ← CI and verification loops
 ```
@@ -303,7 +318,8 @@ git clone https://github.com/bricesodini/vibebackbone ~/vibebackbone
 bash ~/vibebackbone/setup.sh
 ```
 
-C'est tout. Les 64 skills sont disponibles pour tous vos agents, dans tous vos projets.
+Après validation du plan d'installation, les 64 skills sont disponibles pour
+tous vos agents, dans tous vos projets.
 
 **Ce que fait `setup.sh` :**
 - installe les skills dans `~/.agents/skills/vibebackbone`
@@ -318,6 +334,21 @@ C'est tout. Les 64 skills sont disponibles pour tous vos agents, dans tous vos p
 - génère 26 commandes prompt adaptateur `~/.config/opencode/commands/vbb-*.md`
 - **ne jamais écraser** les fichiers custom existants (sauf avec `--force-governance`)
 - les mises à jour se font via `git pull` (le symlink suit automatiquement)
+
+Avant toute écriture, le routeur affiche un plan d'installation. Les flags
+scriptables sont `--auto`, `--provider <name>`, `--dry-run`,
+`--force-governance`, et `--no-interactive`.
+
+Modes d'installation :
+
+| Mode | Flags | Effet |
+|------|-------|-------|
+| **Auto-detect** | `--auto` ou aucun drapeau | Installe le core et les providers disponibles sans sélection manuelle |
+| **Selective install** | `--provider <name>` (répétable) | N'installe que les providers demandés en plus du core |
+| **Advanced / governance** | `--force-governance` | Autorise les remplacements contrôlés des fichiers custom, avec backup |
+
+Hermes/Cody reste un contrôle non destructif : `bash setup.sh` n'écrit
+jamais dans `~/.hermes/`.
 
 `package.json` à la racine déclare le repo comme package Pi (`pi install /path/to/vibebackbone`).
 
@@ -349,8 +380,9 @@ cd ~/vibebackbone && git pull
 
 ### Architecture du script d'installation
 
-`setup.sh` est un **routeur pur** (~356 LOC) qui délègue à des scripts
-spécialisés par couche. Aucun provider logic n'est inline :
+`setup.sh` est un **routeur guidé** (~356 LOC) qui délègue à des scripts
+spécialisés par couche. Aucun provider logic n'est inline et le routeur
+affiche un plan avant toute écriture :
 
 | Fichier | Rôle | LOC approx. |
 |---------|------|-------------|

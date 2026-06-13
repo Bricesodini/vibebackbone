@@ -2,7 +2,7 @@
 context_role: navigation-index
 phase: transverse
 status: active
-updated: 2026-05-28
+updated: 2026-06-13
 ---
 
 # INDEX — Carte de navigation du dépôt
@@ -60,6 +60,17 @@ updated: 2026-05-28
 | Skills (64) | [`../skills/`](../skills/) | [`../skills/INDEX.yaml`](../skills/INDEX.yaml) |
 | Prompts spécialisés (25) + 1 router | [`../prompts/`](../prompts/) | — |
 | Prompts canoniques (7) | [`../prompts/canonical/`](../prompts/canonical/) | — |
+
+## Maturité
+
+| Statut | Sens | Exemples |
+|--------|------|----------|
+| **Stable core** | Canonique, installé par défaut, base du système | `../AGENTS.md`, `../SYSTEM.md`, `../setup.sh`, `../setup-lib.sh`, `../core/setup.sh`, `../skills/`, `../prompts/` |
+| **Distribution active** | Code spécifique à un runtime agentique, installé via le routeur | `../distributions/hermes/`, `../distributions/{claude,codex,pi,opencode}/` |
+| **Optionnel / externe** | Réside hors dépôt et dépend de l’environnement machine | `~/.agents/`, `~/.claude/`, `~/.codex/`, `~/.pi/`, `~/.config/opencode/`, `~/.hermes/profiles/...` |
+| **POC / expérimental** | Preuve de concept ou transition, à ne pas confondre avec le core | `../docs/strategy/p0-4-review-matrix-poc.md`, `../distributions/hermes/docs/POC_USAGE.md`, `../distributions/hermes/docs/POC_CLOSEOUT.md` |
+| **Template / réserve** | Gabarit ou réserve de futures intégrations | `../providers/templates/`, `../distributions/examples/` |
+| **Archive** | Historique conservé pour traçabilité | `archive/`, `archive/prompt-migration/` |
 
 ## Audits
 
