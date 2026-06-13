@@ -78,7 +78,7 @@ Modes:
   --force-governance     Allow controlled overwrites with backup when custom files exist
   --dry-run              Print the installation plan only
   --no-interactive       Skip the confirmation prompt
-  Interactive mode       Use the checkbox menu to toggle providers and switch presets
+  Interactive mode       Arrow-key checklist, space toggles, enter validates
 EOF
 }
 
@@ -160,29 +160,6 @@ sync_install_mode() {
   else
     INSTALL_MODE="selective"
   fi
-}
-
-cycle_install_mode() {
-  case "$INSTALL_MODE" in
-    auto)
-      INSTALL_MODE="selective"
-      select_no_providers
-      ;;
-    selective)
-      INSTALL_MODE="governance"
-      select_all_providers
-      FORCE_GOVERNANCE=true
-      ;;
-    governance)
-      FORCE_GOVERNANCE=false
-      select_all_providers
-      INSTALL_MODE="auto"
-      ;;
-    *)
-      INSTALL_MODE="auto"
-      select_all_providers
-      ;;
-  esac
 }
 
 parse_args() {
@@ -302,38 +279,55 @@ confirm_installation() {
     return 0
   fi
 
+  local old_stty
+  local cursor=0
+  local key key2 key3 provider idx
+  old_stty="$(stty -g)"
+  cleanup_interactive_ui() {
+    stty "$old_stty" 2>/dev/null || true
+    tput cnorm 2>/dev/null || true
+    printf '\n'
+  }
+  trap cleanup_interactive_ui EXIT INT TERM
+
+  stty -echo -icanon time 0 min 1
+  tput civis 2>/dev/null || true
+
   while true; do
+    printf '\033[2J\033[H'
+    echo "Installation selection:"
+    echo "  Use ↑/↓ to move, Space to toggle, Enter to continue."
+    echo "  A: all | N: none | G: governance | D: dry-run | Q: quit"
     echo ""
-    echo "Interactive selection:"
-    echo "  [$(provider_is_selected claude && echo x || echo ' ')] 1 Claude Code"
-    echo "  [$(provider_is_selected codex && echo x || echo ' ')] 2 Codex"
-    echo "  [$(provider_is_selected pi && echo x || echo ' ')] 3 Pi"
-    echo "  [$(provider_is_selected opencode && echo x || echo ' ')] 4 OpenCode"
-    echo "  [$(provider_is_selected hermes && echo x || echo ' ')] 5 Hermes/Cody"
+    for idx in "${!ALL_PROVIDERS[@]}"; do
+      provider="${ALL_PROVIDERS[$idx]}"
+      if [ "$idx" -eq "$cursor" ]; then
+        printf "  > "
+      else
+        printf "    "
+      fi
+      printf "[%s] %s\n" "$(provider_is_selected "$provider" && echo x || echo ' ')" "$(provider_label "$provider")"
+    done
     echo ""
-    echo "  Mode        : $INSTALL_MODE"
-    echo "  Dry-run     : $( [ "$DRY_RUN" = true ] && echo on || echo off )"
-    echo "  Governance  : $( [ "$FORCE_GOVERNANCE" = true ] && echo on || echo off )"
+    echo "  Mode       : $INSTALL_MODE"
+    echo "  Dry-run    : $( [ "$DRY_RUN" = true ] && echo on || echo off )"
+    echo "  Governance : $( [ "$FORCE_GOVERNANCE" = true ] && echo on || echo off )"
     echo ""
-    echo "Commands: 1-5 toggle | a all | n none | m mode | d dry-run | g governance | s start | q quit"
-    printf "> "
-    read -r answer || exit 1
-    case "$answer" in
-      1) provider_toggle claude ;;
-      2) provider_toggle codex ;;
-      3) provider_toggle pi ;;
-      4) provider_toggle opencode ;;
-      5) provider_toggle hermes ;;
+    echo "  Enter to start."
+
+    IFS= read -rsn1 key || exit 1
+    case "$key" in
+      "")
+        break
+        ;;
+      " ")
+        provider_toggle "${ALL_PROVIDERS[$cursor]}"
+        ;;
       a|A)
         select_all_providers
-        INSTALL_MODE="auto"
         ;;
       n|N)
         select_no_providers
-        INSTALL_MODE="selective"
-        ;;
-      m|M)
-        cycle_install_mode
         ;;
       d|D)
         if [ "$DRY_RUN" = true ]; then
@@ -347,22 +341,38 @@ confirm_installation() {
           FORCE_GOVERNANCE=false
         else
           FORCE_GOVERNANCE=true
-          INSTALL_MODE="governance"
         fi
-        ;;
-      s|S)
-        break
         ;;
       q|Q)
         echo "Aborted."
         exit 1
         ;;
-      *)
-        echo "Unknown command."
+      $'\033')
+        IFS= read -rsn1 key2 || key2=""
+        IFS= read -rsn1 key3 || key3=""
+        case "$key2$key3" in
+          "[A")
+            if [ "$cursor" -gt 0 ]; then
+              cursor=$((cursor - 1))
+            else
+              cursor=$((${#ALL_PROVIDERS[@]} - 1))
+            fi
+            ;;
+          "[B")
+            cursor=$(((cursor + 1) % ${#ALL_PROVIDERS[@]}))
+            ;;
+        esac
+        ;;
+      $'\r'|$'\n')
+        break
         ;;
     esac
     sync_install_mode
   done
+
+  cleanup_interactive_ui
+  trap - EXIT INT TERM
+  sync_install_mode
 }
 
 run_provider_install() {
