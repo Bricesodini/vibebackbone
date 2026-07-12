@@ -21,7 +21,7 @@ Canonical operational entry point for any agent or human piloting vibebackbone. 
 
 ---
 
-## The 4 route families
+## The 5 route families
 
 ### MVP START gate
 
@@ -50,7 +50,8 @@ execution.
 | **FAST** (STANDARD) | Simple task, low risk | Act directly | Data/auth/security impact → AUDIT |
 | **STRUCTURED** | Architecture, contracts, multi-file | Read mode+session+audit → expose plan | Security → AUDIT |
 | **AUDIT** | Security, integrity, compliance, systemic risk | Timestamped report in `docs/audits/`, read-only | — |
-| **CLOSEOUT** | End of session, handoff, pause | `t-vbb-commit-ready` → git commit → git push → update `SESSION.md` + `CONTEXT.md` | — |
+| **CLOSE-HANDOFF** | Pause, travail non terminé, reprise attendue | `t-vbb-commit-ready` → git commit → git push → archive `SESSION.md` to `docs/SESSION.history/` → update `SESSION.md` for next session | — |
+| **CLOSE-FINAL** | Fin de session, run terminé | `t-vbb-commit-ready` → git commit → git push → empty `SESSION.md` → update `CONTEXT.md` | — |
 
 Full details (sequences, alternatives, artifact conventions): [ROUTER_MATRIX.md](router/ROUTER_MATRIX.md)
 
@@ -63,7 +64,7 @@ Full details (sequences, alternatives, artifact conventions): [ROUTER_MATRIX.md]
 1. Touches data/auth/prod ? → STRUCTURED minimum
 2. Touches security/integrity/compliance ? → AUDIT
 3. Neither ? → FAST
-4. End of session ? → CLOSEOUT: t-vbb-commit-ready → git commit → git push → SESSION.md → CONTEXT.md
+4. End of session ? → CLOSE-HANDOFF (paused, reprise attendue) or CLOSE-FINAL (terminated): t-vbb-commit-ready → git commit → git push → update SESSION.md (archive if HANDOFF, empty if FINAL) → update CONTEXT.md
 ```
 
 ### Pre-execution gate (Cody boot loop Step 5.5)

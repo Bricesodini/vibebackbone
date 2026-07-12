@@ -5,6 +5,9 @@
 docs/SESSION.md
 docs/SESSION.*.md
 
+# Local session history archive (handoff snapshots, per-machine)
+docs/SESSION.history/
+
 # Local-only overlay subfolder (anything user-specific or sensitive)
 docs/local/
 

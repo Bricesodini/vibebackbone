@@ -41,6 +41,27 @@ Le CLOSEOUT doit répondre à :
 
 ---
 
+## Étape 1 — Calculer le kind
+
+Avant tout autre calcul, déterminer le `kind:` du closeout selon la règle canonique (cf. `docs/SESSION_RULES.md` § Handoff vs Closeout) :
+
+- **`CLOSEOUT`** si : `status = READY` ET `next_phase = null` ET toutes les actions critiques du run sont closes.
+- **`HANDOFF`** si : au moins une de ces conditions est vraie :
+  - `status ≠ READY` (PARTIAL, BLOCKED, UNKNOWN)
+  - `next_phase ≠ null` (un run suivant est prévu)
+  - des `Actions en cours` non triviales subsistent dans `docs/SESSION.md`
+  - le run n'a pas atteint sa cible canon
+
+Annoncer le kind en haut de l'artefact `07_CLOSEOUT.md` :
+
+> **Kind** : `HANDOFF` — travail non terminé, reprise attendue. `docs/SESSION.md` contient des `Actions en cours`.
+
+ou
+
+> **Kind** : `CLOSEOUT` — fin claire du processus. `docs/SESSION.md` doit être vidé après ce closeout.
+
+---
+
 ## Entrées à lire
 
 Avant de clôturer, lire l'ensemble des artefacts de la session :
