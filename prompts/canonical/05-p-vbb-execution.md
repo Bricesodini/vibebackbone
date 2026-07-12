@@ -210,6 +210,29 @@ L'EXECUTION est complète si :
 
 ---
 
+## Pre-merge gate (P.R2)
+
+Before declaring the run complete and proceeding to commit, the executor MUST
+pass the **5 canonical P.R2 verifications** defined in
+[`docs/REFERENCE/pre-merge-gate.md`](../../docs/REFERENCE/pre-merge-gate.md).
+Do not duplicate the verification list here — refer to the canonical reference
+for the exact commands and the `--strict` exit-code behavior.
+
+Quick reminder (see canonical reference for full detail):
+
+1. **Lint / format** — code matches repo conventions
+2. **Type / schema** — types and schemas are consistent
+3. **Tests** — affected tests pass
+4. **Build** — affected build artefacts compile / package
+5. **Documentation coherence** — affected docs match the change
+
+If any P.R2 verification fails, the implementation is **NOT** complete. The
+executor must either fix and re-verify, or escalate via
+[`02-p-vbb-audit.md`](02-p-vbb-audit.md) (route `AUDIT`) before declaring
+the run done.
+
+---
+
 ## Handoff
 
 **Phase suivante : 06_REVIEW — NOUVELLE SESSION OBLIGATOIRE**

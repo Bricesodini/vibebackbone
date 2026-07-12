@@ -218,6 +218,21 @@ Transmettre :
 
 ---
 
+## Next phase
+
+After `03_DECISION` completes, transition explicitly to `04_PLAN` by opening
+[`prompts/canonical/04-p-vbb-plan.md`](04-p-vbb-plan.md) in a **new session**
+(rule: 1 session = 1 role — DECISION and PLAN are distinct roles; the planner
+must not be the decider).
+
+The plan phase consumes the decision record (typically
+`docs/runs/{id}/03_DECISION_RECORD.md`) and produces a structured
+implementation plan (typically `04_PLAN.md` or `04_FIX_PLAN.md`) with
+chunked, testable units, dependencies, and risks flagged **before any
+code is written**.
+
+---
+
 ## Rappel anti-dérive
 
 ```

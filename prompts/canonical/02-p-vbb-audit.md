@@ -282,6 +282,20 @@ Si verdict `BLOCKED` : signaler explicitement que le cycle ne peut continuer ava
 
 ---
 
+## Next phase
+
+After `02_AUDIT` completes, transition explicitly to `03_DECISION` by opening
+[`prompts/canonical/03-p-vbb-decision.md`](03-p-vbb-decision.md) in a **new session**
+(rule: 1 session = 1 role — AUDIT and DECISION are distinct roles).
+
+The decision phase consumes this audit report (typically
+`docs/runs/{id}/02_AUDIT_REPORT.md` and/or the persistent
+`docs/audits/{type}-{date}.md`) and produces a verdict (`READY` / `PARTIAL` /
+`BLOCKED` / `UNKNOWN`) plus a chosen route family (`RAPIDE` / `STRUCTUREE` /
+`AUDIT` / `CLOTURE`).
+
+---
+
 ## Rappel anti-dérive
 
 ```
