@@ -5,7 +5,7 @@ description: |
   into a formatter/linter enforcement plan using existing repository tooling only.
   Produces one audit report. No patches, no repo modification.
 version: "2.0"
-phase: 1
+phase: 02_AUDIT
 token_budget: medium
 subagent_eligible: true
 mode_sensitive: false

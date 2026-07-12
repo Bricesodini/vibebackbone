@@ -5,7 +5,7 @@ description: |
   configuration, tests, and documentation in order to reduce convention drift and
   make the repository predictable. Produces docs/CONVENTIONS.md and a migration checklist.
 version: "2.0"
-phase: 1
+phase: 02_AUDIT
 token_budget: medium
 subagent_eligible: true
 mode_sensitive: true

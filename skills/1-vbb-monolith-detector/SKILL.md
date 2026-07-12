@@ -9,7 +9,7 @@ description: |
   separation of concerns, file size, coupling, refactoring plan, structural decay,
   fat module, code splitting, monolithique.
 version: "1.0"
-phase: 1
+phase: 02_AUDIT
 token_budget: medium
 subagent_eligible: true
 mode_sensitive: true

@@ -5,7 +5,7 @@ description: |
   product behavior. Identifies dead code, unused imports/files, duplication, naming drift,
   structure noise, config sprawl, and debug leftovers. Produces one cleanup report only.
 version: "2.0"
-phase: 1
+phase: 02_AUDIT
 token_budget: medium
 subagent_eligible: true
 mode_sensitive: true

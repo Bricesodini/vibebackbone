@@ -6,7 +6,7 @@ description: |
   Produces a structured audit report and prioritized remediation roadmap.
   Analysis only. Never modifies code.
 version: "2.0"
-phase: 1
+phase: 02_AUDIT
 token_budget: medium
 subagent_eligible: true
 mode_sensitive: true
