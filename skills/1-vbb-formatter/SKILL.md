@@ -128,6 +128,20 @@ The report must contain:
 
 ## Unknowns / needs confirmation
 
+## After this skill runs
+
+This is a `02_AUDIT` skill. Read-only — does not modify code.
+
+**Loop position:**
+- Consumes: skill input + repo state
+- Produces: `01_AUDIT_REPORT.md` per `docs/AGENTIC_RUN_PROTOCOL.md` (this skill proposes a plan only, no execution)
+- Hands off to:
+  - `03_DECISION` (always — see [prompts/canonical/03-p-vbb-decision.md](../../../prompts/canonical/03-p-vbb-decision.md))
+  - Then `04_PLAN` (always, since this skill's output is itself a plan)
+  - Then `05_EXECUTION` (which MUST pass [P.R2 — pre-merge-gate](../../../REFERENCE/pre-merge-gate.md))
+
+**Reference:** [docs/REFERENCE/pre-merge-gate.md](../../../REFERENCE/pre-merge-gate.md) (canonical P.R2 verification loop).
+
 ## VERDICT RULES
 
 - `READY`
