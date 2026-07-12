@@ -1,11 +1,11 @@
 ---
 name: 1-vbb-test-mirage-detector
 description: |
-  Detects tests that give a false impression of safety: mocks without behavioral
-  assertions, tautological tests, happy-path only, assertions on mocks
-  rather than on results, absence of edge cases.
-  Evaluates real confidence vs the confidence displayed by test coverage.
-  Read-only — never modifies code.
+  Detects tests giving a false impression of safety: mocks without behavioral
+  assertions, tautological tests, happy-path only, mock assertions vs result
+  assertions, missing edge cases.
+  Evaluates real confidence vs coverage confidence.
+  Read-only.
   Keywords: test mirage, false confidence, mock without assertion, tautological test,
   happy path only, test quality, useless tests, test anti-patterns,
   coverage illusion, green tests no safety, testing theater.

@@ -1,11 +1,10 @@
 ---
 name: 1-vbb-premature-abstraction-detector
 description: |
-  Detects over-dimensioned abstractions relative to their actual usage:
+  Detects over-dimensioned abstractions vs actual usage:
   interfaces with a single implementation, factories for 2 cases, indirection
-  layers without benefit, heavy patterns for simple uses. Recommends inlining
-  or simplification when relevant.
-  Read-only — never modifies code.
+  layers without benefit, heavy patterns for simple uses. Recommends inlining.
+  Read-only.
   Keywords: premature abstraction, over-engineering, over-abstraction,
   unnecessary interface, single implementation interface, factory overkill,
   indirection without benefit, YAGNI violation, abstraction cost, 

@@ -4,7 +4,7 @@ description: |
   Translates a product specification or feature brief into a structured, implementable
   build plan. Maps business intent onto existing architecture, chunks work into testable
   units, identifies dependencies, and flags risks before any code is written.
-  Designed as the bridge between a non-developer product architect and an AI developer.
+  Bridge between product architect and AI developer.
   Keywords: product spec, feature brief, implementation plan, intent decomposition,
   build plan, feature breakdown, product-to-code, architect-to-developer, planning.
 version: "1.0"

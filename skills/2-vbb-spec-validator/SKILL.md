@@ -1,10 +1,10 @@
 ---
 name: 2-vbb-spec-validator
 description: |
-  Validates that the implemented code matches the original product specification.
+  Validates implemented code against the original product specification.
   Cross-references every requirement against implementation evidence, detects
-  missing features, divergent behaviors, and unspecified additions. Designed as
-  the post-implementation counterpart to 1-vbb-intent-decomposer.
+  missing features, divergent behaviors, and unspecified additions.
+  Post-implementation counterpart to 1-vbb-intent-decomposer.
   Keywords: spec validation, requirement coverage, implementation audit,
   product spec verification, feature completeness, spec-to-code traceability,
   acceptance validation, did-we-build-the-right-thing.

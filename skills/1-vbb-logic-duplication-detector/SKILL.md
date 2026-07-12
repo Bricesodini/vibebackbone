@@ -1,11 +1,10 @@
 ---
 name: 1-vbb-logic-duplication-detector
 description: |
-  Detects business logic duplication beyond simple copy-paste:
+  Detects business logic duplication beyond copy-paste:
   same intentions implemented differently, scattered business rules,
-  redundant calculations, duplicated validations in varied forms.
-  Read-only — never modifies code. Distinguishes syntactic duplication
-  (→ code-janitor) from semantic duplication (this skill).
+  redundant calculations, duplicated validations.
+  Read-only — separates syntactic (→ code-janitor) from semantic duplication.
   Keywords: logic duplication, semantic duplication, business logic duplication,
   duplicated intent, DRY violation, duplicated calculations, duplicated validation,
   scattered business rules, divergent implementations, same intent different code.
