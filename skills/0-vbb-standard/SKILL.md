@@ -96,6 +96,8 @@ are exempt — their scope is naturally bounded by their audit role.
 8. Check whether `SUPPORT BOUNDARY` is present for execution skills (recommended, not mandatory yet).
 9. Flag any violation against absolute rules.
 
+> **Note on description handling.** The `description:` field is NOT auto-truncated by any vibebackbone mechanism. It is hand-maintained and validated for **precision** (triggers, keywords) per step 6, not for length. The `setup.sh` → `distributions/codex/setup.sh` codegen pipeline operates on `~/.codex/AGENTS.md` via block replacement (`<!-- vibebackbone:generated:start -->` / `<!-- vibebackbone:generated:end -->` markers) and does NOT touch skill descriptions in this repo.
+
 ## OUTPUT CONTRACT
 
 Output must contain:

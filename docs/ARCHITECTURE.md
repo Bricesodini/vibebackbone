@@ -360,3 +360,37 @@ risks:
     level: P2
     note: Historical or future-dated evidence must not be copied as live downstream state.
 ```
+
+## Bloc: External Dependencies
+
+```yaml
+id: external-dependencies
+type: external
+status: active
+role: Inventory of out-of-repo dependencies the framework relies on at runtime or install time.
+responsibilities:
+  - Declare external systems, databases, APIs and third-party services
+  - Provide canonical references for cross-service discipline
+  - Distinguish in-repo distributions from out-of-repo runtimes
+  - Surface declared external dependencies to multi-service discipline (Run 8-11)
+depends_on:
+  - governance-core
+  - architecture-source
+impacts:
+  - impact analysis
+  - cross-service coordination
+  - install posture
+  - security proxy posture (Hermes)
+files:
+  - docs/ARCHITECTURE.md
+  - docs/DISTRIBUTIONS.md
+contracts: []
+tests: []
+risks:
+  - id: EXT-001
+    level: P2
+    note: This block is a placeholder declaration. Real external dependencies to be enumerated in subsequent runs (multi-service discipline).
+  - id: EXT-002
+    level: P2
+    note: Drift between declared and actual external dependencies can silently break install/runtime posture.
+```

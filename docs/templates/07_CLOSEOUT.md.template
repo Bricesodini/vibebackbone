@@ -3,6 +3,7 @@ run_id: "<YYYY-MM-DD_HHmm_slug>"
 phase: "07_CLOSEOUT"
 voie: "<RAPIDE|STRUCTUREE|AUDIT|CLOTURE>"
 status: "<READY|PARTIAL|BLOCKED|UNKNOWN>"
+kind: "<HANDOFF|CLOSEOUT>"   # HANDOFF if status != READY or next_action != null; CLOSEOUT otherwise
 agent: "<claude-code|codex|pi|opencode>"
 started_at: "<YYYY-MM-DDTHH:MM:SSZ>"
 ended_at: "<YYYY-MM-DDTHH:MM:SSZ>"
@@ -15,6 +16,13 @@ artifacts_produced:
 ---
 
 # 07_CLOSEOUT — <slug>
+
+## Type de closeout
+
+**Kind** : `HANDOFF` | `CLOSEOUT`
+
+- **HANDOFF** : travail non terminé, reprise attendue. `docs/SESSION.md` (local, gitignored) doit contenir des `Actions en cours`.
+- **CLOSEOUT** : fin claire du processus. `docs/SESSION.md` doit être vidé (ou remplacé par un pointeur vers ce closeout).
 
 ## Résultat
 
