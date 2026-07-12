@@ -15,6 +15,16 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 **`PARTIAL — v1.0-rc.1 reference-ready; implementation reuse needs stabilization`**
 
+## Latest audit note — public publication readiness (2026-06-13)
+
+New audit: [systemic-risks-20260613-1205.md](audits/systemic-risks-20260613-1205.md).
+
+Verdict: `PARTIAL`. The public surface is already strong on governance and release artifacts
+(`LICENSE`, `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, release checklist, changelog). The
+Core/distribution taxonomy mismatch in the top-level README was corrected in-session, but the
+GUIDE still only has a partial non-dev operator path and several P2 publication hygiene items
+remain open in the live status dashboard.
+
 Global evaluation audit completed (RUN 19, composite score 7.4/10).
 v1.0 Hardening phase completed (RUNs 20A–20D):
 - Test reliability: 135 passed, 3 skipped (138 collected), CI PASS
@@ -189,6 +199,7 @@ New risks added:
 | LLM-LOAD-001 | P1 | Codex generated-block replacement previously left stale nested governance content in the installed runtime file | Resolved — `setup.sh` now replaces from first generated marker to last generated marker; smoke regression added |
 | LLM-LOAD-002 | P2 | Five `SKILL.md` files exceed 13 KB and remain likely context-heavy when invoked | Open — compress into operational core + references |
 | LLM-LOAD-003 | P2 | Cody reliability gate v2 targets out-of-repo Hermes runtime files and needs a dedicated run boundary | Open |
+| AUDIT-E-006 | P2 | SKILL.md `description:` length drift observed in audit (20 skills > 500 chars at audit time) | Open — Run 4 sets canon (≤ 500 chars / ≤ 10 lines, indicative) + non-blocking warning in `vbb-contract-lint.py`. Current measured: 5 warnings (audit-time 20 has likely drifted down since 14:00 due to incremental skill edits). Promotion warning → error at 800 chars deferred to a future run after ≥ 1 observation cycle. |
 
 ## Local audit note — quality organization pass (2026-06-02)
 

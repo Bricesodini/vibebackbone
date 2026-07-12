@@ -15,6 +15,7 @@ Checks:
 """
 
 import sys
+import re
 import yaml
 from pathlib import Path
 from typing import List, Dict, Set, Tuple
@@ -28,6 +29,10 @@ PASS_STATUSES = {"PASS", "PARTIAL", "FAIL", "BLOCKED"}
 SUPPORTED_VERSIONS = {"0.1", "0.2", "0.3"}
 ARTIFACT_KINDS = {"phase_artifact", "audit_report", "ADR", "persistent_state_update"}
 ARTIFACT_REQUIRED_FIELDS = {"path_pattern", "kind", "must_exist_after_run"}
+
+# Non-blocking warning thresholds (CONVENTIONS.md Pillar 1, "SKILL.md description length")
+DESCRIPTION_CHAR_TARGET = 500
+DESCRIPTION_LINE_TARGET = 10
 
 
 def load_index() -> Dict:
@@ -269,9 +274,59 @@ def check_artifact(skill_id: str, contract: Dict) -> List[str]:
     return errors
 
 
-def lint_all() -> Tuple[int, List[str]]:
+def check_description_length(skill_id: str) -> List[str]:
+    """Non-blocking warning if SKILL.md description: exceeds the indicative target.
+
+    Canon: CONVENTIONS.md Pillar 1, 'SKILL.md description length'.
+    Target: <= DESCRIPTION_CHAR_TARGET chars AND <= DESCRIPTION_LINE_TARGET lines.
+    Behavior: emits a warning (does NOT add to errors). Length is a proxy,
+    not a quality guarantee — precise descriptions may legitimately exceed.
+    """
+    warnings = []
+    skill_md = SKILLS_DIR / skill_id / "SKILL.md"
+    if not skill_md.exists():
+        return warnings
+
+    try:
+        content = skill_md.read_text(encoding="utf-8")
+    except Exception as e:
+        warnings.append(f"[{skill_id}] SKILL.md read error: {e}")
+        return warnings
+
+    # Extract frontmatter (between leading --- and next --- line)
+    if not content.startswith("---\n"):
+        return warnings
+    end = content.find("\n---\n", 4)
+    if end == -1:
+        return warnings
+    frontmatter = content[4:end]
+
+    # Find description: | block (multi-line YAML literal)
+    desc_match = re.search(
+        r"^description:\s*\|\s*\n(.*?)(?=^[a-z_]+:|\Z)",
+        frontmatter,
+        re.MULTILINE | re.DOTALL,
+    )
+    if not desc_match:
+        return warnings
+    desc_text = desc_match.group(1)
+
+    chars = len(desc_text.strip())
+    lines = desc_text.strip().count("\n") + 1 if desc_text.strip() else 0
+
+    if chars > DESCRIPTION_CHAR_TARGET or lines > DESCRIPTION_LINE_TARGET:
+        warnings.append(
+            f"[{skill_id}] SKILL.md description: {chars} chars / {lines} lines "
+            f"(target: <= {DESCRIPTION_CHAR_TARGET} chars / <= {DESCRIPTION_LINE_TARGET} lines, "
+            f"cf. CONVENTIONS.md Pillar 1). Non-blocking warning — length is a proxy, not a quality guarantee."
+        )
+    return warnings
+
+
+def lint_all() -> Tuple[int, List[str], List[str]]:
     all_contracts = {}
     all_errors = []
+    all_warnings: List[str] = []
     indexed = get_indexed_skills()
     contract_skills = get_contract_skills()
 
@@ -304,14 +359,20 @@ def lint_all() -> Tuple[int, List[str]]:
         all_errors.extend(check_agents(skill_id, contract))
         all_errors.extend(check_artifact(skill_id, contract))
 
-    return len(all_errors), all_errors
+    # Non-blocking warnings: SKILL.md description length (CONVENTIONS.md Pillar 1)
+    for skill_id in sorted(set(list(all_contracts.keys()) + list(indexed))):
+        all_warnings.extend(check_description_length(skill_id))
+
+    return len(all_errors), all_errors, all_warnings
 
 
 if __name__ == "__main__":
-    count, errors = lint_all()
-    print(f"VBB Contract Linter — {len(errors)} error(s) found")
+    count, errors, warnings = lint_all()
+    print(f"VBB Contract Linter — {len(errors)} error(s), {len(warnings)} warning(s) found")
     for err in errors:
         print(f"  ✗ {err}")
+    for warn in warnings:
+        print(f"  ⚠️  {warn}")
     if count == 0:
         print("  ✓ All contracts valid")
-    sys.exit(1 if count > 0 else 0)
+    sys.exit(1 if count > 0 else 0)  # warnings do NOT change exit code

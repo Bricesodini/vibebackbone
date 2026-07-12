@@ -70,6 +70,24 @@ Ces 8 principes opérationnels s'appliquent à TOUT run VBB (toutes routes, tous
 - Global intent belongs in **documentation**, not scattered inline comments.
 - Every non-trivial decision in code must be traceable to a doc, ADR, or inline rationale.
 
+### SKILL.md description length
+
+The frontmatter `description:` of any `SKILL.md` is the routing surface used by Pi / Codex / OpenCode to decide which skill to invoke. It is hand-maintained (validated for **precision**, not length) — no vibebackbone mechanism auto-truncates it.
+
+**Target (indicative, non-blocking):**
+
+- `description:` content should target **≤ 500 chars / ≤ 10 lines**.
+
+**If exceeded:**
+
+- The `tools/vbb-contract-lint.py` emits a **non-blocking** warning (no CI gate, no merge block). Rationale: a precise description may legitimately exceed the target to cover routing keywords, edge cases, or to disambiguate from sibling skills. Length is a proxy, not a quality guarantee.
+
+**Hard promotion (future, after ≥ 1 observation cycle):**
+
+- A future run may promote warning → error if `description:` content exceeds **800 chars / 15 lines**. This is intentionally left out of this run's canon: the policy must be observed before being enforced.
+
+**Reference:** [`docs/audits/audit-E-skill-descriptions-20260712-1400.md`](audits/audit-E-skill-descriptions-20260712-1400.md) · **Tracking:** `AUDIT-E-006` in `docs/AUDIT_STATUS.md`.
+
 ### Documentation scope
 
 - Every skill must have a machine-readable `CONTRACT.yaml`.
