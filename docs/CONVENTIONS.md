@@ -40,7 +40,7 @@ Ces 8 principes opérationnels s'appliquent à TOUT run VBB (toutes routes, tous
 | P.R3 | Gate Before Action | Validation préalable à toute mutation |
 | P.R4 | Invariant Protection | État partagé protégé contre mutation accidentelle |
 | P.R5 | Regression Prevention First | Régression = priorité #1 sur nouveau test |
-| P.R6 | Error Handling by Layer | Erreur traitée au bon niveau (route/worker/cody) |
+| P.R6 | Error Handling by Layer | Erreur traitée au bon niveau (route/agent/contrôleur) |
 | P.R7 | Escalate on Risk Class Change | Si la classe de risque augmente, STOP et reclassifie |
 | P.R8 | Independent Review Preferred | Préférer un reviewer indépendant à une self-review |
 

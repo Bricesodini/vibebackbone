@@ -51,7 +51,7 @@ def test_t2_tests() -> None:
 def test_t2_tests_in_security_surface_escalates_to_t7() -> None:
     """Tests inside the bypass-lint directory match both T2 and T7.
     With MAX-wins, the credential surface (T7) must win."""
-    p = _run("distributions/hermes/bypass-lint/tests/test_allowlist.py",
+    p = _run("distributions/codex/bypass-lint/tests/test_allowlist.py",
              json_mode=True)
     r = json.loads(p.stdout)
     assert r["tier"] == "T7", (
@@ -67,7 +67,7 @@ def test_t3_tooling_local() -> None:
 
 def test_t4_distrib_readme_and_skills() -> None:
     p = _run("core.README.md",
-             "distributions/hermes/bypass-lint/README.md",
+             "distributions/codex/bypass-lint/README.md",
              "skills/t-vbb-test-coverage-mapper/SKILL.md",
              json_mode=True)
     r = json.loads(p.stdout)
@@ -93,16 +93,16 @@ def test_t6_hooks_and_ci() -> None:
 
 
 def test_t7_proxy_credentials() -> None:
-    p = _run("distributions/hermes/proxy/config.py",
-             "distributions/hermes/proxy/runtime/secrets.yaml",
+    p = _run("distributions/opencode/proxy/config.py",
+             "distributions/opencode/proxy/runtime/secrets.yaml",
              json_mode=True)
     r = json.loads(p.stdout)
     assert r["tier"] == "T7", f"proxy/credentials should be T7, got {r['tier']}"
 
 
 def test_t8_production_write_surface() -> None:
-    p = _run("distributions/hermes/proxy/actions.py",
-             "distributions/hermes/proxy/audit.py",
+    p = _run("distributions/opencode/proxy/actions.py",
+             "distributions/opencode/proxy/audit.py",
              json_mode=True)
     r = json.loads(p.stdout)
     assert r["tier"] == "T8", f"proxy actions/audit should be T8, got {r['tier']}"
@@ -127,7 +127,7 @@ def test_max_wins_resolution() -> None:
     """When multiple tiers match across files, the MAX tier must win."""
     p = _run("README.md",                          # T1
              "tests/test_foo.py",                  # T2
-             "distributions/hermes/proxy/actions.py",  # T8
+             "distributions/opencode/proxy/actions.py",  # T8
              json_mode=True)
     r = json.loads(p.stdout)
     assert r["tier"] == "T8", f"MAX should be T8, got {r['tier']}"
@@ -166,7 +166,7 @@ def test_no_side_effects() -> None:
         capture_output=True, text=True, cwd=REPO_ROOT,
     ).stdout
     p = _run("tools/vbb-loop-closure-check.py",
-             "distributions/hermes/proxy/actions.py")
+             "distributions/opencode/proxy/actions.py")
     after = subprocess.run(
         ["git", "status", "--porcelain"],
         capture_output=True, text=True, cwd=REPO_ROOT,

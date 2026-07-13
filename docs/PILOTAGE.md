@@ -10,7 +10,7 @@ status: active
 **Version** : 2.2 | **Date** : 2026-06-12 | **Status** : Canonical piloting entry point
 
 `load_policy: always` — this file is part of the canonical boot set, sourced
-by Cody Step 4 (GOVERN). Triage and escalation rules here are the canonical
+by every supported agent. Triage and escalation rules here are the canonical
 source; other governance docs reference this file rather than duplicating.
 
 ---
@@ -67,7 +67,7 @@ Full details (sequences, alternatives, artifact conventions): [ROUTER_MATRIX.md]
 4. End of session ? → CLOSE-HANDOFF (paused, reprise attendue) or CLOSE-FINAL (terminated): t-vbb-commit-ready → git commit → git push → update SESSION.md (archive if HANDOFF, empty if FINAL) → update CONTEXT.md
 ```
 
-### Pre-execution gate (Cody boot loop Step 5.5)
+### Pre-execution gate
 
 Before any worker touches the repo on a STRUCTURED or AUDIT route, the run
 directory must pass the VBB gate:
@@ -76,9 +76,9 @@ directory must pass the VBB gate:
 python ~/02_Dev/vibebackbone/tools/vbb-gate-check.py <run_dir>
 ```
 
-The gate is clause-aware (ADR + POC + Integration), refuses to start a run
-that does not conform, and is the same gate that worker SOUL.md reference
-via `CODY_CHECK`. Exit 0 = proceed, non-zero = STOP and report the failure.
+The gate is clause-aware (ADR + POC + Integration) and refuses to start a run
+that does not conform. Pi, OpenCode, Codex and Claude Code invoke the same Core
+tool directly. Exit 0 = proceed, non-zero = STOP and report the failure.
 
 ---
 
@@ -170,7 +170,7 @@ Every worker output MUST end with a `FINAL_STATUS` block. Additionally, if the w
 If `elapsed_seconds > PROGRESS threshold`, at least one `PROGRESS` block is REQUIRED before `FINAL_STATUS`.
 
 **Rule 3 — EXTENSION_REQUEST required before extension.**
-If a worker needs more time, it MUST emit `EXTENSION_REQUEST` before the current budget expires. Cody grants or denies.
+If an agent needs more time, it MUST emit `EXTENSION_REQUEST` before the current budget expires. The controlling agent or human grants or denies.
 
 **Rule 4 — TIMEOUT_CLOSEOUT required on hard timeout or controlled stop.**
 If `hard_max` is reached or the run is intentionally stopped, the worker MUST produce `TIMEOUT_CLOSEOUT` instead of `FINAL_STATUS`.
@@ -195,11 +195,11 @@ If `hard_max` is reached or the run is intentionally stopped, the worker MUST pr
 
 **Scenario D — Worker disappeared silently:**
 - No `FINAL_STATUS` and no `TIMEOUT_CLOSEOUT` in output
-- Cody verdict: `FAILED_SILENT_TIMEOUT`
+- Controller verdict: `FAILED_SILENT_TIMEOUT`
 
 ### Durability classification
 
-When evaluating FINAL_STATUS and verdict, Cody classifies durability:
+When evaluating FINAL_STATUS and verdict, the controlling agent classifies durability:
 
 | Condition | Durability |
 |----------|------------|
@@ -213,7 +213,7 @@ When evaluating FINAL_STATUS and verdict, Cody classifies durability:
 
 ### Extension conditions
 
-Cody may grant an extension only if:
+The controlling agent or human may grant an extension only if:
 - phase is clear
 - files touched are known
 - next step is bounded

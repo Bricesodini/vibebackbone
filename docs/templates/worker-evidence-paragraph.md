@@ -6,15 +6,13 @@
 > vbb-close-worker).
 >
 > **Distinction Core ↔ Distribution** : ce paragraphe vit en **Core**
-> (`docs/templates/`) car c'est un invariant méthodologique générique.
-> Le script de sync qui patche les 4 SOUL.md vit en **distribution**
-> (`distributions/hermes/install/sync-evidence-model.sh` — out of scope
-> pour Phase 2 Run 1). C'est la séparation Core/Distribution correcte
-> (DISTRIBUTIONS.md §5 Rule A : Core ne référence pas une distribution).
+> (`docs/templates/`) car c'est un invariant méthodologique générique. Chaque
+> adaptateur supporté peut le consommer sans dépendance vers une distribution
+> particulière (DISTRIBUTIONS.md §5 Rule A).
 
 ---
 
-## Evidence classification (synchronisé avec Cody SOUL.md §2)
+## Evidence classification
 
 Toute observation que ce worker produit doit être catégorisée :
 

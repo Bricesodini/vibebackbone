@@ -58,7 +58,7 @@ FINAL_STATUS:
 [EXTENSION_REQUEST] reason: <why> | next_step: <bounded_action> | estimated_time: <N>s
 ```
 
-Send before current budget expires. Cody grants or denies.
+Send before current budget expires. The controlling agent or human grants or denies.
 
 ### TIMEOUT_CLOSEOUT
 
@@ -105,10 +105,10 @@ Each parallel worker writes to its own isolated artifact:
 docs/runs/<YYYYMMDD_HHMM>_<worker>_<task>/07_CLOSEOUT.md
 ```
 
-Only `vbb-close-worker` may write to shared artifacts — serially, after all workers complete.
+Only the designated closeout role may write to shared artifacts — serially,
+after all workers complete.
 
 ## References
 
-- Canonical spec: `~/.hermes/skills/autonomous-ai-agents/vbb-orchestration/SKILL.md` (section `LONG-RUN OUTPUT CONTRACT`)
-- Vibebackbone PILOTAGE: `~/02_Dev/vibebackbone/skills/vibebackbone/docs/PILOTAGE.md`
-- Worker test results: `~/.hermes/skills/autonomous-ai-agents/vbb-orchestration/references/vbb-worker-test-results-20260531.md`
+- Canonical spec: `docs/PILOTAGE.md` (`LONG-RUN RULE` section)
+- Skill companion: `skills/vibebackbone/docs/PILOTAGE.md`

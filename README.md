@@ -4,7 +4,7 @@
   <strong style="font-size: 1.4em;">64 skills · 33 prompts (7 canoniques + 25 spécialisés + 1 router) · 4 familles de voies + MVP START gate · 7 phases agentiques</strong>
 </p>
 
-<p align="center">Le système d'orchestration pour agents IA qui transforme le chaos de développement en pilotage prévisible.</p>
+<p align="center">Le framework de gouvernance pour Pi, OpenCode, Codex et Claude Code.</p>
 
 ---
 
@@ -33,7 +33,8 @@
 
 ## English quick entry
 
-Vibebackbone is an operational governance system for LLM agents.
+Vibebackbone is an operational governance framework for Pi, OpenCode, Codex
+and Claude Code.
 It provides skills, prompts, routing rules, audit workflows, quality conventions,
 and verification loops to make agentic development predictable, traceable and reviewable.
 
@@ -67,13 +68,11 @@ The guide is written to help you:
 - pause and resume without losing the state of the work
 
 > **VBB Core vs Distributions.** This repository holds **VBB Core** — the
-> generic, agent-agnostic method (skills, prompts, tools, templates, governance
-> docs). Operational declinations for a specific agent runtime are called
-> **Distributions** and live **inside this repo at `distributions/`**. The currently active
-> distribution is **Hermes/Cody** (under `distributions/hermes/` and the runtime
-> profile at `~/.hermes/profiles/vbb-*/`). For the
-> full distinction, Core ↔ Distribution propagation rules, and worked examples
-> (ADR/POC gate, profiles SOUL.md, security proxy), see
+> runtime-neutral method (skills, prompts, tools, templates, governance docs).
+> Operational declinations are called **Distributions** and live inside this
+> repo at `distributions/`. The supported set is deliberately limited to
+> **Pi, OpenCode, Codex and Claude Code**. For the full distinction and Core ↔
+> Distribution propagation rules, see
 > [`docs/DISTRIBUTIONS.md`](docs/DISTRIBUTIONS.md). Enforced by
 > [AGENTS.md Critical Rule #11](AGENTS.md#critical-rules).
 
@@ -82,9 +81,9 @@ The guide is written to help you:
 | Statut | Ce que cela signifie | Exemples |
 |--------|----------------------|----------|
 | **Stable core** | Canonique, installé par défaut, et considéré comme la base du système | `AGENTS.md`, `SYSTEM.md`, `docs/`, `skills/`, `prompts/`, `setup.sh`, `setup-lib.sh`, `core/setup.sh` |
-| **Distribution active** | Code spécifique à un runtime agentique installé via le routeur, mais distinct du core | `distributions/{claude,codex,pi,opencode}/setup.sh`, `distributions/hermes/`, `distributions/hermes/proxy/`, `distributions/hermes/bypass-lint/` |
-| **Optionnel / externe** | État ou runtime installé hors dépôt, seulement si l’environnement cible l’exige | `~/.agents/`, `~/.claude/`, `~/.codex/`, `~/.pi/`, `~/.config/opencode/`, `~/.hermes/profiles/...` |
-| **POC / expérimental** | Preuve de concept, transition ou exploration à lire comme telle | `docs/strategy/p0-4-review-matrix-poc.md`, `distributions/hermes/docs/POC_USAGE.md`, `distributions/hermes/docs/POC_CLOSEOUT.md` |
+| **Distribution active** | Code spécifique à un runtime installé via le routeur, distinct du Core | `distributions/{claude,codex,pi,opencode}/setup.sh` |
+| **Optionnel / externe** | État runtime installé hors dépôt | `~/.agents/`, `~/.claude/`, `~/.codex/`, `~/.pi/`, `~/.config/opencode/` |
+| **POC / expérimental** | Preuve de concept, transition ou exploration à lire comme telle | `docs/strategy/p0-4-review-matrix-poc.md` |
 | **Template / réserve** | Gabarit ou réserve de futurs clients, pas une fonctionnalité livrée | `providers/templates/`, `distributions/examples/` |
 | **Archive** | Historique conservé pour traçabilité, pas vérité active | `docs/archive/` |
 
@@ -98,13 +97,17 @@ qui lui donne son niveau de maturité.
 
 ## Le problème
 
-Vous travaillez avec des agents IA (Claude Code, Codex, Cursor, Qwen, Gemini…). Chaque session est une aventure : le modèle improvise, invente des workflows, oublie le contexte, écrit des trucs qu'il ne fallait pas, et vous devez tout relire. Le code part en sucette. La doc ment. Les audits n'arrivent jamais.
+Vous travaillez avec Pi, OpenCode, Codex ou Claude Code. Chaque session peut
+encore devenir une aventure : le modèle improvise, oublie le contexte ou dérive
+du scope, et vous devez tout relire.
 
 **Vous ne pilotez plus — vous subissez.**
 
 ## La solution
 
-**vibebackbone** est un système de pilotage opérationnel pour agents IA. Ce n'est pas un framework, pas une librairie, pas un SaaS. C'est une grammaire de comportement que vous injectez dans le contexte de vos agents.
+**vibebackbone** est un framework de gouvernance opérationnelle pour Pi,
+OpenCode, Codex et Claude Code. Son Core commun injecte la même grammaire de
+travail dans les quatre outils ; ses adaptateurs gèrent leurs formats propres.
 
 Le résultat ? Un orchestrateur silencieux qui :
 
@@ -118,7 +121,7 @@ Le résultat ? Un orchestrateur silencieux qui :
 
 ## Ce que contient ce repo
 
-This repository is **VBB Core** — the generic, agent-agnostic method. The
+This repository is **VBB Core** — the runtime-neutral shared method. The
 structural layout of Core:
 
 ```
@@ -136,32 +139,29 @@ vibebackbone/             ← VBB Core (this repo)
 ├── skills/              ← 64 injectable skills
 ├── prompts/             ← 33 prompts (7 canon + 25 specialised + 1 router)
 ├── providers/           ← Templates / reserve (example-consumer-repo only)
-├── distributions/       ← Active distribution code + provider adapters (claude/, codex/, pi/, opencode/, hermes/)
+├── distributions/       ← Four supported adapters (claude/, codex/, pi/, opencode/)
 ├── tools/               ← vbb-architecture.py, vbb-gate-check.py, vbb-contract-lint.py, ...
 └── tests/, scripts/     ← CI and verification loops
 ```
 
-A **Distribution** (e.g. **Hermes/Cody**) is an operational declination of
-Core for a specific agent runtime. Distribution **code** lives in this repo at
-`distributions/<name>/` (e.g. `distributions/hermes/setup.sh`,
-`distributions/claude/setup.sh`); distribution **runtime profiles and
-secrets** live outside the repo at `~/.hermes/profiles/vbb-*/`,
-`~/.claude/`, `~/.codex/`, `~/.pi/`, `~/.config/opencode/`. See
+A **Distribution** is an operational declination of Core for one supported
+runtime. Distribution code lives in `distributions/<name>/`; runtime state
+lives outside the repo under `~/.claude/`, `~/.codex/`, `~/.pi/` or
+`~/.config/opencode/`. See
 [`docs/DISTRIBUTIONS.md`](docs/DISTRIBUTIONS.md) for the full distinction and
 the Core ↔ Distribution propagation rules (enforced by
 [AGENTS.md Critical Rule #11](AGENTS.md#critical-rules)).
 
 ## VBB Core vs Distributions
 
-| Concern                         | VBB Core (this repo)                       | Distribution code (in repo, `distributions/<name>/`) | Distribution runtime (outside repo, e.g. `~/.hermes/profiles/vbb-*/`) |
+| Concern                         | VBB Core (this repo)                       | Distribution code (in repo, `distributions/<name>/`) | Distribution runtime (outside repo) |
 |---------------------------------|--------------------------------------------|------------------------------------------------------|--------------------------------------------------------------------------|
 | What it is                      | Generic method, agent-agnostic             | Operational declination code, per provider          | Per-machine runtime state (profiles, secrets, runtime config)           |
-| Where it lives                  | This repository                            | `distributions/<name>/` (e.g. `distributions/hermes/`) | `~/.hermes/profiles/vbb-*/`, `~/.claude/`, `~/.codex/`, `~/.pi/`, `~/.config/opencode/` |
-| Examples of content             | Skills, prompts, templates, gates, linters | Provider-specific `setup.sh`, `README.md`, `CLAUDE.md`/`SYSTEM.md`, `proxy/`, `bypass-lint/` | `SOUL.md` personas, generated config, secrets, registry, audit logs    |
-| ADR/POC/Integration Gate        | ✅ `tools/vbb-gate-check.py`, templates, `GUIDE.md` §10bis | consumes Core (worker SOUL.md calls the tool) | —                                                                        |
+| Where it lives                  | This repository                            | `distributions/{pi,opencode,codex,claude}/` | `~/.pi/`, `~/.config/opencode/`, `~/.codex/`, `~/.claude/` |
+| Examples of content             | Skills, prompts, templates, gates, linters | Provider-specific `setup.sh`, `README.md`, `CLAUDE.md`/`SYSTEM.md` | Generated config, commands and governance files |
+| ADR/POC/Integration Gate        | ✅ `tools/vbb-gate-check.py`, templates, `GUIDE.md` §10bis | consumes Core through generated/linked governance | — |
 | Quality conventions             | ✅ `CONVENTIONS.md`, P.R1–P.R8             | inherits + applies                                  | —                                                                        |
 | Provider-specific glue          | n/a (provider adapters live in `distributions/`) | Owns provider-specific glue (paths, settings, hooks) | Runtime state populated by provider-specific setup scripts            |
-| Security proxy (e.g. credential isolation) | n/a (operational)                | Lives in distribution, governed by proxy ADRs (e.g. `distributions/hermes/proxy/`) | Master key, encrypted secrets, runtime proxy state                    |
 
 **Rule of thumb:** if a rule applies to **any** agent runtime, it belongs in
 Core. If it is glue to one specific runtime, it stays in the distribution.
@@ -193,7 +193,7 @@ vibebackbone/
 │   └── audits/          # Rapports d'audit — locaux au projet
 ├── AGENTS.md            # Grammaire opérationnelle canonique
 ├── SYSTEM.md            # Comportement runtime Pi
-├── CLAUDE.md            # Point d'entree universel pour Claude Code / Cursor
+├── CLAUDE.md            # Point d'entree universel pour Claude Code
 ├── package.json         # Déclaration pi-package (skills + prompts)
 ├── .gitignore           # Ignore les artefacts de session locale
 └── .pi/                 # Configuration Pi (locale, gitignorée)
@@ -391,9 +391,6 @@ Modes d'installation :
 | **Selective install** | `--provider <name>` (répétable) | N'installe que les providers demandés en plus du core |
 | **Advanced / governance** | `--force-governance` | Autorise les remplacements contrôlés des fichiers custom, avec backup |
 
-Hermes/Cody reste un contrôle non destructif : `bash setup.sh` n'écrit
-jamais dans `~/.hermes/`.
-
 `package.json` à la racine déclare le repo comme package Pi (`pi install /path/to/vibebackbone`).
 
 ### Découverte par provider
@@ -424,17 +421,16 @@ cd ~/vibebackbone && git pull
 
 ### Architecture du script d'installation
 
-`setup.sh` est un **routeur guidé** (~356 LOC) qui délègue à des scripts
+`setup.sh` est un **routeur guidé** qui délègue à quatre scripts
 spécialisés par couche. Aucun provider logic n'est inline et le routeur
 affiche un plan avant toute écriture :
 
 | Fichier | Rôle | LOC approx. |
 |---------|------|-------------|
-| `setup.sh` | Routeur : `source + <couche>_install` pour chaque couche | 356 |
+| `setup.sh` | Routeur : Core + quatre adaptateurs officiels | variable |
 | `setup-lib.sh` | Helpers transversaux (relpath, symlink, backup, prompt commands) | 209 |
 | `core/setup.sh` | Pre-flight + symlinks universels (`~/.agents/skills/`, `~/.agents/prompts/`) | 116 |
 | `distributions/<provider>/setup.sh` | Glue provider-spécifique (settings.json, compiled block, symlinks Pi) | 74–118 |
-| `distributions/hermes/setup.sh` | **Non-destructif** : ne touche jamais `~/.hermes/` (contrat ADR 0006 + 0011) | 108 |
 
 Pour ajouter une nouvelle distribution : créer `distributions/<name>/setup.sh`
 exposant `<name>_install`, ajouter `source + <name>_install` dans `setup.sh`,

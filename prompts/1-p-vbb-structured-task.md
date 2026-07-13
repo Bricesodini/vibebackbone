@@ -123,7 +123,7 @@ FINAL_STATUS:
 - TIMEOUT_CLOSEOUT is required on hard timeout or controlled stop.
 - No silent timeout is acceptable.
 
-**Cody grants extension only if:**
+**The controlling agent or human grants extension only if:**
 - phase is clear
 - files touched are known
 - next step is bounded

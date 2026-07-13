@@ -15,7 +15,7 @@ Exit codes (default mode, --strict=False, retrocompatible):
     1  FAIL  — one or more required artifacts missing or invalid
     2  GATE_BLOCKED — no run_id resolvable (usage error in default mode)
 
-Exit codes (--strict mode, used by Cody as COMPLETE gate):
+Exit codes (--strict mode, used by supported agents as the COMPLETE gate):
     0  PASS  — all required artifacts present and valid
     2  GATE_BLOCKED — loop-closure FAIL on the given run_id.
                      FINAL_STATUS=COMPLETE is FORBIDDEN in this state.
@@ -113,7 +113,7 @@ def read_frontmatter(path: Path) -> Tuple[Optional[Dict], Optional[str]]:
 # ---------------------------------------------------------------------------
 #
 # Spec: docs/strategy/phase-1-contractualisation/phase-1-p0-1-evidence-claims.md
-# Category: C (règle déjà documentée dans Cody SOUL §6 mais non vérifiée
+# Category: C (rule documented by VBB governance but not previously verified
 # mécaniquement par le loop-closure).
 #
 # Comportement: pour chaque ligne qui matche un claim "fixed/passes/repaired/

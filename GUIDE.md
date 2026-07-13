@@ -4,10 +4,9 @@
 **Couche** : L3 — référence, pas chargé au boot. Charger via `tools/vbb-index.py search` ou skill `0-vbb-guide`.
 
 > **Portée de ce guide.** Ce document décrit **VBB Core** — la méthode générique
-> (skills, prompts, gates, conventions, routage). Pour la déclinaison
-> opérationnelle **Hermes/Cody** (profils SOUL.md, orchestrateur Cody, registry
-> projet, security proxy), voir [`docs/DISTRIBUTIONS.md`](docs/DISTRIBUTIONS.md)
-> et `~/.hermes/profiles/vbb-cody-orchestrator/SOUL.md`. La séparation Core vs
+> (skills, prompts, gates, conventions, routage). Les quatre déclinaisons
+> supportées sont **Pi, OpenCode, Codex et Claude Code** ; voir
+> [`docs/DISTRIBUTIONS.md`](docs/DISTRIBUTIONS.md). La séparation Core vs
 > Distribution est régie par [AGENTS.md Critical Rule #11](AGENTS.md#critical-rules).
 
 Ce guide est un compagnon **pédagogique** du `README.md`. Le README dit *ce qu'est* vibebackbone. Ce guide dit *comment l'utiliser pour de vrai*, avec des cas d'usages concrets, des dialogues réalistes avec un agent, et les pièges à éviter.
@@ -41,7 +40,7 @@ Ce guide est un compagnon **pédagogique** du `README.md`. Le README dit *ce qu'
 
 ### Ce guide s'adresse à vous si
 
-- Vous **codez avec un ou plusieurs agents** (Claude Code, Codex CLI, Cursor, OpenCode, Continue, Qwen local…) et trouvez que ça part trop souvent en vrille.
+- Vous **codez avec Pi, OpenCode, Codex ou Claude Code** et trouvez que ça part trop souvent en vrille.
 - Vous voulez **comprendre la logique** de vibebackbone sans relire 8 docs de référence.
 - Vous voulez voir **comment ça se passe concrètement** : quels mots taper, quels fichiers regarder, comment savoir si l'agent fait n'importe quoi.
 
@@ -334,9 +333,6 @@ Flags scriptables :
 - `--auto` : revient au mode auto-detect
 - `--force-governance` : active les écritures contrôlées avec sauvegarde
 
-Hermes/Cody reste un contrôle non destructif : `bash setup.sh` n'écrit
-jamais dans `~/.hermes/`.
-
 ### 4.2 Configuration par provider
 
 | Provider | Fichiers patchés | Comment ça marche |
@@ -345,7 +341,6 @@ jamais dans `~/.hermes/`.
 | **Codex CLI** | `~/.codex/AGENTS.md` | Bloc compilé généré dans AGENTS.md global |
 | **OpenCode** | `~/.config/opencode/opencode.json` + commandes | Champ `instructions` mis à jour |
 | **Pi** | `~/.pi/agent/AGENTS.md` + `SYSTEM.md` + prompts | Symlinks directs |
-| **Cursor / Continue** | Manuel | Voir section 4.4 |
 
 ### 4.3 Vérifier l'installation
 
@@ -369,21 +364,11 @@ find ~/.agents/prompts/vibebackbone -name '*.md' | wc -l
 
 Si tout est OK, ouvrez Claude Code dans un projet et tapez `/` — vous devriez voir les commandes `vbb-*`.
 
-### 4.4 Pour Cursor, Continue, et autres providers non packagés
+### 4.4 Limite de support
 
-Ces providers ne lisent pas `~/.agents/` automatiquement. Deux options :
-
-**Option A — copier-coller dans les règles du projet**
-
-```bash
-# Dans le projet
-cat ~/vibebackbone/AGENTS.md ~/vibebackbone/SYSTEM.md > .cursorrules
-```
-
-**Option B — injecter à chaque session**
-
-Au début d'une session, demander à l'agent :
-> "Lis `~/vibebackbone/AGENTS.md` et `~/vibebackbone/SYSTEM.md` avant de commencer. Respecte la grammaire vibebackbone."
+Le framework ne fournit ni adaptateur ni procédure officielle pour d'autres
+providers. Ajouter un cinquième runtime nécessite une nouvelle décision
+explicite et le processus décrit dans `docs/DISTRIBUTIONS.md`.
 
 ### 4.5 Initialiser un projet sur les rails vibebackbone
 
@@ -862,27 +847,17 @@ vibebackbone est conçu **dès l'origine pour la séparation des rôles entre ag
 
 | Agent | Bon pour |
 |-------|----------|
-| **Claude Code (Sonnet/Opus)** | INTAKE, DECISION, REVIEW, raisonnement complexe |
-| **Codex CLI** | EXECUTION (RUN_N), application de patches |
-| **Qwen local** | Compaction de contexte, résumés, génération boilerplate |
-| **Cursor / Continue** | EXECUTION live, micro-itérations |
+| **Claude Code** | INTAKE, DECISION, REVIEW, raisonnement complexe |
+| **Codex** | EXECUTION, application de patches |
+| **Pi** | orchestration locale, skills et sous-agents |
+| **OpenCode** | exécution interactive et workflows multi-provider |
 
 **Bonne pratique** : faire le PLAN avec Claude (raisonnement), l'EXECUTION avec Codex (rapidité), le REVIEW avec Claude (regard indépendant).
 
-### 8.4 Compaction de contexte (modèles locaux)
+### 8.4 Compaction de contexte
 
-Pour les modèles locaux à fenêtre limitée, **toujours compacter avant 75 %** du contexte disponible. Détails : `AGENTS.md` section 12 (Discipline de contexte LLM).
-
-Outil disponible : MCP `local-llm` → `llm_compress_context`.
-
-### 8.5 Logger les délégations
-
-Pour tracker le ROI des délégations cloud vs local :
-
-```bash
-# Via MCP local-llm
-llm_log_delegation --task_type compression --provider qwen3.5-9b
-```
+Compacter avant que le contexte ne rende les décisions ambiguës. Utiliser les
+artefacts de run et `t-vbb-context-compactor` quel que soit l'agent supporté.
 
 ---
 
@@ -990,7 +965,7 @@ Si l'un de ces signaux manque, l'agent ne suit pas la grammaire — relancez ave
 
 ---
 
-### Q3 — "Je peux mélanger agents (Claude + Codex + Cursor) ?"
+### Q3 — "Je peux mélanger Pi, OpenCode, Codex et Claude Code ?"
 
 **Oui, c'est même encouragé.** vibebackbone est explicitement multi-LLM. La seule contrainte : les artefacts dans `docs/runs/` doivent être lisibles par tous (Markdown standard, pas de format propriétaire).
 
@@ -1109,11 +1084,11 @@ Sortie JSON :
 ```
 
 Stdlib only, ≤ 200 LOC, pas de framework, pas d'import LLM. S'intègre dans le
-pattern `cody-check` (cohérence avec l'existant).
+workflow commun des quatre adaptateurs supportés.
 
-### Règle worker (SOUL.md §ADR/POC Gate)
+### Règle agent
 
-Tout worker VBB (fast / struct / audit / close) DOIT appeler
+Tout agent VBB DOIT appeler
 `vbb-gate-check.py` au début de son exécution. Si `CAN_CODE_START=false` →
 STOP, retourner `{verdict: BLOCKED_GATE, blockers: [...]}`. Ne JAMAIS
 commencer à coder un chantier risqué sans gate vert.

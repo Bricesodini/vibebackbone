@@ -1,6 +1,6 @@
 # ═══════════════════════════════════════════════
 # Local LLM Models — Configuration
-# Edité par Hermes / mis à jour manuellement
+# Maintenu manuellement ; indépendant du runtime agent
 # Format : YAML-like, une section par provider
 # ═══════════════════════════════════════════════
 #
@@ -54,7 +54,7 @@ mlx_mac:
       context_k : 64
       benchmark  : "3s/note, 24 t/s, JSON clean, tags+actions extraits"
       active    : true
-      profile   : "vault-agent"        # Hermes profile ~/.hermes/profiles/vault-agent/
+      profile   : "vault-agent"        # optional consumer profile label
 
     - id        : "mlx-community/gemma-4-31b-it-4bit"
       role      : "operator"           # heavy variant si 26B insuffisant
@@ -99,7 +99,7 @@ cloud_fallback:
 # Pour changer le vault-agent vers un autre model :
 # 1. Editer ce fichier → marker le nouveau model `active: true`
 # 2. previous_model `active: false`
-# 3. Hermes reload → pick up le changement
+# 3. Redémarrer le runtime consommateur pour prendre le changement
 #
 # Templates de subagent (pour recreation rapide) :
 # - Mac primary  : endpoint=http://127.0.0.1:11434 , model=qwen3.6-27b-agent-nvfp4-64k:latest

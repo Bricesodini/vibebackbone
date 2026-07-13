@@ -5,7 +5,9 @@
 
 set -u
 
-HOOK=~/02_Dev/vibebackbone/scripts/hooks/pre-commit-framework-gate
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PRE_COMMIT_HOOK="$REPO_ROOT/scripts/hooks/pre-commit-framework-gate"
+COMMIT_MSG_HOOK="$REPO_ROOT/scripts/hooks/commit-msg-framework-gate"
 TEST_TMP=$(mktemp -d -t vbb-gate-test-XXXXXX)
 trap 'rm -rf "$TEST_TMP"' EXIT
 
@@ -34,8 +36,9 @@ invoke_hook() {
     # Write the commit message to COMMIT_EDITMSG
     printf '%s\n' "$msg" > "$(git rev-parse --git-dir)/COMMIT_EDITMSG"
 
-    # Run the hook
-    "$HOOK" >/dev/null 2>&1
+    # Run the two local framework-gate hooks in Git order.
+    "$PRE_COMMIT_HOOK" >/dev/null 2>&1 || return $?
+    "$COMMIT_MSG_HOOK" "$(git rev-parse --git-dir)/COMMIT_EDITMSG" >/dev/null 2>&1
     echo $?
 }
 
@@ -113,11 +116,11 @@ else
     fail=$((fail+1))
 fi
 
-# Test 8 (ADR 0013 Phase 3 prep, R1) — distributions/* is now in whitelist
-# Staged file distributions/hermes/proxy/adr/0006-foo.md + WIP commit →
+# Test 8 (ADR 0013 Phase 3 prep, R1) — distributions/* is in the whitelist.
+# Use an active Pi distribution path with a WIP commit →
 # pre-commit-hook should detect it as in_repo (in-scope), not block.
 # We use a wip: prefix so commit-msg-hook lets it through.
-rc=$(invoke_hook "distrib_wip" "distributions/hermes/proxy/adr/0006-foo.md" "wip: extend whitelist to distributions/*")
+rc=$(invoke_hook "distrib_wip" "distributions/pi/README.md" "wip: verify distributions whitelist")
 if [ "$rc" = "0" ]; then
     echo "  PASS test_8_distributions_in_whitelist (ADR 0013 R1)"
     pass=$((pass+1))
@@ -126,9 +129,9 @@ else
     fail=$((fail+1))
 fi
 
-# Test 9 (ADR 0013 Phase 3 prep, R1) — distributions/hermes/install/INSTALL.md
+# Test 9 — an active OpenCode distribution file
 # in-scope + declarative commit WITH table → exit 0
-rc=$(invoke_hook "distrib_table" "distributions/hermes/install/INSTALL.md" "feat(distributions): add install path
+rc=$(invoke_hook "distrib_table" "distributions/opencode/setup.sh" "feat(distributions): update provider adapter
 | Claim | Evidence | Status |
 |---|---|---|
 | hook whitelist updated | diff shows distributions/* added | DONE |

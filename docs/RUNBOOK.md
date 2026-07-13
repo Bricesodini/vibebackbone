@@ -26,10 +26,10 @@ Procédures opérationnelles pour maintenir vibebackbone comme catalogue de dist
 2. **Risk register update** : Consolider findings
 3. **Release planning** : vX.Y.Z?
 
-## Orchestration (Cody / Hermes)
+## Pre-execution gate
 
-When a Cody boot loop drives a subagent run, **Step 5.5** must run the
-pre-execution gate against the run directory before any code patch:
+Pi, OpenCode, Codex and Claude Code must run the same pre-execution gate
+against the run directory before any non-trivial code patch:
 
 ```bash
 python ~/02_Dev/vibebackbone/tools/vbb-gate-check.py <run_dir>

@@ -48,17 +48,17 @@ by every agent profile. Reference-only content is cited by path, not duplicated.
     `vibebackbone` orchestrator first for ENGINE_ONLY routing.
 11. **ADR + POC + Integration Gate:** for non-trivial work, run
     `python ~/02_Dev/vibebackbone/tools/vbb-gate-check.py <run_dir>` **before**
-    code, between TRIAGE and EXECUTE (Cody boot loop Step 5.5). See
+    code, between TRIAGE and EXECUTE. See
     `~/02_Dev/vibebackbone/GUIDE.md` §10bis (alias §ADR+POC+Integration-Gate).
     If `can_code_start=false` → STOP, do not delegate.
 12. **Core ↔ Distribution propagation rule:**
     - **Core → Distribution (impact check):** before any structural change to
       VBB Core (`GUIDE.md`, `CONVENTIONS.md`, `PILOTAGE.md`, `docs/templates/`,
       `skills/`, `tools/`, `distributions/`), check the impact on all active
-      distributions (currently Hermes/Cody in `~/.hermes/profiles/vbb-*/`).
+      distributions (`pi`, `opencode`, `codex`, `claude`).
       Note: distribution **code** lives in `distributions/<name>/` (in repo);
-      distribution **runtime profiles** live outside the repo at
-      `~/.hermes/profiles/vbb-*/`.
+      distribution **runtime state** lives outside the repo under the four
+      provider-specific user directories.
     - **Distribution → Core (promote-or-keep):** before any change to a
       distribution, ask "is this specific to this distribution, or should it
       be promoted to Core?". If it encodes a generic rule (gate, contract,
@@ -69,10 +69,8 @@ by every agent profile. Reference-only content is cited by path, not duplicated.
     `tools/vbb-credentials-gate.py` enforcement tool is **deferred to a
     future run** (Phase 2 P0-5-D, currently category D = out of scope). The
     pre-commit hook `scripts/hooks/pre-commit-framework-gate` logs an
-    explicit "checking credentials" message and may invoke the
-    distribution-level `vbb-bypass-lint.py` if present. A distribution
-    may extend the pattern list via a `vbb-credentials-patterns.txt.overrides`
-    file (out of scope this run) but the Core rule always applies.
+    explicit "checking credentials" message. No distribution-specific
+    credentials linter is currently active; the Core rule always applies.
 
     **This rule is canon and survives even when the enforcement tool is
     absent** — humans and agents must manually verify no secret is

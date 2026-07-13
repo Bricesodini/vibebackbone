@@ -320,7 +320,7 @@ def test_get_open_risks_no_p1_when_resolved():
             "| ID | Severity | Description | Status |\n"
             "|----|----------|-------------|--------|\n"
             "| QOA-001 | P1 | Core/Distribution boundary | **RESOLVED** — RUN 2 commit 89bbe3d |\n"
-            "| QOA-002 | P1 | Hermes proxy migration incomplete | **RESOLVED** — RUN 1 commit d1ca51f |\n"
+            "| QOA-002 | P1 | Provider migration incomplete | **RESOLVED** — RUN 1 commit d1ca51f |\n"
             "| QOA-003 | P1 | Loop-closure lexical sort | **RESOLVED** — RUN 3 commit 6772422 |\n"
             "| QOA-004 | P1 | Status dashboard masks open risks | **RESOLVED*** — RUN 4 fix |\n"
             "| QOA-005 | P2 | Quality-adoption note | Open — reconcile QA table |\n"

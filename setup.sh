@@ -63,7 +63,7 @@ DRY_RUN=false
 NO_INTERACTIVE=false
 UNINSTALL_REQUESTED=false
 INSTALL_MODE="auto"
-ALL_PROVIDERS=(claude codex pi opencode hermes)
+ALL_PROVIDERS=(claude codex pi opencode)
 SELECTED_PROVIDERS=()
 
 usage() {
@@ -88,7 +88,6 @@ provider_label() {
     codex) echo "Codex" ;;
     pi) echo "Pi" ;;
     opencode) echo "OpenCode" ;;
-    hermes) echo "Hermes/Cody" ;;
     *) echo "$1" ;;
   esac
 }
@@ -99,7 +98,6 @@ provider_setup_path() {
     codex) echo "$REPO_ROOT/distributions/codex/setup.sh" ;;
     pi) echo "$REPO_ROOT/distributions/pi/setup.sh" ;;
     opencode) echo "$REPO_ROOT/distributions/opencode/setup.sh" ;;
-    hermes) echo "$REPO_ROOT/distributions/hermes/setup.sh" ;;
     *) return 1 ;;
   esac
 }
@@ -185,7 +183,7 @@ parse_args() {
             select_all_providers
             INSTALL_MODE="auto"
             ;;
-          claude|codex|pi|opencode|hermes)
+          claude|codex|pi|opencode)
             provider_is_selected "$1" || SELECTED_PROVIDERS+=("$1")
             ;;
           *)
@@ -202,7 +200,7 @@ parse_args() {
             select_all_providers
             INSTALL_MODE="auto"
             ;;
-          claude|codex|pi|opencode|hermes)
+          claude|codex|pi|opencode)
             provider_is_selected "$provider_value" || SELECTED_PROVIDERS+=("$provider_value")
             ;;
           *)
@@ -271,7 +269,6 @@ print_install_plan() {
       echo "  $(printf '%-14s' "$(provider_label "$provider")") : skip"
     fi
   done
-  echo "  Hermes runtime  : verify-only, never writes to ~/.hermes/"
 }
 
 confirm_installation() {
@@ -392,12 +389,6 @@ run_provider_install() {
     opencode)
       source "$REPO_ROOT/distributions/opencode/setup.sh"
       opencode_install
-      ;;
-    hermes)
-      echo ""
-      echo "Hermes/Cody distribution:"
-      source "$REPO_ROOT/distributions/hermes/setup.sh"
-      hermes_install
       ;;
   esac
 }
@@ -615,9 +606,6 @@ CLAUDE_PROMPTS_OK=0
 CLAUDE_PROMPTS_SKIP=0
 OPENCODE_PROMPTS_OK=0
 OPENCODE_PROMPTS_SKIP=0
-HERMES_STATUS="skipped"
-HERMES_PROXY_PRESENT="false"
-
 for provider in "${SELECTED_PROVIDERS[@]}"; do
   run_provider_install "$provider"
 done
@@ -677,10 +665,6 @@ sys.exit(0 if found else 1)
 " 2>/dev/null; then
   echo "  OpenCode    : AGENTS + SYSTEM referenced"
 fi
-if provider_is_selected hermes; then
-  echo "  Hermes/Cody : verify-only, no ~/.hermes/ writes"
-fi
-
 echo ""
 echo "To force governance deployment:"
 echo "  bash $REPO_ROOT/setup.sh --force-governance"

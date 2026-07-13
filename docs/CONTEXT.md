@@ -15,7 +15,7 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 - **Name** : vibebackbone
 - **Mode** : [DISTRIBUTION](PROJECT_MODE.md#mode)
-- **Purpose** : Distribution catalog of skills, prompts and governance for LLM agents
+- **Purpose** : Governance framework for Pi, OpenCode, Codex and Claude Code
 - **Governance** : [AGENTS.md](../AGENTS.md) · [SYSTEM.md](../SYSTEM.md) · [PILOTAGE.md](PILOTAGE.md)
 - **MVP start** : new MVP/from-zero work must pass [MVP_START_PROTOCOL.md](MVP_START_PROTOCOL.md) before implementation
 
@@ -34,9 +34,9 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
   - Pass 4→5 gate: 7 keys required (3 from Pass 1, 4 from Pass 4)
   - HARD BLOCK: GENERIC_DESIGN_SYSTEM_RESPONSE before propagation map
 - **Centralization audit** : pass 4 produces `TOKEN_DEFINITION_MAP` + `CENTRALIZATION_ROADMAP`
-- **Tests** : 142 passed, 3 skipped (145 collected) — see [AUDIT_STATUS.md](AUDIT_STATUS.md)
+- **Tests** : 133 passed, 1 skipped (134 collected) — see [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Token economy** : L0 boot ~2.5K tokens (87% reduction from 19K)
-- **Next action** : accumulate comparable subagent runs before any canonisation; explicit gate-link enforcement remains a bounded P2 decision
+- **Next action** : stabilize and document the four supported adapters; no fifth runtime without a new decision
 - **Key decisions** : [ADR-0002](docs/adr/0002-surface-first-routing-ui-ux.md) — surface-first routing + centralization audit
 
 ## Risks / audits
@@ -67,7 +67,7 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 6. ✅ OPS-001/002/003 CLOSED — robustness findings resolved (2026-05-28 + 2026-05-29)
 7. ✅ Documentation foundation pass — `AGENTS.md` compacted, stale 0641 audit archived, active findings extracted (2026-06-02)
 8. ✅ LLM load surface pass — installed Codex AGENTS repaired, historical root docs archived, large skill hotspots mapped (2026-06-02)
-9. 🔴 Quality organization audit — Core/Distribution boundary, Hermes proxy migration, loop closure, and dashboard risk visibility require remediation (2026-06-02)
+9. ✅ Hermes-specific organization debt retired by ADR 0025; historical audit retained (2026-07-13)
 
 ## Key decisions
 

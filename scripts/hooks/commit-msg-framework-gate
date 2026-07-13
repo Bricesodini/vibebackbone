@@ -23,6 +23,21 @@ if [ -z "$MSG_FILE" ] || [ ! -f "$MSG_FILE" ]; then
     exit 0
 fi
 
+# Keep the message gate scoped to framework surfaces, matching pre-commit.
+STAGED="$(git diff --cached --name-only 2>/dev/null || true)"
+in_repo=0
+if [ -n "$STAGED" ]; then
+    while IFS= read -r f; do
+        case "$f" in
+            docs/*|skills/*|prompts/*|tools/*|scripts/*|distributions/*)
+                in_repo=1
+                break
+                ;;
+        esac
+    done <<< "$STAGED"
+fi
+[ "$in_repo" -eq 1 ] || exit 0
+
 MSG="$(cat "$MSG_FILE")"
 
 # WIP detection : premier mot/préfixe (insensible à la casse).
@@ -44,14 +59,13 @@ fi
 
 # Aucun des deux → BLOQUÉ
 cat >&2 <<'MSG'
-BLOCKED by cody-reliability-gate: framework commit requires:
+BLOCKED by vibebackbone framework gate: framework commit requires:
   - a markdown evidence table: "| Claim | Evidence | Status |"
   - OR an explicit opt-in: "approve: brice" on its own line
 
-Context: CODY RELIABILITY GATE rule #6 (commit-msg hook).
-  Docs: ~/.hermes/profiles/vbb-cody-orchestrator/SOUL.md
-  Tool: ~/.hermes/bin/cody-reliability-gate
-  Skill: ~/.hermes/skills/cody-reliability-gate/SKILL.md
+Context: VBB commit evidence rule (commit-msg hook).
+  Docs: AGENTS.md and docs/CONVENTIONS.md
+  Hook: scripts/hooks/commit-msg-framework-gate
 
 Override (not recommended): git commit --no-verify
 MSG

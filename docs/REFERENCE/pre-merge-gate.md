@@ -54,7 +54,7 @@ bash scripts/vbb-ci-local.sh
   doit déclarer la voie explicitement.
 - Pour les routes **FAST-STANDARD / STRUCTURED / AUDIT / CLOSEOUT** : exécution obligatoire.
 
-## Couverture par gate-check (étape 5.5 du boot Cody)
+## Couverture par gate-check
 
 Le `vbb-gate-check.py` (ADR+POC+Integration Gate, voir
 `AGENTS.md` Critical Rule #11 et `tools/vbb-gate-check.py`) **précède** la

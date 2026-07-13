@@ -7,8 +7,7 @@ Guide pour installer et utiliser vibebackbone.
 ## 1. Installation globale (recommandée)
 
 vibebackbone s'installe **une seule fois** dans `~/.agents/skills/`, le répertoire universel
-découvert automatiquement par Pi, Claude Code, OpenCode, Codex et tout agent compatible
-[agentskills.io](https://agentskills.io).
+partagé par Pi, Claude Code, OpenCode et Codex.
 
 ```bash
 # 1. Cloner vibebackbone
@@ -46,7 +45,6 @@ disponibles pour tous vos agents.
 | Symlink AGENTS.md | `~/.pi/agent/AGENTS.md` | Pi |
 | Symlink SYSTEM.md | `~/.pi/agent/SYSTEM.md` | Pi |
 | Patch `instructions` | `~/.config/opencode/opencode.json` | OpenCode |
-| **Non-destructif** : check `~/.hermes/` | n/a (jamais touché par `bash setup.sh`) | Hermes (contrat ADR 0006 + 0011) |
 
 Modes d'installation :
 
@@ -89,31 +87,25 @@ cat ~/.config/opencode/opencode.json
 
 ## 3bis. Architecture du script d'installation
 
-`setup.sh` est un **routeur pur** (~356 LOC). Il ne contient aucune logique
+`setup.sh` est un **routeur pur** (~675 LOC). Il ne contient aucune logique
 provider inline : chaque couche est extraite dans un fichier dédié.
 
 ```
-setup.sh (356 LOC) — routeur
+setup.sh (~675 LOC) — routeur
 ├── source setup-lib.sh          (helpers : relpath, symlink, backup, generate_prompt_commands)
 ├── source core/setup.sh         (pre-flight + symlinks universels)
 ├── source distributions/claude/setup.sh    (settings.json + CLAUDE.md block + 26 commands)
 ├── source distributions/codex/setup.sh     (compiled AGENTS.md block)
 ├── source distributions/pi/setup.sh        (symlinks AGENTS + SYSTEM + prompts)
 ├── source distributions/opencode/setup.sh (opencode.json patch + 26 commands)
-└── source distributions/hermes/setup.sh    (non-destructif, n'écrit jamais dans ~/.hermes/)
 ```
 
 | Fichier | Rôle | LOC |
 |---------|------|-----|
-| `setup.sh` | Routeur : `source + <couche>_install` pour chaque couche | ~356 |
+| `setup.sh` | Routeur : `source + <couche>_install` pour chaque couche | ~675 |
 | `setup-lib.sh` | Helpers transversaux (relpath, _realpath, _is_vbb_symlink, needs_python, backup_file, symlink_if_absent, generate_prompt_commands) | ~209 |
 | `core/setup.sh` | Pre-flight + symlinks universels `~/.agents/skills/` et `~/.agents/prompts/` | ~116 |
 | `distributions/<provider>/setup.sh` | Glue provider-spécifique | 74–118 |
-| `distributions/hermes/setup.sh` | **Non-destructif** : vérifie la cohérence Hermes sans écrire dans `~/.hermes/` | ~108 |
-
-**Contrat Hermes** : `bash setup.sh` n'écrit **jamais** dans `~/.hermes/`.
-L'installation des profiles Hermes/Cody est agent-mediated, voir
-[`distributions/hermes/AGENT_INSTALL.md`](../distributions/hermes/AGENT_INSTALL.md).
 
 **Pour ajouter une distribution** :
 1. Créer `distributions/<name>/setup.sh` exposant `<name>_install`
@@ -249,30 +241,6 @@ bash ~/vibebackbone/setup.sh --uninstall
 **Processus** :
 1. Documenter le finding
 2. Ouvrir une issue GitHub → [vibebackbone/issues](https://github.com/bricesodini/vibebackbone/issues)
-
----
-
-## Hermes/Cody distribution (optional)
-
-If you also run the Hermes/Cody orchestrator on the same machine, it ships
-**5 worker SOUL.md files** that reference VBB Core tools via portable paths:
-
-- `~/.hermes/profiles/vbb-cody-orchestrator/SOUL.md`
-- `~/.hermes/profiles/vbb-fast-worker/SOUL.md`
-- `~/.hermes/profiles/vbb-struct-worker/SOUL.md`
-- `~/.hermes/profiles/vbb-audit-worker/SOUL.md`
-- `~/.hermes/profiles/vbb-close-worker/SOUL.md`
-
-These files call VBB tools using the portable form:
-
-```bash
-${CODY_CHECK:-${HERMES_HOME:-$HOME/.hermes}/bin/cody-check} <subcommand>
-python ~/02_Dev/vibebackbone/tools/vbb-gate-check.py <run_dir>
-```
-
-The `CODY_CHECK` / `HERMES_HOME` env vars let the same SOUL.md work on any
-machine without modification. See `docs/DISTRIBUTIONS.md` for the
-distribution-vs-core separation rules.
 
 ---
 

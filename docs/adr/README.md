@@ -34,6 +34,7 @@ Exemple : `0001-choix-framework-api.md`
 | [0022](0022-include-formalization.md) | Formalisation `@include` (Gap-16, P2) | ACCEPTED | 2026-07-13 | [multi-service Gap-16](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-16) |
 | [0023](0023-generated-sentinel-detection.md) | Sentinel `@generated` + détection (Gap-17, P2) | ACCEPTED | 2026-07-13 | [multi-service Gap-17](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-17) |
 | [0024](0024-snapshot-to-log.md) | Snapshot→log cumulatif (Gap-18, P2) | ACCEPTED | 2026-07-13 | [multi-service Gap-18](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-18) |
+| [0025](0025-supported-runtimes-pi-opencode-codex-claude.md) | Supported runtimes: Pi, OpenCode, Codex, Claude Code | ACCEPTED | 2026-07-13 | [Run](../runs/2026-07-13_1656_retire-hermes/) |
 | [0013-arch](0013-repo-organization-core-vs-distributions.md) | Repo organization Core vs Distributions | — | — | — |
 
 ## Conventions
@@ -42,6 +43,8 @@ Exemple : `0001-choix-framework-api.md`
 - Status possibles : `PROPOSED` / `ACCEPTED` / `REJECTED` / `SUPERSEDED by NNNN`.
 - Le `LONG_RUN_SUMMARY` YAML en bas de chaque ADR est lu par `t-vbb-impact-analyzer` pour calculer la propagation.
 - Les ADR `ACCEPTED` sont immuables : tout changement ouvre une nouvelle ADR qui **supersede** l'ancienne.
+- ADR 0025 supersède uniquement la surface Hermes active décrite par ADR 0013 ;
+  l'organisation Core/distributions d'ADR 0013 reste valide.
 
 ## Run d'origine
 

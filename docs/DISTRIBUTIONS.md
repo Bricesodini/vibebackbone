@@ -10,7 +10,7 @@ This document clarifies the structural separation between **VBB Core** (the
 generic, agent-agnostic method that lives in this repository) and
 **Distributions** (operational declinations of VBB Core for a specific agent
 runtime). Without it, a reader of the repo may confuse the canonical method
-with one particular implementation (e.g. Hermes/Cody) and miss where to make
+with one particular provider implementation and miss where to make
 which kind of change. The rules below apply to **all** current and future
 distributions.
 
@@ -18,7 +18,7 @@ distributions.
 
 VBB Core is the **generic, canonical, agent-agnostic method** for orchestrating
 LLM agents predictably. It lives **in this repository** and is meant to be
-consumable by any agent runtime.
+shared by the four officially supported coding-agent runtimes.
 
 VBB Core includes:
 - `docs/` — canonical routing, governance, conventions, architecture
@@ -28,7 +28,6 @@ VBB Core includes:
 - `skills/` — 64 injectable skills (frontmatter + input/output contract)
 - `prompts/` — 33 prompts (7 canonical + 25 specialised + 1 router)
 - `providers/` — reserved templates (`example-consumer-repo/` only)
-- `distributions/<name>/` — provider-specific adapters (claude, codex, pi, opencode, hermes)
 - `tools/` — CLI tooling (`vbb-architecture.py`, `vbb-contract-lint.py`,
   `vbb-gate-check.py`, `vbb-phase-router.py`, `vbb-loop-closure-check.py`, etc.)
 - `AGENTS.md` — agent-facing critical rules
@@ -36,6 +35,10 @@ VBB Core includes:
 - `CONVENTIONS.md` — quality pillars (P1–P5) and rules (P.R1–P.R8)
 - `PILOTAGE.md` — operational triage matrix
 - `SYSTEM.md` — runtime behaviour (Pi-specific hook reference)
+
+The repository also contains `distributions/<name>/` folders. They are part of
+the repository layout, but they are **not Core**: they are operational
+declinations of Core for specific agent runtimes.
 
 **Anything that lives in VBB Core is reusable across all distributions.**
 
@@ -49,8 +52,8 @@ distribution:
 - **Imports / extends VBB Core** — it does not fork it.
 - **Is isolated as a folder (`distributions/`)** on purpose: it preserves the
   agent-agnostic property of Core and avoids coupling Core to a specific
-  runtime. Distributions live in this repo under `distributions/` (e.g.
-  `distributions/hermes/`, `distributions/pi/`, `distributions/claude/`) but
+  runtime. Distributions live in this repo under `distributions/` (currently
+  `pi/`, `opencode/`, `codex/`, `claude/`) but
   remain logically separated from the VBB Core tree at the root.
 - **Owns only what's specific** — provider paths, profile manifests,
   orchestration scripts, secrets, runtime configs, integration points.
@@ -60,36 +63,21 @@ distribution:
 The relationship is **Core → Distribution**, never the reverse. Core does not
 import or reference any distribution in its canonical content.
 
-## 4. Hermes/Cody Distribution
+## 4. Supported distributions
 
-The **currently active distribution** is **Hermes/Cody**. It is the
-operational declination of VBB Core for the Hermes agent runtime, with Cody as
-the orchestrator.
+The supported surface is intentionally limited to four coding-agent runtimes:
 
-Profiles (all live **outside** this repo, under `~/.hermes/profiles/`):
+| Distribution | Runtime state outside the repo | Adapter responsibility |
+|---|---|---|
+| `pi/` | `~/.pi/` | AGENTS/SYSTEM/prompt symlinks and Pi package |
+| `opencode/` | `~/.config/opencode/` | instructions and generated commands |
+| `codex/` | `~/.codex/` | compiled AGENTS.md governance block |
+| `claude/` | `~/.claude/` | settings, CLAUDE.md imports and commands |
 
-| Profile                       | Role                                         |
-|-------------------------------|----------------------------------------------|
-| `vbb-cody-orchestrator/`      | Orchestrator (Cody) — boot loop, delegation  |
-| `vbb-fast-worker/`            | Fast worker — FAST-ZERO / FAST-MINIMAL route |
-| `vbb-struct-worker/`          | Structured worker — STRUCTURED route         |
-| `vbb-audit-worker/`           | Audit worker — AUDIT route (READ-ONLY)       |
-| `vbb-close-worker/`           | Closeout worker — CLOSEOUT route             |
-
-Each profile owns a `SOUL.md` (its persona + boot loop), a `MEMORY.md`
-(per-profile state), a `config.yaml`, and a `skills/` directory.
-
-Specific to the Hermes/Cody distribution (not in the repo):
-- Hermes runtime, hermes CLI, hermes profiles mechanism
-- The 5 `SOUL.md` files of the profiles above
-- The orchestrator boot loop (Cody's 11-step loop and gate enforcement)
-- The project registry: `~/.hermes/vbb-projects.yaml`
-- The provider-specific config (`auth.json`, `config.yaml`, secrets, cron, hooks)
-- The security proxy layer (binary, credentials, network config) — see §6.3
-
-The Hermes/Cody distribution **imports** VBB Core through symlinks and
-references: skills are loaded by profiles; tools are invoked as
-`python ~/02_Dev/vibebackbone/tools/vbb-*.py`.
+There is no privileged orchestrator distribution. Each supported agent consumes
+the same Core gates, conventions, skills and phase artifacts through its adapter.
+Hermes/Cody was retired by ADR 0025; external Hermes state is never modified by
+this repository.
 
 ## 5. Alignment rules (propagation)
 
@@ -100,7 +88,7 @@ Two rules govern how changes flow between Core and any distribution.
 > Before any structural change to VBB Core (`AGENTS.md`, `GUIDE.md`,
 > `CONVENTIONS.md`, `PILOTAGE.md`, templates, skills, tools, providers),
 > check the impact on all active distributions
-> (currently Hermes/Cody in `~/.hermes/profiles/vbb-*/`).
+> (`pi`, `opencode`, `codex`, `claude`).
 
 Distribution breakage caused by a silent Core change is the most expensive
 class of bug in this project. Check = list of active distributions, then
@@ -108,8 +96,7 @@ walk through "will this change affect them?".
 
 ### Rule B — Distribution → Core (promote-or-keep)
 
-> Before any change to a distribution (e.g.
-> `~/.hermes/profiles/vbb-cody-orchestrator/`), ask: **"is this specific to
+> Before any change to a distribution, ask: **"is this specific to
 > this distribution, or should it be promoted to Core?"**
 
 If the change encodes a generic principle (routing rule, gate, contract,
@@ -130,38 +117,27 @@ Three examples to anchor the rule.
 
 The ADR/POC/Integration Gate is a generic VBB rule: before any non-trivial
 work, an agent must (a) write an ADR, (b) build a POC, (c) clear the
-integration gate. Applies to **any** agent runtime, not just Hermes.
+integration gate. Applies to every supported agent runtime.
 Where it lives in VBB Core:
 - `tools/vbb-gate-check.py` (gate enforcement, stdlib, no LLM)
 - `docs/templates/ADR.md.template`, `POC.md.template`, `INTEGRATION_GATE.md.template`
 - `GUIDE.md` §10bis — narrative reference
 
-The Hermes/Cody distribution **consumes** these: each worker SOUL.md calls
-`vbb-gate-check.py`, Cody references §10bis in its boot loop. The rule
-stays in Core because any future distribution would need it too.
+The four supported distributions consume these through generated or linked
+governance files. The rule stays in Core so every adapter shares it.
 
-### 6.2. Example B — Hermes `SOUL.md` profiles → **Distribution**
+### 6.2. Example B — provider-generated governance → **Distribution**
 
-The five `~/.hermes/profiles/vbb-*-worker/SOUL.md` files are **runtime
-personas** — they describe how a Hermes profile behaves, which CLI it uses,
-where its memory lives, and how it talks to the orchestrator. This is
-**glue**, not method. It does not belong in Core:
-- Specific to the Hermes profile mechanism (no equivalent in Codex or Pi).
-- Hardcodes paths like `/Users/bot/.hermes/bin/...` — meaningless elsewhere.
-- Encodes the Cody ↔ worker delegation protocol (a Hermes/Cody choice).
+Generated files such as `~/.codex/AGENTS.md` or provider command adapters are
+runtime glue. Their paths and serialization stay in the distribution, while
+generic rules such as "an audit is read-only" stay in Core and are referenced
+or compiled by every adapter.
 
-If a generic rule is discovered inside a SOUL.md (e.g. "the audit worker
-must be READ-ONLY"), it should be **promoted** to Core; the SOUL.md
-reference stays as the distribution's pointer to that Core rule.
+### 6.3. Example C — retired Hermes proxy → **not promoted**
 
-### 6.3. Example C — Security Proxy → **Distribution** (mention only)
-
-The security proxy is a runtime hardening layer that lives inside the
-Hermes distribution. It is **not** part of VBB Core: it is specific to the
-Hermes runtime, its config is secret-laden and environment-specific, and it
-is governed by its own ADR cluster (proxy ADRs) which are operational to
-the distribution, not canon to the method. Out of scope for VBB Core
-changes.
+The retired security proxy was Hermes-specific glue. ADR 0025 removes it rather
+than promoting it to Core because no runtime-neutral requirement or adoption
+evidence justifies that complexity. Its history remains available in git.
 
 ## 7. Decisions log
 
@@ -345,12 +321,29 @@ partagée par tous les runtimes. Le template canonique exige déjà `GO` pour
 autoriser le code.
 
 **Impact**: `tools/vbb-gate-check.py` reste la source exécutable Core. Les
-distributions Hermes/Cody continuent de l'appeler sans changement de CLI, de
-schéma JSON ni de code de sortie. `PIVOT` bloque désormais explicitement avec
-la raison `POC_VERDICT_PIVOT`. Les profils runtime externes n'ont pas été
-modifiés.
+distributions supportées l'appellent sans changement de CLI, de schéma JSON ni
+de code de sortie. `PIVOT` bloque explicitement avec la raison
+`POC_VERDICT_PIVOT`.
 
 **Author**: Codex, validé par Brice (`go`, 2026-07-13)
+
+### 2026-07-13 — Retrait de la distribution Hermes/Cody
+
+**Decision**: Retirer Hermes/Cody et limiter le support officiel à Pi,
+OpenCode, Codex et Claude Code.
+
+**Trigger**: Retour d'usage et demande explicite de Brice ; ADR 0025.
+
+**Reason**: Hermes n'a pas apporté une satisfaction suffisante pour justifier
+sa surface de maintenance, de sécurité et de documentation. Le proxy et le
+bypass-lint restent du glue Hermes et ne sont pas promus dans Core.
+
+**Impact**: `distributions/hermes/` et `--provider hermes` sont supprimés. Les
+quatre adaptateurs conservés restent indépendants et partagent le même Core.
+Les artefacts historiques ne sont pas réécrits et aucun fichier `~/.hermes/`
+n'est touché.
+
+**Author**: Brice (décision), Codex (migration)
 
 ### Example entry (illustrative)
 
@@ -358,10 +351,10 @@ modifiés.
 ### 2026-06-13 — ADR/POC Integration Gate is VBB Core
 **Decision**: Promote to Core
 **Trigger**: Audit 20260602_1645 + §10bis of GUIDE.md already in place
-**Reason**: Generic VBB rule applying to any agent runtime, not just Hermes.
+**Reason**: Generic VBB rule applying to every supported runtime.
 **Impact**: tools/vbb-gate-check.py, templates, GUIDE §10bis stay in Core.
-            Distribution keeps calling them from worker SOUL.md.
-**Author**: vbb-audit-worker (delegated by Cody)
+            Each distribution exposes them through its provider adapter.
+**Author**: example
 ```
 
 ## 8. References
@@ -372,8 +365,7 @@ modifiés.
 - `GUIDE.md`, `docs/PILOTAGE.md`, `docs/ARCHITECTURE.md`, `docs/CONVENTIONS.md`
   — all describe VBB Core.
 
-For Hermes/Cody runtime status, see
-`~/.hermes/profiles/vbb-cody-orchestrator/SOUL.md` (lives outside this repo).
+Supported runtime details live in each `distributions/<provider>/README.md`.
 
 ---
 

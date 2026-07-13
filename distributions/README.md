@@ -2,9 +2,8 @@
 
 This folder hosts operational declinations of VBB Core for specific agent
 runtimes. **Distribution code** lives in this repo (in `distributions/<name>/`);
-**distribution runtime** (profiles, secrets, runtime state) lives outside
-the repo (e.g. `~/.hermes/profiles/vbb-*/`, `~/.claude/`, `~/.codex/`,
-`~/.pi/`, `~/.config/opencode/`).
+**distribution runtime** (settings and generated state) lives outside the repo
+under `~/.claude/`, `~/.codex/`, `~/.pi/` or `~/.config/opencode/`.
 
 ## Mechanism (how to add a new distribution)
 
@@ -32,7 +31,6 @@ block in `setup.sh`" approach):
 
 - `claude/` — Claude Code distribution (settings.json + CLAUDE.md block + 26 prompt commands)
 - `codex/` — Codex distribution (compiled AGENTS.md block with VBB:START/END markers)
-- `hermes/` — **Hermes/Cody distribution** (currently the only orchestrator, agent-mediated install, non-destructive setup.sh)
 - `opencode/` — OpenCode distribution (opencode.json instructions + 26 prompt commands)
 - `pi/` — Pi distribution (symlinks AGENTS + SYSTEM + 26 prompts)
 
@@ -43,9 +41,9 @@ block in `setup.sh`" approach):
 
 ## Status
 
-Setup Split (Phase 0+1 → 2F, 2026-06-13/14) complete. All five
-distributions now own their own `setup.sh` extracted from the root
-`setup.sh` (which became a pure routeur, ~356 LOC). See
+Setup Split is complete. The four supported distributions own their own
+`setup.sh`, sourced by the root routeur. Hermes/Cody was retired by ADR 0025.
+See
 [`docs/audits/2026-06-14_1800_setup-split-migration-audit/`](../../docs/audits/2026-06-14_1800_setup-split-migration-audit/)
 for the migration audit (verdict: DONE).
 

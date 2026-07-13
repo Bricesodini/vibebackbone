@@ -13,9 +13,9 @@ updated: 2026-05-23
 
 ## Définition
 
-vibebackbone n'est pas une application opérée en production. C'est un catalogue
-de skills, prompts et fichiers de gouvernance distribué aux agents LLM via
-`setup.sh`. Le « mode » signale l'angle d'évaluation à appliquer aux skills
+vibebackbone n'est pas une application opérée en production. C'est un framework
+de skills, prompts et gouvernance distribué à Pi, OpenCode, Codex et Claude Code
+via `setup.sh`. Le « mode » signale l'angle d'évaluation à appliquer aux skills
 qui sont `mode_sensitive`.
 
 ## Implications

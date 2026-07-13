@@ -2,8 +2,8 @@
 # setup-lib.sh — Shared helpers for setup.sh (Phase 1 refactor).
 #
 # This file is sourced by setup.sh (and any future per-distribution
-# setup.sh under core/, distributions/hermes/, distributions/pi/,
-# distributions/claude/, distributions/codex/, distributions/opencode/).
+# setup.sh under core/, distributions/pi/, distributions/opencode/,
+# distributions/claude/ or distributions/codex/).
 #
 # Behavior is intentionally identical to the pre-Phase-1 inlined helpers
 # in setup.sh. Do not introduce new side effects, new flags, or new

@@ -198,7 +198,7 @@ New risks added:
 |----|----------|-------------|--------|
 | LLM-LOAD-001 | P1 | Codex generated-block replacement previously left stale nested governance content in the installed runtime file | Resolved — `setup.sh` now replaces from first generated marker to last generated marker; smoke regression added |
 | LLM-LOAD-002 | P2 | Five `SKILL.md` files exceed 13 KB and remain likely context-heavy when invoked | Open — compress into operational core + references |
-| LLM-LOAD-003 | P2 | Cody reliability gate v2 targets out-of-repo Hermes runtime files and needs a dedicated run boundary | Open |
+| LLM-LOAD-003 | P2 | Historical Cody reliability gate v2 targeted out-of-repo Hermes runtime files | **SUPERSEDED** — ADR 0025 retires Hermes/Cody; the plan is archived and external state remains untouched |
 | AUDIT-E-006 | P2 | SKILL.md `description:` length drift observed in audit (20 skills > 500 chars at audit time) | Open — Run 4 sets canon (≤ 500 chars / ≤ 10 lines, indicative) + non-blocking warning in `vbb-contract-lint.py`. Current measured: 5 warnings (audit-time 20 has likely drifted down since 14:00 due to incremental skill edits). Promotion warning → error at 800 chars deferred to a future run after ≥ 1 observation cycle. |
 
 ## Local audit note — quality organization pass (2026-06-02)
@@ -363,6 +363,18 @@ by tests and executable behavior; `SYS-POC-002` and `SYS-SUB-001` retain their
 explicit mitigation decisions. No P0/P1 introduced by the remediation remains
 without a decision. The original audit report keeps its historical `PARTIAL`
 verdict; this note records the later remediation rather than rewriting it.
+
+## Latest impact note — supported runtime boundary (2026-07-13)
+
+New impact report: [impact-analysis-20260713-1656.md](audits/impact-analysis-20260713-1656.md).
+
+Verdict: `READY / BREAKING`. ADR 0025 intentionally retires Hermes/Cody and
+limits official support to Pi, OpenCode, Codex and Claude Code. The four
+adapters are independent from Hermes. External Hermes state is untouched;
+unknown direct consumers of the removed proxy must stay on an older revision.
+
+Test-surface mapping: [`test-coverage-20260713-1711.md`](audits/test-coverage-20260713-1711.md)
+— `READY`; direct routing, negative-provider and local hook paths are covered.
 
 ## Update policy
 

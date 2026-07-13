@@ -92,8 +92,8 @@ Absolute rules:
 
 Recommended invocation points:
 
-- End of a STRUCTURED route run (Cody boot loop Step 5.5 — GATE CHECK).
-- Before `t-vbb-commit-ready` (Cody boot loop Step 9).
+- End of a STRUCTURED route run, after the pre-execution gate.
+- Before `t-vbb-commit-ready`.
 - The companion skill `1-vbb-test-mirage-detector` is invoked on the AUDIT
   route (Phase 1 of a run) to detect tests that give a false impression of
   safety.

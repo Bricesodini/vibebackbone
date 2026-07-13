@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-VBB Gate Check — ADR + POC + Integration Gate (Cody boot loop Step 5.5).
+VBB Gate Check — ADR + POC + Integration Gate.
 
 For a given run directory, decides whether coding can start based on:
   1. ADR_REQUIRED?  — extracted from 01_INTAKE.md keywords

@@ -93,36 +93,17 @@ do
         fail "marker MISSING (OpenCode, in distributions/opencode/setup.sh): $marker"
     fi
 done
-# Sanity: the §8-9 OpenCode header comment stays in setup.sh as routeur context
-if grep -qE "^# ── 8-9\. OpenCode" "$SETUP" 2>/dev/null; then
-    ok "OpenCode section header comment preserved in setup.sh (routeur context)"
-else
-    fail "OpenCode section header comment MISSING in setup.sh"
-fi
 # Codex section moved to distributions/codex/setup.sh in Phase 2D
 if grep -qF "Codex — compiled AGENTS.md" "$REPO_ROOT/distributions/codex/setup.sh" 2>/dev/null; then
     ok "marker present (Codex, in distributions/codex/setup.sh): Codex — compiled AGENTS.md"
 else
     fail "marker MISSING (Codex, in distributions/codex/setup.sh): Codex — compiled AGENTS.md"
 fi
-# Sanity: the §6 Codex header comment stays in setup.sh as routeur context
-if grep -qE "^# ── 6\. Codex — compiled AGENTS\.md" "$SETUP" 2>/dev/null; then
-    ok "Codex section header comment preserved in setup.sh (routeur context)"
-else
-    fail "Codex section header comment MISSING in setup.sh"
-fi
 # Pi section moved to distributions/pi/setup.sh in Phase 2B
 if grep -qF "Pi — symlinks" "$REPO_ROOT/distributions/pi/setup.sh" 2>/dev/null; then
     ok "marker present (Pi, in distributions/pi/setup.sh): Pi — symlinks"
 else
     fail "marker MISSING (Pi, in distributions/pi/setup.sh): Pi — symlinks"
-fi
-# Sanity: the §7 Pi section header must NOT be a code block in setup.sh anymore
-# (it stays as a comment header, which is acceptable for context)
-if grep -qE "^# ── 7\. Pi — symlinks" "$SETUP" 2>/dev/null; then
-    ok "Pi section header comment preserved in setup.sh (routeur context)"
-else
-    fail "Pi section header comment MISSING in setup.sh"
 fi
 # Claude sections moved to distributions/claude/setup.sh in Phase 2C
 for marker in \
@@ -135,40 +116,29 @@ do
         fail "marker MISSING (Claude, in distributions/claude/setup.sh): $marker"
     fi
 done
-# Sanity: the §3-5 Claude header comments stay in setup.sh as routeur context
-if grep -qE "^# ── 3-5\. Claude Code" "$SETUP" 2>/dev/null; then
-    ok "Claude section header comment preserved in setup.sh (routeur context)"
+# Supported-provider boundary: exactly Claude Code, Codex, Pi and OpenCode.
+for provider in claude codex pi opencode; do
+    if grep -qE "ALL_PROVIDERS=.*${provider}" "$SETUP" 2>/dev/null; then
+        ok "supported provider routed: $provider"
+    else
+        fail "supported provider MISSING from router: $provider"
+    fi
+done
+if grep -qi "hermes" "$SETUP" 2>/dev/null || [ -d "$REPO_ROOT/distributions/hermes" ]; then
+    fail "retired Hermes provider still present in active installer surface"
 else
-    fail "Claude section header comment MISSING in setup.sh"
-fi
-# Hermes section is in distributions/hermes/setup.sh (Phase 2F)
-HERMES_SETUP="$REPO_ROOT/distributions/hermes/setup.sh"
-if [ -f "$HERMES_SETUP" ] && bash -n "$HERMES_SETUP" 2>/dev/null; then
-    ok "distributions/hermes/setup.sh exists and parses"
-else
-    fail "distributions/hermes/setup.sh MISSING or invalid syntax"
-fi
-if [ -f "$REPO_ROOT/distributions/hermes/AGENT_INSTALL.md" ]; then
-    ok "distributions/hermes/AGENT_INSTALL.md exists"
-else
-    fail "distributions/hermes/AGENT_INSTALL.md MISSING"
-fi
-# Sanity: the §10 Hermes header comment stays in setup.sh as routeur context
-if grep -qE "^# ── 10\. Hermes" "$SETUP" 2>/dev/null; then
-    ok "Hermes section header comment preserved in setup.sh (routeur context)"
-else
-    fail "Hermes section header comment MISSING in setup.sh"
+    ok "Hermes provider absent from active installer surface"
 fi
 
 # --- 4. Public flags ---------------------------------------------------------
 echo ""
 echo "4. Public flags (introspection only, no execution)"
-if grep -qE '^\[ "\$\{1\}" = "--uninstall" \]' "$SETUP" 2>/dev/null; then
+if grep -qE '^      --uninstall\)' "$SETUP" 2>/dev/null; then
     ok "--uninstall flag handled"
 else
     fail "--uninstall flag handler missing"
 fi
-if grep -qE '^\[ "\$\{1\}" = "--force-governance" \]' "$SETUP" 2>/dev/null; then
+if grep -qE '^      --force-governance\)' "$SETUP" 2>/dev/null; then
     ok "--force-governance flag handled"
 else
     fail "--force-governance flag handler missing"
@@ -191,7 +161,7 @@ done
 # --- 6. Idempotence: --help is NOT a real flag -----------------------------
 echo ""
 echo "6. Unknown flag safety (--help is informational, not destructive)"
-if grep -qE '"--help"' "$SETUP" 2>/dev/null; then
+if grep -qE '^      --help\|-h\)' "$SETUP" 2>/dev/null; then
     ok "--help handled in setup.sh"
 else
     warn "--help not handled — unknown flags fall through to install (acceptable for now)"

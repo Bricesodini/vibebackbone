@@ -6,7 +6,7 @@
 # Comportement :
 #  1. Lit les fichiers modifiés (git diff --cached --name-only).
 #  2. Si aucun fichier n'est dans le repo vibebackbone (docs/, skills/,
-#     prompts/, tools/, scripts/, distributions/, .hermes/), exit 0
+#     prompts/, tools/, scripts/, distributions/), exit 0
 #     silencieusement.
 #  3. Sinon, exit 0 (la validation du message est faite par
 #     commit-msg-framework-gate — ce hook ne s'en mêle pas).
@@ -25,14 +25,15 @@
 #  - Note P0-5 §4.2 (2026-06-13) : echo informatif "checking credentials
 #    (Core rule §13)" — la credentials gate Core (vbb-credentials-gate.py)
 #    est différée (catégorie D, hors scope Phase 2 Run 1) ; pour l'instant
-#    le hook Core ne fait qu'un message de log. Le tool distribution
-#    bypass-lint (Hermes) reste la référence distribution-level.
+#    le hook Core ne fait qu'un message de log. Aucune implémentation
+#    distribution-level n'est active.
 #
 # Bash pur, pas de dépendance externe.
 #
 # Note 2026-06-13 (ADR 0013 Phase 3 prep, R1) : `distributions/*` ajouté
-# à la whitelist car les artefacts distribution (hermes/, pi/, examples/)
-# sont désormais des citoyens de premier plan du repo. ADR 0013 Accepted.
+# à la whitelist car les artefacts des providers supportés sont désormais des
+# citoyens de premier plan du repo. ADR 0013 Accepted, partiellement remplacé
+# par ADR 0025.
 
 set -u
 
@@ -49,7 +50,7 @@ execution_staged=""
 if [ -n "$STAGED" ]; then
     while IFS= read -r f; do
         case "$f" in
-            docs/*|skills/*|prompts/*|tools/*|scripts/*|distributions/*|.hermes/*)
+            docs/*|skills/*|prompts/*|tools/*|scripts/*|distributions/*)
                 in_repo=1
                 case "$f" in
                     */07_CLOSEOUT.md) closeout_staged="$f" ;;
@@ -123,9 +124,9 @@ fi
 
 # ── P0-5 §4.2 — credentials check visibility (Core rule §13) ────────
 # Phase 2 Run 1 : echo informatif uniquement. Le tool Core
-# `vbb-credentials-gate.py` est différé (catégorie D, hors scope). Le
-# tool `distributions/hermes/bypass-lint/vbb-bypass-lint.py` reste la
-# référence distribution-level pour les patterns Hermes.
+# `vbb-credentials-gate.py` est différé (catégorie D, hors scope).
+# No distribution-specific credential linter is active. The canonical Core
+# prohibition remains enforceable by review until the deferred tool lands.
 if [ -n "$STAGED" ]; then
     echo "[pre-commit] P0-5: checking credentials (Core rule §13) — pattern list deferred to distribution tools."
 fi

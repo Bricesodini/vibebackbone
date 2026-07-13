@@ -321,7 +321,7 @@ def test_pr3_run_passes():
     assert "PASS" in out
 
 # ---------------------------------------------------------------------------
-# --strict mode (Cody COMPLETE gate semantics, Run 2 of 20260602_cody-reliability-gate-v2)
+# --strict mode (VBB COMPLETE gate semantics)
 # ---------------------------------------------------------------------------
 
 def test_strict_fail_returns_exit_2():

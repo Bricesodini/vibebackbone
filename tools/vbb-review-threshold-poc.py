@@ -65,7 +65,7 @@ TIERS: List[Tuple[int, str, List[str], str]] = [
         r"^skills/.*$",
         r"^core\.README\.md$",
         r"^distributions/[^/]+/README\.md$",
-        r"^distributions/[^/]+/[^/]+/README\.md$",  # nested (e.g. distributions/hermes/proxy/README.md)
+        r"^distributions/[^/]+/[^/]+/README\.md$",  # nested distribution README
     ], "template/prompt/skill/distrib-README change"),
     (5, "T5 — gouvernance Core", [
         r"^AGENTS\.md$",

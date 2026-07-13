@@ -51,7 +51,7 @@ updated: 2026-06-13
 |-------|---------|
 | Grammaire opérationnelle | [`../AGENTS.md`](../AGENTS.md) |
 | Comportement runtime | [`../SYSTEM.md`](../SYSTEM.md) |
-| Point d'entrée Claude Code / Cursor | [`../CLAUDE.md`](../CLAUDE.md) |
+| Point d'entrée Claude Code | [`../CLAUDE.md`](../CLAUDE.md) |
 
 ## Catalogue
 
@@ -66,9 +66,9 @@ updated: 2026-06-13
 | Statut | Sens | Exemples |
 |--------|------|----------|
 | **Stable core** | Canonique, installé par défaut, base du système | `../AGENTS.md`, `../SYSTEM.md`, `../setup.sh`, `../setup-lib.sh`, `../core/setup.sh`, `../skills/`, `../prompts/` |
-| **Distribution active** | Code spécifique à un runtime agentique, installé via le routeur | `../distributions/hermes/`, `../distributions/{claude,codex,pi,opencode}/` |
-| **Optionnel / externe** | Réside hors dépôt et dépend de l’environnement machine | `~/.agents/`, `~/.claude/`, `~/.codex/`, `~/.pi/`, `~/.config/opencode/`, `~/.hermes/profiles/...` |
-| **POC / expérimental** | Preuve de concept ou transition, à ne pas confondre avec le core | `../docs/strategy/p0-4-review-matrix-poc.md`, `../distributions/hermes/docs/POC_USAGE.md`, `../distributions/hermes/docs/POC_CLOSEOUT.md` |
+| **Distribution active** | Code spécifique à un runtime agentique, installé via le routeur | `../distributions/{claude,codex,pi,opencode}/` |
+| **Optionnel / externe** | Réside hors dépôt et dépend de l’environnement machine | `~/.agents/`, `~/.claude/`, `~/.codex/`, `~/.pi/`, `~/.config/opencode/` |
+| **POC / expérimental** | Preuve de concept ou transition, à ne pas confondre avec le core | `../docs/strategy/p0-4-review-matrix-poc.md` |
 | **Template / réserve** | Gabarit ou réserve de futures intégrations | `../providers/templates/`, `../distributions/examples/` |
 | **Archive** | Historique conservé pour traçabilité | `archive/`, `archive/prompt-migration/` |
 
