@@ -319,6 +319,51 @@ All PARTIAL results are expected dry-run limitations from stub output and now
 carry machine-readable partial reason metadata. All BLOCKED results are legitimate
 gate dependencies. No actual defects.
 
+## Latest audit note — POC and subagents methodology (2026-07-13)
+
+New audit: [systemic-poc-subagents-methodology-20260713-1551.md](audits/systemic-poc-subagents-methodology-20260713-1551.md).
+
+Historical verdict: `PARTIAL`. Vibebackbone already has the necessary methodological
+building blocks (ADR, POC, pre-execution gate, review/closeout, independent
+review). The audit originally found a POC gate/template divergence; that P1 was
+resolved on 2026-07-13. Evidence for general subagent quality remains too small
+to generalize and stays an explicitly mitigated learning item.
+
+New risks added:
+
+| ID | Severity | Description | Status |
+|----|----------|-------------|--------|
+| SYS-POC-001 | P1 | `POC.md.template` emitted a bold verdict the gate parser rejected; `PIVOT` was accepted as GO | Resolved — commit `07e1e24` aligns the parser and adds the verdict matrix; `b29a048` aligns GUIDE/template; independent revalidation `2026-07-13_1653_ready-revalidation` |
+| SYS-POC-002 | P1 | `ADR ACCEPTED` can be read as technically validated although several accepted multi-service ADRs have no linked POC and no implementation | Mitigated — use the report's derived four-axis maturity view; no new global status recommended |
+| SYS-POC-003 | P2 | Gate scope, explicit linkage and AUDIT semantics diverge across GUIDE, PILOTAGE, template and tool | Mitigated — `b29a048` aligns AUDIT eligibility and ADR/POC wording; explicit-link enforcement remains a future bounded decision |
+| SYS-POC-004 | P2 | POC → implementation transitions are not always accompanied by a durable decision artifact | Open — require a distinct post-POC decision for canon, architecture and cross-service changes |
+| SYS-POC-005 | P2 | Canonical decision prompt emits `03_DECISION_RECORD.md` while loop closure requires `03_DECISION.md` | Mitigated in this run by a pointer artifact — align names in a future Core run |
+| SYS-SUB-001 | P1 | Historical delegation proves traceability and parent-context relief, not general quality or cost improvement | Mitigated — accumulate comparable runs and measure accuracy, contradictions, tokens and fallback |
+| SYS-SUB-002 | P2 | `subagent_eligible` is advisory metadata with no observed runtime enforcement | Accepted — document the limitation before considering enforcement |
+| SYS-SUB-003 | P2 | Reintegration validates paths and presence more readily than counts, citations and semantic contradictions | Open — add bounded semantic acceptance checks to future delegation briefs |
+
+No canon, skill, tool, distribution or remaining multi-service ADR was modified
+by this audit.
+
+## Latest impact note — POC gate verdict contract (2026-07-13)
+
+New impact report: [impact-analysis-20260713-1639.md](audits/impact-analysis-20260713-1639.md).
+
+Verdict: `READY / CONDITIONAL`. The change is backward compatible for GO and
+intentionally stricter for PIVOT. Core CLI/JSON contracts remain stable; exact
+out-of-repo Hermes runtime profile content is UNKNOWN and covered through the
+repository distribution smoke checks.
+
+## Latest revalidation note — POC gate remediation (2026-07-13)
+
+Run: `docs/runs/2026-07-13_1653_ready-revalidation/`.
+
+Verdict: `READY` after durable status reconciliation. `SYS-POC-001` is closed
+by tests and executable behavior; `SYS-POC-002` and `SYS-SUB-001` retain their
+explicit mitigation decisions. No P0/P1 introduced by the remediation remains
+without a decision. The original audit report keeps its historical `PARTIAL`
+verdict; this note records the later remediation rather than rewriting it.
+
 ## Update policy
 
 - Any execution of an audit skill produces a timestamped report in `docs/audits/` and updates this file.
