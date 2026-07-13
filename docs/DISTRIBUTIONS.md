@@ -172,6 +172,20 @@ consolidé par skill. Distributions : consomment la nouvelle capacité via les
 skills partagés, aucun code de distribution modifié.
 **Author**: claude-code (GO Brice)
 
+### 2026-07-13 — V2-R4 passe qualité au closeout + règle compaction 40/75 (ADR-0029)
+**Decision**: keep in Core (aucune déclinaison distribution requise)
+**Trigger**: run `2026-07-13_2007_v2r4-closeout-qualite` (RB-2/RB-4, réserve Brice « selon risque »)
+**Reason**: le contrat de closeout (prompt canonique + template) et SESSION_RULES
+sont de la gouvernance générique consommée telle quelle par les 4 adaptateurs.
+Vérification Rule A : une seule référence dans les distributions —
+`distributions/pi/SYSTEM.md:115` cite le prompt `07-p-vbb-closeout` **par nom**
+(pas de duplication de contenu) → héritage automatique de la nouvelle étape ;
+changement additif, aucun closeout existant invalidé.
+**Impact**: Core : passe qualité scopée déclenchée par le risque (traçage
+EXECUTED/SKIPPED/N-A obligatoire) + règle de compaction 40 % indicatif / 75 % dur.
+Distributions : héritent du comportement via les artefacts Core partagés.
+**Author**: claude-code (GO Brice)
+
 ### Template
 
 ```

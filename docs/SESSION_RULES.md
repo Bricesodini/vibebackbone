@@ -2,7 +2,7 @@
 context_role: session-rules
 phase: transverse
 status: active
-updated: 2026-06-12
+updated: 2026-07-13
 ---
 
 # SESSION_RULES — When to stay, when to switch
@@ -21,6 +21,16 @@ Mandatory if at least one: role changes · risk increases · scope widens · con
 
 FAST task that reveals data/auth/security/compliance/prod impact: **immediate stop** → partial `07_CLOSEOUT.md` → new session STRUCTURED or AUDIT. Detail: [PILOTAGE.md § Escalation rule](PILOTAGE.md#escalation-rule)
 
+## Context compaction (40% / 75%) — ADR-0029
+
+- **~40% of context window consumed** — indicative threshold: run
+  `python tools/vbb-context-compactor.py docs/runs/<id>` and write a
+  mini-handoff (recommended, not blocking). Between two scoped-audit passes,
+  this is the default checkpoint (cf. `REFERENCE/scoped-audit-protocol.md`).
+- **75%** — hard limit: compaction **or** new session is mandatory **before any
+  new action**. This is the prescriptive side of the existing "context <75%"
+  stay criterion above: crossing it without compacting is an anti-pattern.
+
 ## Session handoff
 
 Continuity is carried by versioned artifacts, not conversation. Full read/write cycle in [MEMORY_AND_HANDOFF.md](MEMORY_AND_HANDOFF.md).
@@ -31,6 +41,7 @@ Continuity is carried by versioned artifacts, not conversation. Full read/write 
 - `05_EXECUTION` without frozen `04_PLAN` in STRUCTURED route
 - Two runs in the same `docs/runs/{slug}/` folder
 - Resuming without reading previous run's `07_CLOSEOUT.md`
+- Crossing 75% context without compaction or session switch (see § Context compaction)
 
 Memory anti-patterns: [MEMORY_AND_HANDOFF.md § Anti-patterns](MEMORY_AND_HANDOFF.md#anti-patterns)
 

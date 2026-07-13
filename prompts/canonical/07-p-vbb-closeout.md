@@ -120,6 +120,27 @@ Lister les tâches ou questions qui restent en suspens :
 - Dépendances non résolues
 - Décisions secondaires à prendre
 
+### Étape 4bis — Passe qualité scopée (déclenchée selon le risque, ADR-0029)
+
+Décider — et **tracer** la décision dans le closeout (jamais de skip silencieux) :
+
+**Déclencheur (passe OBLIGATOIRE si au moins un critère) :**
+- le chantier touche données / auth / sécurité / compliance / état de production ;
+- le chantier modifie **4+ fichiers de code produit** (seuil FAST-STANDARD).
+
+**Sinon :** passe optionnelle (FAST-ZERO / FAST-MINIMAL, chantiers docs-only → `N/A`).
+
+**Exécution (si déclenchée) :**
+- invoquer `1-vbb-code-janitor` (et `1-vbb-tech-debt` / `2-vbb-db-robustness`
+  si le chantier touche leur domaine) avec `scope` = périmètre touché par le
+  chantier (fichiers du run) — protocole canonique :
+  `docs/REFERENCE/scoped-audit-protocol.md` (ne pas le dupliquer ici) ;
+- les findings P0/P1 partent en **runs de remédiation séparés** (jamais corrigés
+  pendant le closeout — ADR-0026) et alimentent l'Étape 4 (points ouverts).
+
+**Traçage (obligatoire dans 07_CLOSEOUT.md §Passe qualité scopée) :**
+`EXECUTED` (+ rapport lié) | `SKIPPED (risque faible)` | `N/A (docs-only)`.
+
 ### Étape 5 — Recommander la prochaine session
 
 Si des points ouverts ou des risques existent :

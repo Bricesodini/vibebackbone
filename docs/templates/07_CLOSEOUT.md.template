@@ -45,6 +45,12 @@ artifacts_produced:
 
 - <ce qui reste à faire, à arbitrer, à surveiller>
 
+## Passe qualité scopée (ADR-0029)
+
+- **Décision** : `EXECUTED` | `SKIPPED (risque faible)` | `N/A (docs-only)`
+- **Déclencheur évalué** : <données/auth/sécurité/compliance/prod ? 4+ fichiers de code produit ?>
+- **Si EXECUTED** : scope = <périmètre du chantier> ; rapport(s) : <docs/audits/{skill}-{scope-slug}-....md> ; P0/P1 → <runs de remédiation proposés>
+
 ## Risques résiduels
 
 - <ce qui peut casser et où regarder en premier>
@@ -67,3 +73,4 @@ artifacts_produced:
 - [ ] `docs/CONTEXT.md` § Runs récents mis à jour
 - [ ] `docs/AUDIT_STATUS.md` mis à jour si voie AUDIT
 - [ ] `docs/SESSION.md` (local) mis à jour si transition de session
+- [ ] § Passe qualité scopée renseigné (EXECUTED / SKIPPED / N/A — jamais vide)
