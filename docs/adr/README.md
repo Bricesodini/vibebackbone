@@ -23,7 +23,11 @@ Exemple : `0001-choix-framework-api.md`
 | [0009](0009-multiservice-lint-discipline.md) | Linter discipline multi-service (Gap-04, P0) | ACCEPTED | 2026-07-13 | [multi-service Gap-04](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-04) |
 | [0010](0010-impact-log-cumulative.md) | IMPACT_LOG cumulatif (Gap-06, P0) | ACCEPTED | 2026-07-13 | [multi-service Gap-06](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-06) |
 | [0011](0011-cross-service-contract-taxonomy.md) | Taxonomie contrats cross-service (Gap-10, P0) | ACCEPTED | 2026-07-13 | [multi-service Gap-10](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-10) |
-| [0013](0013-repo-organization-core-vs-distributions.md) | Repo organization Core vs Distributions | — | — | — |
+| [0012](0012-codegen-agents-claudemd.md) | Codegen AGENTS.md / CLAUDE.md (Gap-03, P1) | ACCEPTED | 2026-07-13 | [multi-service Gap-03](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-03) |
+| [0014](0014-canon-vs-extension.md) | Mécanisme canon vs extension (Gap-09, P1) | ACCEPTED | 2026-07-13 | [multi-service Gap-09](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-09) |
+| [0015](0015-contract-lint-archetype-aware.md) | vbb-contract-lint archetype-aware (Gap-11, P1) | ACCEPTED | 2026-07-13 | [multi-service Gap-11](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-11) |
+| [0017](0017-co-evolution-discipline.md) | Discipline outillée de co-évolution (Gap-07, P1) | ACCEPTED | 2026-07-13 | [multi-service Gap-07](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-07) |
+| [0013-arch](0013-repo-organization-core-vs-distributions.md) | Repo organization Core vs Distributions | — | — | — |
 
 ## Conventions
 
