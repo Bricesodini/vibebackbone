@@ -199,6 +199,17 @@ changement de leur code ; état externe `~/.claude/CLAUDE.md` → pointeur canon
 (backup `.bak-20260713`), fin de la double grammaire VibeCodex.
 **Author**: claude-code (GO Brice « boucler le ponçage »)
 
+### 2026-07-13 — V2-R6 protocole runs autonomes (ADR-0031)
+**Decision**: keep in Core
+**Trigger**: run `2026-07-14_0045_v2r6-autonomie-multiruns` (RB-3, exigence autonomie Brice)
+**Reason**: conduite autonome = gouvernance générique des 4 runtimes ; s'appuie
+uniquement sur des mécaniques Core existantes (loop-closure V2-R1, kind split
+Run 7, 40/75 + 4bis V2-R4). Vérification Rule A : aucune distribution ne
+duplique AGENTIC_RUN_PROTOCOL/LONG_RUN_RULE (grep) — héritage direct.
+**Impact**: Core : section « Runs autonomes » canonique + stub LONG_RUN_RULE.
+Distributions : aucune modification de code.
+**Author**: claude-code (GO Brice)
+
 ### Template
 
 ```

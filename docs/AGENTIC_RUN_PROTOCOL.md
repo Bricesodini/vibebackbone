@@ -124,3 +124,28 @@ artifacts_produced: [...]
 - [`PILOTAGE.md`](PILOTAGE.md) — règle de triage par voie
 - [`SESSION_RULES.md`](SESSION_RULES.md) — quand rester, quand changer
 - [`MEMORY_AND_HANDOFF.md`](MEMORY_AND_HANDOFF.md) — mémoire officielle vs conversation
+
+## Runs autonomes (ADR-0031)
+
+Conduite canonique d'une **séquence de runs sans checkpoint humain** :
+
+1. **Séquence déclarée** — la liste des runs prévus est écrite AVANT le premier
+   run (intake de séquence). Jamais d'enchaînement implicite.
+2. **Borne humaine** — **3 runs max** sans validation humaine ; au-delà →
+   `CLOSE-HANDOFF` et attente. (Révisable par CCP.)
+3. **Gate inter-runs** — après chaque run :
+   `python tools/vbb-loop-closure-check.py <run_id> --strict`.
+   Exit ≠ 0 → STOP : pas de run suivant, `CLOSE-HANDOFF` avec blockers.
+4. **Clôture** — chaque run terminé produit un **`CLOSE-FINAL` automatique** ;
+   `CLOSE-HANDOFF` est réservé aux runs **interrompus** (pause en pleine boucle).
+5. **Stop conditions** (n'importe laquelle interrompt la séquence) :
+   escalade de risque (AGENTS.md Critical Rule 2) · gate FAIL (ADR/POC ou
+   loop-closure) · **75 % de contexte** (limite dure,
+   [`SESSION_RULES.md` §Context compaction](SESSION_RULES.md)) · fin de
+   séquence · borne humaine atteinte.
+6. **Hygiène intra-run inchangée** — chaque run autonome exécute la boucle
+   complète de sa route (phases ci-dessus), y compris la passe qualité scopée
+   selon risque (`prompts/canonical/07-p-vbb-closeout.md` étape 4bis).
+
+Budgets temps long-run (PROGRESS, extensions, FINAL_STATUS) : canoniques dans
+[`PILOTAGE.md`](PILOTAGE.md) §LONG-RUN OUTPUT CONTRACT.
