@@ -5,3 +5,30 @@ Architecture Decision Records.
 Format : `{nnnn}-{slug}.md` (lowercase, zéro-paddé sur 4 chiffres)
 
 Exemple : `0001-choix-framework-api.md`
+
+---
+
+## Index
+
+| # | Titre | Statut | Date | Source |
+|---|-------|--------|------|--------|
+| [0001](0001-formal-executor-boundary.md) | Formal executor boundary | — | — | — |
+| [0002](0002-surface-first-routing-ui-ux.md) | Surface-first routing (UI/UX) | — | — | — |
+| [0003](0003-graphic-propagation-map.md) | Graphic propagation map | — | — | — |
+| [0004](0004-contract-schema-version-semantics.md) | Contract schema version semantics | — | — | — |
+| [0005](0005-db-orientation-context-extension.md) | DB Orientation (Gap-01) | ACCEPTED | 2026-07-12 | [multi-service Gap-01](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-01) |
+| [0006](0006-project-archetype-context-extension.md) | Project Archetype (Gap-02) | ACCEPTED | 2026-07-12 | [multi-service Gap-02](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-02) |
+| [0007](0007-contracts-consumed-canonical-file.md) | CONTRACTS_CONSUMED canonique (Gap-05, P0) | ACCEPTED | 2026-07-12 | [multi-service Gap-05](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-05) |
+| [0008](0008-context-project-mode-enrichment.md) | CONTEXT.md / PROJECT_MODE.md enrichi (Gap-14) | ACCEPTED | 2026-07-12 | [multi-service Gap-14](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-14) |
+| [0013](0013-repo-organization-core-vs-distributions.md) | Repo organization Core vs Distributions | — | — | — |
+
+## Conventions
+
+- Chaque ADR doit suivre le template [`docs/templates/ADR.md.template`](../templates/ADR.md.template).
+- Status possibles : `PROPOSED` / `ACCEPTED` / `REJECTED` / `SUPERSEDED by NNNN`.
+- Le `LONG_RUN_SUMMARY` YAML en bas de chaque ADR est lu par `t-vbb-impact-analyzer` pour calculer la propagation.
+- Les ADR `ACCEPTED` sont immuables : tout changement ouvre une nouvelle ADR qui **supersede** l'ancienne.
+
+## Run d'origine
+
+Les ADR 0005-0008 proviennent du **Run 08** (2026-07-12) — Phase 2 de la caractérisation `vbb-evolution-multi-service-support`. Chaque ADR documente la décision de design ; l'implémentation runtime est différée à des Runs ultérieurs.
