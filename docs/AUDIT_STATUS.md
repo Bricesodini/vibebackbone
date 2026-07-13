@@ -15,6 +15,18 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 **`PARTIAL — reference-ready; maintenance gates, portability and active docs need stabilization`**
 
+## Latest audit note — évaluation globale externe post-ponçage (2026-07-14)
+
+Rapport : [global-evaluation-20260714-0005.md](audits/global-evaluation-20260714-0005.md)
+(auditeur subagent indépendant, contradictoire — chaque claim re-mesuré).
+**Score composite : 7.5/10** (12 dimensions ; RUN 19 auto-évalué : 7.4).
+8/9 métriques du plan V2 §5 vérifiées conformes (manquée : boot ≤1 200, mesuré
+1 440 — écart auto-déclaré). Top risques confirmés : enforcement limité aux
+artefacts (comportement sur parole), TER-001 propagation consommateurs (P1),
+dette de fraîcheur des surfaces d'état (CONTEXT.md, compteurs runtime,
+TECH_DEBT non promu), executor sans test direct (GMA-003), 58,5 % de masse
+historique sans archivage actif + credentials gate factice sur repo public.
+
 ## Latest audit note — terrain test subagent gouverné (2026-07-13)
 
 Run : [2026-07-13_2236_v2r5a-terrain-trame](runs/2026-07-13_2236_v2r5a-terrain-trame/02_AUDIT.md).
@@ -26,8 +38,8 @@ au-dessus du minimum). Findings ouverts :
 | ID | Sévérité | Statut | Constat |
 |----|----------|--------|---------|
 | TER-001 | **P1** | Open | Aucun mécanisme de propagation des évolutions de gouvernance Core vers les projets consommateurs déjà initialisés (trame roule sur PILOTAGE v1 périmé) — chantier « consumer governance refresh » à arbitrer (recoupe ADR-0012) |
-| TER-002 | P2 | Open | Protocole scopé : tag `scope:` par finding exigé mais non illustré (gabarit manquant) — ignoré par le sujet |
-| TER-003 | P3 | Open | Protocole scopé : cas mono-scope ambigu (registre requis ou non) |
+| TER-002 | P2 | **RESOLVED 2026-07-14** (`792f6d5` : gabarit de finding avec tag) | Protocole scopé : tag `scope:` par finding exigé mais non illustré (gabarit manquant) — ignoré par le sujet |
+| TER-003 | P3 | **RESOLVED 2026-07-14** (`792f6d5` : règle mono-scope explicite) | Protocole scopé : cas mono-scope ambigu (registre requis ou non) |
 
 ## Latest audit note — public publication readiness (2026-06-13)
 
