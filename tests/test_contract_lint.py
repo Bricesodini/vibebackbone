@@ -83,7 +83,7 @@ MINIMAL_CONTRACT = textwrap.dedent("""\
 
 
 def _run_linter(skill_dir: Path) -> tuple:
-    """Run linter with a temp INDEX pointing at skill_dir, return (error_count, errors)."""
+    """Run linter with a temp INDEX and return its error count and errors."""
     import importlib.util
     import yaml
 
@@ -112,7 +112,7 @@ def _run_linter(skill_dir: Path) -> tuple:
     lint_mod.INDEX_FILE = index_file
 
     try:
-        count, errors = lint_mod.lint_all()
+        count, errors, _warnings = lint_mod.lint_all()
         return count, errors
     finally:
         lint_mod.SKILLS_DIR = orig_skills_dir
@@ -357,7 +357,7 @@ def test_blocking_gate_no_expected_status():
         (skills_tmp / "INDEX.yaml").write_text(yaml.dump(index, default_flow_style=False))
 
         try:
-            count, errors = lint_mod.lint_all()
+            count, errors, _warnings = lint_mod.lint_all()
             assert count > 0, f"Expected errors, got {count}"
             assert any("expected_status" in str(e) for e in errors), \
                 f"Expected 'expected_status' in errors: {errors}"

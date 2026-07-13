@@ -22,6 +22,7 @@ graph TD
   distribution-setup["Distribution Setup<br/>distribution · active"]
   quality-conventions["Quality Conventions<br/>governance · active"]
   audit-memory["Audit Memory<br/>data · active"]
+  external-dependencies["External Dependencies<br/>external · active"]
   skills-catalog --> governance-core
   prompt-library --> governance-core
   prompt-library --> skills-catalog
@@ -36,6 +37,8 @@ graph TD
   quality-conventions --> architecture-source
   audit-memory --> governance-core
   audit-memory --> architecture-source
+  external-dependencies --> governance-core
+  external-dependencies --> architecture-source
 ```
 
 ## Sensitive Zones
@@ -58,3 +61,4 @@ graph TD
 | `distribution-setup` | `governance-core`, `skills-catalog`, `prompt-library` | Claude Code integration, Codex integration, Pi integration, OpenCode integration, Hermes/Cody integration (currently active orchestrator) | `setup.sh`, `setup-lib.sh`, `core/setup.sh`, `distributions/claude/setup.sh`, `distributions/codex/setup.sh`, `distributions/pi/setup.sh`, `distributions/opencode/setup.sh`, `distributions/hermes/setup.sh`, `distributions/hermes/proxy/`, `distributions/hermes/AGENT_INSTALL.md`, `distributions/hermes/install/INSTALL.md`, `tests/test_setup_smoke.sh`, `scripts/vbb-ci-local.sh`, `.github/workflows/vbb-contracts.yml`, `docs/DEPLOYMENT.md` |
 | `quality-conventions` | `governance-core`, `architecture-source` | code readability standards, module organization, canonical change discipline, test quality, documentation standards, error handling consistency, invariant protection, regression prevention | `docs/CONVENTIONS.md`, `docs/templates/CANON_CHANGE_PROPOSAL.md.template`, `docs/runs/2026-05-29_1000_robustness-audit/ROBUSTNESS_AUDIT.md`, `docs/runs/2026-05-29_1000_robustness-audit/PILLAR_5_PROPOSAL.md` |
 | `audit-memory` | `governance-core`, `architecture-source` | session resume, release readiness, implementation risk register | `docs/AUDIT_STATUS.md`, `docs/audits/*.md`, `docs/archive/**/*.md`, `docs/runs/**/*.md`, `docs/TEMPORAL_PROVENANCE.md`, `docs/TECH_DEBT.md`, `docs/templates/CANON_CHANGE_PROPOSAL.md.template` |
+| `external-dependencies` | `governance-core`, `architecture-source` | impact analysis, cross-service coordination, install posture, security proxy posture (Hermes) | `docs/ARCHITECTURE.md`, `docs/DISTRIBUTIONS.md` |
