@@ -20,6 +20,9 @@ Exemple : `0001-choix-framework-api.md`
 | [0006](0006-project-archetype-context-extension.md) | Project Archetype (Gap-02) | ACCEPTED | 2026-07-12 | [multi-service Gap-02](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-02) |
 | [0007](0007-contracts-consumed-canonical-file.md) | CONTRACTS_CONSUMED canonique (Gap-05, P0) | ACCEPTED | 2026-07-12 | [multi-service Gap-05](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-05) |
 | [0008](0008-context-project-mode-enrichment.md) | CONTEXT.md / PROJECT_MODE.md enrichi (Gap-14) | ACCEPTED | 2026-07-12 | [multi-service Gap-14](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-14) |
+| [0009](0009-multiservice-lint-discipline.md) | Linter discipline multi-service (Gap-04, P0) | ACCEPTED | 2026-07-13 | [multi-service Gap-04](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-04) |
+| [0010](0010-impact-log-cumulative.md) | IMPACT_LOG cumulatif (Gap-06, P0) | ACCEPTED | 2026-07-13 | [multi-service Gap-06](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-06) |
+| [0011](0011-cross-service-contract-taxonomy.md) | Taxonomie contrats cross-service (Gap-10, P0) | ACCEPTED | 2026-07-13 | [multi-service Gap-10](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-10) |
 | [0013](0013-repo-organization-core-vs-distributions.md) | Repo organization Core vs Distributions | — | — | — |
 
 ## Conventions
