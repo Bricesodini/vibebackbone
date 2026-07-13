@@ -78,6 +78,7 @@ Absolute rules:
 - error handling and status codes
 - versioning / breaking changes
 - inter-service drift if observable
+- **cross-reference with `CONTRACTS_CONSUMED.md` of declared consumers** (cf. ADR-0011, Gap-10) — verify that each consumer listed in the contract's `consumers` field has a corresponding entry in **its own** `CONTRACTS_CONSUMED.md` (cf. ADR-0007, Gap-05). Cross-validation enforced by `tools/vbb-multiservice-lint.py` (cf. ADR-0009, Gap-04).
 
 ### Excluded
 
@@ -108,7 +109,11 @@ Absolute rules:
    - consistent statuses
    - structured errors
    - no implementation leakage
-6. Produce a prioritized report.
+6. **Cross-validate the `consumers` field of each contract** (cf. ADR-0011):
+   - For each declared consumer in `contract.consumers[*]`, verify a corresponding entry exists in `<consumer>/docs/CONTRACTS_CONSUMED.md`.
+   - If a consumer is declared but missing from their `CONTRACTS_CONSUMED.md`, flag a **drift finding** (severity P2 by default).
+   - If a consumer is in `CONTRACTS_CONSUMED.md` but not declared in `contract.consumers[*]`, flag a **producer-side gap** (severity P2).
+7. Produce a prioritized report.
 
 ## OUTPUT CONTRACT
 

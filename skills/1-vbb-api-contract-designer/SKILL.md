@@ -102,12 +102,15 @@ Absolute rules:
 
 1. Restate the business or integration need in one canonical sentence.
 2. Identify the primary consumers and the API's scope of responsibility.
-3. Define the resource model and API boundaries.
-4. Describe endpoints, methods, and payload contracts.
-5. Specify auth, errors, versioning, and compatibility.
-6. List canonical examples and known edge cases.
-7. Identify residual unknowns and points requiring human validation.
-8. Determine whether the contract is a usable draft or a stable version ready for implementation and audit.
+3. **Identify cross-service consumers** (cf. **Consumers** section below) — list every known internal/external consumer, or empty list if no consumers yet.
+4. Define the resource model and API boundaries.
+5. Describe endpoints, methods, and payload contracts.
+6. Specify auth, errors, versioning, and compatibility.
+7. List canonical examples and known edge cases.
+8. Identify residual unknowns and points requiring human validation.
+9. Determine whether the contract is a usable draft or a stable version ready for implementation and audit.
+
+**Note** (ADR-0011, Gap-10): step 3 is **mandatory**. The `consumers` field in the output document (see below) must be defined — even if the list is empty. An empty list `[]` means "no known consumers yet" (e.g., a brand-new service).
 
 ## OUTPUT CONTRACT
 
@@ -146,6 +149,29 @@ The document must also explicitly mention:
 - the anticipated physical paths or routes
 - upward or downward compatibility points
 - areas where evidence is still lacking
+
+## Consumers
+
+**Mandatory section** (per ADR-0011, Gap-10). Even if empty, this section must be present in the output document.
+
+Lists every known cross-service consumer of this contract. Each consumer is typed:
+
+```yaml
+consumers:
+  - service: <slug>           # e.g., "studio-auth"
+    type: <internal | external>   # internal = same org/network; external = third-party
+    version_pinned: <semver>  # e.g., "v2.1"
+    contract_consumed_ref: <path>   # e.g., "../studio-auth/docs/CONTRACTS_CONSUMED.md"
+    criticality: <critical | medium | low>
+```
+
+**Rules**:
+- If no consumers are known yet, list must be `[]` (empty). Do not omit the section.
+- Each consumer must have an entry in **their** `docs/CONTRACTS_CONSUMED.md` (cf. ADR-0007, Gap-05). The cross-validation is enforced by `tools/vbb-multiservice-lint.py` (cf. ADR-0009, Gap-04).
+- The `type` enum is canonical: `internal` or `external`. No other values.
+- The `criticality` enum is canonical: `critical`, `medium`, or `low`.
+
+**Why this matters**: declaring consumers at design-time closes the producer↔consumer loop. Without it, the producer does not know who will break when a contract changes, and the consumer's discipline (CONTRACTS_CONSUMED.md) is unilateral.
 
 ## VERDICT RULES
 

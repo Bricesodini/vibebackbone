@@ -1,0 +1,51 @@
+---
+context_role: impact-log
+phase: transverse
+status: active
+schema_version: "1.0"
+---
+
+# IMPACT_LOG — <project_slug>
+
+> **Owner** : <team or person>
+> **First entry** : <YYYY-MM-DD>
+> **Last entry** : <YYYY-MM-DD>
+> **Total entries** : <count>
+
+## Entries (append-only — newest first)
+
+| Date | Type | Contrat | Avant | Après | Services impactés | Lien run |
+|------|------|---------|-------|-------|-------------------|----------|
+| <YYYY-MM-DD> | `breaking` | `<endpoint or contract>` | `<v1>` | `<v2>` | `<service-A>, <service-B>` | [<run-id>](../runs/<run-id>/) |
+| <YYYY-MM-DD> | `additive` | `<new endpoint>` | — | `<v2.1>` | (none — new endpoint) | [<run-id>](../runs/<run-id>/) |
+| <YYYY-MM-DD> | `deprecation` | `<endpoint>` | — | `deprecated` | `<consumer-still-using>` | [<run-id>](../runs/<run-id>/) |
+| <YYYY-MM-DD> | `fix` | `<endpoint>` | `<v1>` | `<v1.1>` | (transparent) | [<run-id>](../runs/<run-id>/) |
+| <YYYY-MM-DD> | `consumed_change` | `<event or API>` (from `<provider>`) | `<old-version>` | `<new-version>` | `<this-service>` | [<run-id>](../runs/<run-id>/) |
+
+## Légende
+
+- **Type** :
+  - `breaking` — changement incompatible (consumer doit migrer)
+  - `additive` — nouveau endpoint / nouveau champ (consumer peut rester sur l'ancien)
+  - `deprecation` — endpoint marqué deprecated (consumer doit planifier migration)
+  - `fix` — bug fix (transparent pour consumer)
+  - `consumed_change` — changement d'un contrat consommé (impact = s'adapter)
+
+## Process d'entrée
+
+1. **À chaque merge** d'un changement de contrat : ajouter une ligne en haut du tableau.
+2. **Ne jamais éditer** rétroactivement — le log est append-only.
+3. Pour **corriger** une entrée existante : ajouter une nouvelle entrée avec note `corrects previous entry` plutôt que d'éditer.
+4. **L'entrée est obligatoire** avant merge pour les changements `breaking` ou `deprecation` (vérifié par `tools/vbb-multiservice-lint.py` — règle `impact_log_required`, cf. ADR-0009).
+
+## Skill d'aide
+
+À venir : `t-vbb-impact-log-update` (skill canonique Vibebackbone) qui fournit un formulaire guidé pour ajouter une entrée. En attendant, copier-coller le format ci-dessus.
+
+## Références
+
+- ADR-0010 — IMPACT_LOG cumulatif (Gap-06)
+- ADR-0007 — CONTRACTS_CONSUMED canonique (Gap-05, source des « Services impactés »)
+- `docs/CONTRACTS_CONSUMED.md` (ADR-0007, par projet)
+- `docs/CONTRACTS_PROVIDED.md` (à venir, symétrique producteur)
+- `tools/vbb-multiservice-lint.py` (ADR-0009, validateur)

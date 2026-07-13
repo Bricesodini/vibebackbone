@@ -1,0 +1,40 @@
+# MULTISERVICE_DISCIPLINE — Configuration per-project (template)
+#
+# Copy this file to docs/MULTISERVICE_DISCIPLINE.yaml in your project, then
+# customize the values below.
+#
+# Reference: ADR-0009 (Gap-04 — Linter discipline multi-service)
+# Tool: tools/vbb-multiservice-lint.py
+
+schema_version: "1.0"
+
+# Rules — each rule can be enabled/disabled and given a severity
+rules:
+  # Rule 1: DB isolation
+  # If db_orientation (declared in CONTEXT.md frontmatter) is
+  # `shared_external_owned` or `shared_external_readonly`, the project must
+  # not import direct DB clients of other services.
+  db_isolation:
+    enabled: true
+    severity: warning   # error | warning
+
+  # Rule 2: IMPACT_LOG required when CONTRACTS_CONSUMED exists
+  # If your project consumes external contracts (ADR-0007), an IMPACT_LOG
+  # (ADR-0010) must exist with at least one entry.
+  impact_log_required:
+    enabled: true
+    severity: warning
+
+  # Rule 3: CONTRACTS_CONSUMED freshness
+  # CONTRACTS_CONSUMED.md must be refreshed at least every N days.
+  contracts_consumed_freshness:
+    enabled: true
+    severity: warning
+    max_age_days: 90
+
+# Allow-list per rule (cases where the rule is intentionally waived)
+allowlist:
+  db_isolation:
+    - path: "scripts/migration/"
+      reason: "Migration tools can access any DB during deploy window"
+    # Add more entries as needed, with explicit rationale
