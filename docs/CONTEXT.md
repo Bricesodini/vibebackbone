@@ -36,13 +36,14 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Centralization audit** : pass 4 produces `TOKEN_DEFINITION_MAP` + `CENTRALIZATION_ROADMAP`
 - **Tests** : 133 passed, 1 skipped (134 collected) — see [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Token economy** : L0 boot ~2.5K tokens (87% reduction from 19K)
-- **Next action** : stabilize and document the four supported adapters; no fifth runtime without a new decision
+- **Next action** : stabilize loop-closure run selection and local hook installation, then repair active portable documentation
 - **Key decisions** : [ADR-0002](docs/adr/0002-surface-first-routing-ui-ux.md) — surface-first routing + centralization audit
 
 ## Risks / audits
 
 - **Global verdict** : 🟡 PARTIAL → [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Latest methodology audit** : [POC + subagents (2026-07-13)](audits/systemic-poc-subagents-methodology-20260713-1551.md) — recommendation advisory accepted; `SYS-POC-001` remediation READY
+- **Latest maintainability audit** : [global debt pass (2026-07-13)](audits/tech-debt-20260713-1728.md) — `PARTIAL`, no P0; gate/hooks/portability/docs are the bounded P1 sequence
 - **POC/subagents P0/P1** : `SYS-POC-001` resolved; `SYS-POC-002` and `SYS-SUB-001` mitigated · Detail: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 
 ## Structural artifacts

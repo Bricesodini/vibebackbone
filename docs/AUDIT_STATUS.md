@@ -2,7 +2,7 @@
 context_role: audit-dashboard
 phase: transverse
 status: active
-updated: 2026-06-29
+updated: 2026-07-13
 temporal_provenance: TEMPORAL_PROVENANCE.md
 ---
 
@@ -13,7 +13,7 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 ## Global verdict
 
-**`PARTIAL — v1.0-rc.1 reference-ready; implementation reuse needs stabilization`**
+**`PARTIAL — reference-ready; maintenance gates, portability and active docs need stabilization`**
 
 ## Latest audit note — public publication readiness (2026-06-13)
 
@@ -81,13 +81,18 @@ stabilized in the same pass.
 |----|----------|-------------|--------|
 | QOA-001 | P1 | Core/Distribution boundary contradicted: docs say distributions live outside repo, but `distributions/hermes/` now contains runtime proxy code/tests/ADRs | **RESOLVED** — RUN 2 commit 89bbe3d patched README.md, docs/DISTRIBUTIONS.md, distributions/hermes/proxy/README.md |
 | QOA-002 | P1 | Hermes proxy migration incomplete: distribution tests fail on stale `tools.proxy` imports and docs still reference `tools/proxy` paths | **RESOLVED** — RUN 1 commit d1ca51f repaired 30+ imports in 8 test files; conftest.py adds sys.path; pytest 24/24 proxy tests green, 119 total |
-| QOA-003 | P1 | Default loop-closure/latest-run resolution uses lexicographic run-dir ordering and can validate the wrong run when formats are mixed | **RESOLVED** — RUN 3 commit 6772422 replaced lexical sort with mtime in get_latest_runs(); 5 new tests cover malformed names + loose files + mtime override |
+| QOA-003 | P1 | Default loop-closure/latest-run resolution uses lexicographic run-dir ordering and can validate the wrong run when formats are mixed | Open — **REOPENED 2026-07-13**: dashboard uses mtime, but `vbb-loop-closure-check.py` auto-detect still selects `20260615-usage-audit` and fails |
 | QOA-004 | P1 | Status dashboard reports no open risks while later `AUDIT_STATUS.md` tables contain active Open risks | **RESOLVED*** — RUN 4 commits 89bbe3d (L1) resolved 3 stale P1 entries; dashboard now correctly surfaces only the genuinely-open P1s; added regression test in tests/test_status_dashboard.py |
 | QOA-005 | P2 | Quality-adoption note contains contradictory QA row states and stale prompt-count text | Open — reconcile `AUDIT_STATUS.md` QA table |
 | QOA-006 | P2 | Loose pending artifact `docs/runs/routing-fix-verification.md` sits outside a timestamped run directory | Open — move to proper run or archive |
-| QOA-007 | P2 | Optional quality tools fail (`ruff`, format check, `mypy`, `pyright`) and are not canonically gated | Open — decide gate status, then remediate or document non-gating |
-| QOA-008 | P2 | `distributions/**` code is absent from architecture source and CI test coverage | Open — add governed distribution block/CI or explicitly exclude from Core claims |
+| QOA-007 | P2 | Optional quality tools fail (`ruff`, format check, `mypy`, `pyright`) and are not canonically gated | Open — confirmed 2026-07-13: Ruff 36, format 26 files, mypy 48 errors/8 files, pyright absent; keep non-gating until baseline |
+| QOA-008 | P2 | `distributions/**` code is absent from architecture source and CI test coverage | **RESOLVED 2026-07-13** — `distribution-setup` block covers four adapters and setup smoke validates all four |
 | QOA-009 | P3 | Static status counters drift from measured state (`82/82` docs vs `95 passed, 2 skipped`; runtime dry-run counts changed) | Open — replace static counters with generated references |
+| GMA-001 | P1 | Hook installation has two competing scripts and no single executable truth | Open — choose one composed installer and test installation in a temporary Git repo |
+| GMA-002 | P1 | Boot/runbook documentation retains `~/02_Dev` and `/Users/bot` machine paths | Open — migrate active paths to repo-relative or `$VBB_HOME` references |
+| GMA-003 | P1 | `vbb-executor.py` has no direct tests, duplicate loader definition and concentrated typing debt | Open — characterize state transitions and artifact writes before cleanup |
+| GMA-004 | P1 | Active code↔doc scan found 22 actionable broken local links | Open — targeted documentation remediation, excluding history |
+| GMA-005 | P2 | Convention drift: 36 functions >40 lines, Python naming ambiguity and 8 French prompts | Open — canon proposal for language-specific naming, then bounded migration |
 | PILOT-001 | P1 | `skills/INDEX.yaml` indexes 43/63 contracts; router/runtime coverage is lower than documented contract-file coverage | Resolved — index now 64/64 (v1.0.0-rc.1), linter guard added, runtime executes 64 contracts |
 | PILOT-002 | P1 | Phase router can route unknown/unindexed requests from agent/phase scoring without semantic trigger match | Resolved — router now requires trigger match, regression test green |
 | PILOT-003 | P1 | Two pilotage files claim canonical authority and diverge (`docs/PILOTAGE.md` v2.2 vs `skills/vibebackbone/docs/PILOTAGE.md` v2.1) | Resolved — root pilotage declared canonical, catalog doc demoted to detailed reference |
