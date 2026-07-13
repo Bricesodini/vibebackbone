@@ -32,7 +32,7 @@ Pi, OpenCode, Codex and Claude Code must run the same pre-execution gate
 against the run directory before any non-trivial code patch:
 
 ```bash
-python ~/02_Dev/vibebackbone/tools/vbb-gate-check.py <run_dir>
+python tools/vbb-gate-check.py <run_dir>
 ```
 
 This validates the run against ADR/POC/Integration gate rules and refuses

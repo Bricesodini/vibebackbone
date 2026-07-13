@@ -7,7 +7,6 @@ status: active
 
 # Vibebackbone Governance
 
-<!-- Source: /Users/bot/02_dev/vibebackbone/AGENTS.md -->
 
 This file is the compact source of truth for agent-facing Vibebackbone
 governance. Generated copies must not be pasted back into this file.
@@ -34,10 +33,8 @@ by every agent profile. Reference-only content is cited by path, not duplicated.
    compact before context pressure creates ambiguity.
 8. **Search tools:** prefer `python tools/vbb-index.py search "query"`,
    `python tools/vbb-status-dashboard.py`, and
-   `python tools/vbb-context-compactor.py docs/runs/<id>`.
-   Optional advisory: `python tools/vbb-status-dashboard.py --review-tier --json`
-   summarizes the change set as a T1-T8 review tier (advisory only,
-   `blocking=false`, never gates, never enforces — see
+   `python tools/vbb-context-compactor.py docs/runs/<id>`. Optional advisory
+   review tier: dashboard `--review-tier --json` (never gates —
    `docs/strategy/p0-4-review-matrix-poc.md`).
 9. **Quality conventions:** follow `docs/CONVENTIONS.md` by default. Canonical
    pillars: P1 Readability, P2 Modularity, P3 Coherence, P4 Traceability,
@@ -47,46 +44,31 @@ by every agent profile. Reference-only content is cited by path, not duplicated.
     graphic centralization, design system, or surface mapping must invoke the
     `vibebackbone` orchestrator first for ENGINE_ONLY routing.
 11. **ADR + POC + Integration Gate:** for non-trivial work, run
-    `python ~/02_Dev/vibebackbone/tools/vbb-gate-check.py <run_dir>` **before**
+    `python tools/vbb-gate-check.py <run_dir>` (from the repo root) **before**
     code, between TRIAGE and EXECUTE. See
-    `~/02_Dev/vibebackbone/GUIDE.md` §10bis (alias §ADR+POC+Integration-Gate).
+    `GUIDE.md` §10bis (alias §ADR+POC+Integration-Gate).
     If `can_code_start=false` → STOP, do not delegate.
-12. **Core ↔ Distribution propagation rule:**
-    - **Core → Distribution (impact check):** before any structural change to
-      VBB Core (`GUIDE.md`, `CONVENTIONS.md`, `PILOTAGE.md`, `docs/templates/`,
-      `skills/`, `tools/`, `distributions/`), check the impact on all active
-      distributions (`pi`, `opencode`, `codex`, `claude`).
-      Note: distribution **code** lives in `distributions/<name>/` (in repo);
-      distribution **runtime state** lives outside the repo under the four
-      provider-specific user directories.
-    - **Distribution → Core (promote-or-keep):** before any change to a
-      distribution, ask "is this specific to this distribution, or should it
-      be promoted to Core?". If it encodes a generic rule (gate, contract,
-      routing, quality), promote; if it is glue (persona, path, secret), keep.
-    - Both directions are recorded in `docs/DISTRIBUTIONS.md` §Decisions log.
-13. **Credentials gate (canon):** No secret, token, API key, or private key
-    may be committed to the repository. The Core rule is canonical; the
-    `tools/vbb-credentials-gate.py` enforcement tool is **deferred to a
-    future run** (Phase 2 P0-5-D, currently category D = out of scope). The
-    pre-commit hook `scripts/hooks/pre-commit-framework-gate` logs an
-    explicit "checking credentials" message. No distribution-specific
-    credentials linter is currently active; the Core rule always applies.
-
-    **This rule is canon and survives even when the enforcement tool is
-    absent** — humans and agents must manually verify no secret is
-    committed. Track: this is a known gap until P0-5-D lands.
+12. **Core ↔ Distribution propagation rule:** before any structural Core
+    change (`GUIDE.md`, `CONVENTIONS.md`, `PILOTAGE.md`, `docs/templates/`,
+    `skills/`, `tools/`, `distributions/`), check the impact on the four
+    active distributions (`pi`, `opencode`, `codex`, `claude`). Before any
+    distribution change, ask promote-or-keep: generic rule (gate, contract,
+    routing, quality) → promote to Core; glue (persona, path, secret) → keep.
+    Both directions are recorded in `docs/DISTRIBUTIONS.md` §Decisions log.
+    Distribution code lives in `distributions/<name>/`; runtime state lives
+    outside the repo in the provider user directories.
+13. **Credentials gate (canon):** no secret, token, API key, or private key
+    may ever be committed. The rule is canon and survives without tooling:
+    the enforcement linter is deferred (P0-5-D, known gap — the pre-commit
+    hook only logs a "checking credentials" notice), so humans and agents
+    must verify manually before each commit.
 
 ## Runtime Behavior
 
-- Be concise, structured, and operational.
-- Respect documented project governance before acting.
-- Surface non-trivial assumptions.
-- Prefer stable, readable artifacts over improvisation.
-- Before important modifications: restate the goal, expose a short plan, stay
-  read-only until the plan is explicit, then execute step by step.
-- If risk increases during execution, stop and escalate.
-- **Remember Critical Rule #11:** Core changes ripple to all distributions;
-  Distribution changes must justify their placement (Core vs distribution).
+Posture, plan-first protocol, MVP gate, artifact grounding, session behavior
+and communication style are defined in `SYSTEM.md` (boot set companion).
+Remember Critical Rule #12: Core changes ripple to all distributions;
+distribution changes must justify their placement.
 
 ## Startup Checklist
 
@@ -111,32 +93,20 @@ At session end:
 
 ## Pre-merge Gate (5 P.R2 obligatoires)
 
-> Canon unique : [`docs/REFERENCE/pre-merge-gate.md`](docs/REFERENCE/pre-merge-gate.md).
-> The 5 verifications and the canonical shell block are defined there. **Do not
-> duplicate them here.** Added 2026-06-13 (Phase 2 Run 1, P0-1 §4.2).
-
-For routes **FAST-MINIMAL / FAST-ZERO** this gate is **SKIP**: the
-closeout must declare the voie explicitly. All other routes
-(FAST-STANDARD, STRUCTURED, AUDIT, CLOSEOUT) must execute it — see the
-reference for the FAIL behavior and `--strict` exit code.
+Canon unique : [`docs/REFERENCE/pre-merge-gate.md`](docs/REFERENCE/pre-merge-gate.md)
+(ne pas dupliquer ici). SKIP pour FAST-MINIMAL / FAST-ZERO (voie déclarée au
+closeout) ; obligatoire pour toutes les autres routes — FAIL et `--strict`
+définis dans la référence.
 
 ## Prompt Library
 
-Prompt templates are available at:
+Prompt templates live in `prompts/` (this repo). Each distribution's setup
+resolves them into the provider's user directory (see `distributions/<name>/`).
 
-`/Users/bot/.agents/prompts/vibebackbone/`
-
-Prompt short names resolve to concrete files:
-
-- `quick-task` -> `1-p-vbb-quick-task.md`
-- `structured-task` -> `1-p-vbb-structured-task.md`
-- `audit-task` -> `2-p-vbb-audit-task.md`
-- `release-check` -> `2-p-vbb-release-check.md`
-- `session-handoff` -> `t-p-vbb-session-handoff.md`
-
-Prompts are session entrypoints, not skills. Read the matching prompt before
-execution and do not infer behavior from the name alone. If a prompt file is
-missing, state that explicitly and proceed only as best-effort.
+Short-name → file mapping: `PROMPTS_ARCHITECTURE.md`. Prompts are session
+entrypoints, not skills: read the matching prompt before execution, never infer
+behavior from the name alone; if a prompt file is missing, say so and proceed
+only as best-effort.
 
 ## Reference Docs
 

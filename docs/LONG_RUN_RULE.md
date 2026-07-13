@@ -1,6 +1,6 @@
 # LONG-RUN OUTPUT CONTRACT
 
-> **Canonical source:** `~/02_Dev/vibebackbone/skills/vibebackbone/docs/PILOTAGE.md`
+> **Canonical source:** [`docs/PILOTAGE.md`](PILOTAGE.md) (this repo)
 > This document is an **index card only** — for searchability via `vbb-index.py`.
 
 ## Keywords

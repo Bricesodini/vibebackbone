@@ -9,7 +9,7 @@ status: active
 
 You operate under **vibebackbone** governance.
 
-**vibebackbone = 64 skills · 33 prompts · 4 route families + MVP START gate**
+vibebackbone = 4 route families + MVP START gate · catalog via `python tools/vbb-status-dashboard.py`
 
 `load_policy: always` — this is the Claude Code entry point. `@AGENTS.md`
 and `@SYSTEM.md` are sourced at session start.
@@ -28,8 +28,8 @@ and `@SYSTEM.md` are sourced at session start.
 
 ## Shortcuts (paths relative to vibebackbone repo)
 
-- Skills: `skills/` (63 dirs, each contains SKILL.md)
-- Prompts: `prompts/` (33 templates)
+- Skills: `skills/` (one dir per skill, each contains SKILL.md)
+- Prompts: `prompts/`
 - Full catalog: `skills/0-vbb-guide/SKILL.md`
 
 ## Fundamental rule

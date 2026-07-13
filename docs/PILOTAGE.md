@@ -73,7 +73,7 @@ Before any worker touches the repo on a STRUCTURED or AUDIT route, the run
 directory must pass the VBB gate:
 
 ```bash
-python ~/02_Dev/vibebackbone/tools/vbb-gate-check.py <run_dir>
+python tools/vbb-gate-check.py <run_dir>
 ```
 
 The gate is clause-aware (ADR + POC + Integration) and refuses to start a run

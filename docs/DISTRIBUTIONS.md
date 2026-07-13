@@ -186,6 +186,19 @@ EXECUTED/SKIPPED/N-A obligatoire) + règle de compaction 40 % indicatif / 75 % d
 Distributions : héritent du comportement via les artefacts Core partagés.
 **Author**: claude-code (GO Brice)
 
+### 2026-07-13 — V2-R2 portabilité + diète du boot set (ADR-0030, CCP APPROVED)
+**Decision**: keep in Core — le boot set (CLAUDE/AGENTS/SYSTEM) reste la source unique
+**Trigger**: run `2026-07-14_0015_v2r2-portabilite-diete` (TD-105, TD-107, RC-5)
+**Reason**: impact réel sur les 4 distributions (toutes consomment le boot set) :
+pi/opencode via `SYSTEM.md` (symlink racine → `distributions/pi/SYSTEM.md`, vérifié),
+claude via `CLAUDE.md` (@AGENTS+@SYSTEM), codex via bloc généré depuis `AGENTS.md`.
+Diète à contenu normatif constant : SYSTEM recentré runtime + pointeurs vers AGENTS
+(énoncé unique des règles) ; compteurs manuels supprimés ; chemins HOME purgés.
+**Impact**: boot 2 156 → 1 440 mots (−33 %) hérité par les 4 adaptateurs sans
+changement de leur code ; état externe `~/.claude/CLAUDE.md` → pointeur canon
+(backup `.bak-20260713`), fin de la double grammaire VibeCodex.
+**Author**: claude-code (GO Brice « boucler le ponçage »)
+
 ### Template
 
 ```
