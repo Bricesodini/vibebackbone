@@ -38,6 +38,20 @@ granularité au choix, contexte LLM maîtrisé par passe.
   opportuniste hors périmètre — le noter en une ligne « observé hors scope »
   maximum, pour l'inventaire).
 
+**Gabarit de finding** (le tag `scope:` est obligatoire — TER-002) :
+
+```markdown
+### JAN-06 — AdminStatCard.tsx orpheline (24 L)
+- scope: frontend/src/features/auth
+- Sévérité : P3 · Confiance : high
+- Evidence : 0 référence (grep), dernier usage retiré le 2026-05-17
+- Action recommandée (texte) : suppression sûre
+```
+
+**Cas mono-scope** (TER-003) : une passe unique sur un scope imposé par l'humain
+ne requiert **pas** de registre. Le registre devient obligatoire dès qu'un
+inventaire multi-scopes est ouvert (≥2 scopes), même si un seul est traité.
+
 ## La boucle d'itération (inventaire → passes → registre)
 
 ```
