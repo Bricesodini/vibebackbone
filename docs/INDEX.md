@@ -24,6 +24,7 @@ updated: 2026-06-13
 | Provenance temporelle | [`TEMPORAL_PROVENANCE.md`](TEMPORAL_PROVENANCE.md) |
 | Registre léger de dette technique | [`TECH_DEBT.md`](TECH_DEBT.md) |
 | Mémoire de reprise (local, gitignored) | `SESSION.md` |
+| Sentinel Core README | [`../core.README.md`](../core.README.md) |
 
 ## Conventions
 

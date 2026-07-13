@@ -24,3 +24,4 @@ docs/audits/vbb-runtime/
 # Python generated files
 __pycache__/
 *.py[cod]
+.pi-subagents/
