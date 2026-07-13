@@ -47,33 +47,38 @@ CI, loop-closure) déclare explicitement lequel il utilise.
 
 ## Résultat observé
 
-- **Date d'exécution** : — (en attente GO Brice)
-- **Sortie littérale** : —
-- **Métrique mesurée** : — (seuil attendu : (a) + (b) + (c) ci-dessus)
+- **Date d'exécution** : 2026-07-13 18:2x (GO Brice reçu)
+- **Sortie littérale** :
+  - (a) loop-closure : `[info] No run_id given — using most recent: 20260615-usage-audit`
+    → `RESULT: FAIL — 1 issue(s)` avec en outre `unknown voie 'STRUCTURED'
+    (expected ... 'STRUCTUREE')` — l'évidence exacte de l'audit TD-101 ;
+  - (b) `ls -td docs/runs/*/ | head -1` → `2026-07-13_1811_v2r1-gates-fiables/` ;
+  - (c) dashboard `latest_runs[0].id` → `2026-07-13_1717_global-debt-janitor-doc`.
+- **Métrique mesurée** : (a) + (b) + (c) tous conformes au seuil.
 
 ## Décision
 
-- **Verdict** : PENDING — à exécuter immédiatement après GO (test 100 % lecture seule, < 5 min)
-- **Justification** : le GO conditionnel du 2026-07-13 autorise la préparation, pas l'exécution.
+- **Verdict** : GO
+- **Justification** : divergence TD-101 reproduite ; chaque sélecteur est correct
+  dans sa population ; les populations divergent comme attendu (run actif non clôturé).
 
 ## Bilan
 
-À compléter après exécution. Attendu : « Hypothèse validée → ADR 0027 passe
-ACCEPTED, gate PASS, 04_PLAN peut s'ouvrir (avec choix de sélecteur par
-consommateur). » En cas de NO-GO ou PIVOT (ex. mtime non fiable sur runs
-restaurés), revenir à l'ADR § Alternatives.
+Hypothèse validée → ADR 0027 passe ACCEPTED, gate PASS, 04_PLAN peut s'ouvrir.
+Constat supplémentaire pour le plan : loop-closure doit aussi normaliser le
+vocabulaire de voie (`STRUCTURED`/`STRUCTUREE`) — couvert par l'évidence TD-101.
 
 ---
 
 ## LONG_RUN_SUMMARY
 
 ```yaml
-FINAL_STATUS: PENDING
+FINAL_STATUS: GO
 adr_link: docs/adr/0027-shared-run-resolution-and-canonical-hook-installer.md
-hypothesis_validated: null
-metric_observed: null
+hypothesis_validated: true
+metric_observed: "(a) loop-closure → 20260615-usage-audit + voie STRUCTURED rejetée ; (b) mtime → 2026-07-13_1811_v2r1-gates-fiables ; (c) dashboard → 2026-07-13_1717_global-debt-janitor-doc"
 metric_threshold: "(a) divergence TD-101 reproduite ; (b) dernier run existant = 2026-07-13_1811_v2r1-gates-fiables ; (c) dernier run clôturé = 2026-07-13_1717_global-debt-janitor-doc — populations distinctes, identité non requise"
 reproducible: true
-verified_at: null
-verified_by: null
+verified_at: "2026-07-13T16:25:00Z"
+verified_by: "claude-code (GO Brice)"
 ```

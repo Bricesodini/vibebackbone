@@ -243,6 +243,27 @@ def find_adr_ref(text: str) -> Optional[Tuple[str, str]]:
     return None
 
 
+# ADR-0027 decision 3 — strict linkage. A run may cite several ADRs (consumed
+# artifacts, historical context); only a LINKAGE-LABELED reference designates
+# "the run's ADR". Labels: "Liée à ADR", "adr_link:", or a "- ADR :" bullet.
+ADR_LINK_LABEL_RE = re.compile(
+    r"(?im)^.*(?:li[ée]e?\s+à\s+ADR|adr_link|^\s*[-*]\s*ADR)\s*[:*]*\s*(?P<rest>.*)$"
+)
+
+
+def find_linked_adr_ref(text: str) -> Optional[Tuple[str, str]]:
+    """Return (nnnn, slug) from a linkage-labeled line, if any.
+
+    Takes precedence over any other ADR mention in the text: an explicitly
+    linked ADR is always the one the gate must verify.
+    """
+    for m in ADR_LINK_LABEL_RE.finditer(text):
+        ref = find_adr_ref(m.group(0))
+        if ref:
+            return ref
+    return None
+
+
 def find_adr_globally(text: str) -> Optional[Path]:
     """Search for the latest ACCEPTED ADR whose slug contains a relevant keyword.
 
@@ -276,20 +297,31 @@ def find_adr_globally(text: str) -> Optional[Path]:
 
 
 def check_adr(run_dir: Path) -> Tuple[bool, Optional[Path], str]:
-    """Check ADR presence+ACCEPTED for the run."""
+    """Check ADR presence+ACCEPTED for the run.
+
+    ADR-0027 decision 3 — strict linkage: when an ADR is explicitly
+    referenced, the gate verifies THAT one and never falls back to some
+    other globally accepted ADR (observed false PASS, 2026-07-13).
+    Resolution order:
+      1. linkage-labeled reference (« Liée à ADR », adr_link, "- ADR :")
+      2. first explicit reference in intake/plan
+      3. keyword fallback — ONLY when no explicit reference exists at all
+    """
     intake_text = _read(run_dir / "01_INTAKE.md")
     plan_text = _read(run_dir / "04_PLAN.md") if (run_dir / "04_PLAN.md").exists() else ""
     combined = intake_text + "\n" + plan_text
 
-    # 1. Try explicit reference
-    ref = find_adr_ref(combined)
+    ref = find_linked_adr_ref(combined) or find_adr_ref(combined)
     if ref:
         nnnn, slug = ref
         candidate = ADR_DIR / f"{nnnn}-{slug}.md"
-        if candidate.exists() and ADR_ACCEPTED_RE.search(_read(candidate)):
+        if not candidate.exists():
+            return False, None, "ADR_REF_NOT_FOUND"
+        if ADR_ACCEPTED_RE.search(_read(candidate)):
             return True, candidate, ""
+        return False, candidate, "ADR_NOT_ACCEPTED"
 
-    # 2. Try keyword match
+    # Keyword fallback — reachable only when the run references no ADR at all.
     matched = find_adr_globally(combined)
     if matched:
         return True, matched, ""

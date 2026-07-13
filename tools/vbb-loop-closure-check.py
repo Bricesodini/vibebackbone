@@ -57,6 +57,30 @@ REPO_ROOT = Path(__file__).parent.parent.resolve()
 RUNS_DIR = REPO_ROOT / "docs" / "runs"
 AUDITS_DIR = REPO_ROOT / "docs" / "audits"
 
+# Shared run resolution (ADR-0027): auto-detection uses the declared selector
+# « dernier run existant » (newest by mtime, whole population) — the lexical
+# sort mishandled mixed naming schemes (TD-101).
+import importlib.util as _importlib_util
+
+_RUN_RES_SPEC = _importlib_util.spec_from_file_location(
+    "vbb_run_resolution", Path(__file__).parent / "vbb_run_resolution.py"
+)
+assert _RUN_RES_SPEC is not None and _RUN_RES_SPEC.loader is not None
+_run_resolution = _importlib_util.module_from_spec(_RUN_RES_SPEC)
+_RUN_RES_SPEC.loader.exec_module(_run_resolution)
+
+# Route vocabulary aliases: the canonical route family names in AGENTS.md are
+# English (FAST-*, STRUCTURED, CLOSEOUT) while run frontmatter historically
+# uses the French voies. Both are accepted; the French form is canonical here.
+VOIE_ALIASES: Dict[str, str] = {
+    "STRUCTURED": "STRUCTUREE",
+    "CLOSEOUT": "CLOTURE",
+    "FAST": "RAPIDE",
+    "FAST-STANDARD": "RAPIDE",
+    "FAST-MINIMAL": "RAPIDE-MINIMAL",
+    "FAST-ZERO": "RAPIDE-ZERO",
+}
+
 # Voie → required phase file stems (matches filenames in docs/runs/{slug}/)
 VOIE_REQUIRED_PHASES: Dict[str, List[str]] = {
     "RAPIDE-ZERO":   [],                                    # Activity Log only
@@ -522,6 +546,7 @@ def check_run(
         else:
             raw = fm.get("voie", "")
             candidate = str(raw).strip().upper() if raw else ""
+            candidate = VOIE_ALIASES.get(candidate, candidate)
             if not candidate:
                 errors.append(
                     "01_INTAKE.md: frontmatter field 'voie' is missing or empty"
@@ -540,6 +565,7 @@ def check_run(
             fm, _ = read_frontmatter(closeout_path)
             if fm:
                 inferred = str(fm.get("voie", "")).strip().upper()
+                inferred = VOIE_ALIASES.get(inferred, inferred)
                 if inferred in ("CLOTURE", "RAPIDE-ZERO", "RAPIDE-MINIMAL"):
                     voie = inferred
         if voie is None and patch_path.exists():
@@ -748,19 +774,17 @@ def main() -> int:
     base = Path(args.runs_dir) if args.runs_dir else RUNS_DIR
 
     if not run_id:
-        # Auto-detect most recent run
-        if base.exists():
-            candidates = sorted(
-                [d for d in base.iterdir() if d.is_dir()],
-                reverse=True,
-            )
-            if candidates:
-                run_id = candidates[0].name
-                if not args.strict:
-                    print(
-                        f"[info] No run_id given — using most recent: {run_id}",
-                        file=sys.stderr,
-                    )
+        # Auto-detect: selector « dernier run existant » (shared mtime
+        # resolution, ADR-0027) — newest run dir by mtime, closed or not.
+        latest = _run_resolution.latest_existing_run(base)
+        if latest is not None:
+            run_id = latest.name
+            if not args.strict:
+                print(
+                    "[info] No run_id given — using latest existing run "
+                    f"(mtime): {run_id}",
+                    file=sys.stderr,
+                )
 
     # ---- --strict mode: explicit run_id is required ----
     if args.strict and not run_id:

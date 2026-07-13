@@ -147,6 +147,18 @@ that triggered the decision.
 
 <!-- Add entries below as decisions are made -->
 
+### 2026-07-13 — V2-R1 gates fiables : résolution de run partagée + hooks canoniques (ADR-0027)
+**Decision**: keep in Core (aucune déclinaison distribution requise)
+**Trigger**: run `2026-07-13_1811_v2r1-gates-fiables` (TD-101, TD-102, défaut gate-linkage)
+**Reason**: `tools/vbb_run_resolution.py`, la liaison ADR stricte de `vbb-gate-check.py`
+et l'installateur `scripts/install-vbb-hooks.sh` sont des mécaniques génériques de gate.
+Vérification Rule A : aucune référence aux installateurs ni à ces outils dans
+`distributions/{pi,opencode,codex,claude}` (grep 0 hit) — impact distributions nul.
+**Impact**: Core : sélection de run fiable (2 sélecteurs déclarés), gate ADR sans bascule,
+hooks locaux composés. Distributions : aucun changement ; les anciens installateurs
+restent des redirections dépréciées (aucun chemin cassé).
+**Author**: claude-code (GO Brice)
+
 ### Template
 
 ```

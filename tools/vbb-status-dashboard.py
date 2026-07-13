@@ -26,6 +26,17 @@ from typing import Dict, List, Optional, Tuple
 
 REPO_ROOT = Path(__file__).parent.parent.resolve()
 
+# --- Shared run resolution (ADR-0027) ---------------------------------------
+# Single source of truth for "latest run" selection, shared with
+# vbb-loop-closure-check.py. Loaded via importlib for robustness when this
+# script itself is loaded by path (tests) rather than executed from tools/.
+_RUN_RES_SPEC = importlib.util.spec_from_file_location(
+    "vbb_run_resolution", Path(__file__).parent / "vbb_run_resolution.py"
+)
+assert _RUN_RES_SPEC is not None and _RUN_RES_SPEC.loader is not None
+_run_resolution = importlib.util.module_from_spec(_RUN_RES_SPEC)
+_RUN_RES_SPEC.loader.exec_module(_run_resolution)
+
 # --- P0-4 review-tier integration (opt-in, advisory only) ------------------
 # Imported lazily via importlib because the module filename has hyphens.
 _POC_TOOL_PATH = Path(__file__).parent / "vbb-review-threshold-poc.py"
@@ -275,15 +286,7 @@ def _find_closeout(run_dir: Path) -> Optional[Path]:
     file matching ``*CLOSEOUT*.md`` (case-insensitive). Returns ``None`` if
     no closeout file is present.
     """
-    canonical = run_dir / "07_CLOSEOUT.md"
-    if canonical.is_file():
-        return canonical
-    matches = [p for p in run_dir.glob("*CLOSEOUT*.md") if p.is_file()]
-    if not matches:
-        return None
-    # Prefer the most recently modified closeout candidate to defend against
-    # stale duplicates from partial re-runs.
-    return max(matches, key=lambda p: p.stat().st_mtime)
+    return _run_resolution.find_closeout(run_dir)
 
 
 def get_latest_runs(repo: Path, limit: int = 5) -> List[Dict]:
@@ -300,15 +303,9 @@ def get_latest_runs(repo: Path, limit: int = 5) -> List[Dict]:
         write ``CLOSEOUT.md`` before the standard rename).
     """
     runs_dir = repo / "docs" / "runs"
-    if not runs_dir.exists():
-        return []
-    # Filter: directories only. iterdir() yields loose files too; the
-    # ``is_dir()`` check defensively drops ``README.md`` and any other
-    # parasitic artefact that may land in ``docs/runs/``.
-    run_dirs = [d for d in runs_dir.iterdir() if d.is_dir()]
-    # Sort by mtime (newest first). mtime is the most reliable proxy for
-    # "most recent" because it is independent of the folder name format.
-    run_dirs.sort(key=lambda d: d.stat().st_mtime, reverse=True)
+    # Selector « dernier run clôturé » (ADR-0027): the dashboard's population
+    # is runs WITH a closeout; ordering comes from the shared mtime resolution.
+    run_dirs = _run_resolution.list_runs_by_mtime(runs_dir)
     runs: List[Dict] = []
     for rd in run_dirs[: limit * 2]:  # extra buffer in case some lack closeout
         if len(runs) >= limit:

@@ -163,6 +163,10 @@ files:
   - tools/vbb-phase-router.py
   - tools/vbb-project-init.py
   - tools/vbb-status-dashboard.py
+  - tools/vbb-loop-closure-check.py
+  - tools/vbb-gate-check.py
+  - tools/vbb_run_resolution.py
+  - scripts/install-vbb-hooks.sh
 contracts:
   - t-vbb-status-dashboard
   - t-vbb-index
@@ -171,10 +175,16 @@ contracts:
 tests:
   - tests/test_contract_lint.py
   - tests/test_status_dashboard.py
+  - tests/test_run_resolution.py
+  - tests/test_gate_check_adr_linkage.py
+  - tests/test_install_vbb_hooks.sh
 risks:
   - id: TOOL-001
     level: P2
     note: Formal executor was declarative-only (ADR-0001); vbb-executor.py now provides state machine, gate evaluation, and artifact lifecycle. Runtime enforcement boundary established.
+  - id: TOOL-002
+    level: P2
+    note: Run resolution is shared via tools/vbb_run_resolution.py (ADR-0027, TD-101) with two declared selectors (latest existing / latest closed). Hook installation converges on scripts/install-vbb-hooks.sh (TD-102); legacy installers are deprecated redirects.
 ```
 
 ## Bloc: Architecture Source

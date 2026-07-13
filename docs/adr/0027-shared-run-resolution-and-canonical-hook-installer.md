@@ -1,6 +1,6 @@
 # ADR — 0027-shared-run-resolution-and-canonical-hook-installer
 
-**Status**: PROPOSED — à passer ACCEPTED au GO Brice (GO conditionnel du 2026-07-13, cf. 03_PLAN_REDUCTION_V2.md)
+**Status**: ACCEPTED (GO Brice 2026-07-13, POC verdict GO — cf. docs/runs/2026-07-13_1811_v2r1-gates-fiables/POC.md)
 **Date**: 2026-07-13
 **Route**: STRUCTUREE
 **Décideurs**: Brice (GO conditionnel), Claude (formalisation)
