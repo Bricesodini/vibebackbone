@@ -1072,9 +1072,9 @@ Trois gates à passer avant d'écrire la première ligne de code :
 
 | Gate | Question | Si OUI |
 |------|----------|--------|
-| **ADR_REQUIRED?** | Le chantier touche-t-il un des domaines ADR ci-dessus ? | `docs/adr/{nnnn}-{slug}.md` doit exister avec `**Status**: ACCEPTED` |
-| **POC_REQUIRED?** | Le chantier dépend-il d'une hypothèse technique non validée ? | `docs/runs/.../POC.md` doit exister avec `Décision: GO` |
-| **CAN_CODE_START?** | Composite : (ADR non requis OU ADR ACCEPTED) ET (POC non requis OU POC=GO) | YES ⇒ coder ; NO ⇒ STOP, return `verdict: BLOCKED_GATE` |
+| **ADR_REQUIRED?** | Le chantier touche-t-il un des domaines ADR ci-dessus ? | `docs/adr/{nnnn}-{slug}.md` doit exister avec un statut `ACCEPTED` ou `SUPERSEDED` |
+| **POC_REQUIRED?** | Le chantier dépend-il d'une hypothèse technique non validée ? | `docs/runs/.../POC.md` doit exister avec un verdict explicite `GO` |
+| **CAN_CODE_START?** | Composite : (ADR non requis OU ADR ACCEPTED/SUPERSEDED) ET (POC non requis OU POC=GO) | YES ⇒ coder ; NO ⇒ STOP, return `verdict: BLOCKED_GATE` |
 
 ### Flux cible
 

@@ -3,6 +3,7 @@ template_id: "INTEGRATION_GATE"
 version: "1.0"
 lane_eligible:
   - "STRUCTUREE"
+  - "AUDIT"
 related:
   - "docs/templates/ADR.md.template"
   - "docs/templates/POC.md.template"
@@ -31,17 +32,17 @@ verifier: "tools/vbb-gate-check.py"
 
 - **POC référencé** : <docs/runs/{id}/POC.md OU "aucun (non requis)">
 - **Verdict attendu** : `GO`
-- **Verdict observé** : <GO|NO-GO|PIVOT>
-- **Verdict gate** : <PASS si GO, sinon BLOCKED>
+- **Verdict observé** : <GO|NO-GO|PIVOT|ABSENT>
+- **Verdict gate** : <PASS si GO ; BLOCKED si NO-GO, PIVOT ou ABSENT>
 
 ## Gates
 
 - [ ] **ADR_REQUIRED? → Y/N**
-  - Si Y : `docs/adr/{nnnn}-{slug}.md` existe ET `**Status**: ACCEPTED` ?
+  - Si Y : `docs/adr/{nnnn}-{slug}.md` existe ET son statut est `ACCEPTED` ou `SUPERSEDED` ?
 - [ ] **POC_REQUIRED? → Y/N**
-  - Si Y : `docs/runs/.../POC.md` existe ET `Décision: GO` ?
+  - Si Y : `docs/runs/.../POC.md` existe ET son verdict explicite est `GO` ?
 - [ ] **CAN_CODE_START? → YES / NO**
-  - YES seulement si (ADR pas requis OU ADR ACCEPTED) **ET** (POC pas requis OU POC=GO)
+  - YES seulement si (ADR pas requis OU ADR ACCEPTED/SUPERSEDED) **ET** (POC pas requis OU POC=GO)
 
 ## Calcul automatique
 
