@@ -15,6 +15,20 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 **`PARTIAL — reference-ready; maintenance gates, portability and active docs need stabilization`**
 
+## Latest audit note — terrain test subagent gouverné (2026-07-13)
+
+Run : [2026-07-13_2236_v2r5a-terrain-trame](runs/2026-07-13_2236_v2r5a-terrain-trame/02_AUDIT.md).
+Verdict : **POC GO** — un subagent LLM non supervisé suit la grammaire VBB de bout
+en bout dans un projet consommateur (grille figée : 6 PASS / 1 PARTIEL / 1 skip
+justifié, zéro push, séparation audit/remédiation respectée, vérification
+au-dessus du minimum). Findings ouverts :
+
+| ID | Sévérité | Statut | Constat |
+|----|----------|--------|---------|
+| TER-001 | **P1** | Open | Aucun mécanisme de propagation des évolutions de gouvernance Core vers les projets consommateurs déjà initialisés (trame roule sur PILOTAGE v1 périmé) — chantier « consumer governance refresh » à arbitrer (recoupe ADR-0012) |
+| TER-002 | P2 | Open | Protocole scopé : tag `scope:` par finding exigé mais non illustré (gabarit manquant) — ignoré par le sujet |
+| TER-003 | P3 | Open | Protocole scopé : cas mono-scope ambigu (registre requis ou non) |
+
 ## Latest audit note — public publication readiness (2026-06-13)
 
 New audit: [systemic-risks-20260613-1205.md](audits/systemic-risks-20260613-1205.md).
