@@ -27,6 +27,10 @@ Exemple : `0001-choix-framework-api.md`
 | [0014](0014-canon-vs-extension.md) | Mécanisme canon vs extension (Gap-09, P1) | ACCEPTED | 2026-07-13 | [multi-service Gap-09](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-09) |
 | [0015](0015-contract-lint-archetype-aware.md) | vbb-contract-lint archetype-aware (Gap-11, P1) | ACCEPTED | 2026-07-13 | [multi-service Gap-11](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-11) |
 | [0017](0017-co-evolution-discipline.md) | Discipline outillée de co-évolution (Gap-07, P1) | ACCEPTED | 2026-07-13 | [multi-service Gap-07](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-07) |
+| [0018](0018-multirepo-support.md) | Multi-repo support (Gap-08, P0) | ACCEPTED | 2026-07-13 | [multi-service Gap-08](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-08) |
+| [0019](0019-first-extension-database-per-service.md) | Première extension concrète (Gap-12, P1) | ACCEPTED | 2026-07-13 | [multi-service Gap-12](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-12) |
+| [0020](0020-multiservice-graph.md) | Graphe inter-services (Gap-13, P0) | ACCEPTED | 2026-07-13 | [multi-service Gap-13](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-13) |
+| [0021](0021-ci-gate-enforcement.md) | Gate CI enforcement (Gap-15, P0) | ACCEPTED | 2026-07-13 | [multi-service Gap-15](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-15) |
 | [0013-arch](0013-repo-organization-core-vs-distributions.md) | Repo organization Core vs Distributions | — | — | — |
 
 ## Conventions
