@@ -31,6 +31,9 @@ Exemple : `0001-choix-framework-api.md`
 | [0019](0019-first-extension-database-per-service.md) | Première extension concrète (Gap-12, P1) | ACCEPTED | 2026-07-13 | [multi-service Gap-12](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-12) |
 | [0020](0020-multiservice-graph.md) | Graphe inter-services (Gap-13, P0) | ACCEPTED | 2026-07-13 | [multi-service Gap-13](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-13) |
 | [0021](0021-ci-gate-enforcement.md) | Gate CI enforcement (Gap-15, P0) | ACCEPTED | 2026-07-13 | [multi-service Gap-15](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-15) |
+| [0022](0022-include-formalization.md) | Formalisation `@include` (Gap-16, P2) | ACCEPTED | 2026-07-13 | [multi-service Gap-16](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-16) |
+| [0023](0023-generated-sentinel-detection.md) | Sentinel `@generated` + détection (Gap-17, P2) | ACCEPTED | 2026-07-13 | [multi-service Gap-17](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-17) |
+| [0024](0024-snapshot-to-log.md) | Snapshot→log cumulatif (Gap-18, P2) | ACCEPTED | 2026-07-13 | [multi-service Gap-18](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-18) |
 | [0013-arch](0013-repo-organization-core-vs-distributions.md) | Repo organization Core vs Distributions | — | — | — |
 
 ## Conventions
