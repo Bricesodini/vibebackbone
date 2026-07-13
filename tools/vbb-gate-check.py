@@ -86,11 +86,15 @@ MODE_TRANSITION_KEYWORDS = (
 
 # Status accepted for an ADR
 ADR_ACCEPTED_RE = re.compile(r"\*\*Status\*\*\s*:\s*(ACCEPTED|SUPERSEDED)", re.IGNORECASE)
+_POC_VERDICT_LABEL = r"(?:\*\*)?(?:Décision|Verdict|decision)(?:\*\*)?"
 POC_GO_RE = re.compile(
-    r"(?:Décision|Verdict|verdict|decision)\s*:\s*(GO|PIVOT)", re.IGNORECASE
+    rf"{_POC_VERDICT_LABEL}\s*:\s*GO\b", re.IGNORECASE
 )
 POC_NOGO_RE = re.compile(
-    r"(?:Décision|Verdict|verdict|decision)\s*:\s*NO[\s\-]?GO", re.IGNORECASE
+    rf"{_POC_VERDICT_LABEL}\s*:\s*NO[\s\-]?GO\b", re.IGNORECASE
+)
+POC_PIVOT_RE = re.compile(
+    rf"{_POC_VERDICT_LABEL}\s*:\s*PIVOT\b", re.IGNORECASE
 )
 
 # Patterns to extract ADR reference from 01_INTAKE or 04_PLAN
@@ -294,15 +298,17 @@ def check_adr(run_dir: Path) -> Tuple[bool, Optional[Path], str]:
 
 
 def check_poc(run_dir: Path) -> Tuple[bool, Optional[Path], str]:
-    """Check POC presence+GO for the run."""
+    """Check POC presence and require an explicit GO verdict for the run."""
     poc = run_dir / "POC.md"
     if not poc.exists():
         return False, None, "MISSING_POC"
     text = _read(poc)
-    if POC_GO_RE.search(text) and not POC_NOGO_RE.search(text):
-        return True, poc, ""
     if POC_NOGO_RE.search(text):
         return False, poc, "POC_VERDICT_NO_GO"
+    if POC_PIVOT_RE.search(text):
+        return False, poc, "POC_VERDICT_PIVOT"
+    if POC_GO_RE.search(text):
+        return True, poc, ""
     return False, poc, "POC_VERDICT_ABSENT"
 
 

@@ -332,6 +332,26 @@ that triggered the decision.
 
 **Author**: Hermes (orchestration), vbb-audit-worker (validation READ-ONLY)
 
+### 2026-07-13 — Contrat des verdicts POC maintenu dans VBB Core
+
+**Decision**: Conserver dans Core la reconnaissance des verdicts POC et rendre
+`PIVOT` bloquant. Aucune logique spécifique n'est ajoutée aux distributions.
+
+**Trigger**: Audit systémique `2026-07-13_1551_poc-subagents-methodology-audit`
+et correction `2026-07-13_1639_poc-gate-verdict-contract`.
+
+**Reason**: Le contrat GO/NO-GO/PIVOT est une règle de gouvernance générique,
+partagée par tous les runtimes. Le template canonique exige déjà `GO` pour
+autoriser le code.
+
+**Impact**: `tools/vbb-gate-check.py` reste la source exécutable Core. Les
+distributions Hermes/Cody continuent de l'appeler sans changement de CLI, de
+schéma JSON ni de code de sortie. `PIVOT` bloque désormais explicitement avec
+la raison `POC_VERDICT_PIVOT`. Les profils runtime externes n'ont pas été
+modifiés.
+
+**Author**: Codex, validé par Brice (`go`, 2026-07-13)
+
 ### Example entry (illustrative)
 
 ```
