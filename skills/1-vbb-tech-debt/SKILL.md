@@ -66,6 +66,22 @@ Absolute rules:
 
 ## SCOPE
 
+### Scope parameter (ADR-0028)
+
+Optional input `scope` (contract input: `scope_filter`). Canonical iteration
+protocol: `docs/REFERENCE/scoped-audit-protocol.md` — cite it, never restate it.
+
+- **Absent** → global analysis (historical behavior, unchanged).
+- **Present** → restrict the audit strictly to the scope. Accepted values:
+  a `docs/ARCHITECTURE.md` block id (scope = the block's `files:` list), a
+  directory or glob path, or an explicit business label with its path list.
+- With a scope: name the report `tech-debt-{scope-slug}-{YYYYMMDD-HHMM}.md`,
+  tag every finding with `scope: <value>`, and stay silent on out-of-scope
+  findings (at most one "observed out of scope" line, for the inventory).
+- To audit a repo scope by scope (inventory → one pass per scope →
+  consolidated register `tech-debt-register-{YYYYMMDD}.md`), follow the
+  canonical protocol above. One pass = one scope = one report.
+
 ### Included
 
 - legacy residue
@@ -123,6 +139,7 @@ Ensure `docs/audits/` exists.
 
 Write ONE Markdown report in:
 `docs/audits/tech-debt-{YYYYMMDD-HHMM}.md`
+(with a `scope`: `docs/audits/tech-debt-{scope-slug}-{YYYYMMDD-HHMM}.md`)
 
 Then update `docs/AUDIT_STATUS.md`.
 

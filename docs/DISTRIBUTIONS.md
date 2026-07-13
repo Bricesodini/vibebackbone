@@ -159,6 +159,19 @@ hooks locaux composés. Distributions : aucun changement ; les anciens installat
 restent des redirections dépréciées (aucun chemin cassé).
 **Author**: claude-code (GO Brice)
 
+### 2026-07-13 — V2-R3 audits scopés : paramètre scope + protocole d'itération (ADR-0028)
+**Decision**: keep in Core (aucune déclinaison distribution requise)
+**Trigger**: run `2026-07-13_1902_v2r3-audits-scopes` (AUDIT-A-001/002, demande granularité Brice)
+**Reason**: le paramètre `scope` des 3 skills anti-slop et le protocole
+`docs/REFERENCE/scoped-audit-protocol.md` sont de la grammaire générique d'audit.
+Vérification Rule A : aucune référence à ces skills ni au protocole dans
+`distributions/{pi,opencode,codex,claude}` (grep 0 hit) ; changement additif et
+rétro-compatible (défaut = analyse globale inchangée).
+**Impact**: Core : granularité au choix (global ↔ bloc ↔ répertoire), registre
+consolidé par skill. Distributions : consomment la nouvelle capacité via les
+skills partagés, aucun code de distribution modifié.
+**Author**: claude-code (GO Brice)
+
 ### Template
 
 ```

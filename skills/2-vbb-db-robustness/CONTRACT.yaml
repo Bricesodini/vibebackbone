@@ -26,6 +26,7 @@ inputs:
   - docs/AUDIT_STATUS.md
   - docs/CONTEXT.md
   - orm_config
+  - scope_filter
   - raw_queries
   - backup_strategy
   - db_ops_docs

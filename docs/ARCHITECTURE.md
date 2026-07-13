@@ -94,6 +94,7 @@ files:
   - skills/*/SKILL.md
   - skills/*/CONTRACT.yaml
   - skills/INDEX.yaml
+  - docs/REFERENCE/scoped-audit-protocol.md
 contracts:
   - skills/INDEX.yaml
 tests:
