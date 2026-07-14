@@ -581,6 +581,19 @@ guard explicite. Aucun adaptateur, format sérialisé ou gate CI ne change.
 
 **Author**: Codex, après GO Brice
 
+### 2026-07-14 — Gates statiques promues dans Core CI
+
+**Decision**: Rendre Ruff check, Ruff format et mypy bloquants dans les CI
+locale et GitHub après baseline zéro.
+
+**Reason**: Les invariants et leur configuration sont génériques aux quatre
+runtimes ; les garder hors gate permettrait une régression silencieuse.
+
+**Impact**: Pi, OpenCode, Codex et Claude Code héritent des mêmes gates de
+repository. Aucun adaptateur, permission GitHub ou état runtime ne change.
+
+**Author**: Codex, après GO Brice
+
 ## 9. References
 
 - `README.md` — entry point; "VBB Core vs Distributions" anchors the

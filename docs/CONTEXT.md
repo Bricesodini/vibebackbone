@@ -23,14 +23,14 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 - **Route**: STRUCTURED
 - **Release posture**: v1.0 hardening complete; bounded maintenance continues
-- **Active run**: none
+- **Active run**: `2026-07-14_1520_static-ci-promotion` — remote observation
 - **Latest completed run**:
   [`2026-07-14_1500_mypy-cleanup`](runs/2026-07-14_1500_mypy-cleanup/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: after the autonomous-run checkpoint, promote Ruff check,
-  Ruff format and mypy to local and GitHub CI with failure/recovery proofs
+- **Next action**: observe the post-push Ubuntu/macOS workflow, then close
+  QOA-007 and this run only if both jobs pass
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
 - **Quality**: [CONVENTIONS.md](CONVENTIONS.md), pillars P1–P5 and P.R1–P.R8

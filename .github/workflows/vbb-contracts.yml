@@ -25,7 +25,13 @@ jobs:
           VBB_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           VBB_HEAD_SHA: ${{ github.sha }}
         run: python3 tools/vbb-credentials-gate.py --range "$VBB_BASE_SHA" "$VBB_HEAD_SHA"
-      - run: pip install -r requirements.txt
+      - run: python3 -m pip install -r requirements-dev.txt
+      - name: Ruff check
+        run: python3 -m ruff check tools tests
+      - name: Ruff format check
+        run: python3 -m ruff format --check tools tests
+      - name: Mypy
+        run: python3 -m mypy tools
       - name: Contract lint
         run: python3 tools/vbb-contract-lint.py
       - name: Architecture lint

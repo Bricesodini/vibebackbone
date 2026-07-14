@@ -188,6 +188,7 @@ tests:
   - tests/test_credentials_gate.py
   - tests/test_install_vbb_hooks.sh
   - tests/test_project_init.py
+  - tests/test_static_quality_ci.py
 risks:
   - id: TOOL-001
     level: P2
