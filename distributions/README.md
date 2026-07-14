@@ -43,14 +43,13 @@ block in `setup.sh`" approach):
 
 Setup Split is complete. The four supported distributions own their own
 `setup.sh`, sourced by the root routeur. Hermes/Cody was retired by ADR 0025.
-See
-[`docs/audits/2026-06-14_1800_setup-split-migration-audit/`](../../docs/audits/2026-06-14_1800_setup-split-migration-audit/)
-for the migration audit (verdict: DONE).
+See [`docs/DISTRIBUTIONS.md` § Decisions log](../docs/DISTRIBUTIONS.md#7-decisions-log)
+for the migration evidence and decisions.
 
 ## See also
 
 - `docs/DISTRIBUTIONS.md` — canonical definition of Core vs Distribution
-- `AGENTS.md` Critical Rule #11 (propagation rules) and #12 (Core↔Dist impact check)
+- `AGENTS.md` Critical Rule #12 (Core↔Distribution propagation and impact check)
 - `core.README.md` — Core sentinel
 - `docs/DEPLOYMENT.md` §3bis — Setup architecture (routeur + helpers + per-dist files)
 - `docs/adr/0013-repo-organization-core-vs-distributions.md` — the decision

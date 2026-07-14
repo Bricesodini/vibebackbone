@@ -59,7 +59,7 @@ The `07_CLOSEOUT.md` artefact carries an explicit `kind:` field in its frontmatt
 
 **Session history archive:** every handoff is mirrored to `docs/SESSION.history/{YYYY-MM-DD}.md` (local, gitignored) before `SESSION.md` is updated for the next session. This preserves continuity across machine reinstalls without leaking session content into the versioned repo.
 
-Canonical reference: [`docs/templates/07_CLOSEOUT.md.template`](../templates/07_CLOSEOUT.md.template) (frontmatter `kind:` field).
+Canonical reference: [`docs/templates/07_CLOSEOUT.md.template`](templates/07_CLOSEOUT.md.template) (frontmatter `kind:` field).
 Auto-computation: [`prompts/canonical/07-p-vbb-closeout.md` § Étape 1](../prompts/canonical/07-p-vbb-closeout.md).
 
 ## Links

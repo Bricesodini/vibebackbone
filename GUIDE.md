@@ -7,7 +7,7 @@
 > (skills, prompts, gates, conventions, routage). Les quatre déclinaisons
 > supportées sont **Pi, OpenCode, Codex et Claude Code** ; voir
 > [`docs/DISTRIBUTIONS.md`](docs/DISTRIBUTIONS.md). La séparation Core vs
-> Distribution est régie par [AGENTS.md Critical Rule #11](AGENTS.md#critical-rules).
+> Distribution est régie par [AGENTS.md Critical Rule #12](AGENTS.md#critical-rules).
 
 Ce guide est un compagnon **pédagogique** du `README.md`. Le README dit *ce qu'est* vibebackbone. Ce guide dit *comment l'utiliser pour de vrai*, avec des cas d'usages concrets, des dialogues réalistes avec un agent, et les pièges à éviter.
 

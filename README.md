@@ -74,7 +74,7 @@ The guide is written to help you:
 > **Pi, OpenCode, Codex and Claude Code**. For the full distinction and Core ↔
 > Distribution propagation rules, see
 > [`docs/DISTRIBUTIONS.md`](docs/DISTRIBUTIONS.md). Enforced by
-> [AGENTS.md Critical Rule #11](AGENTS.md#critical-rules).
+> [AGENTS.md Critical Rule #12](AGENTS.md#critical-rules).
 
 ## Périmètre et maturité
 
@@ -128,12 +128,11 @@ structural layout of Core:
 vibebackbone/             ← VBB Core (this repo)
 ├── AGENTS.md            ← agent-facing critical rules
 ├── GUIDE.md             ← long-form human guide
-├── CONVENTIONS.md       ← quality pillars P1–P5 + rules P.R1–P.R8
 ├── docs/                ← canonical governance
 │   ├── CONTEXT.md
 │   ├── PILOTAGE.md
 │   ├── ARCHITECTURE.md
-│   ├── CONVENTIONS.md (mirror)
+│   ├── CONVENTIONS.md   ← quality pillars P1–P5 + rules P.R1–P.R8
 │   ├── templates/       ← ADR, POC, INTEGRATION_GATE, 01-07 phases
 │   └── ...
 ├── skills/              ← 64 injectable skills
@@ -150,7 +149,7 @@ lives outside the repo under `~/.claude/`, `~/.codex/`, `~/.pi/` or
 `~/.config/opencode/`. See
 [`docs/DISTRIBUTIONS.md`](docs/DISTRIBUTIONS.md) for the full distinction and
 the Core ↔ Distribution propagation rules (enforced by
-[AGENTS.md Critical Rule #11](AGENTS.md#critical-rules)).
+[AGENTS.md Critical Rule #12](AGENTS.md#critical-rules)).
 
 ## VBB Core vs Distributions
 
@@ -160,13 +159,13 @@ the Core ↔ Distribution propagation rules (enforced by
 | Where it lives                  | This repository                            | `distributions/{pi,opencode,codex,claude}/` | `~/.pi/`, `~/.config/opencode/`, `~/.codex/`, `~/.claude/` |
 | Examples of content             | Skills, prompts, templates, gates, linters | Provider-specific `setup.sh`, `README.md`, `CLAUDE.md`/`SYSTEM.md` | Generated config, commands and governance files |
 | ADR/POC/Integration Gate        | ✅ `tools/vbb-gate-check.py`, templates, `GUIDE.md` §10bis | consumes Core through generated/linked governance | — |
-| Quality conventions             | ✅ `CONVENTIONS.md`, P.R1–P.R8             | inherits + applies                                  | —                                                                        |
+| Quality conventions             | ✅ `docs/CONVENTIONS.md`, P.R1–P.R8        | inherits + applies                                  | —                                                                        |
 | Provider-specific glue          | n/a (provider adapters live in `distributions/`) | Owns provider-specific glue (paths, settings, hooks) | Runtime state populated by provider-specific setup scripts            |
 
 **Rule of thumb:** if a rule applies to **any** agent runtime, it belongs in
 Core. If it is glue to one specific runtime, it stays in the distribution.
 The bidirectional propagation rule (Core→Dist impact check, Dist→Core
-promote-or-keep) is in [AGENTS.md Critical Rule #11](AGENTS.md#critical-rules)
+promote-or-keep) is in [AGENTS.md Critical Rule #12](AGENTS.md#critical-rules)
 and tracked in [`docs/DISTRIBUTIONS.md` §Decisions log](docs/DISTRIBUTIONS.md#7-decisions-log).
 
 ```

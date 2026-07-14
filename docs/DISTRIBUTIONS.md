@@ -420,23 +420,17 @@ les distributions héritent du Core corrigé.
 
 **Author**: Codex, après GO Brice
 
-### Example entry (illustrative)
+### 2026-07-14 — Diète des skills conservée dans Core
 
-```
-### 2026-06-13 — ADR/POC Integration Gate is VBB Core
-**Decision**: Promote to Core
-**Trigger**: Audit 20260602_1645 + §10bis of GUIDE.md already in place
-**Reason**: Generic VBB rule applying to every supported runtime.
-**Impact**: tools/vbb-gate-check.py, templates, GUIDE §10bis stay in Core.
-            Each distribution exposes them through its provider adapter.
-**Author**: example
-```
+**Decision**: Compresser les cinq contrats les plus lourds dans le catalogue
+Core. **Impact**: les quatre distributions héritent des contrats allégés ; aucun
+glue provider ni état runtime ne change. **Author**: Codex, après GO Brice.
 
 ## 8. References
 
 - `README.md` — entry point; "VBB Core vs Distributions" anchors the
   high-level distinction.
-- `AGENTS.md` — Critical Rule #11 enforces the Core ↔ Distribution rule.
+- `AGENTS.md` — Critical Rule #12 enforces the Core ↔ Distribution rule.
 - `GUIDE.md`, `docs/PILOTAGE.md`, `docs/ARCHITECTURE.md`, `docs/CONVENTIONS.md`
   — all describe VBB Core.
 
@@ -444,5 +438,5 @@ Supported runtime details live in each `distributions/<provider>/README.md`.
 
 ---
 
-*This file is canon. Changes are governed by AGENTS.md Critical Rule #11 and
+*This file is canon. Changes are governed by AGENTS.md Critical Rule #12 and
 must be recorded in §7 above.*

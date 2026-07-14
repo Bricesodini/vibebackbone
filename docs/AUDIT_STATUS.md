@@ -13,7 +13,15 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 ## Global verdict
 
-**`PARTIAL — reference-ready; maintenance gates, portability and active docs need stabilization`**
+**`PARTIAL — reference-ready; consumer refresh and bounded documentation gaps remain`**
+
+## Latest remediation note — active truth and skill diet (2026-07-14)
+
+Run: `2026-07-14_0700_truth-skill-diet`. Active CONTEXT/SESSION state and live
+Core↔Distribution references are reconciled. The five largest `SKILL.md` files
+drop from 73,766 to 26,084 characters while retaining gates, process order,
+outputs, verdicts, triggers, and support boundaries. Total skill weight drops
+from 362,069 to 314,387 characters; contract lint reports 0 errors/warnings.
 
 ## Latest audit note — deep post-sanding verification (2026-07-13)
 
@@ -135,13 +143,13 @@ stabilized in the same pass.
 | QOA-009 | P3 | Static status counters drift from measured state (`82/82` docs vs `95 passed, 2 skipped`; runtime dry-run counts changed) | Open — replace static counters with generated references |
 | GMA-001 | P1 | Hook installation has two competing scripts and no single executable truth | **RESOLVED 2026-07-13** — V2-R1 (`ca70f4a`) : `scripts/install-vbb-hooks.sh` canonique composé, anciens installateurs en redirection, testé en repo git temporaire (`tests/test_install_vbb_hooks.sh` 11/11) |
 | GMA-002 | P1 | Boot/runbook documentation retains `~/02_Dev` and `/Users/bot` machine paths | **RESOLVED 2026-07-13** — V2-R2 : surfaces actives migrées en chemins relatifs repo (AGENTS, PILOTAGE, RUNBOOK, LONG_RUN_RULE), grep = 0 |
-| GMA-003 | P1 | `vbb-executor.py` had no direct tests, duplicate loader definition and concentrated typing debt | **MITIGATING 2026-07-14** — 8 direct tests now cover nested gates, cycles, depth and missing contracts; duplicate loader/typing cleanup remains deferred |
-| GMA-004 | P1 | Active code↔doc scan found 22 actionable broken local links | Open — targeted documentation remediation, excluding history |
+| GMA-003 | P1 | `vbb-executor.py` had no direct tests, duplicate loader definition and concentrated typing debt | **MITIGATING 2026-07-14** — 8 direct tests cover nested gates, cycles, depth and missing contracts; unrelated loader/typing cleanup remains deferred |
+| GMA-004 | P1 | Active code↔doc scan found 22 actionable broken local links | **MITIGATING 2026-07-14** — boot/canon links in the RUN 02 scope repaired; remaining active surfaces require a separate bounded scan |
 | GMA-005 | P2 | Convention drift: 36 functions >40 lines, Python naming ambiguity and 8 French prompts | Open — canon proposal for language-specific naming, then bounded migration |
 | SYS-POST-001 | P1 | Formal executor gate semantics were incorrect: nested status read from a missing field and recursive depth reset | **RESOLVED 2026-07-14** — run `2026-07-14_0010_executor-correctness`; contract status, depth progression and cycle blocking covered by 8 direct tests; full suite 152 passed / 1 skipped |
 | SYS-POST-002 | P1 | Final external audit bypassed the canonical AUDIT artifact and FINAL_STATUS contract | **Open — VERIFIED 2026-07-13**: commit `d0eab3c` has no run/INTAKE/AUDIT_REPORT/FINAL_STATUS and uses non-canonical verdict `SOLIDE` |
-| SYS-POST-003 | P1 | CLOSE-FINAL did not converge active SESSION and CONTEXT state | **Open — VERIFIED 2026-07-13**: SESSION says audit in progress; CONTEXT still points to completed hook/run-selection work and 133 tests |
-| SYS-POST-004 | P2 | Active Core↔Distribution references still cite Critical Rule #11 although the canonical rule is now #12 | Open — bounded documentation reconciliation |
+| SYS-POST-003 | P1 | CLOSE-FINAL did not converge active SESSION and CONTEXT state | **RESOLVED 2026-07-14** — active files now point to RUN 02, the completed executor run, and the measured dashboard instead of stale counters |
+| SYS-POST-004 | P2 | Active Core↔Distribution references still cite Critical Rule #11 although the canonical rule is now #12 | **RESOLVED 2026-07-14** — public/governance surfaces now cite Critical Rule #12; historical artifacts are unchanged |
 | PILOT-001 | P1 | `skills/INDEX.yaml` indexes 43/63 contracts; router/runtime coverage is lower than documented contract-file coverage | Resolved — index now 64/64 (v1.0.0-rc.1), linter guard added, runtime executes 64 contracts |
 | PILOT-002 | P1 | Phase router can route unknown/unindexed requests from agent/phase scoring without semantic trigger match | Resolved — router now requires trigger match, regression test green |
 | PILOT-003 | P1 | Two pilotage files claim canonical authority and diverge (`docs/PILOTAGE.md` v2.2 vs `skills/vibebackbone/docs/PILOTAGE.md` v2.1) | Resolved — root pilotage declared canonical, catalog doc demoted to detailed reference |
@@ -251,9 +259,9 @@ New risks added:
 | ID | Severity | Description | Status |
 |----|----------|-------------|--------|
 | LLM-LOAD-001 | P1 | Codex generated-block replacement previously left stale nested governance content in the installed runtime file | Resolved — `setup.sh` now replaces from first generated marker to last generated marker; smoke regression added |
-| LLM-LOAD-002 | P2 | Five `SKILL.md` files exceed 13 KB and remain likely context-heavy when invoked | Open — compress into operational core + references |
+| LLM-LOAD-002 | P2 | Five `SKILL.md` files exceed 13 KB and remain likely context-heavy when invoked | **RESOLVED 2026-07-14** — all five are below 5.7 KB; no new reference or tool introduced |
 | LLM-LOAD-003 | P2 | Historical Cody reliability gate v2 targeted out-of-repo Hermes runtime files | **SUPERSEDED** — ADR 0025 retires Hermes/Cody; the plan is archived and external state remains untouched |
-| AUDIT-E-006 | P2 | SKILL.md `description:` length drift observed in audit (20 skills > 500 chars at audit time) | Open — Run 4 sets canon (≤ 500 chars / ≤ 10 lines, indicative) + non-blocking warning in `vbb-contract-lint.py`. Current measured: 5 warnings (audit-time 20 has likely drifted down since 14:00 due to incremental skill edits). Promotion warning → error at 800 chars deferred to a future run after ≥ 1 observation cycle. |
+| AUDIT-E-006 | P2 | SKILL.md `description:` length drift observed in audit (20 skills > 500 chars at audit time) | **RESOLVED 2026-07-14** — current contract lint reports 0 description warnings under the indicative 500-character / 10-line canon |
 
 ## Local audit note — quality organization pass (2026-06-02)
 
@@ -359,7 +367,7 @@ Original triptyque (RUN 04A/04B/04C) identified 22 risks. After hardening:
 - P0: 0
 - P1: 1 mitigating (IMPL-002), 4 resolved (IMPL-001, PILOT-001..003)
 
-Full risk history: [audits/auto-audit-synthesis](../audits/auto-audit-synthesis.md), [global-evaluation-20260613](../audits/global-evaluation-20260613.md)
+Full risk history: [auto-audit-synthesis](audits/20260610-auto-audit-synthesis.md), [global-evaluation-20260613](audits/global-evaluation-20260613.md)
 
 ## Runtime dry-run explanation
 

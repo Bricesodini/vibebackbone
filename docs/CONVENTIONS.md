@@ -227,7 +227,7 @@ OPS-001 (now closed) demonstrated this risk.
 ### P.R2 — One Verification Loop
 
 **The single verification loop is canonicalized at
-[`docs/REFERENCE/pre-merge-gate.md`](../REFERENCE/pre-merge-gate.md).**
+[`docs/REFERENCE/pre-merge-gate.md`](REFERENCE/pre-merge-gate.md).**
 
 Before any implementation may be declared complete, run the 5 mandatory
 verifications (P.R2). The canonical shell block and the FAIL behavior
