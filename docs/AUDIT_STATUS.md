@@ -15,6 +15,25 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 **`PARTIAL — reference-ready; maintenance gates, portability and active docs need stabilization`**
 
+## Latest audit note — deep post-sanding verification (2026-07-13)
+
+Run : [2026-07-13_2351_deep-post-sanding-audit](runs/2026-07-13_2351_deep-post-sanding-audit/02_AUDIT_REPORT.md).
+Reports : [systemic risks](audits/systemic-risks-20260713-2355.md) ·
+[technical debt](audits/tech-debt-20260713-2355.md) ·
+[audit readiness](audits/audit-readiness-20260713-2355.md).
+
+Verdict : **PARTIAL** (readiness : READY). Architecture/contract lint clean,
+144 tests passed / 1 skipped, smoke runtime 14/14, contract dry-run
+43 PASS / 19 PARTIAL / 2 BLOCKED. New P1: `vbb-executor.py` incorrectly reads
+nested gate status and resets recursion depth; reproduced false BLOCKED and
+`RecursionError` despite `max_gate_depth`. The previous final audit also lacks
+its mandatory AUDIT run artifacts and FINAL_STATUS. Active SESSION/CONTEXT
+remain out of sync with CLOSE-FINAL.
+
+Minimal remediation plan: [intent-decomp-20260714-0007.md](audits/intent-decomp-20260714-0007.md)
+— 3 bounded runs, no new skill/tool, total `SKILL.md` non-growth, top-five
+hotspots target 73,766 → ≤62,700 characters.
+
 ## Latest audit note — évaluation globale externe post-ponçage (2026-07-14)
 
 Rapport : [global-evaluation-20260714-0005.md](audits/global-evaluation-20260714-0005.md)
@@ -116,9 +135,13 @@ stabilized in the same pass.
 | QOA-009 | P3 | Static status counters drift from measured state (`82/82` docs vs `95 passed, 2 skipped`; runtime dry-run counts changed) | Open — replace static counters with generated references |
 | GMA-001 | P1 | Hook installation has two competing scripts and no single executable truth | **RESOLVED 2026-07-13** — V2-R1 (`ca70f4a`) : `scripts/install-vbb-hooks.sh` canonique composé, anciens installateurs en redirection, testé en repo git temporaire (`tests/test_install_vbb_hooks.sh` 11/11) |
 | GMA-002 | P1 | Boot/runbook documentation retains `~/02_Dev` and `/Users/bot` machine paths | **RESOLVED 2026-07-13** — V2-R2 : surfaces actives migrées en chemins relatifs repo (AGENTS, PILOTAGE, RUNBOOK, LONG_RUN_RULE), grep = 0 |
-| GMA-003 | P1 | `vbb-executor.py` has no direct tests, duplicate loader definition and concentrated typing debt | Open — characterize state transitions and artifact writes before cleanup |
+| GMA-003 | P1 | `vbb-executor.py` had no direct tests, duplicate loader definition and concentrated typing debt | **MITIGATING 2026-07-14** — 8 direct tests now cover nested gates, cycles, depth and missing contracts; duplicate loader/typing cleanup remains deferred |
 | GMA-004 | P1 | Active code↔doc scan found 22 actionable broken local links | Open — targeted documentation remediation, excluding history |
 | GMA-005 | P2 | Convention drift: 36 functions >40 lines, Python naming ambiguity and 8 French prompts | Open — canon proposal for language-specific naming, then bounded migration |
+| SYS-POST-001 | P1 | Formal executor gate semantics were incorrect: nested status read from a missing field and recursive depth reset | **RESOLVED 2026-07-14** — run `2026-07-14_0010_executor-correctness`; contract status, depth progression and cycle blocking covered by 8 direct tests; full suite 152 passed / 1 skipped |
+| SYS-POST-002 | P1 | Final external audit bypassed the canonical AUDIT artifact and FINAL_STATUS contract | **Open — VERIFIED 2026-07-13**: commit `d0eab3c` has no run/INTAKE/AUDIT_REPORT/FINAL_STATUS and uses non-canonical verdict `SOLIDE` |
+| SYS-POST-003 | P1 | CLOSE-FINAL did not converge active SESSION and CONTEXT state | **Open — VERIFIED 2026-07-13**: SESSION says audit in progress; CONTEXT still points to completed hook/run-selection work and 133 tests |
+| SYS-POST-004 | P2 | Active Core↔Distribution references still cite Critical Rule #11 although the canonical rule is now #12 | Open — bounded documentation reconciliation |
 | PILOT-001 | P1 | `skills/INDEX.yaml` indexes 43/63 contracts; router/runtime coverage is lower than documented contract-file coverage | Resolved — index now 64/64 (v1.0.0-rc.1), linter guard added, runtime executes 64 contracts |
 | PILOT-002 | P1 | Phase router can route unknown/unindexed requests from agent/phase scoring without semantic trigger match | Resolved — router now requires trigger match, regression test green |
 | PILOT-003 | P1 | Two pilotage files claim canonical authority and diverge (`docs/PILOTAGE.md` v2.2 vs `skills/vibebackbone/docs/PILOTAGE.md` v2.1) | Resolved — root pilotage declared canonical, catalog doc demoted to detailed reference |

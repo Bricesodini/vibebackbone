@@ -408,6 +408,18 @@ n'est touché.
 
 **Author**: Brice (décision), Codex (migration)
 
+### 2026-07-14 — Correction de l'executor conservée dans Core
+
+**Decision**: Garder la correction des gates imbriqués, de la profondeur et des
+cycles dans `tools/vbb-executor.py`, sans modification des quatre adaptateurs.
+
+**Reason**: Ces invariants sont génériques et consommés par tous les runtimes.
+
+**Impact**: Aucun glue provider, chemin installé ou contrat public ne change ;
+les distributions héritent du Core corrigé.
+
+**Author**: Codex, après GO Brice
+
 ### Example entry (illustrative)
 
 ```

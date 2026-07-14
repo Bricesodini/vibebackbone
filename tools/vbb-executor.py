@@ -98,7 +98,13 @@ def load_contract(skill_id: str) -> Optional[Dict]:
 # Gate evaluation
 # ─────────────────────────────────────────────────────────────────────────────
 
-def evaluate_before_gates(contract: Dict, run_id: str, strict: bool) -> List[Dict]:
+def _contract_status(result: Dict) -> str:
+    """Return the contract status emitted by a nested execution."""
+    return result.get("outputs", {}).get("status") or result.get("state", "BLOCKED")
+
+
+def evaluate_before_gates(contract: Dict, run_id: str, strict: bool,
+                          depth: int, ancestors: tuple[str, ...]) -> List[Dict]:
     """Evaluate gates.before. Recursively resolves blocking skill references."""
     results = []
     for gate in contract.get("gates", {}).get("before", []):
@@ -109,8 +115,10 @@ def evaluate_before_gates(contract: Dict, run_id: str, strict: bool) -> List[Dic
 
         if skill_ref and blocking:
             # Recursive executor call — enforces gate depth limit
-            sub_result = execute_skill(skill_ref, run_id, strict=strict, depth=1)
-            actual = sub_result.get("status", "BLOCKED")
+            sub_result = execute_skill(
+                skill_ref, run_id, strict=strict, depth=depth + 1, ancestors=ancestors
+            )
+            actual = _contract_status(sub_result)
         else:
             # Static gate: expected status is the actual status
             actual = expected
@@ -146,7 +154,8 @@ def evaluate_success_gates(contract: Dict, outputs: Dict) -> List[Dict]:
     return results
 
 
-def evaluate_after_gates(contract: Dict, run_id: str) -> List[Dict]:
+def evaluate_after_gates(contract: Dict, run_id: str, depth: int,
+                         ancestors: tuple[str, ...]) -> List[Dict]:
     """Evaluate gates.after — post-execution cleanup/notification gates."""
     results = []
     for gate in contract.get("gates", {}).get("after", []):
@@ -155,8 +164,10 @@ def evaluate_after_gates(contract: Dict, run_id: str) -> List[Dict]:
         blocking = gate.get("blocking", False)
 
         if skill_ref and blocking:
-            sub_result = execute_skill(skill_ref, run_id, strict=False, depth=1)
-            actual = sub_result.get("status", "BLOCKED")
+            sub_result = execute_skill(
+                skill_ref, run_id, strict=False, depth=depth + 1, ancestors=ancestors
+            )
+            actual = _contract_status(sub_result)
             passed = actual in {"PASS", "PARTIAL"}
         else:
             passed = True
@@ -351,6 +362,7 @@ def execute_skill(
     run_id: Optional[str] = None,
     strict: bool = False,
     depth: int = 0,
+    ancestors: tuple[str, ...] = (),
 ) -> Dict[str, Any]:
     """
     Execute a single skill contract with full gate enforcement.
@@ -372,6 +384,18 @@ def execute_skill(
         "errors": [],
         "warnings": [],
     }
+
+    if skill_id in ancestors:
+        result["state"] = ExecutorState.BLOCKED
+        result["ended_at"] = _now(tick)
+        result["duration_ms"] = _dur(tick)
+        result["errors"].append({
+            "code": "CIRCULAR_GATE_DEPENDENCY",
+            "message": f"Circular gate dependency detected: {' -> '.join((*ancestors, skill_id))}",
+        })
+        return result
+
+    lineage = (*ancestors, skill_id)
 
     # ── READY: contract loaded ───────────────────────────────────────────────
     if contract is None:
@@ -398,7 +422,9 @@ def execute_skill(
     result["state"] = ExecutorState.RUNNING
 
     # ── RUNNING: before gates ───────────────────────────────────────────────
-    before_gates = evaluate_before_gates(contract, run_id or "unknown", strict)
+    before_gates = evaluate_before_gates(
+        contract, run_id or "unknown", strict, depth, lineage
+    )
     result["gates"].extend(before_gates)
 
     blocking_failed = [g for g in before_gates if g.get("blocking") and not g.get("passed")]
@@ -435,7 +461,7 @@ def execute_skill(
         ]
 
     # ── EVALUATING: after gates ────────────────────────────────────────────
-    after_gates = evaluate_after_gates(contract, run_id or "unknown")
+    after_gates = evaluate_after_gates(contract, run_id or "unknown", depth, lineage)
     result["gates"].extend(after_gates)
 
     after_failed = [g for g in after_gates if g.get("blocking") and not g.get("passed")]
