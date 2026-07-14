@@ -25,7 +25,8 @@ resolved or explicitly accepted; the independent read-only revalidation remains.
 
 | ID | Severity | Description | Status |
 |---|---|---|---|
-| — | — | No unresolved finding remains in the active table. | Wave 5 review pending. |
+| READY-GOV-001 | P1 | Local `SESSION.md` contradicts `CONTEXT.md` and resolved GMA-003 state. | **OPEN** — reconcile the mandatory boot hierarchy before another READY review. |
+| READY-GIT-002 | P2 | Literal clean-worktree state cannot coexist with an uncommitted durable audit report. | **OPEN** — close, commit and push the audit, then verify clean synchronized Git state. |
 
 ## Latest evidence
 
@@ -45,6 +46,7 @@ resolved or explicitly accepted; the independent read-only revalidation remains.
 - Wave 4 documentation scope: [harmonization report](audits/doc-context-20260714-1545.md).
 - Residual-risk disposition: [conventions audit](runs/2026-07-14_1615_ready-risk-reconciliation/02_AUDIT_REPORT.md)
   and [decision](runs/2026-07-14_1615_ready-risk-reconciliation/03_DECISION.md).
+- Independent READY review: [PARTIAL report](runs/2026-07-14_1630_ready-independent-review/02_AUDIT_REPORT.md).
 
 ## READY campaign exit criteria
 

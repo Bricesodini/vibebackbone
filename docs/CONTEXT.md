@@ -25,12 +25,12 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Release posture**: v1.0 hardening complete; bounded maintenance continues
 - **Active run**: none
 - **Latest completed run**:
-  [`2026-07-14_1615_ready-risk-reconciliation`](runs/2026-07-14_1615_ready-risk-reconciliation/07_CLOSEOUT.md)
+  [`2026-07-14_1630_ready-independent-review`](runs/2026-07-14_1630_ready-independent-review/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: execute Wave 5 as an independent read-only revalidation of
-  the seven READY exit criteria
+- **Next action**: reconcile stale local `SESSION.md`, then translate the 19
+  remaining French prompt surfaces before repeating READY revalidation
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
 - **Quality**: [CONVENTIONS.md](CONVENTIONS.md), pillars P1–P5 and P.R1–P.R8
