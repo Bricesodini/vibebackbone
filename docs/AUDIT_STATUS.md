@@ -15,17 +15,16 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 ## Global verdict
 
-**`PARTIAL — remediation complete; independent READY revalidation pending`**
+**`READY — all seven campaign exit criteria evidenced`**
 
 The Core contracts, architecture checks, runtime executor, consumer hook bundle,
-and four supported distribution adapters are operational. Catalog alignment and
-active instruction-language migration are complete; independent READY
-revalidation remains.
+and four supported distribution adapters are operational. Catalog alignment,
+active instruction-language migration and independent READY revalidation are
+complete.
 
 ## Active risks
 
-No active P0/P1/P2 catalog risk remains. The verdict stays PARTIAL until the
-remaining READY evidence is collected.
+No active P0/P1/P2 risk remains.
 
 ## Latest evidence
 
@@ -75,6 +74,9 @@ remaining READY evidence is collected.
 - Skill English migration: [impact analysis](audits/impact-analysis-skill-english-migration-20260714-2145.md),
   [ADR 0044](adr/0044-agent-facing-skill-english-convention.md), and
   [run closeout](runs/2026-07-14_2145_skill-english-migration/07_CLOSEOUT.md).
+- Independent READY revalidation: [review report](runs/2026-07-14_2215_ready-independent-revalidation/02_AUDIT_REPORT.md),
+  [decision](runs/2026-07-14_2215_ready-independent-revalidation/03_DECISION.md),
+  and [run closeout](runs/2026-07-14_2215_ready-independent-revalidation/07_CLOSEOUT.md).
 
 ## READY campaign exit criteria
 
@@ -88,7 +90,8 @@ The global verdict may change to `READY` only when all of these are evidenced:
 6. an independent read-only revalidation concludes READY;
 7. `main == origin/main` and the worktree is clean.
 
-The verdict remains `PARTIAL` until the seven conditions hold simultaneously.
+The independent review found all seven conditions simultaneously satisfied for
+the audited baseline. Final closeout verifies the new exact SHA after push.
 
 ## Resolved catalog findings
 

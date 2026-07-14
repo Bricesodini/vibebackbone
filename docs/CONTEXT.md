@@ -22,24 +22,24 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 ## Active state
 
 - **Route**: STRUCTURED
-- **Release posture**: v1.0 hardening complete; bounded maintenance continues
+- **Release posture**: READY; bounded maintenance only
 - **Active run**: none
 - **Latest completed run**:
-  [`2026-07-14_2145_skill-english-migration`](runs/2026-07-14_2145_skill-english-migration/07_CLOSEOUT.md)
+  [`2026-07-14_2215_ready-independent-revalidation`](runs/2026-07-14_2215_ready-independent-revalidation/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: run independent READY revalidation and verify remote CI at
-  the exact final SHA
+- **Next action**: preserve READY posture; reopen only on a documented trigger
+  or regression
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
 - **Quality**: [CONVENTIONS.md](CONVENTIONS.md), pillars P1–P5 and P.R1–P.R8
 
 ## Current priorities
 
-1. Revalidate the seven READY exit criteria from a fresh, read-only context.
-2. Preserve the accepted-risk owners and reopen triggers in `AUDIT_STATUS.md`.
-3. Keep `main`, `origin/main`, CI and active governance truth aligned.
+1. Preserve the accepted-risk owners and reopen triggers in `AUDIT_STATUS.md`.
+2. Keep `main`, `origin/main`, CI and active governance truth aligned.
+3. Re-run independent READY validation after material Core changes.
 
 ## Stable decisions
 
