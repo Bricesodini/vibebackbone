@@ -1,6 +1,6 @@
 # PROMPTS_ARCHITECTURE — Guide utilisateur des prompts Vibebackbone
 
-**Version** : 1.0 | **Date** : 2026-06-13
+**Version** : 1.1 | **Date** : 2026-07-14
 **Basé sur** : `docs/archive/prompt-migration/PROMPTS_ALIGNMENT_DECISION.md` · `docs/archive/prompt-migration/PROMPTS_AGENTIC_ALIGNMENT_AUDIT.md`
 
 ---
@@ -20,6 +20,31 @@ prompts/
 - Utiliser les **canoniques** par défaut, pour n'importe quel contexte
 - Utiliser les **spécialisés** quand le domaine ou le contexte est précis
 - Consulter le **router** en cas de doute
+
+## Matrice de responsabilité et d'autorité
+
+La gouvernance de boot et la route décidée dans `docs/PILOTAGE.md` restent
+au-dessus de toute surface prompt. Les trois couches de contenu et les alias
+installés ont ensuite des responsabilités exclusives :
+
+| Surface | Responsabilité unique | Quand l'utiliser | Autorité | Ne peut pas |
+|---|---|---|---|---|
+| Prompts canoniques (`prompts/canonical/01–07`) | Définir le contrat générique d'une phase : rôle, entrée, sortie et interdits | Par défaut, ou pour exécuter une phase explicitement | Source de référence des frontières de phase et artefacts attendus | Contourner la route, les gates ou la gouvernance de boot |
+| Prompts spécialisés (`prompts/*.md`, hors router) | Raffiner un domaine ou compacter un workflow connu | Quand le contexte correspond exactement au domaine annoncé | Précision additionnelle sous le contrat canonique | Redéfinir une phase, supprimer un artefact requis ou abaisser une gate |
+| Router (`prompts/t-p-vbb-phase-router.md`) | Sélectionner le prompt approprié à partir de la phase, route et du contexte | En cas d'ambiguïté de sélection | Autorité de sélection uniquement ; détail dans [`docs/router/ROUTER_MATRIX.md`](docs/router/ROUTER_MATRIX.md) | Exécuter le travail, produire l'artefact métier ou remplacer le prompt choisi |
+| Noms courts installés | Résoudre un alias utilisateur vers un fichier prompt exact | À l'entrée d'une commande distribuée | Aucune autorité comportementale : l'alias est résolu, puis la cible est lue | Ajouter des règles, modifier la route ou devenir une source parallèle |
+
+### Ordre de résolution
+
+1. Appliquer la gouvernance de boot, le MVP gate éventuel et la route.
+2. Résoudre un nom court vers son fichier réel, s'il est utilisé.
+3. Consulter le router uniquement si le prompt cible reste ambigu.
+4. Exécuter le prompt canonique de phase ou le spécialisé retenu ; le spécialisé
+   reste subordonné aux frontières et gates canoniques.
+
+Cette table porte l'ownership et la precedence. La matrice détaillée
+phase × contexte × alternative reste uniquement dans
+[`docs/router/ROUTER_MATRIX.md`](docs/router/ROUTER_MATRIX.md).
 
 ---
 

@@ -594,6 +594,19 @@ repository. Aucun adaptateur, permission GitHub ou état runtime ne change.
 
 **Author**: Codex, après GO Brice
 
+### 2026-07-14 — Ownership des surfaces prompt conservé dans Core
+
+**Decision**: Documenter dans `PROMPTS_ARCHITECTURE.md` l'autorité respective
+des canoniques, spécialisés, router et noms courts, sans changer leurs fichiers.
+
+**Reason**: L'ownership et la precedence sont génériques aux quatre runtimes ;
+les alias provider restent du glue de résolution sans comportement propre.
+
+**Impact**: Pi, OpenCode, Codex et Claude Code partagent la même lecture. Aucun
+prompt installé, alias, adapter ou état runtime ne change.
+
+**Author**: Codex, après GO Brice
+
 ## 9. References
 
 - `README.md` — entry point; "VBB Core vs Distributions" anchors the

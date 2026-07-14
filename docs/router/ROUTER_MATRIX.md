@@ -4,6 +4,11 @@
 
 > Load via `python tools/vbb-index.py search "router"` or read this file on demand.
 
+Ownership, authority and precedence between canonical prompts, specialized
+prompts, this router and installed short names are defined once in
+[`PROMPTS_ARCHITECTURE.md` § Matrice de responsabilité et d'autorité](../../PROMPTS_ARCHITECTURE.md).
+This document keeps only the detailed phase/context selection matrix.
+
 ---
 
 ## Prompt architecture structure

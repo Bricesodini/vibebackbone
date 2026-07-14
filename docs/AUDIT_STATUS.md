@@ -26,7 +26,6 @@ bounded quality and historical traceability items.
 | ID | Severity | Description | Status |
 |---|---|---|---|
 | GMA-005 | P2 | Long functions, Python naming ambiguity, and French prompt prose remain convention-drift candidates. | **OPEN** — requires a separate, bounded canon proposal and migration decision. |
-| DOC-001 | P2 | Prompt entrypoints still lack one final responsibility matrix across canonical, specialized, router, and short-name layers. | **OPEN** — continue only if current navigation proves insufficient. |
 | SYS-POC-004 | P2 | POC-to-implementation transitions do not always record a distinct durable decision. | **OPEN** — require the decision for future canon, architecture, and cross-service changes. |
 | SYS-SUB-003 | P2 | Reintegration checks paths and presence more readily than counts, citations, and semantic contradictions. | **OPEN** — add semantic acceptance checks to future delegation briefs when delegation is used. |
 | QA-004 | LOW | Temporal provenance is documented but not automated in artifact generators. | **OPEN** — automate only with a dedicated generator change. |
@@ -102,6 +101,12 @@ The verdict remains `PARTIAL` until the seven conditions hold simultaneously.
 - `QOA-006`: the loose pending routing note moved byte-for-byte to
   [`docs/archive/runs/2026-05-28-routing-fix-verification.md`](archive/runs/2026-05-28-routing-fix-verification.md),
   preserving its historical status while removing it from active run space.
+
+## Resolved by prompt responsibility ownership
+
+- `DOC-001`: `PROMPTS_ARCHITECTURE.md` now owns one matrix for canonical,
+  specialized, router and short-name responsibilities; the detailed router
+  links to it and no prompt behavior changed.
 
 - Credentials remediation design: [impact analysis](audits/impact-analysis-20260714-1150.md),
   [remediation plan](audits/security-remediation-20260714-1150.md), and

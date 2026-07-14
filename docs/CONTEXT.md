@@ -25,12 +25,12 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Release posture**: v1.0 hardening complete; bounded maintenance continues
 - **Active run**: none
 - **Latest completed run**:
-  [`2026-07-14_1550_archive-loose-routing`](runs/2026-07-14_1550_archive-loose-routing/07_CLOSEOUT.md)
+  [`2026-07-14_1600_prompt-responsibility-matrix`](runs/2026-07-14_1600_prompt-responsibility-matrix/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: continue READY Wave 4 by adding the final prompt-layer
-  responsibility and precedence matrix required by DOC-001
+- **Next action**: complete READY Wave 4 by reconciling the remaining
+  methodological risks and GMA-005 against current evidence
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
 - **Quality**: [CONVENTIONS.md](CONVENTIONS.md), pillars P1–P5 and P.R1–P.R8
