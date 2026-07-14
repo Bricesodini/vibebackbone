@@ -15,26 +15,27 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 ## Global verdict
 
-**`PARTIAL — readiness integrity remediation implemented, revalidation pending`**
+**`READY — readiness integrity remediation revalidated`**
 
 The previously published READY baseline was invalidated by a reproduced Codex
 legacy-symlink write into the canonical `AGENTS.md`, a documentary-only
 dashboard verdict, and an unenforced long-run declaration. ADR 0046 remediation
-is implemented on its structured branch; independent review, merge, exact-SHA
-CI and clean-main verification remain before READY can be restored.
+is merged on `main`; local P.R2, exact-SHA remote CI, clean-main checks and a
+fresh read-only revalidation now pass. The existing independent READY baseline
+remains the review reference for this solo-maintained repository.
 
 ## Active risks
 
 | ID | Severity | Status | Description |
 |---|---|---|---|
-| READY-INT-001 | P1 | MITIGATING | Codex legacy runtime symlink could write compiled governance into the Core source; code and local runtime migration are complete, merge verification pending. |
-| READY-INT-002 | P1 | MITIGATING | Dashboard READY was documentary-only; effective measured verdict is implemented, independent review pending. |
-| READY-INT-003 | P2 | MITIGATING | Strict closure did not validate long-run timing declarations; validator and regression tests are implemented. |
+No active P0/P1/P2 risk remains.
 
 ## Latest evidence
 
 - Readiness integrity remediation: [ADR 0046](adr/0046-readiness-integrity-enforcement.md),
   [POC and run](runs/2026-07-14_2124_readiness-integrity/POC.md).
+- Final SHA validation: `0278614` with successful smoke and vbb-contracts
+  workflows; `main == origin/main` and worktree clean.
 
 - READY convergence plan: [intent decomposition](audits/intent-decomp-20260714-1355.md).
 - Executor cleanup: [run closeout](runs/2026-07-14_1410_executor-cleanup/07_CLOSEOUT.md)
@@ -105,6 +106,14 @@ The independent review found all seven conditions simultaneously satisfied for
 the audited baseline. Final closeout verifies the new exact SHA after push.
 
 ## Resolved catalog findings
+
+- `READY-INT-001` — resolved 2026-07-14. Codex no-follow migration and
+  provider-owned uninstall prevent runtime writes into Core sources; the real
+  local symlink was migrated and exact-SHA CI passed.
+- `READY-INT-002` — resolved 2026-07-14. Dashboard effective verdict now
+  combines documentary truth with Git/source/risk measurements and strict mode.
+- `READY-INT-003` — resolved 2026-07-14. Strict closure validates progress,
+  extension trace, granted budget and hard-max semantics.
 
 - `PATT-02` — resolved 2026-07-14. All sixteen `1-vbb-*` skills use
   `SKILL.md phase: 02_AUDIT`, all contracts retain catalog routing scope
