@@ -25,7 +25,11 @@ resolved or explicitly accepted; the independent read-only revalidation remains.
 
 | ID | Severity | Description | Status |
 |---|---|---|---|
-| — | — | No unresolved finding remains before the final skill-catalog audit. | Final independent scan pending. |
+| PATT-01 | P1 | Twelve skills diverge from the mandatory standard section layout. | **OPEN** — normalize equivalent headings, then add minimal sections to compact wrappers. |
+| PATT-02 | P1 | Skill frontmatter and contract phase semantics drift from the canonical phase map. | **OPEN** — audit all 16 Phase-1 surfaces; do not revert canonical `02_AUDIT` to deprecated `1`. |
+| PATT-03 | P1 | Nineteen authored artifacts are described by skills but null in formal contracts. | **OPEN** — close in Phase-1/front/transverse batches and strengthen lint. |
+| PATT-04 | P1 | Six exact routing triggers collide without contract-level precedence. | **OPEN** — qualify stage/action and add routing precedence tests. |
+| PATT-05 | P2 | Domain verdict to runtime status mapping exists in only 6/64 contracts. | **OPEN** — decide one schema/runtime boundary before adding metadata. |
 
 ## Latest evidence
 
@@ -49,6 +53,8 @@ resolved or explicitly accepted; the independent read-only revalidation remains.
 - Prompt language migration: [formatter audit](audits/format-lint-prompt-language-20260714-1645.md),
   [ADR 0036](adr/0036-agent-facing-prompt-english-migration.md), and
   [run closeout](runs/2026-07-14_1700_prompt-english-migration/07_CLOSEOUT.md).
+- Exhaustive skill optimization: [64-skill independent report](runs/2026-07-14_1745_skill-catalog-optimization-audit/02_AUDIT_REPORT.md)
+  and [controller disposition](runs/2026-07-14_1745_skill-catalog-optimization-audit/03_DECISION.md).
 
 ## READY campaign exit criteria
 
@@ -85,6 +91,15 @@ The verdict remains `PARTIAL` until the seven conditions hold simultaneously.
 - `QA-005` — accepted LOW by the architecture maintainer. Reopen when an
   architecture-impacting skill change has neither an ADR nor an explicit
   non-ADR rationale; ADR count alone is not a trigger.
+- `PATT-06` — support boundaries remain optional outside evidenced writer
+  refusal gaps. Owner: catalog maintainer. Reopen when a writer handles an
+  unsupported case ambiguously or unsafely.
+- `PATT-07` — repeated governance preambles remain inline for local readability.
+  Owner: governance maintainer. Reopen on semantic drift between two active
+  copies.
+- `PATT-08` — long skills are review candidates, not defects by count. Owner:
+  each skill maintainer. Reopen on usage evidence of comprehension, latency, or
+  maintenance harm.
 
 - Consumer hook ownership: [intent decomposition](audits/intent-decomp-20260714-1242.md),
   [impact analysis](audits/impact-analysis-20260714-1242.md),
