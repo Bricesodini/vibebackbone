@@ -105,6 +105,26 @@ The frontmatter `description:` of any `SKILL.md` is the routing surface used by 
 - Agent-actionable artifacts → **English mandatory**.
 - Machine-facing contracts → **English mandatory**, machine-readable only.
 
+### Supported Python static toolchain
+
+Python 3.11 tooling uses one repository configuration in `pyproject.toml`:
+
+- Ruff 0.13.1 checks `tools/` and `tests/` with `E4`, `E7`, `E9`, and `F` and
+  provides the canonical formatter;
+- mypy 2.1.0 checks `tools/`; missing typing metadata from external packages is
+  ignored, but repository type errors are not;
+- Pyright is not part of the supported contract. Reconsider it only when a
+  distinct editor, consumer, or analysis requirement is evidenced.
+
+Canonical measurement commands are `ruff check tools tests`,
+`ruff format --check tools tests`, and `mypy tools`. Versions are pinned in
+`requirements-dev.txt`. These checks remain non-blocking while the documented
+baseline is non-zero. They may enter local and remote CI only together, after
+all three pass on a clean checkout; no global ignore or source exclusion may be
+introduced solely to obtain zero.
+
+**Decision:** [ADR 0035](adr/0035-supported-python-static-toolchain.md).
+
 ---
 
 ## Pillar 2 — Modularity

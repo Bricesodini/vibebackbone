@@ -160,6 +160,8 @@ impacts:
   - release readiness
   - implementation-readiness audits
 files:
+  - pyproject.toml
+  - requirements-dev.txt
   - tools/vbb-contract-lint.py
   - tools/vbb-contract-runtime.py
   - tools/vbb-executor.py

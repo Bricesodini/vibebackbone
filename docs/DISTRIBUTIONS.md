@@ -529,6 +529,20 @@ ses tests. Aucun adaptateur, contrat CLI/JSON ou état runtime ne change.
 
 **Author**: Codex, après GO Brice
 
+### 2026-07-14 — Toolchain Python statique promue en Core
+
+**Decision**: Ruff 0.13.1 et mypy 2.1.0 constituent la toolchain statique
+supportée par Core sur Python 3.11 ; Pyright reste hors contrat (ADR 0035).
+
+**Reason**: Les règles, versions et gates futurs sont génériques et doivent
+rester identiques pour les quatre runtimes.
+
+**Impact**: Pi, OpenCode, Codex et Claude Code héritent de `pyproject.toml`, de
+`requirements-dev.txt` et de la convention. Aucun adaptateur ou état installé
+ne change ; les checks restent non-gating jusqu'à baseline zéro.
+
+**Author**: Brice (Go), Codex (formalisation)
+
 ## 9. References
 
 - `README.md` — entry point; "VBB Core vs Distributions" anchors the
