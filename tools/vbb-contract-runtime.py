@@ -18,7 +18,6 @@ import sys
 import json
 import yaml
 import time
-import traceback
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import Dict, List, Optional, Any
@@ -191,7 +190,7 @@ def execute_contract(skill_id: str, contract: Optional[Dict] = None, depth: int 
             "errors": [{"code": "BLOCKING_GATE_FAILED", "message": f"Gate '{g['gate_id']}' failed"} for g in blocking_failed]
         }
 
-    skill_md = read_skill_md(skill_id)
+    read_skill_md(skill_id)
     outputs = {
         "status": "PASS",
         "summary": f"Contract '{skill_id}' executed successfully",
@@ -440,7 +439,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if args.all:
-        print(f"=== VBB Contract Runtime — All Contracts ===")
+        print("=== VBB Contract Runtime — All Contracts ===")
         index = load_index()
         results = []
         for entry in index["skills"]:

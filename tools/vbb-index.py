@@ -16,7 +16,7 @@ import json
 import re
 import argparse
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 REPO_ROOT = Path(__file__).parent.parent.resolve()
 INDEX_DIR = REPO_ROOT / ".vbb" / "index"

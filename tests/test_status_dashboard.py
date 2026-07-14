@@ -202,8 +202,8 @@ def test_latest_runs_malformed_name_uses_mtime():
         # Lexically: "20260602_0817_yyy" > "2026-06-13_2200_xxx" (because
         # '0' > '-' in ASCII at index 5). Pre-fix, this would rank malformed
         # first. Post-fix, mtime (offset 100s) wins for the well-formed one.
-        malformed = _make_run(repo, "20260602_0817_yyy", mtime_offset=0)
-        wellformed = _make_run(repo, "2026-06-13_2200_xxx", mtime_offset=100)
+        _make_run(repo, "20260602_0817_yyy", mtime_offset=0)
+        _make_run(repo, "2026-06-13_2200_xxx", mtime_offset=100)
 
         latest = mod.get_latest_runs(repo, limit=5)
         assert latest, "Expected at least one latest run"
@@ -249,9 +249,9 @@ def test_latest_runs_mtime_overrides_future_name():
     with tempfile.TemporaryDirectory() as tmp:
         repo = Path(tmp)
         # Future-dated name, but oldest mtime (offset -1000s).
-        future = _make_run(repo, "2026-12-31_2359_xxx", mtime_offset=-1000)
+        _make_run(repo, "2026-12-31_2359_xxx", mtime_offset=-1000)
         # Older-looking name, but most recent mtime (offset +1000s).
-        recent = _make_run(repo, "2026-06-13_2200_recent", mtime_offset=1000)
+        _make_run(repo, "2026-06-13_2200_recent", mtime_offset=1000)
 
         latest = mod.get_latest_runs(repo, limit=5)
         assert latest, "Expected at least one latest run"

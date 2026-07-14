@@ -48,6 +48,7 @@ import re
 import sys
 import os
 import argparse
+import importlib.util as _importlib_util
 import time
 import yaml
 from pathlib import Path
@@ -60,7 +61,6 @@ AUDITS_DIR = REPO_ROOT / "docs" / "audits"
 # Shared run resolution (ADR-0027): auto-detection uses the declared selector
 # « dernier run existant » (newest by mtime, whole population) — the lexical
 # sort mishandled mixed naming schemes (TD-101).
-import importlib.util as _importlib_util
 
 _RUN_RES_SPEC = _importlib_util.spec_from_file_location(
     "vbb_run_resolution", Path(__file__).parent / "vbb_run_resolution.py"

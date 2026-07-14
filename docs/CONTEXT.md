@@ -25,12 +25,12 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Release posture**: v1.0 hardening complete; bounded maintenance continues
 - **Active run**: none
 - **Latest completed run**:
-  [`2026-07-14_1411_static-toolchain`](runs/2026-07-14_1411_static-toolchain/07_CLOSEOUT.md)
+  [`2026-07-14_1430_ruff-check-cleanup`](runs/2026-07-14_1430_ruff-check-cleanup/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: after the autonomous-run checkpoint, execute READY Wave 3:
-  Ruff check cleanup, isolated format, mypy cleanup, then CI gate promotion
+- **Next action**: continue READY Wave 3 with an isolated Ruff format run,
+  followed by mypy cleanup; CI gate promotion remains after the checkpoint
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
 - **Quality**: [CONVENTIONS.md](CONVENTIONS.md), pillars P1–P5 and P.R1–P.R8

@@ -134,10 +134,13 @@ def review_tier(paths: List[str]) -> Dict:
         hits = classify_path(p)
         per_file.append({
             "path": p,
-            "tiers": [{"rank": r, "label": l, "reason": rs} for r, l, rs in hits],
+            "tiers": [
+                {"rank": rank, "label": label, "reason": reason}
+                for rank, label, reason in hits
+            ],
         })
-        for r, l, rs in hits:
-            seen[r] = (l, rs)
+        for rank, label, reason in hits:
+            seen[rank] = (label, reason)
     if not seen:
         return {
             "tier": None,

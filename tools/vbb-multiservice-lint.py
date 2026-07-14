@@ -26,7 +26,7 @@ import argparse
 import json
 import re
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -194,7 +194,7 @@ def rule_impact_log_required(config: Dict) -> List[Dict]:
                     "rule": "impact_log_required",
                     "severity": rule_cfg.get("severity", "warning"),
                     "message": "IMPACT_LOG.md exists but has 0 entries.",
-                    "evidence": f"IMPACT_LOG.md has 0 dated entries",
+                    "evidence": "IMPACT_LOG.md has 0 dated entries",
                 }
             )
     except Exception as e:
@@ -240,7 +240,7 @@ def rule_contracts_consumed_freshness(config: Dict) -> List[Dict]:
                 "severity": rule_cfg.get("severity", "warning"),
                 "message": (
                     "CONTRACTS_CONSUMED.md has no 'Last updated' field. "
-                    f"Add one (format YYYY-MM-DD), then re-run."
+                    "Add one (format YYYY-MM-DD), then re-run."
                 ),
                 "evidence": "No 'Last updated' field found",
             }

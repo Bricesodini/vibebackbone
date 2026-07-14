@@ -256,7 +256,7 @@ def write_phase_artifact(run_id: str, phase: str, content: Dict) -> Path:
         f"run_id: {run_id}",
         f"phase: {phase}",
         f"status: {content.get('status', 'UNKNOWN')}",
-        f"agent: executor",
+        "agent: executor",
         f"started_at: {content.get('started_at', '')}",
         f"ended_at: {content.get('ended_at', '')}",
         "---",
@@ -319,10 +319,10 @@ def write_closeout(run_id: str, skill_id: str, result: Dict[str, Any]) -> Path:
         f"run_id: {run_id}",
         f"phase: {phase}",
         f"status: {status}",
-        f"agent: executor",
+        "agent: executor",
         f"started_at: {result.get('started_at', '')}",
         f"ended_at: {result.get('ended_at', '')}",
-        f"next_phase: none",
+        "next_phase: none",
         "---",
         "",
         f"# {phase} — {skill_id}",
@@ -528,9 +528,6 @@ def _dur(tick: float) -> int:
 
 def cmd_run(skill_id: str, run_id: Optional[str], strict: bool) -> int:
     """Execute a skill with full gate enforcement."""
-    import time
-    tick = time.time()
-
     if not run_id:
         ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S")
         run_id = f"{datetime.now(timezone.utc).strftime('%Y-%m-%d')}_{ts}_{skill_id}"

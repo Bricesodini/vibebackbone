@@ -431,7 +431,7 @@ def _install_hook(
     if result.returncode != 0:
         detail = result.stderr.strip() or result.stdout.strip() or f"exit {result.returncode}"
         raise RuntimeError(f"canonical hook installer failed: {detail}")
-    return f"DONE (managed bundle synced; canonical hooks installed)"
+    return "DONE (managed bundle synced; canonical hooks installed)"
 
 
 # ---------------------------------------------------------------------------
@@ -647,11 +647,11 @@ def main() -> int:
 
     if not args.dry_run and not errors:
         print(f"\n✓ VBB governance bootstrapped in: {target}")
-        print(f"  Next: fill in docs/CONTEXT.md with your project details.")
+        print("  Next: fill in docs/CONTEXT.md with your project details.")
         if not args.install_hook:
             print(
-                f"  Tip : rerun this initializer with --install-hook to install "
-                f"the managed canonical hooks."
+                "  Tip : rerun this initializer with --install-hook to install "
+                "the managed canonical hooks."
             )
 
     return 1 if errors else 0

@@ -92,8 +92,6 @@ def check_gates(skill_id: str, contract: Dict, indexed: Set[str], all_contracts:
     errors = []
     gates = contract.get("gates", {})
     max_depth = contract.get("limits", {}).get("max_gate_depth", 2)
-    circular = contract.get("limits", {}).get("circular_dependencies", "forbidden")
-
     for gate_type in ["before", "success", "after"]:
         for gate in gates.get(gate_type, []):
             gate_id = gate.get("id", "unknown")

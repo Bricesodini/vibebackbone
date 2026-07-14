@@ -478,9 +478,9 @@ def format_terminal(status: Dict, full: bool = False) -> str:
     cov = fit(f"{status['contracts']}/{status['skills']} ({pct}%)", 29)
     idx = fit(f"{status['indexed_contracts']}/{status['skills']}", 29)
     lines = [
-        f"╔══════════════════════════════════════════════════╗",
+        "╔══════════════════════════════════════════════════╗",
         f"║  VBB STATUS — {Path(status['repo']).name:<33}║",
-        f"╠══════════════════════════════════════════════════╣",
+        "╠══════════════════════════════════════════════════╣",
         f"║  Verdict global : {status['verdict']:<29}║",
         f"║  Skills          : {status['skills']:<29}║",
         f"║  Contracts       : {cov}║",
@@ -490,8 +490,8 @@ def format_terminal(status: Dict, full: bool = False) -> str:
 
     # Latest runs
     if status["latest_runs"]:
-        lines.append(f"╠══════════════════════════════════════════════════╣")
-        lines.append(f"║  Latest runs:                                    ║")
+        lines.append("╠══════════════════════════════════════════════════╣")
+        lines.append("║  Latest runs:                                    ║")
         for run in status["latest_runs"][:5]:
             rid = fit(run["id"], 29)
             v = fit(run.get("voie", "?").strip('"'), 7)
@@ -500,8 +500,8 @@ def format_terminal(status: Dict, full: bool = False) -> str:
 
     # Open risks
     if status["risks"]:
-        lines.append(f"╠══════════════════════════════════════════════════╣")
-        lines.append(f"║  Open risks:                                     ║")
+        lines.append("╠══════════════════════════════════════════════════╣")
+        lines.append("║  Open risks:                                     ║")
         for risk in status["risks"][:5]:
             rid = risk["id"]
             rs = risk["status"]
@@ -509,7 +509,7 @@ def format_terminal(status: Dict, full: bool = False) -> str:
             lines.append(f"║    {fit(rid, 9)} {fit(rs, 11)} {fit(desc, 27)}║")
 
     if status["temporal_notes"]:
-        lines.append(f"╠══════════════════════════════════════════════════╣")
+        lines.append("╠══════════════════════════════════════════════════╣")
         label = "Temporal provenance:" if status.get("temporal_provenance") else "Temporal warnings:"
         lines.append(f"║  {label:<47}║")
         for note in status["temporal_notes"][:3]:
@@ -518,10 +518,10 @@ def format_terminal(status: Dict, full: bool = False) -> str:
     # Next action
     if status["next_action"]:
         na = fit(status["next_action"], 33)
-        lines.append(f"╠══════════════════════════════════════════════════╣")
+        lines.append("╠══════════════════════════════════════════════════╣")
         lines.append(f"║  Next action: {na}║")
 
-    lines.append(f"╚══════════════════════════════════════════════════╝")
+    lines.append("╚══════════════════════════════════════════════════╝")
 
     # Full mode: add extra details
     if full:
@@ -530,7 +530,11 @@ def format_terminal(status: Dict, full: bool = False) -> str:
         repo = Path(status["repo"])
         al = read_file(repo / "docs" / "ACTIVITY_LOG.md")
         if al:
-            al_lines = [l for l in al.split("\n") if "|" in l and "Date" not in l and "---" not in l]
+            al_lines = [
+                line
+                for line in al.split("\n")
+                if "|" in line and "Date" not in line and "---" not in line
+            ]
             if al_lines:
                 lines.append("Activity log (recent):")
                 for al_line in al_lines[-3:]:

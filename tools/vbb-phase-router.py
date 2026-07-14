@@ -12,10 +12,9 @@ Supports:
 """
 
 import sys
-import json
 import yaml
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Tuple
 
 REPO_ROOT = Path(__file__).parent.parent.resolve()
 SKILLS_DIR = REPO_ROOT / "skills"

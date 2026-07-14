@@ -14,7 +14,6 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Optional
 
 # --- Configuration ---
 REGISTRY_PATH = Path(__file__).parent.parent / "docs" / "LLM_PROVIDERS.md"

@@ -543,6 +543,19 @@ ne change ; les checks restent non-gating jusqu'à baseline zéro.
 
 **Author**: Brice (Go), Codex (formalisation)
 
+### 2026-07-14 — Nettoyage Ruff conservé dans Core
+
+**Decision**: Retirer les 37 findings Ruff dans les outils et tests Core sans
+modifier les règles ni promouvoir le gate.
+
+**Reason**: Les outils sont partagés par les quatre runtimes et les corrections
+sont strictement mécaniques.
+
+**Impact**: Pi, OpenCode, Codex et Claude Code héritent du code nettoyé. Aucun
+adaptateur, contrat, sortie textuelle ou état installé ne change.
+
+**Author**: Codex, après GO Brice
+
 ## 9. References
 
 - `README.md` — entry point; "VBB Core vs Distributions" anchors the

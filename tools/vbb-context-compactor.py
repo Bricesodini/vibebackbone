@@ -130,7 +130,6 @@ def compact_run(run_dir: Path) -> Optional[str]:
     # Extract key information
     run_id = frontmatter.get("run_id", run_dir.name)
     voie = frontmatter.get("voie", "UNKNOWN")
-    status = frontmatter.get("status", "UNKNOWN")
     agent = frontmatter.get("agent", "local")
 
     # Build objective from intake or first section

@@ -26,7 +26,7 @@ bounded quality and historical traceability items.
 | ID | Severity | Description | Status |
 |---|---|---|---|
 | QOA-006 | P2 | `docs/runs/routing-fix-verification.md` is a loose artifact outside a timestamped run directory. | **OPEN** — archive or reconstruct only after explicit approval. |
-| QOA-007 | P2 | Ruff check, Ruff format and mypy are canonical but their 37/29/20 baseline is not yet clean or gated. | **MITIGATING** — [ADR 0035](adr/0035-supported-python-static-toolchain.md) configures Ruff+mypy with Pyright out; Wave 3 reaches zero before gate promotion. |
+| QOA-007 | P2 | Ruff check is clean; Ruff format and mypy retain a 29/20 baseline and none of the three is gated yet. | **MITIGATING** — [Ruff cleanup](runs/2026-07-14_1430_ruff-check-cleanup/07_CLOSEOUT.md) reaches check zero; continue format, mypy, then gate promotion. |
 | GMA-005 | P2 | Long functions, Python naming ambiguity, and French prompt prose remain convention-drift candidates. | **OPEN** — requires a separate, bounded canon proposal and migration decision. |
 | DOC-001 | P2 | Prompt entrypoints still lack one final responsibility matrix across canonical, specialized, router, and short-name layers. | **OPEN** — continue only if current navigation proves insufficient. |
 | SYS-POC-004 | P2 | POC-to-implementation transitions do not always record a distinct durable decision. | **OPEN** — require the decision for future canon, architecture, and cross-service changes. |
@@ -42,6 +42,8 @@ bounded quality and historical traceability items.
 - Static-quality enforcement: [formatter/linter audit](audits/format-lint-20260714-1410.md).
 - Supported static toolchain: [ADR 0035](adr/0035-supported-python-static-toolchain.md)
   and [Wave 2 closeout](runs/2026-07-14_1411_static-toolchain/07_CLOSEOUT.md).
+- Ruff cleanup scope: [Code Janitor report](audits/code-janitor-ruff-check-baseline-20260714-1428.md).
+- Ruff cleanup coverage: [critical-path report](audits/test-coverage-20260714-1435.md).
 
 ## READY campaign exit criteria
 
