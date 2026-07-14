@@ -25,6 +25,10 @@ invoke_hook() {
     cd "$fake_git"
     git init -q .
 
+    # The versioned hook delegates to the Core credentials tool.
+    mkdir -p tools
+    cp "$REPO_ROOT/tools/vbb-credentials-gate.py" tools/vbb-credentials-gate.py
+
     # Create a fake "framework file" matching the gate's prefix list
     local f
     for f in $staged; do

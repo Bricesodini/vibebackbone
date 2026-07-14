@@ -147,6 +147,18 @@ that triggered the decision.
 
 <!-- Add entries below as decisions are made -->
 
+### 2026-07-14 — Layered credentials enforcement (ADR-0033)
+**Decision**: keep in Core (aucune déclinaison distribution requise)
+**Trigger**: SEC-CRED-001/002 and explicit approval of SEC-01 Option A
+**Reason**: staged-content and CI credentials enforcement is a generic security
+invariant shared by Pi, OpenCode, Codex and Claude Code. Provider adapters do not
+own Git diff semantics or the detection policy.
+**Impact**: Core gains one stdlib scanner used by the canonical hook and both CI
+surfaces. `distributions/{pi,opencode,codex,claude}` require no code change and
+inherit the same rule when operating the Core repository. External consumer
+hook installation remains outside observable state.
+**Author**: Codex (GO Brice)
+
 ### 2026-07-13 — V2-R1 gates fiables : résolution de run partagée + hooks canoniques (ADR-0027)
 **Decision**: keep in Core (aucune déclinaison distribution requise)
 **Trigger**: run `2026-07-13_1811_v2r1-gates-fiables` (TD-101, TD-102, défaut gate-linkage)

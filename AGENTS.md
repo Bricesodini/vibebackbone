@@ -58,10 +58,11 @@ by every agent profile. Reference-only content is cited by path, not duplicated.
     Distribution code lives in `distributions/<name>/`; runtime state lives
     outside the repo in the provider user directories.
 13. **Credentials gate (canon):** no secret, token, API key, or private key
-    may ever be committed. The rule is canon and survives without tooling:
-    the enforcement linter is deferred (P0-5-D, known gap — the pre-commit
-    hook only logs a "checking credentials" notice), so humans and agents
-    must verify manually before each commit.
+    may ever be committed. `tools/vbb-credentials-gate.py` enforces newly added
+    content through the canonical pre-commit hook and CI (ADR 0033). Pattern
+    detection is defense in depth, not proof of absence: humans and agents must
+    still verify manually before each commit, and every justified example
+    exception must remain visible in review.
 
 ## Runtime Behavior
 

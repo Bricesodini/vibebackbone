@@ -21,25 +21,25 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 ## Active state
 
-- **Route**: AUDIT
+- **Route**: STRUCTURED
 - **Release posture**: v1.0 hardening complete; bounded maintenance continues
 - **Active run**: none
 - **Latest completed run**:
-  [`2026-07-14_1040_credentials-enforcement-audit`](runs/2026-07-14_1040_credentials-enforcement-audit/07_CLOSEOUT.md)
+  [`2026-07-14_1150_credentials-enforcement`](runs/2026-07-14_1150_credentials-enforcement/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: validate or reject the layered Core credentials scanner
-  recommendation before opening the SEC-02 implementation design run
+- **Next action**: decide the consumer ownership/copy-update model before fixing
+  `vbb-project-init --install-hook` (SEC-CRED-005 + TER-001)
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
 - **Quality**: [CONVENTIONS.md](CONVENTIONS.md), pillars P1–P5 and P.R1–P.R8
 
 ## Current priorities
 
-1. Decide whether SEC-02 may design one Core credentials scanner shared by the
-   local hook and CI; do not claim P0-5-D closed before implementation evidence.
-2. Keep TER-001 deferred unless a dedicated ownership/generated-file design is approved.
+1. Keep SEC-CRED-005 and TER-001 deferred until a dedicated consumer
+   ownership/generated-file design is approved.
+2. Observe the first remote credentials workflow after SEC-02 is pushed.
 3. Decide whether the loose routing-verification note should be archived or
    reconstructed only if its placement becomes operationally relevant.
 

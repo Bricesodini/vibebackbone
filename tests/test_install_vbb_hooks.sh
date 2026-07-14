@@ -35,6 +35,7 @@ make_fixture() {
        "$REPO_ROOT/scripts/install-vbb-pre-commit.sh" "$dir/scripts/"
     cp "$REPO_ROOT/scripts/hooks/pre-commit-framework-gate" \
        "$REPO_ROOT/scripts/hooks/commit-msg-framework-gate" "$dir/scripts/hooks/"
+    cp "$REPO_ROOT/tools/vbb-credentials-gate.py" "$dir/tools/"
     git -C "$dir" init -q
 }
 
@@ -71,6 +72,15 @@ check "deprecated vbb-pre-commit: message DEPRECATED" "yes" \
     "$(echo "$out3" | grep -q "DEPRECATED" && echo yes || echo no)"
 check "deprecated vbb-pre-commit: étage framework gate non perdu" "yes" \
     "$(grep -q "pre-commit-framework-gate" "$FIX3/.git/hooks/pre-commit" && echo yes || echo no)"
+
+# --- Cas 4 : dépendance credentials absente → fail closed --------------------
+FIX4="$TEST_TMP/missing_credentials_gate"
+make_fixture "$FIX4"
+rm "$FIX4/tools/vbb-credentials-gate.py"
+out4="$(bash "$FIX4/scripts/install-vbb-hooks.sh" 2>&1)"; rc4=$?
+check "missing credentials gate: exit 1" "1" "$rc4"
+check "missing credentials gate: erreur explicite" "yes" \
+    "$(echo "$out4" | grep -q "vbb-credentials-gate.py" && echo yes || echo no)"
 
 echo ""
 echo "RESULT: $pass passed, $fail failed"

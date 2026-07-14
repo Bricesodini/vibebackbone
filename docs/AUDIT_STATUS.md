@@ -26,8 +26,7 @@ security decision point; implementation remains gated by ADR + POC. Reopen
 
 | ID | Severity | Description | Status |
 |---|---|---|---|
-| SEC-CRED-001 | P1 | The canonical credentials prohibition has no automatic staged-content enforcement; the current hook is log-only. | **OPEN — DECISION REQUIRED** — audit [`2026-07-14_1040_credentials-enforcement-audit`](runs/2026-07-14_1040_credentials-enforcement-audit/07_CLOSEOUT.md) recommends one Core scanner in hook + CI, conditional on ADR and POC. |
-| SEC-CRED-002 | P1 | Local hooks are optional/bypassable and the versioned CI workflow provides no credentials-scan backstop. | **OPEN — DECISION REQUIRED** — close jointly with SEC-CRED-001; do not implement a hook-only fix. |
+| SEC-CRED-005 | P1 | `vbb-project-init --install-hook` exits 0 while no consumer hook is installed: it copies only the deprecated redirect and omits its canonical installer/tool dependencies. | **OPEN — OWNERSHIP DECISION REQUIRED** — verified in a temporary consumer repo during SEC-02; fix jointly with TER-001 so copied/generated consumer files have an explicit update owner. |
 | TER-001 | P1 | Consumer refresh cannot safely reconcile customized project truth: skip mode does not refresh, while repeated overwrite replaces both the project file and its prior backup. | **OPEN — DEFERRED** — POC [`2026-07-14_0721_consumer-refresh-poc`](runs/2026-07-14_0721_consumer-refresh-poc/07_CLOSEOUT.md) is NO-GO; requires an ownership design. |
 | GMA-003 | P1 | Executor loader duplication and concentrated typing debt remain outside the correctness fix. | **MITIGATING** — correctness paths are directly covered; cleanup is deferred to a bounded code-quality run. |
 | SYS-POST-002 | P1 | A final external audit bypassed the canonical AUDIT artifact and FINAL_STATUS contract. | **OPEN / HISTORICAL** — commit `d0eab3c` cannot be retroactively rewritten; current runs follow the contract. |
@@ -43,6 +42,9 @@ security decision point; implementation remains gated by ADR + POC. Reopen
 
 ## Latest evidence
 
+- Credentials remediation design: [impact analysis](audits/impact-analysis-20260714-1150.md),
+  [remediation plan](audits/security-remediation-20260714-1150.md), and
+  [ADR 0033](adr/0033-layered-core-credentials-enforcement.md).
 - Credentials enforcement audit:
   [`2026-07-14_1040_credentials-enforcement-audit`](runs/2026-07-14_1040_credentials-enforcement-audit/07_CLOSEOUT.md)
   and [security report](audits/security-credentials-20260714-1040.md).
@@ -70,6 +72,16 @@ security decision point; implementation remains gated by ADR + POC. Reopen
 - `DOC-002`: the code-audit detector responsibility matrix now distinguishes
   effects, outputs, and routing triggers; bounded overlap is accepted without
   merging contracts.
+
+## Resolved by layered credentials enforcement
+
+- `SEC-CRED-001`: `tools/vbb-credentials-gate.py --staged` now blocks newly
+  added credential-like content through the canonical hook without printing the
+  matched value.
+- `SEC-CRED-002`: the same Core detector runs in GitHub Actions range mode, so
+  Core pushes and pull requests no longer rely exclusively on local hooks.
+- `SEC-CRED-003`: a 16-test positive/negative corpus covers placeholders,
+  exceptions, deletions, binaries, normal ranges and zero-base pushes.
 
 ## Update policy
 

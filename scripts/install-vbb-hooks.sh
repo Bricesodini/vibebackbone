@@ -25,8 +25,9 @@ REPO_ROOT="$(git -C "$(dirname "$0")" rev-parse --show-toplevel)"
 HOOKS_DIR="$REPO_ROOT/.git/hooks"
 FRAMEWORK_PRE_COMMIT="$REPO_ROOT/scripts/hooks/pre-commit-framework-gate"
 FRAMEWORK_COMMIT_MSG="$REPO_ROOT/scripts/hooks/commit-msg-framework-gate"
+CREDENTIALS_GATE="$REPO_ROOT/tools/vbb-credentials-gate.py"
 
-for src in "$FRAMEWORK_PRE_COMMIT" "$FRAMEWORK_COMMIT_MSG"; do
+for src in "$FRAMEWORK_PRE_COMMIT" "$FRAMEWORK_COMMIT_MSG" "$CREDENTIALS_GATE"; do
     if [ ! -f "$src" ]; then
         echo "ERROR: hook source not found: $src" >&2
         exit 1

@@ -144,9 +144,10 @@ risks:
 id: contract-tooling
 type: tooling
 status: active
-role: Local validation, dry-run runtime, route lookup and dashboard tooling.
+role: Local validation, security gates, dry-run runtime, route lookup and dashboard tooling.
 responsibilities:
   - Lint skill contracts
+  - Prevent newly added credential-like content from entering commits and CI
   - Execute contract dry-runs
   - Route queries to skills
   - Report repository status
@@ -166,7 +167,9 @@ files:
   - tools/vbb-status-dashboard.py
   - tools/vbb-loop-closure-check.py
   - tools/vbb-gate-check.py
+  - tools/vbb-credentials-gate.py
   - tools/vbb_run_resolution.py
+  - scripts/hooks/pre-commit-framework-gate
   - scripts/install-vbb-hooks.sh
 contracts:
   - t-vbb-status-dashboard
@@ -179,6 +182,7 @@ tests:
   - tests/test_status_dashboard.py
   - tests/test_run_resolution.py
   - tests/test_gate_check_adr_linkage.py
+  - tests/test_credentials_gate.py
   - tests/test_install_vbb_hooks.sh
 risks:
   - id: TOOL-001
@@ -187,6 +191,9 @@ risks:
   - id: TOOL-002
     level: P2
     note: Run resolution is shared via tools/vbb_run_resolution.py (ADR-0027, TD-101) with two declared selectors (latest existing / latest closed). Hook installation converges on scripts/install-vbb-hooks.sh (TD-102); legacy installers are deprecated redirects.
+  - id: TOOL-003
+    level: P1
+    note: Credentials enforcement is shared by the staged hook and commit-range CI through tools/vbb-credentials-gate.py (ADR-0033); detection is differential and intentionally not exhaustive.
 ```
 
 ## Bloc: Architecture Source

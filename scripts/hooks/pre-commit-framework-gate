@@ -22,11 +22,8 @@
 #    `--validate-test-audit` (P0-3 §4.1).
 #  - Tous ces checks sont **additifs et tolérants** : un échec affiche
 #    un message clair mais n'altère pas le flow des commits hors-scope.
-#  - Note P0-5 §4.2 (2026-06-13) : echo informatif "checking credentials
-#    (Core rule §13)" — la credentials gate Core (vbb-credentials-gate.py)
-#    est différée (catégorie D, hors scope Phase 2 Run 1) ; pour l'instant
-#    le hook Core ne fait qu'un message de log. Aucune implémentation
-#    distribution-level n'est active.
+#  - ADR 0033 (2026-07-14) : appelle la credentials gate Core sur les lignes
+#    staged ajoutées. Un finding bloque le commit sans imprimer la valeur.
 #
 # Bash pur, pas de dépendance externe.
 #
@@ -122,13 +119,18 @@ if [ -n "$execution_staged" ] && [ -f "$REPO_ROOT/tools/vbb-loop-closure-check.p
     fi
 fi
 
-# ── P0-5 §4.2 — credentials check visibility (Core rule §13) ────────
-# Phase 2 Run 1 : echo informatif uniquement. Le tool Core
-# `vbb-credentials-gate.py` est différé (catégorie D, hors scope).
-# No distribution-specific credential linter is active. The canonical Core
-# prohibition remains enforceable by review until the deferred tool lands.
+# ── P0-5 §4.2 — credentials enforcement (Core rule §13, ADR 0033) ───
 if [ -n "$STAGED" ]; then
-    echo "[pre-commit] P0-5: checking credentials (Core rule §13) — pattern list deferred to distribution tools."
+    credentials_gate="$REPO_ROOT/tools/vbb-credentials-gate.py"
+    if [ ! -f "$credentials_gate" ]; then
+        echo "[pre-commit] P0-5 FAIL: credentials gate tool missing: $credentials_gate" >&2
+        exit 1
+    fi
+    echo "[pre-commit] P0-5: checking added staged content for credentials …"
+    if ! "$PYTHON" "$credentials_gate" --staged; then
+        echo "[pre-commit] P0-5 FAIL: credentials gate failed; remove the value or use a justified example marker." >&2
+        exit 1
+    fi
 fi
 
 # Hors-scope : exit 0 silencieux.

@@ -42,6 +42,7 @@ Exemple : `0001-choix-framework-api.md`
 | [0030](0030-boot-set-diet-and-portability.md) | Boot-set diet and portability | ACCEPTED | 2026-07-13 | — |
 | [0031](0031-autonomous-multirun-protocol.md) | Autonomous multirun protocol | ACCEPTED | 2026-07-13 | — |
 | [0032](0032-responsibility-first-routing-consolidation.md) | Responsibility-first routing consolidation | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_0830_weakpoint-responsibility-routing/) |
+| [0033](0033-layered-core-credentials-enforcement.md) | Layered Core credentials enforcement | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_1150_credentials-enforcement/) |
 | [0013-arch](0013-repo-organization-core-vs-distributions.md) | Repo organization Core vs Distributions | — | — | — |
 
 ## Conventions

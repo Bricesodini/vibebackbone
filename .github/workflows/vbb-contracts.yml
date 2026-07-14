@@ -15,9 +15,16 @@ jobs:
         python-version: ["3.11"]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Credentials gate
+        env:
+          VBB_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          VBB_HEAD_SHA: ${{ github.sha }}
+        run: python3 tools/vbb-credentials-gate.py --range "$VBB_BASE_SHA" "$VBB_HEAD_SHA"
       - run: pip install -r requirements.txt
       - name: Contract lint
         run: python3 tools/vbb-contract-lint.py

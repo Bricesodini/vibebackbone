@@ -77,36 +77,40 @@ echo ""
 
 require_python_modules
 
-echo "[1/8] Contract lint"
+echo "[1/9] Contract lint"
 run_check "Lint 0 errors" "$PYTHON" tools/vbb-contract-lint.py
 
 echo ""
-echo "[2/8] Architecture lint"
+echo "[2/9] Architecture lint"
 run_check "Architecture valid" "$PYTHON" tools/vbb-architecture.py lint
 
 echo ""
-echo "[3/8] Contract runtime dry-run"
+echo "[3/9] Contract runtime dry-run"
 run_check "Runtime dry-run" "$PYTHON" tools/vbb-contract-runtime.py run --all --dry-run
 
 echo ""
-echo "[4/8] Loop closure (latest run)"
+echo "[4/9] Credentials gate (staged additions)"
+run_check "Credentials clean" "$PYTHON" tools/vbb-credentials-gate.py --staged
+
+echo ""
+echo "[5/9] Loop closure (latest run)"
 # WARN is acceptable if the latest run has unknown voie (ad-hoc session)
 run_check_warn "Closure check" "$PYTHON" tools/vbb-loop-closure-check.py
 
 echo ""
-echo "[5/8] Loop closure tests"
+echo "[6/9] Loop closure tests"
 run_check "test_loop_closure.py" "$PYTHON" tests/test_loop_closure.py
 
 echo ""
-echo "[6/8] Portability tests"
+echo "[7/9] Portability tests"
 run_check "test_portability.py" "$PYTHON" tests/test_portability.py
 
 echo ""
-echo "[7/8] Project init tests"
+echo "[8/9] Project init tests"
 run_check "test_project_init.py" "$PYTHON" tests/test_project_init.py
 
 echo ""
-echo "[8/8] Pytest suite"
+echo "[9/9] Pytest suite"
 run_check "pytest tests/" "$PYTHON" -m pytest tests/ -q
 
 # ── Summary ─────────────────────────────────────────────────────────
