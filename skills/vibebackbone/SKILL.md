@@ -48,7 +48,7 @@ Always:
 
 **Required:**
 
-- [ ] Une demande utilisateur
+- [ ] A user request
 
 **Optional:**
 
@@ -59,12 +59,12 @@ Always:
 - [ ] `docs/PILOTAGE.md`
 - [ ] `skills/vibebackbone/docs/PILOTAGE.md`
 
-**Sources acceptées :** demande textuelle, repo local, fichiers docs/
+**Accepted sources:** textual request, local repo, files under `docs/`
 
 ## BLOCKING CONDITIONS
 
-- Si le projet n’est manifestement pas Vibebackbone et qu’aucune demande explicite d’appliquer Vibebackbone n’est formulée → STOP. Message : "This workflow assumes un projet Vibebackbone ou une demande explicite d’y appliquer ses règles."
-- Si la tâche dépend fortement d’un état projet invisible et qu’aucun contexte minimal n’est fourni → STOP. Message : "Contexte insuffisant pour router proprement la tâche. Provide the request précise ou les docs de base."
+- If the project is clearly not Vibebackbone and there is no explicit request to apply Vibebackbone → STOP. Message: "This workflow assumes a Vibebackbone project or an explicit request to apply its rules."
+- If the task depends heavily on invisible project state and no minimal context is available → STOP. Message: "Insufficient context for reliable routing. Provide the precise request or the base documentation."
 
 ## SCOPE
 
@@ -110,18 +110,18 @@ It does NOT:
 ## UI/UX ENGINE_ONLY RULE
 
 Trigger detection (any of the following):
-- "cohérence UI/UX"
+- "UI/UX coherence"
 - "audit UI"
-- "cohérence visuelle"
-- "architecture visuelle"
-- "centralisation graphique"
+- "visual coherence"
+- "visual architecture"
+- "graphic centralization"
 - "design system"
-- "surface" + "cartographie"
+- "surface" + "cartography"
 - "audit surface" + "Trame"
 - **"UI/UX"** in any request context
-- **"optimiser"** + **"logiques"** + **"modifications graphiques"** in same request
-- **"centraliser"** + **"graphique"** in same request
-- **"modifications graphiques"** alone
+- **"optimize"** + **"logic"** + **"graphic changes"** in same request
+- **"centralize"** + **"graphic"** in same request
+- **"graphic changes"** alone
 
 Behavior when triggered:
 1. Route to `4-vbb-user-experience-engine` first.

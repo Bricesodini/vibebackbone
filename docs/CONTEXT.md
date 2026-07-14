@@ -25,12 +25,12 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Release posture**: v1.0 hardening complete; bounded maintenance continues
 - **Active run**: none
 - **Latest completed run**:
-  [`2026-07-14_2115_verdict-status-boundary`](runs/2026-07-14_2115_verdict-status-boundary/07_CLOSEOUT.md)
+  [`2026-07-14_2145_skill-english-migration`](runs/2026-07-14_2145_skill-english-migration/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: classify and translate remaining French skill prose, then
-  run independent READY revalidation
+- **Next action**: run independent READY revalidation and verify remote CI at
+  the exact final SHA
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
 - **Quality**: [CONVENTIONS.md](CONVENTIONS.md), pillars P1–P5 and P.R1–P.R8

@@ -5,7 +5,7 @@ description: |
   initial RICO / product brief is complete enough to allow controlled
   implementation. If not ready, it blocks code and returns prioritized blocking
   questions. Keywords: RICO, MVP start, no code before readiness, initial brief,
-  product framing, blocking questions, cahier des charges.
+  product framing, blocking questions, requirements specification.
 version: "1.0"
 phase: 0
 token_budget: low

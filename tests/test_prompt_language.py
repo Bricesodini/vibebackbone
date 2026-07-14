@@ -6,6 +6,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PROMPTS_ROOT = REPO_ROOT / "prompts"
+SKILLS_ROOT = REPO_ROOT / "skills"
 
 # Machine-facing route and verdict enums are contracts, not prose.
 ALLOWED_CONTRACT_TOKENS = (
@@ -75,6 +76,33 @@ def test_active_prompts_have_no_unapproved_accented_tokens() -> None:
     failures: dict[str, list[str]] = {}
 
     for path in sorted(PROMPTS_ROOT.rglob("*.md")):
+        normalized = path.read_text(encoding="utf-8")
+        for token in sorted(ALLOWED_CONTRACT_TOKENS, key=len, reverse=True):
+            normalized = normalized.replace(token, "")
+        accented = ACCENTED_TOKEN_RE.findall(normalized)
+        if accented:
+            failures[str(path.relative_to(REPO_ROOT))] = accented[:10]
+
+    assert failures == {}
+
+
+def test_active_skills_use_english_instructional_prose() -> None:
+    failures: dict[str, list[str]] = {}
+    skill_paths = sorted(SKILLS_ROOT.glob("*/SKILL.md"))
+
+    assert len(skill_paths) == 64
+    for path in skill_paths:
+        markers = french_instruction_markers(path.read_text(encoding="utf-8"))
+        if markers:
+            failures[str(path.relative_to(REPO_ROOT))] = markers[:10]
+
+    assert failures == {}
+
+
+def test_active_skills_have_no_unapproved_accented_tokens() -> None:
+    failures: dict[str, list[str]] = {}
+
+    for path in sorted(SKILLS_ROOT.glob("*/SKILL.md")):
         normalized = path.read_text(encoding="utf-8")
         for token in sorted(ALLOWED_CONTRACT_TOKENS, key=len, reverse=True):
             normalized = normalized.replace(token, "")

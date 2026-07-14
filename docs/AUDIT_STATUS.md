@@ -15,11 +15,12 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 ## Global verdict
 
-**`PARTIAL — catalog alignment complete; English migration and independent revalidation pending`**
+**`PARTIAL — remediation complete; independent READY revalidation pending`**
 
 The Core contracts, architecture checks, runtime executor, consumer hook bundle,
-and four supported distribution adapters are operational. Catalog alignment is
-complete; language migration and independent READY revalidation remain.
+and four supported distribution adapters are operational. Catalog alignment and
+active instruction-language migration are complete; independent READY
+revalidation remains.
 
 ## Active risks
 
@@ -71,6 +72,9 @@ remaining READY evidence is collected.
 - Verdict/status boundary: [impact analysis](audits/impact-analysis-verdict-status-boundary-20260714-2115.md),
   [ADR 0043](adr/0043-domain-verdict-runtime-status-orthogonality.md), and
   [run closeout](runs/2026-07-14_2115_verdict-status-boundary/07_CLOSEOUT.md).
+- Skill English migration: [impact analysis](audits/impact-analysis-skill-english-migration-20260714-2145.md),
+  [ADR 0044](adr/0044-agent-facing-skill-english-convention.md), and
+  [run closeout](runs/2026-07-14_2145_skill-english-migration/07_CLOSEOUT.md).
 
 ## READY campaign exit criteria
 
@@ -193,6 +197,12 @@ The verdict remains `PARTIAL` until the seven conditions hold simultaneously.
   longer presents resolved GMA-003 as future work.
 - `READY-GIT-002`: after the independent audit commit, worktree cleanliness and
   equality of local, tracking and live remote SHAs were verified before this run.
+
+## Resolved by skill English migration
+
+- Active agent-facing prose in all 64 skills is English under conservative
+  instructional-marker and accented-token regression checks. Closed machine
+  enums and routing metadata remain outside this prose-only migration.
 
 - Credentials remediation design: [impact analysis](audits/impact-analysis-20260714-1150.md),
   [remediation plan](audits/security-remediation-20260714-1150.md), and

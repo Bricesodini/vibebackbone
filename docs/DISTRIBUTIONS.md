@@ -175,6 +175,15 @@ that triggered the decision.
 
 <!-- Add entries below as decisions are made -->
 
+### 2026-07-14 — Agent-facing skill English convention (ADR-0044)
+**Decision**: keep English active skill prose and its regression guard in Core.
+**Trigger**: final skill-language migration explicitly approved by Brice.
+**Reason**: agent instructions are shared behavior; provider-specific copies
+would create four divergent catalogs.
+**Impact**: Pi, OpenCode, Codex and Claude Code inherit five translated skills
+and the same language test. No adapter, routing contract or runtime state changes.
+**Author**: Codex (approval Brice)
+
 ### 2026-07-14 — Verdict/status orthogonality (ADR-0043)
 **Decision**: keep domain verdicts independent from runtime status in Core and
 reject implicit root mappings.

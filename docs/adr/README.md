@@ -53,6 +53,7 @@ Exemple : `0001-choix-framework-api.md`
 | [0041](0041-transverse-artifact-and-infrastructure-file-semantics.md) | Transverse artifact and infrastructure-file semantics | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_2015_transverse-artifact-contracts/) |
 | [0042](0042-exact-seven-section-skill-layout.md) | Exact seven-section skill layout | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_2045_skill-section-normalization/) |
 | [0043](0043-domain-verdict-runtime-status-orthogonality.md) | Domain verdict and runtime status orthogonality | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_2115_verdict-status-boundary/) |
+| [0044](0044-agent-facing-skill-english-convention.md) | Agent-facing skill English convention | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_2145_skill-english-migration/) |
 | [0013-arch](0013-repo-organization-core-vs-distributions.md) | Repo organization Core vs Distributions | — | — | — |
 
 ## Conventions

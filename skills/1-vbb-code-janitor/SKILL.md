@@ -60,21 +60,21 @@ Absolute rules:
 
 ## SUPPORT BOUNDARY
 
-Supporté :
-- cleanup local et non créatif
-- réduction de bruit de maintenance
-- incohérences superficielles prouvées
-- quick wins sans changement métier
-- signaux structurels non diagnostiqués, à transmettre vers `1-vbb-tech-debt`
+Supported:
+- local, non-creative cleanup
+- maintenance-noise reduction
+- evidenced superficial inconsistencies
+- quick wins without business-behavior changes
+- undiagnosed structural signals, handed off to `1-vbb-tech-debt`
 
-Non supporté (refuser explicitement) :
-- refactor métier ou architectural → risque hors scope janitor
-- renommage opportuniste → risque de churn sans bénéfice prouvé
-- centralisation de logique métier → relève de `1-vbb-tech-debt`
-- conventions repo-wide → relève de `1-vbb-conventions`
-- enforcement outillé format/lint → relève de `1-vbb-formatter`
-- correction automatique de tests, sécurité, auth, permissions, API ou async → risque de changement comportemental
-- préparation de commit ou handoff → relève de `t-vbb-commit-ready` ou `t-vbb-session-handoff`
+Not supported (refuse explicitly):
+- business or architectural refactoring → risk outside Janitor scope
+- opportunistic renaming → churn without evidenced benefit
+- business-logic centralization → owned by `1-vbb-tech-debt`
+- repo-wide conventions → owned by `1-vbb-conventions`
+- automated format/lint enforcement → owned by `1-vbb-formatter`
+- automatic correction of tests, security, auth, permissions, APIs, or async flows → behavioral-change risk
+- commit preparation or handoff → owned by `t-vbb-commit-ready` or `t-vbb-session-handoff`
 
 ## SCOPE
 
@@ -146,54 +146,59 @@ Never conclude on overall system quality solely from a Code Janitor report.
 
 ## REDUCTION CANDIDATE RULE
 
-Un finding Janitor devient candidat à une micro-boucle de remboursement uniquement si :
+A Janitor finding becomes eligible for a controlled debt-repayment micro-loop
+only when:
 
-- la dette est sourcée par une preuve vérifiable
-- le périmètre est local et borné
-- le diff attendu est minimal
-- les checks de validation sont identifiables avant action
-- le changement ne modifie ni contrat, ni comportement produit, ni permissions, ni auth, ni flux async
-- l'entrée correspondante dans `docs/TECH_DEBT.md` existe ou peut être créée à partir d'une source vérifiable
+- the debt is supported by verifiable evidence
+- the scope is local and bounded
+- the expected diff is minimal
+- relevant validation checks are identifiable before action
+- the change affects no contract, product behavior, permission, auth, or async flow
+- the corresponding `docs/TECH_DEBT.md` entry exists or can be created from a verifiable source
 
-Si un de ces critères manque, ne pas patcher. Documenter le finding, le classer en structural signal si nécessaire, et recommander `1-vbb-tech-debt` ou une entrée `docs/TECH_DEBT.md`.
+If any criterion is missing, do not patch. Document the finding, classify it as
+a structural signal when needed, and recommend `1-vbb-tech-debt` or a
+`docs/TECH_DEBT.md` entry.
 
 ## STOP CRITERIA
 
-Arrêter immédiatement le passage Janitor si le cleanup révèle :
+Stop the Janitor pass immediately if cleanup reveals:
 
-- impact API, contrat de données ou format partagé
-- auth, permissions, sécurité ou conformité
-- changement de comportement métier
-- flux async, concurrence, transaction ou ordre d'exécution
-- dépendance externe ou migration d'outil
-- refonte de responsabilité entre modules
-- preuve insuffisante pour borner le risque
+- impact on an API, data contract, or shared format
+- auth, permissions, security, or compliance
+- a business-behavior change
+- async flow, concurrency, transaction, or execution-order concerns
+- an external dependency or tool migration
+- reassignment of responsibility between modules
+- insufficient evidence to bound the risk
 
-En cas d'arrêt, produire le rapport avec verdict `PARTIAL`, `BLOCKED` ou `UNKNOWN` selon le cas, puis orienter vers le skill approprié.
+On stop, produce the report with `PARTIAL`, `BLOCKED`, or `UNKNOWN` as
+appropriate, then route to the relevant skill.
 
 ## TECH_DEBT LINK
 
-Les findings Janitor peuvent alimenter `docs/TECH_DEBT.md` quand ils dépassent le quick win local ou doivent être suivis sur plusieurs sessions.
+Janitor findings may feed `docs/TECH_DEBT.md` when they exceed a local quick win
+or require tracking across sessions.
 
-Règles :
+Rules:
 
-- ne créer ou modifier une entrée TECH_DEBT qu'à partir d'une source vérifiable
-- ne pas dupliquer un risque déjà porté par `docs/AUDIT_STATUS.md`
-- relier chaque dette à un closeout, audit, fichier, finding ou contexte explicite
-- passer une entrée à `RESOLVED` seulement si le diff et sa validation sont documentés
-- laisser en `OPEN`, `MITIGATING` ou `ACCEPTED` quand la réduction n'est pas prouvée
+- create or modify a TECH_DEBT entry only from a verifiable source
+- do not duplicate a risk already tracked by `docs/AUDIT_STATUS.md`
+- link every debt item to an explicit closeout, audit, file, finding, or context
+- move an entry to `RESOLVED` only when the diff and validation are documented
+- keep `OPEN`, `MITIGATING`, or `ACCEPTED` when reduction is not evidenced
 
 ## VALIDATION LOOP
 
-Pour une micro-boucle de remboursement contrôlé :
+For a controlled debt-repayment micro-loop:
 
-1. Identifier la dette sourcée et le fichier cible.
-2. Vérifier que la Reduction Candidate Rule est satisfaite.
-3. Préparer le diff minimal, sans changement métier.
-4. Lancer uniquement les checks disponibles et pertinents.
-5. Mettre à jour `docs/TECH_DEBT.md` si le statut change ou si une dette doit être suivie.
-6. Produire un closeout court avec : dette traitée, diff résumé, checks, statut restant.
-7. Stopper dès que le risque sort du périmètre janitor.
+1. Identify the evidenced debt and target file.
+2. Verify that the Reduction Candidate Rule is satisfied.
+3. Prepare the minimal diff without changing business behavior.
+4. Run only available and relevant checks.
+5. Update `docs/TECH_DEBT.md` if status changes or debt requires tracking.
+6. Produce a short closeout: debt addressed, diff summary, checks, remaining status.
+7. Stop as soon as risk leaves Janitor scope.
 
 ## PROCESS
 

@@ -97,7 +97,7 @@ Absolute rules:
 4. Build a few failure propagation scenarios.
 5. Prioritize systemic risks.
 6. Classify findings using canonical evidence discipline from `prompts/canonical/02-p-vbb-audit.md`:
-   - Every VERIFIED_FINDING must include an evidence trace: OBSERVATION → SIGNAL → VÉRIFICATION → FINDING
+   - Every VERIFIED_FINDING must include an evidence trace: OBSERVATION → SIGNAL → VERIFICATION → FINDING
    - A VERIFIED_FINDING without a trace must be retrograded to HYPOTHESIS
    - Severity scale: P0/P1/P2/P3 (canonical — extend to P3 for info/trend)
    - Type: VIOLATION · OBSERVATION · TREND · FALSE_POSITIVE
