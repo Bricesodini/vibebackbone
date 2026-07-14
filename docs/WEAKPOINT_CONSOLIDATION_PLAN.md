@@ -1,13 +1,19 @@
 ---
 title: "Weakpoint Consolidation — Plan complet d'exécution"
 date: 2026-07-14
-status: "READY FOR EXECUTION"
+status: "SUPERSEDED — DO NOT EXECUTE"
 scope: "vibebackbone repo uniquement, aucun consommateur"
 route: "STRUCTUREE"
 adr_required: "docs/adr/0032-weakpoint-consolidation.md (à créer, ACCEPTED)"
+superseded_by: "docs/adr/0032-responsibility-first-routing-consolidation.md"
 ---
 
 # Plan complet : Consolidation des points faibles (W1–W4)
+
+> **Superseded on 2026-07-14.** Do not execute phases A–E below. The validated
+> replacement preserves specialized skills and mandatory orchestration, and
+> applies only evidence-backed routing triggers. See
+> `docs/runs/2026-07-14_0830_weakpoint-responsibility-routing/` and ADR 0032.
 
 ## Vue d'ensemble
 

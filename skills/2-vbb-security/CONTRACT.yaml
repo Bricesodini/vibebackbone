@@ -90,6 +90,8 @@ routing:
   finding_id_prefix: SEC
   triggers:
   - security audit
+  - audit security
+  - security controls
   - audit sécurité
   - vulnérabilités
   excludes:

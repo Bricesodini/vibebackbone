@@ -25,7 +25,7 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Release posture**: v1.0 hardening complete; bounded maintenance continues
 - **Active run**: none
 - **Latest completed run**:
-  [`2026-07-14_0727_documentation-cleanup`](runs/2026-07-14_0727_documentation-cleanup/07_CLOSEOUT.md)
+  [`2026-07-14_0830_weakpoint-responsibility-routing`](runs/2026-07-14_0830_weakpoint-responsibility-routing/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
@@ -36,8 +36,9 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 ## Current priorities
 
-1. Keep TER-001 deferred unless a dedicated ownership/generated-file design is approved.
-2. Decide whether the loose routing-verification note should be archived or
+1. Keep credentials enforcement on a separate AUDIT route; do not claim P0-5-D closed.
+2. Keep TER-001 deferred unless a dedicated ownership/generated-file design is approved.
+3. Decide whether the loose routing-verification note should be archived or
    reconstructed only if its placement becomes operationally relevant.
 
 ## Stable decisions

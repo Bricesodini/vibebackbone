@@ -325,20 +325,15 @@ Chaque agent applique ensuite ses propres mécanismes d'exécution dans la voie 
 
 ## Couverture CONTRACT.yaml
 
-| Périmètre | Indexés | Total | Source |
-|-----------|---------|-------|--------|
-| Socle | 1 | 1 | `skills/INDEX.yaml` |
-| Phase 0 | 6 | 6 | `skills/INDEX.yaml` |
-| Phase 1 | 16 | 16 | `skills/INDEX.yaml` |
-| Phase 2 | 12 | 12 | `skills/INDEX.yaml` |
-| Phase 3 | 1 | 1 | `skills/INDEX.yaml` |
-| Phase 4 | 10 | 10 | `skills/INDEX.yaml` |
-| Transverses | 16 | 16 | `skills/INDEX.yaml` |
-| **Total** | **62** | **62** | `skills/INDEX.yaml` |
+La couverture est mesurée, jamais recopiée dans cette référence détaillée :
 
-Progression : **62/62 skills ont un CONTRACT.yaml v0.3** (état 2026-05-27).
-Linter : `python3 tools/vbb-contract-lint.py` — 0 erreur.
-Invariant : `skills/INDEX.yaml` doit rester exhaustif par rapport aux `skills/*/CONTRACT.yaml`.
+```bash
+python tools/vbb-status-dashboard.py --json
+python tools/vbb-contract-lint.py
+```
+
+Invariant : `skills/INDEX.yaml` reste exhaustif par rapport aux
+`skills/*/CONTRACT.yaml`. Le dashboard est la source des compteurs courants.
 
 ---
 

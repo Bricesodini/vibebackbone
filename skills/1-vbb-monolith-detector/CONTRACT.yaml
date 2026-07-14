@@ -54,6 +54,8 @@ routing:
   - monolithic
   - coupling
   - god object
+  - god file
+  - split monolith
   - big ball of mud
 limits:
   max_gate_depth: 2

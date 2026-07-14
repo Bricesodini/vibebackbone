@@ -83,6 +83,8 @@ routing:
     - fast path
     - audit path
     - handoff
+    - classify
+    - correct route
 
 limits:
   max_gate_depth: 1

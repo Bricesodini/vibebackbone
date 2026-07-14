@@ -484,6 +484,33 @@ def test_phase_router_valid_query():
     assert result is None or isinstance(result, str), \
         f"Expected None or str, got {type(result)}"
 
+
+def test_phase_router_responsibility_corpus():
+    """Router: specialized responsibilities remain unambiguous in strict mode."""
+    router = REPO_ROOT / "tools" / "vbb-phase-router.py"
+    if not router.exists():
+        return
+
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("vbb_phase_router_corpus", router)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    cases = [
+        ("detect god files and split monoliths", "1-vbb-monolith-detector"),
+        ("find duplicated business rules", "1-vbb-logic-duplication-detector"),
+        ("find inconsistent API call patterns", "1-vbb-pattern-inconsistency-detector"),
+        ("detect unnecessary interfaces and factories", "1-vbb-premature-abstraction-detector"),
+        ("audit code documentation drift", "1-vbb-code-doc-coherence-auditor"),
+        ("write missing documentation for undocumented code", "1-vbb-code-doc-gap-integrator"),
+        ("classify this task into the correct route", "vibebackbone"),
+        ("audit security controls", "2-vbb-security"),
+    ]
+
+    for query, expected in cases:
+        actual = mod.route_to_skill(query, agent="codex", strict=True)
+        assert actual == expected, f"{query!r}: expected {expected}, got {actual}"
+
 # --- Direct execution fallback ---
 
 if __name__ == "__main__":

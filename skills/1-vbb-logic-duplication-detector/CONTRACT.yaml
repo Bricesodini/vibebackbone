@@ -73,6 +73,8 @@ routing:
     - duplicated calculations
     - duplicated validation
     - business logic duplication
+    - duplicated business rules
+    - business rules
 
 limits:
   max_gate_depth: 2

@@ -73,6 +73,8 @@ routing:
     - minority divergence
     - approach fragmentation
     - multiple conventions
+    - inconsistent api call patterns
+    - api call patterns
 
 limits:
   max_gate_depth: 2

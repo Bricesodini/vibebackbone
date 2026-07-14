@@ -448,6 +448,21 @@ seul le lien relatif du profil Pi est ajusté, sans changer son contenu ni son
 runtime. Les preuves historiques restent à leur emplacement. **Author**: Codex,
 après GO Brice.
 
+### 2026-07-14 — Précision de routage conservée dans Core
+
+**Decision**: Garder dans Core la matrice de responsabilités, les déclencheurs
+contractuels additifs et leur corpus de non-régression (ADR 0032).
+
+**Reason**: Les responsabilités et triggers sont génériques aux quatre runtimes.
+Le POC atteint 8/8 sans modifier l'orchestrateur, les IDs, les outputs ou les
+artefacts des skills.
+
+**Impact**: Pi, OpenCode, Codex et Claude héritent des mêmes cinq contrats plus
+précis via le catalogue partagé. Aucun adapter, chemin provider, secret ou état
+runtime ne change. TER-001 reste différé.
+
+**Author**: Codex, après GO Brice
+
 ## 8. References
 
 - `README.md` — entry point; "VBB Core vs Distributions" anchors the

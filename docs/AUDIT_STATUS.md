@@ -32,7 +32,6 @@ distribution adapters are operational. No remediation run is mandatory. Reopen
 | QOA-007 | P2 | Optional Ruff, formatting, mypy, and pyright baselines are not clean or canonically gated. | **OPEN** — keep non-gating until a dedicated baseline run. |
 | GMA-005 | P2 | Long functions, Python naming ambiguity, and French prompt prose remain convention-drift candidates. | **OPEN** — requires a separate, bounded canon proposal and migration decision. |
 | DOC-001 | P2 | Prompt entrypoints still lack one final responsibility matrix across canonical, specialized, router, and short-name layers. | **OPEN** — continue only if current navigation proves insufficient. |
-| DOC-002 | P2 | Code-audit detector skills overlap without a single responsibility matrix. | **OPEN** — confirm whether bounded overlap is acceptable before adding documentation. |
 | SYS-POC-004 | P2 | POC-to-implementation transitions do not always record a distinct durable decision. | **OPEN** — require the decision for future canon, architecture, and cross-service changes. |
 | SYS-SUB-003 | P2 | Reintegration checks paths and presence more readily than counts, citations, and semantic contradictions. | **OPEN** — add semantic acceptance checks to future delegation briefs when delegation is used. |
 | QA-004 | LOW | Temporal provenance is documented but not automated in artifact generators. | **OPEN** — automate only with a dedicated generator change. |
@@ -48,6 +47,9 @@ distribution adapters are operational. No remediation run is mandatory. Reopen
 - Active-truth and skill compaction: [`2026-07-14_0700_truth-skill-diet`](runs/2026-07-14_0700_truth-skill-diet/07_CLOSEOUT.md).
 - Executor correction: [`2026-07-14_0010_executor-correctness`](runs/2026-07-14_0010_executor-correctness/07_CLOSEOUT.md).
 - Latest broad audit: [`2026-07-13_2351_deep-post-sanding-audit`](runs/2026-07-13_2351_deep-post-sanding-audit/02_AUDIT_REPORT.md).
+- Responsibility-first routing: [`2026-07-14_0830_weakpoint-responsibility-routing`](runs/2026-07-14_0830_weakpoint-responsibility-routing/04_PLAN.md),
+  [impact analysis](audits/impact-analysis-20260714-0830.md), and
+  [test coverage](audits/test-coverage-20260714-0835.md).
 
 ## Resolved by the documentation cleanup
 
@@ -56,6 +58,12 @@ distribution adapters are operational. No remediation run is mandatory. Reopen
   tracked Markdown surfaces; template placeholders remain intentionally virtual.
 - `QOA-009`: removed copied catalog/runtime/test counters from the active status
   and navigation index; generated tools are the measurement source.
+
+## Resolved by responsibility-first routing
+
+- `DOC-002`: the code-audit detector responsibility matrix now distinguishes
+  effects, outputs, and routing triggers; bounded overlap is accepted without
+  merging contracts.
 
 ## Update policy
 

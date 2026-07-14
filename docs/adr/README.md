@@ -36,6 +36,12 @@ Exemple : `0001-choix-framework-api.md`
 | [0024](0024-snapshot-to-log.md) | Snapshot→log cumulatif (Gap-18, P2) | ACCEPTED | 2026-07-13 | [multi-service Gap-18](../../strategy/vbb-evolution-multi-service-support/01_GAP_ANALYSIS.md#gap-18) |
 | [0025](0025-supported-runtimes-pi-opencode-codex-claude.md) | Supported runtimes: Pi, OpenCode, Codex, Claude Code | ACCEPTED | 2026-07-13 | [Run](../runs/2026-07-13_1656_retire-hermes/) |
 | [0026](0026-global-maintainability-audit-before-remediation.md) | Global maintainability audit before remediation | ACCEPTED | 2026-07-13 | [Run](../runs/2026-07-13_1717_global-debt-janitor-doc/) |
+| [0027](0027-shared-run-resolution-and-canonical-hook-installer.md) | Shared run resolution and canonical hook installer | ACCEPTED | 2026-07-13 | [Run](../runs/2026-07-13_1811_v2r1-gates-fiables/) |
+| [0028](0028-scoped-audit-protocol.md) | Scoped audit protocol | ACCEPTED | 2026-07-13 | — |
+| [0029](0029-risk-triggered-closeout-quality-pass.md) | Risk-triggered closeout quality pass | ACCEPTED | 2026-07-13 | — |
+| [0030](0030-boot-set-diet-and-portability.md) | Boot-set diet and portability | ACCEPTED | 2026-07-13 | — |
+| [0031](0031-autonomous-multirun-protocol.md) | Autonomous multirun protocol | ACCEPTED | 2026-07-13 | — |
+| [0032](0032-responsibility-first-routing-consolidation.md) | Responsibility-first routing consolidation | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_0830_weakpoint-responsibility-routing/) |
 | [0013-arch](0013-repo-organization-core-vs-distributions.md) | Repo organization Core vs Distributions | — | — | — |
 
 ## Conventions
