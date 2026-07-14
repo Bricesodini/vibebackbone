@@ -13,12 +13,6 @@ compatibility:
   - codex
   - pi
   - opencode
-verdict_mapping:
-  READY: PASS
-  PARTIAL: PARTIAL
-  BLOCKED: FAIL
-  UNKNOWN: PARTIAL
-  NOT_APPLICABLE: NOT_APPLICABLE
 inputs:
   required:
   - project_repo

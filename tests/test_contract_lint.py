@@ -726,6 +726,28 @@ def test_missing_required_skill_section_rejected():
         assert "missing exact headings ['SCOPE']" in errors[0]
 
 
+def test_root_verdict_mapping_rejected():
+    """Domain verdicts must not be implicitly converted to runtime statuses."""
+    import yaml
+
+    with tempfile.TemporaryDirectory() as tmp:
+        skills_tmp = Path(tmp) / "skills"
+        skills_tmp.mkdir()
+        skill_dir = skills_tmp / "test-verdict-mapping"
+        skill_dir.mkdir()
+        contract = yaml.safe_load(MINIMAL_CONTRACT)
+        contract["id"] = skill_dir.name
+        contract["verdict_mapping"] = {"READY": "PASS", "BLOCKED": "FAIL"}
+        (skill_dir / "CONTRACT.yaml").write_text(
+            yaml.dump(contract, default_flow_style=False)
+        )
+        (skill_dir / "SKILL.md").write_text(_canonical_skill_text())
+
+        count, errors = _run_linter(skill_dir)
+        assert count == 1, errors
+        assert "domain verdict and runtime status are orthogonal" in errors[0]
+
+
 def test_valid_contract_passes():
     """A minimal valid v0.3 contract → linter must report 0 errors."""
     import yaml

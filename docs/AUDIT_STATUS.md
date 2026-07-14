@@ -15,18 +15,16 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 ## Global verdict
 
-**`PARTIAL — bounded catalog alignment remediation in progress`**
+**`PARTIAL — catalog alignment complete; English migration and independent revalidation pending`**
 
 The Core contracts, architecture checks, runtime executor, consumer hook bundle,
-and four supported distribution adapters are operational. The catalog audit
-identified bounded P1 and P2 alignment work that must close before independent
-READY revalidation.
+and four supported distribution adapters are operational. Catalog alignment is
+complete; language migration and independent READY revalidation remain.
 
 ## Active risks
 
-| ID | Severity | Description | Status |
-|---|---|---|---|
-| PATT-05 | P2 | Domain verdict to runtime status mapping exists in only 6/64 contracts. | **OPEN** — decide one schema/runtime boundary before adding metadata. |
+No active P0/P1/P2 catalog risk remains. The verdict stays PARTIAL until the
+remaining READY evidence is collected.
 
 ## Latest evidence
 
@@ -70,6 +68,9 @@ READY revalidation.
 - Exact skill sections: [impact analysis](audits/impact-analysis-skill-section-normalization-20260714-2045.md),
   [ADR 0042](adr/0042-exact-seven-section-skill-layout.md), and
   [run closeout](runs/2026-07-14_2045_skill-section-normalization/07_CLOSEOUT.md).
+- Verdict/status boundary: [impact analysis](audits/impact-analysis-verdict-status-boundary-20260714-2115.md),
+  [ADR 0043](adr/0043-domain-verdict-runtime-status-orthogonality.md), and
+  [run closeout](runs/2026-07-14_2115_verdict-status-boundary/07_CLOSEOUT.md).
 
 ## READY campaign exit criteria
 
@@ -106,6 +107,9 @@ The verdict remains `PARTIAL` until the seven conditions hold simultaneously.
 - `PATT-01` — resolved 2026-07-14. All 64 skills contain the seven exact
   canonical level-two headings; twelve divergent skills were normalized with
   no command, path, routing or verdict change, and catalog lint blocks drift.
+- `PATT-05` — resolved 2026-07-14. Runtime status and domain verdict are
+  independent; six unused mappings were removed, no runtime behavior changed,
+  and contract lint rejects future implicit coupling.
 
 ## Accepted residual risks
 

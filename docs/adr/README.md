@@ -52,6 +52,7 @@ Exemple : `0001-choix-framework-api.md`
 | [0040](0040-front-pass-and-release-artifact-semantics.md) | Front-pass and release artifact semantics | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_1945_front-artifact-contracts/) |
 | [0041](0041-transverse-artifact-and-infrastructure-file-semantics.md) | Transverse artifact and infrastructure-file semantics | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_2015_transverse-artifact-contracts/) |
 | [0042](0042-exact-seven-section-skill-layout.md) | Exact seven-section skill layout | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_2045_skill-section-normalization/) |
+| [0043](0043-domain-verdict-runtime-status-orthogonality.md) | Domain verdict and runtime status orthogonality | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_2115_verdict-status-boundary/) |
 | [0013-arch](0013-repo-organization-core-vs-distributions.md) | Repo organization Core vs Distributions | — | — | — |
 
 ## Conventions

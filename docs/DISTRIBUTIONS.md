@@ -175,6 +175,16 @@ that triggered the decision.
 
 <!-- Add entries below as decisions are made -->
 
+### 2026-07-14 — Verdict/status orthogonality (ADR-0043)
+**Decision**: keep domain verdicts independent from runtime status in Core and
+reject implicit root mappings.
+**Trigger**: PATT-05 and explicit approval from Brice.
+**Reason**: subject conclusions and contract execution are provider-neutral,
+independent dimensions; no active consumer used the minority metadata.
+**Impact**: Pi, OpenCode, Codex and Claude Code inherit six cleaned contracts
+and blocking lint. No adapter, gate behavior or runtime state changes.
+**Author**: Codex (approval Brice)
+
 ### 2026-07-14 — Exact seven-section skill layout (ADR-0042)
 **Decision**: keep the exact skill layout and its blocking lint in Core; no
 distribution owns a provider-specific section alias.

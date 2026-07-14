@@ -13,11 +13,6 @@ compatibility:
   - codex
   - pi
   - opencode
-verdict_mapping:
-  READY: PASS
-  PARTIAL: PARTIAL
-  BLOCKED: FAIL
-  UNKNOWN: PARTIAL
 constraints:
   no_new_findings: true
   role: consolidator

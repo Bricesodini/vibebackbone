@@ -85,6 +85,13 @@ Routing triggers have one case-insensitive exact owner across the catalog.
 Adjacent responsibilities use qualified action or stage phrases; they do not
 share a generic trigger and rely on catalog order or hidden numeric priority.
 
+Runtime status and domain verdict are orthogonal. Runtime status reports whether
+the skill contract executed successfully (`PASS`, `PARTIAL`, `FAIL`, or
+`BLOCKED`). A domain verdict reports the skill's conclusion about its subject
+and may use skill-specific values such as `READY`, `UNKNOWN`, or
+`NOT_APPLICABLE`. Never infer either dimension from the other and never declare
+a root `verdict_mapping` in `CONTRACT.yaml`.
+
 Formal artifact kinds are closed: `phase_artifact`, `audit_report`,
 `design_document`, `release_document`, `infrastructure_file`, `ADR`, and
 `persistent_state_update`. A `1-vbb-*` skill with a line-start normative
@@ -128,8 +135,9 @@ are exempt — their scope is naturally bounded by their audit role.
 8. Check whether internal references use only canonical skills that exist in the same catalog.
 9. Check that routing triggers have no case-insensitive exact duplicate owner.
 10. Check normative authored outputs against formal primary/secondary artifacts.
-11. Check whether `SUPPORT BOUNDARY` is present for execution skills (recommended, not mandatory yet).
-12. Flag any violation against absolute rules.
+11. Check that runtime status and domain verdict remain independent and no root `verdict_mapping` exists.
+12. Check whether `SUPPORT BOUNDARY` is present for execution skills (recommended, not mandatory yet).
+13. Flag any violation against absolute rules.
 
 > **Note on description handling.** The `description:` field is NOT auto-truncated by any vibebackbone mechanism. It is hand-maintained and validated for **precision** (triggers, keywords) per step 6, not for length. The `setup.sh` → `distributions/codex/setup.sh` codegen pipeline operates on `~/.codex/AGENTS.md` via block replacement (`<!-- vibebackbone:generated:start -->` / `<!-- vibebackbone:generated:end -->` markers) and does NOT touch skill descriptions in this repo.
 

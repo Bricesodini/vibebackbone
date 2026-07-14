@@ -25,12 +25,12 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Release posture**: v1.0 hardening complete; bounded maintenance continues
 - **Active run**: none
 - **Latest completed run**:
-  [`2026-07-14_2045_skill-section-normalization`](runs/2026-07-14_2045_skill-section-normalization/07_CLOSEOUT.md)
+  [`2026-07-14_2115_verdict-status-boundary`](runs/2026-07-14_2115_verdict-status-boundary/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: human checkpoint, then resolve or explicitly accept PATT-05,
-  classify remaining French skill prose, and run independent READY revalidation
+- **Next action**: classify and translate remaining French skill prose, then
+  run independent READY revalidation
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
 - **Quality**: [CONVENTIONS.md](CONVENTIONS.md), pillars P1–P5 and P.R1–P.R8

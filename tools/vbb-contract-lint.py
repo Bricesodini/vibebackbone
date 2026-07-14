@@ -231,6 +231,16 @@ def check_outputs(skill_id: str, contract: Dict) -> List[str]:
     return errors
 
 
+def check_verdict_status_boundary(skill_id: str, contract: Dict) -> List[str]:
+    """Reject implicit coupling between domain conclusions and runtime state."""
+    if "verdict_mapping" in contract:
+        return [
+            f"[{skill_id}] verdict_mapping: forbidden at contract root; "
+            "domain verdict and runtime status are orthogonal"
+        ]
+    return []
+
+
 def check_agents(skill_id: str, contract: Dict) -> List[str]:
     errors = []
     agents = contract.get("compatibility", {}).get("agents", [])
@@ -561,6 +571,7 @@ def lint_all() -> Tuple[int, List[str], List[str]]:
         all_errors.extend(check_events(skill_id, contract, indexed))
         all_errors.extend(check_circular_deps(skill_id, contract, all_contracts))
         all_errors.extend(check_outputs(skill_id, contract))
+        all_errors.extend(check_verdict_status_boundary(skill_id, contract))
         all_errors.extend(check_agents(skill_id, contract))
         all_errors.extend(check_phase_alignment(skill_id, contract))
         all_errors.extend(check_required_skill_sections(skill_id))
