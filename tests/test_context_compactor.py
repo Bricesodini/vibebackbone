@@ -31,8 +31,7 @@ TOOL = REPO_ROOT / "tools" / "vbb-context-compactor.py"
 def _run_compactor(args: list) -> tuple:
     """Run the compactor and return (rc, stdout, stderr)."""
     result = subprocess.run(
-        [sys.executable, str(TOOL)] + args,
-        capture_output=True, text=True
+        [sys.executable, str(TOOL)] + args, capture_output=True, text=True
     )
     return result.returncode, result.stdout, result.stderr
 
@@ -104,6 +103,7 @@ VALID_INTAKE = textwrap.dedent("""\
 
 # --- Tests ---
 
+
 def test_valid_run_summary():
     """Valid run → summary generated with all expected sections."""
     with tempfile.TemporaryDirectory() as tmp:
@@ -118,8 +118,15 @@ def test_valid_run_summary():
         assert summary_path.exists(), f"Summary not created\n{out}{err}"
 
         content = summary_path.read_text()
-        for section in ["Objective", "Current status", "Decisions",
-                        "Files changed", "Risks", "Next action", "Re-entry prompt"]:
+        for section in [
+            "Objective",
+            "Current status",
+            "Decisions",
+            "Files changed",
+            "Risks",
+            "Next action",
+            "Re-entry prompt",
+        ]:
             assert f"## {section}" in content, f"Missing section: {section}"
 
 
@@ -134,7 +141,9 @@ def test_stdout_mode():
         assert rc == 0, f"Expected exit 0, got {rc}\n{err}"
         assert "Context Summary" in out, f"Expected 'Context Summary' in stdout\n{out}"
         # File should NOT be created
-        assert not (run_dir / "CONTEXT_SUMMARY.md").exists(), "Summary file should not exist in --stdout mode"
+        assert not (run_dir / "CONTEXT_SUMMARY.md").exists(), (
+            "Summary file should not exist in --stdout mode"
+        )
 
 
 def test_output_flag():
@@ -181,8 +190,9 @@ def test_nonexistent_run():
     """Non-existent run → error + exit 1."""
     rc, out, err = _run_compactor(["/nonexistent/path/2026-01-01_fake"])
     assert rc == 1, f"Expected exit 1, got {rc}"
-    assert "not found" in err.lower() or "not found" in out.lower(), \
+    assert "not found" in err.lower() or "not found" in out.lower(), (
         f"Expected 'not found' in output\n{out}\n{err}"
+    )
 
 
 def test_empty_directory():
@@ -192,8 +202,9 @@ def test_empty_directory():
         run_dir.mkdir()
         rc, out, err = _run_compactor([str(run_dir)])
         assert rc == 1, f"Expected exit 1, got {rc}"
-        assert "no markdown" in err.lower() or "no markdown" in out.lower() or rc == 1, \
-            f"Expected error about no files\n{out}\n{err}"
+        assert (
+            "no markdown" in err.lower() or "no markdown" in out.lower() or rc == 1
+        ), f"Expected error about no files\n{out}\n{err}"
 
 
 def test_minimal_run():
@@ -213,7 +224,11 @@ def test_real_run():
     # Find an existing run with closeout
     runs_dir = REPO_ROOT / "docs" / "runs"
     if runs_dir.exists():
-        candidates = [d for d in runs_dir.iterdir() if d.is_dir() and (d / "07_CLOSEOUT.md").exists()]
+        candidates = [
+            d
+            for d in runs_dir.iterdir()
+            if d.is_dir() and (d / "07_CLOSEOUT.md").exists()
+        ]
         if candidates:
             run = candidates[0]
             rc, out, err = _run_compactor([str(run), "--stdout"])
@@ -221,11 +236,13 @@ def test_real_run():
             assert "Context Summary" in out
             assert "## Objective" in out
 
+
 # --- Direct execution fallback ---
 
 if __name__ == "__main__":
     try:
         import pytest
+
         sys.exit(pytest.main([__file__, "-q"]))
     except ImportError:
         passed = failed = 0

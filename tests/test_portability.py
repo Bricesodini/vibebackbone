@@ -33,6 +33,7 @@ CLOSURE_TOOL = REPO_ROOT / "tools" / "vbb-loop-closure-check.py"
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _run(tool: Path, args: list, cwd=None):
     """Run a VBB tool with the given args. Returns (rc, stdout, stderr)."""
     result = subprocess.run(
@@ -131,16 +132,25 @@ def _write_run(base: Path, run_id: str) -> None:
 # Tests
 # ---------------------------------------------------------------------------
 
+
 def test_init_creates_governance_files():
     """vbb-project-init creates governance files in a fresh external project."""
     with tempfile.TemporaryDirectory() as tmp:
-        rc, out, err = _run(INIT_TOOL, ["--target-dir", tmp, "--project-name", "SmokeProj"])
+        rc, out, err = _run(
+            INIT_TOOL, ["--target-dir", tmp, "--project-name", "SmokeProj"]
+        )
         assert rc == 0, f"Expected exit 0\n{out}\n{err}"
-        assert (Path(tmp) / "docs" / "PROJECT_MODE.md").exists(), "PROJECT_MODE.md missing"
+        assert (Path(tmp) / "docs" / "PROJECT_MODE.md").exists(), (
+            "PROJECT_MODE.md missing"
+        )
         assert (Path(tmp) / "docs" / "CONTEXT.md").exists(), "CONTEXT.md missing"
-        assert (Path(tmp) / "docs" / "AUDIT_STATUS.md").exists(), "AUDIT_STATUS.md missing"
+        assert (Path(tmp) / "docs" / "AUDIT_STATUS.md").exists(), (
+            "AUDIT_STATUS.md missing"
+        )
         assert (Path(tmp) / "docs" / "INDEX.md").exists(), "INDEX.md missing"
-        assert (Path(tmp) / "docs" / "runs" / "README.md").exists(), "runs/README.md missing"
+        assert (Path(tmp) / "docs" / "runs" / "README.md").exists(), (
+            "runs/README.md missing"
+        )
 
 
 def test_loop_closure_passes_outside_vbb():
@@ -168,9 +178,7 @@ def test_loop_closure_fails_missing_closeout():
         run_dir = Path(tmp) / "docs" / "runs" / run_id
         run_dir.mkdir(parents=True, exist_ok=True)
         # Write only INTAKE — no CLOSEOUT
-        (run_dir / "01_INTAKE.md").write_text(
-            _INTAKE_TMPL.format(run_id=run_id)
-        )
+        (run_dir / "01_INTAKE.md").write_text(_INTAKE_TMPL.format(run_id=run_id))
         rc, out, err = _run(
             CLOSURE_TOOL,
             [run_id, "--runs-dir", str(Path(tmp) / "docs" / "runs")],
@@ -185,12 +193,8 @@ def test_loop_closure_fails_missing_execution():
         run_dir = Path(tmp) / "docs" / "runs" / run_id
         run_dir.mkdir(parents=True, exist_ok=True)
         # Write INTAKE + CLOSEOUT but skip EXECUTION
-        (run_dir / "01_INTAKE.md").write_text(
-            _INTAKE_TMPL.format(run_id=run_id)
-        )
-        (run_dir / "07_CLOSEOUT.md").write_text(
-            _CLOSEOUT_TMPL.format(run_id=run_id)
-        )
+        (run_dir / "01_INTAKE.md").write_text(_INTAKE_TMPL.format(run_id=run_id))
+        (run_dir / "07_CLOSEOUT.md").write_text(_CLOSEOUT_TMPL.format(run_id=run_id))
         rc, out, err = _run(
             CLOSURE_TOOL,
             [run_id, "--runs-dir", str(Path(tmp) / "docs" / "runs")],
@@ -224,11 +228,13 @@ def test_init_dry_run_outside_vbb():
             f"--dry-run should print intended actions\n{out}"
         )
 
+
 # --- Direct execution fallback ---
 
 if __name__ == "__main__":
     try:
         import pytest
+
         sys.exit(pytest.main([__file__, "-q"]))
     except ImportError:
         passed = failed = 0

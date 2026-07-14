@@ -63,9 +63,7 @@ PLACEHOLDER_VALUE = re.compile(
     r"not[_-]?a[_-]?secret|synthetic|your[_-])"
 )
 
-ALLOW_MARKER = re.compile(
-    r"vbb:\s*allow-credential-example\s+reason=([A-Za-z0-9._-]+)"
-)
+ALLOW_MARKER = re.compile(r"vbb:\s*allow-credential-example\s+reason=([A-Za-z0-9._-]+)")
 
 HUNK_HEADER = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@")
 
@@ -270,9 +268,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             file=sys.stderr,
         )
         return 1
-    print(
-        f"[credentials] PASS: 0 findings, {len(added)} added text line(s) scanned"
-    )
+    print(f"[credentials] PASS: 0 findings, {len(added)} added text line(s) scanned")
     return 0
 
 

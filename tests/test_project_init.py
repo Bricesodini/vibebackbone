@@ -45,6 +45,7 @@ MANAGED_BUNDLE_TARGETS = (
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _run(args: list, cwd=None):
     """Run vbb-project-init.py with given args. Returns (rc, stdout, stderr)."""
     result = subprocess.run(
@@ -63,6 +64,7 @@ def _git_init(path: Path):
 # ---------------------------------------------------------------------------
 # Positive tests
 # ---------------------------------------------------------------------------
+
 
 def test_fresh_project():
     """All governance files created in an empty directory."""
@@ -92,7 +94,9 @@ def test_dry_run_no_write():
         rc, out, err = _run(["--target-dir", tmp, "--dry-run"])
         assert rc == 0, f"Expected exit 0\n{out}\n{err}"
         # Nothing written
-        assert not (Path(tmp) / "docs").exists(), "docs/ should not be created in dry-run"
+        assert not (Path(tmp) / "docs").exists(), (
+            "docs/ should not be created in dry-run"
+        )
         # But output shows what would be created
         assert "CREATE" in out or "docs/PROJECT_MODE.md" in out
 
@@ -103,7 +107,9 @@ def test_project_name_in_context():
         rc, out, err = _run(["--target-dir", tmp, "--project-name", "MyAwesomeProject"])
         assert rc == 0
         context = (Path(tmp) / "docs" / "CONTEXT.md").read_text()
-        assert "MyAwesomeProject" in context, f"Project name not found in CONTEXT.md:\n{context[:300]}"
+        assert "MyAwesomeProject" in context, (
+            f"Project name not found in CONTEXT.md:\n{context[:300]}"
+        )
 
 
 def test_mode_prod_in_project_mode():
@@ -186,9 +192,7 @@ def test_managed_bundle_refresh_is_idempotent():
         context = target / "docs/CONTEXT.md"
         context.write_text("PROJECT_TRUTH_SENTINEL\n")
 
-        rc, out, err = _run(
-            ["--target-dir", tmp, "--install-hook", "--overwrite-hook"]
-        )
+        rc, out, err = _run(["--target-dir", tmp, "--install-hook", "--overwrite-hook"])
         assert rc == 0, f"Expected exit 0\n{out}\n{err}"
         assert manifest.read_text() == before
         assert context.read_text() == "PROJECT_TRUTH_SENTINEL\n"
@@ -205,9 +209,7 @@ def test_customized_managed_asset_blocks_without_partial_copy():
         untouched = target / "tools/vbb-credentials-gate.py"
         untouched_before = untouched.read_bytes()
 
-        rc, out, err = _run(
-            ["--target-dir", tmp, "--install-hook", "--overwrite-hook"]
-        )
+        rc, out, err = _run(["--target-dir", tmp, "--install-hook", "--overwrite-hook"])
         assert rc == 1, f"Expected exit 1\n{out}\n{err}"
         assert "was customized" in err
         assert "LOCAL_SENTINEL" in custom.read_text()
@@ -225,7 +227,8 @@ def test_overwrite_managed_is_separate_from_hook_overwrite():
 
         rc, out, err = _run(
             [
-                "--target-dir", tmp,
+                "--target-dir",
+                tmp,
                 "--install-hook",
                 "--overwrite-hook",
                 "--overwrite-managed",
@@ -243,9 +246,7 @@ def test_existing_foreign_hook_is_preserved_by_document_overwrite():
         hook = target / ".git/hooks/pre-commit"
         hook.write_text("#!/bin/sh\necho foreign\n")
 
-        rc, out, err = _run(
-            ["--target-dir", tmp, "--overwrite", "--install-hook"]
-        )
+        rc, out, err = _run(["--target-dir", tmp, "--overwrite", "--install-hook"])
         assert rc == 1, f"Expected exit 1\n{out}\n{err}"
         assert hook.read_text() == "#!/bin/sh\necho foreign\n"
         assert "--overwrite-hook" in err
@@ -275,9 +276,7 @@ def test_install_hook_dry_run_writes_no_bundle_or_hooks():
         target = Path(tmp)
         _git_init(target)
 
-        rc, out, err = _run(
-            ["--target-dir", tmp, "--install-hook", "--dry-run"]
-        )
+        rc, out, err = _run(["--target-dir", tmp, "--install-hook", "--dry-run"])
         assert rc == 0, f"Expected exit 0\n{out}\n{err}"
         assert "would sync" in out
         assert not (target / ".vbb").exists()
@@ -296,6 +295,7 @@ def test_install_hook_failure_is_an_error():
 # ---------------------------------------------------------------------------
 # Idempotency and overwrite tests
 # ---------------------------------------------------------------------------
+
 
 def test_existing_file_skipped():
     """Existing file is reported as skipped, not overwritten."""
@@ -331,8 +331,12 @@ def test_overwrite_rewrites_file():
         assert rc == 0
 
         new_content = pm.read_text()
-        assert "Old content" not in new_content, "File was not overwritten with --overwrite"
-        assert "Mode actuel" in new_content, f"Expected VBB content in overwritten file:\n{new_content[:200]}"
+        assert "Old content" not in new_content, (
+            "File was not overwritten with --overwrite"
+        )
+        assert "Mode actuel" in new_content, (
+            f"Expected VBB content in overwritten file:\n{new_content[:200]}"
+        )
 
 
 def test_gitignore_idempotent():
@@ -350,7 +354,9 @@ def test_gitignore_idempotent():
         if gi.exists():
             content = gi.read_text()
             count = content.count("docs/SESSION.md")
-            assert count <= 1, f".gitignore has {count} occurrences of SESSION.md (expected ≤ 1)"
+            assert count <= 1, (
+                f".gitignore has {count} occurrences of SESSION.md (expected ≤ 1)"
+            )
         # Whether .gitignore was created or the entry was skipped is both valid
         assert "SESSION.md" in out2 or "already" in out2 or "SKIP" in out2, (
             f"Second run should note SESSION.md entries already present\n{out2}"
@@ -360,6 +366,7 @@ def test_gitignore_idempotent():
 # ---------------------------------------------------------------------------
 # Bootstrap guard
 # ---------------------------------------------------------------------------
+
 
 def test_nonexistent_target():
     """Non-existent --target-dir → exit 1."""
@@ -371,6 +378,7 @@ def test_nonexistent_target():
 # Dogfood: running on VBB itself (all files exist → all skipped)
 # ---------------------------------------------------------------------------
 
+
 def test_dogfood_vbb_skips_all():
     """Running init on the VBB repo itself skips all existing files."""
     rc, out, err = _run(["--target-dir", str(REPO_ROOT)])
@@ -380,11 +388,13 @@ def test_dogfood_vbb_skips_all():
         f"Expected some files to be skipped on VBB itself\n{out}"
     )
 
+
 # --- Direct execution fallback ---
 
 if __name__ == "__main__":
     try:
         import pytest
+
         sys.exit(pytest.main([__file__, "-q"]))
     except ImportError:
         passed = failed = 0

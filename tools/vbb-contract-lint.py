@@ -61,13 +61,28 @@ def load_contract(skill_dir: Path) -> Dict:
 
 def check_yaml_syntax(skill_id: str, contract: Dict) -> List[str]:
     errors = []
-    required_top = ["id", "version", "contract_schema_version", "type", "formalization_level",
-                    "entrypoint", "compatibility", "inputs", "outputs",
-                    "gates", "events", "routing", "limits", "state_policy"]
+    required_top = [
+        "id",
+        "version",
+        "contract_schema_version",
+        "type",
+        "formalization_level",
+        "entrypoint",
+        "compatibility",
+        "inputs",
+        "outputs",
+        "gates",
+        "events",
+        "routing",
+        "limits",
+        "state_policy",
+    ]
     for key in required_top:
         if key not in contract:
             errors.append(f"Missing top-level key: '{key}'")
-    schema_version = str(contract.get("contract_schema_version", contract.get("version", "")))
+    schema_version = str(
+        contract.get("contract_schema_version", contract.get("version", ""))
+    )
     if schema_version and schema_version not in SUPPORTED_VERSIONS:
         errors.append(
             f"Unsupported contract_schema_version: '{schema_version}' "
@@ -81,14 +96,18 @@ def check_yaml_syntax(skill_id: str, contract: Dict) -> List[str]:
                 f"'{schema_version}' while version is retained as a compatibility alias"
             )
     if "type" in contract and contract["type"] != "prompt_skill":
-        errors.append(f"Unsupported type: '{contract['type']}' (expected 'prompt_skill')")
+        errors.append(
+            f"Unsupported type: '{contract['type']}' (expected 'prompt_skill')"
+        )
 
     # Gate expected_status must match target contract's outputs.statuses
     # Done in check_gates to have access to all_contracts
     return errors
 
 
-def check_gates(skill_id: str, contract: Dict, indexed: Set[str], all_contracts: Dict) -> List[str]:
+def check_gates(
+    skill_id: str, contract: Dict, indexed: Set[str], all_contracts: Dict
+) -> List[str]:
     errors = []
     gates = contract.get("gates", {})
     max_depth = contract.get("limits", {}).get("max_gate_depth", 2)
@@ -103,20 +122,30 @@ def check_gates(skill_id: str, contract: Dict, indexed: Set[str], all_contracts:
                     depth += 1
                     sub = sub[0].get("nested", []) if sub else []
                 if depth > max_depth:
-                    errors.append(f"[{skill_id}] gate '{gate_id}': depth {depth} > max {max_depth}")
+                    errors.append(
+                        f"[{skill_id}] gate '{gate_id}': depth {depth} > max {max_depth}"
+                    )
 
             # Check blocking gate has expected_status
             if gate.get("blocking") and "expected_status" not in gate:
-                errors.append(f"[{skill_id}] gate '{gate_id}': blocking gate missing 'expected_status'")
+                errors.append(
+                    f"[{skill_id}] gate '{gate_id}': blocking gate missing 'expected_status'"
+                )
 
             # Check expected_status matches target contract's statuses
             if gate.get("blocking") and "expected_status" in gate and "skill" in gate:
                 expected = gate["expected_status"]
                 target_skill = gate["skill"]
                 if target_skill in all_contracts:
-                    target_statuses = all_contracts[target_skill].get("outputs", {}).get("statuses", [])
+                    target_statuses = (
+                        all_contracts[target_skill]
+                        .get("outputs", {})
+                        .get("statuses", [])
+                    )
                     if target_statuses and expected not in target_statuses:
-                        errors.append(f"[{skill_id}] gate '{gate_id}' expected_status '{expected}' not in target '{target_skill}' statuses {target_statuses}")
+                        errors.append(
+                            f"[{skill_id}] gate '{gate_id}' expected_status '{expected}' not in target '{target_skill}' statuses {target_statuses}"
+                        )
 
     return errors
 
@@ -130,19 +159,23 @@ def check_events(skill_id: str, contract: Dict, indexed: Set[str]) -> List[str]:
             ref_skill = handler.get("skill")
             if ref_skill:
                 if ref_skill not in indexed:
-                    errors.append(f"[{skill_id}] event.{event_type}: references undefined skill '{ref_skill}' (indexed: {sorted(indexed)})")
+                    errors.append(
+                        f"[{skill_id}] event.{event_type}: references undefined skill '{ref_skill}' (indexed: {sorted(indexed)})"
+                    )
 
     return errors
 
 
-def check_circular_deps(skill_id: str, contract: Dict, all_contracts: Dict) -> List[str]:
+def check_circular_deps(
+    skill_id: str, contract: Dict, all_contracts: Dict
+) -> List[str]:
     errors = []
     visited = set()
     circular_found = []
 
     def dfs(sid: str, path: List[str]) -> bool:
         if sid in path:
-            cycle_str = " -> ".join(path[path.index(sid):] + [sid])
+            cycle_str = " -> ".join(path[path.index(sid) :] + [sid])
             circular_found.append(cycle_str)
             return True
         if sid in visited:
@@ -173,7 +206,9 @@ def check_outputs(skill_id: str, contract: Dict) -> List[str]:
             errors.append(f"[{skill_id}] outputs.required: missing '{field}'")
     statuses = outputs.get("statuses", [])
     if not all(s in PASS_STATUSES for s in statuses):
-        errors.append(f"[{skill_id}] outputs.statuses: invalid statuses (expected {PASS_STATUSES})")
+        errors.append(
+            f"[{skill_id}] outputs.statuses: invalid statuses (expected {PASS_STATUSES})"
+        )
     return errors
 
 
@@ -182,7 +217,9 @@ def check_agents(skill_id: str, contract: Dict) -> List[str]:
     agents = contract.get("compatibility", {}).get("agents", [])
     for agent in agents:
         if agent not in KNOWN_AGENTS:
-            errors.append(f"[{skill_id}] agent '{agent}' not in known list {KNOWN_AGENTS}")
+            errors.append(
+                f"[{skill_id}] agent '{agent}' not in known list {KNOWN_AGENTS}"
+            )
     return errors
 
 
@@ -191,7 +228,9 @@ def _check_artifact_mapping(skill_id: str, label: str, artifact: Dict) -> List[s
     errors = []
 
     if not isinstance(artifact, dict):
-        errors.append(f"[{skill_id}] {label}: must be a mapping (got {type(artifact).__name__})")
+        errors.append(
+            f"[{skill_id}] {label}: must be a mapping (got {type(artifact).__name__})"
+        )
         return errors
 
     # required fields
@@ -207,12 +246,16 @@ def _check_artifact_mapping(skill_id: str, label: str, artifact: Dict) -> List[s
     # kind must be in the closed set
     kind = artifact.get("kind")
     if kind is not None and kind not in ARTIFACT_KINDS:
-        errors.append(f"[{skill_id}] {label}.kind: '{kind}' not in {sorted(ARTIFACT_KINDS)}")
+        errors.append(
+            f"[{skill_id}] {label}.kind: '{kind}' not in {sorted(ARTIFACT_KINDS)}"
+        )
 
     # must_exist_after_run must be a bool
     mer = artifact.get("must_exist_after_run")
     if mer is not None and not isinstance(mer, bool):
-        errors.append(f"[{skill_id}] {label}.must_exist_after_run: must be a boolean (got {type(mer).__name__})")
+        errors.append(
+            f"[{skill_id}] {label}.must_exist_after_run: must be a boolean (got {type(mer).__name__})"
+        )
 
     # template, if specified, must point to an existing file
     tpl = artifact.get("template")
@@ -222,21 +265,29 @@ def _check_artifact_mapping(skill_id: str, label: str, artifact: Dict) -> List[s
         else:
             tpl_path = REPO_ROOT / tpl
             if not tpl_path.exists():
-                errors.append(f"[{skill_id}] {label}.template: file not found at '{tpl}'")
+                errors.append(
+                    f"[{skill_id}] {label}.template: file not found at '{tpl}'"
+                )
 
     # frontmatter_required, if specified, must be a list of strings
     fr = artifact.get("frontmatter_required")
     if fr is not None:
         if not isinstance(fr, list):
-            errors.append(f"[{skill_id}] {label}.frontmatter_required: must be a list (got {type(fr).__name__})")
+            errors.append(
+                f"[{skill_id}] {label}.frontmatter_required: must be a list (got {type(fr).__name__})"
+            )
         else:
             for i, key in enumerate(fr):
                 if not isinstance(key, str):
-                    errors.append(f"[{skill_id}] {label}.frontmatter_required[{i}]: must be a string")
+                    errors.append(
+                        f"[{skill_id}] {label}.frontmatter_required[{i}]: must be a string"
+                    )
 
     # phase_artifact kind should declare a frontmatter_required (best practice)
     if kind == "phase_artifact" and fr is None:
-        errors.append(f"[{skill_id}] {label}: kind=phase_artifact should declare 'frontmatter_required'")
+        errors.append(
+            f"[{skill_id}] {label}: kind=phase_artifact should declare 'frontmatter_required'"
+        )
 
     return errors
 
@@ -244,7 +295,9 @@ def _check_artifact_mapping(skill_id: str, label: str, artifact: Dict) -> List[s
 def check_artifact(skill_id: str, contract: Dict) -> List[str]:
     """Validate outputs.artifact and outputs.secondary_artifacts (v0.3+)."""
     errors = []
-    version = str(contract.get("contract_schema_version", contract.get("version", "0.1")))
+    version = str(
+        contract.get("contract_schema_version", contract.get("version", "0.1"))
+    )
 
     # Schema field only required from v0.3 onwards.
     if version < "0.3":
@@ -254,20 +307,30 @@ def check_artifact(skill_id: str, contract: Dict) -> List[str]:
 
     # outputs.artifact: required key (may be null for skills with no own artifact)
     if "artifact" not in outputs:
-        errors.append(f"[{skill_id}] outputs.artifact: missing (required in v0.3+; use 'artifact: null' for skills with no file artifact)")
+        errors.append(
+            f"[{skill_id}] outputs.artifact: missing (required in v0.3+; use 'artifact: null' for skills with no file artifact)"
+        )
     else:
         artifact = outputs["artifact"]
         if artifact is not None:
-            errors.extend(_check_artifact_mapping(skill_id, "outputs.artifact", artifact))
+            errors.extend(
+                _check_artifact_mapping(skill_id, "outputs.artifact", artifact)
+            )
 
     # outputs.secondary_artifacts: optional list
     secondaries = outputs.get("secondary_artifacts")
     if secondaries is not None:
         if not isinstance(secondaries, list):
-            errors.append(f"[{skill_id}] outputs.secondary_artifacts: must be a list (got {type(secondaries).__name__})")
+            errors.append(
+                f"[{skill_id}] outputs.secondary_artifacts: must be a list (got {type(secondaries).__name__})"
+            )
         else:
             for i, sec in enumerate(secondaries):
-                errors.extend(_check_artifact_mapping(skill_id, f"outputs.secondary_artifacts[{i}]", sec))
+                errors.extend(
+                    _check_artifact_mapping(
+                        skill_id, f"outputs.secondary_artifacts[{i}]", sec
+                    )
+                )
 
     return errors
 
@@ -332,9 +395,13 @@ def lint_all() -> Tuple[int, List[str], List[str]]:
     stale_index_entries = sorted(indexed - contract_skills)
 
     for skill_id in missing_from_index:
-        all_errors.append(f"[{skill_id}] CONTRACT.yaml exists but skill is missing from INDEX.yaml")
+        all_errors.append(
+            f"[{skill_id}] CONTRACT.yaml exists but skill is missing from INDEX.yaml"
+        )
     for skill_id in stale_index_entries:
-        all_errors.append(f"[{skill_id}] INDEX.yaml entry points to a skill without CONTRACT.yaml")
+        all_errors.append(
+            f"[{skill_id}] INDEX.yaml entry points to a skill without CONTRACT.yaml"
+        )
 
     # Load all contracts
     for skill_dir in SKILLS_DIR.iterdir():
@@ -366,7 +433,9 @@ def lint_all() -> Tuple[int, List[str], List[str]]:
 
 if __name__ == "__main__":
     count, errors, warnings = lint_all()
-    print(f"VBB Contract Linter — {len(errors)} error(s), {len(warnings)} warning(s) found")
+    print(
+        f"VBB Contract Linter — {len(errors)} error(s), {len(warnings)} warning(s) found"
+    )
     for err in errors:
         print(f"  ✗ {err}")
     for warn in warnings:

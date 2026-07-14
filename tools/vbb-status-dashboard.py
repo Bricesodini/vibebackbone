@@ -48,7 +48,8 @@ def _load_review_tier_poc():
     if not _POC_TOOL_PATH.exists():
         return None
     spec = importlib.util.spec_from_file_location(
-        "vbb_review_threshold_poc", _POC_TOOL_PATH,
+        "vbb_review_threshold_poc",
+        _POC_TOOL_PATH,
     )
     if spec is None or spec.loader is None:
         return None
@@ -67,7 +68,10 @@ def _git_changed_paths(repo: Path, staged: bool = False) -> List[str]:
         cmd = ["git", "-C", str(repo), "diff", "--cached", "--name-only"]
     try:
         out = subprocess.run(
-            cmd, capture_output=True, text=True, timeout=10,
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=10,
             check=False,
         )
     except (subprocess.TimeoutExpired, OSError):
@@ -81,14 +85,24 @@ _TIER_SUGGESTED_ACTIONS: Dict[str, List[str]] = {
     "T2": ["run pytest locally", "verify no flaky test introduced"],
     "T3": ["run architecture lint + contract lint", "sanity-check side effects"],
     "T4": ["verify skill/template still loads", "re-read example in doc"],
-    "T5": ["re-read CONVENTIONS.md and P.R1-P.R8",
-           "notify Brice if changing Pillar 1-5"],
-    "T6": ["run full P.R2 suite (arch+contract+loop-closure+pytest+ci-local)",
-           "request Brice review before push"],
-    "T7": ["audit credential surface", "run vbb-bypass-lint --strict",
-           "request Brice explicit review"],
-    "T8": ["audit action whitelist", "verify audit log wiring",
-           "request Brice explicit review + dry-run prod mirror"],
+    "T5": [
+        "re-read CONVENTIONS.md and P.R1-P.R8",
+        "notify Brice if changing Pillar 1-5",
+    ],
+    "T6": [
+        "run full P.R2 suite (arch+contract+loop-closure+pytest+ci-local)",
+        "request Brice review before push",
+    ],
+    "T7": [
+        "audit credential surface",
+        "run vbb-bypass-lint --strict",
+        "request Brice explicit review",
+    ],
+    "T8": [
+        "audit action whitelist",
+        "verify audit log wiring",
+        "request Brice explicit review + dry-run prod mirror",
+    ],
 }
 
 
@@ -156,7 +170,9 @@ def format_review_tier_text(info: Dict, paths: List[str]) -> str:
             lines.append(f"  Note : {info['warning']}")
     else:
         lines.append(f"  Tier : {tier} — {info.get('label', '?')}")
-        lines.append(f"  Mode : {info.get('mode', 'advisory')} (blocking={info.get('blocking', False)})")
+        lines.append(
+            f"  Mode : {info.get('mode', 'advisory')} (blocking={info.get('blocking', False)})"
+        )
         lines.append(f"  Confidence : {info.get('confidence', '?')}")
         if info.get("reasons"):
             lines.append("  Reasons :")
@@ -196,6 +212,7 @@ def read_frontmatter(path: Path) -> Dict:
         return {}
     try:
         import yaml
+
         return yaml.safe_load(content[3:end].strip()) or {}
     except Exception:
         return {}
@@ -206,7 +223,9 @@ def count_skills(repo: Path) -> int:
     skills_dir = repo / "skills"
     if not skills_dir.exists():
         return 0
-    return sum(1 for d in skills_dir.iterdir() if d.is_dir() and (d / "SKILL.md").exists())
+    return sum(
+        1 for d in skills_dir.iterdir() if d.is_dir() and (d / "SKILL.md").exists()
+    )
 
 
 def count_contracts(repo: Path) -> Tuple[int, int, int]:
@@ -232,6 +251,7 @@ def count_indexed_contracts(repo: Path) -> int:
         return 0
     try:
         import yaml
+
         data = yaml.safe_load(index_file.read_text(encoding="utf-8")) or {}
     except Exception:
         return 0
@@ -243,7 +263,11 @@ def count_tests(repo: Path) -> int:
     tests_dir = repo / "tests"
     if not tests_dir.exists():
         return 0
-    return sum(1 for f in tests_dir.iterdir() if f.is_file() and f.name.startswith("test_") and f.suffix == ".py")
+    return sum(
+        1
+        for f in tests_dir.iterdir()
+        if f.is_file() and f.name.startswith("test_") and f.suffix == ".py"
+    )
 
 
 def extract_verdict(repo: Path) -> str:
@@ -267,8 +291,12 @@ def extract_next_action(repo: Path) -> str:
     content = read_file(repo / "docs" / "CONTEXT.md")
     for line in content.split("\n"):
         low = line.lower().strip()
-        if (low.startswith("- **prochaine action**") or low.startswith("- prochaine action")
-                or low.startswith("- **next action**") or low.startswith("- next action")):
+        if (
+            low.startswith("- **prochaine action**")
+            or low.startswith("- prochaine action")
+            or low.startswith("- **next action**")
+            or low.startswith("- next action")
+        ):
             # Extract after colon or arrow
             parts = line.split(":", 1)
             if len(parts) > 1:
@@ -373,12 +401,14 @@ def get_open_risks(repo: Path) -> List[Dict]:
         desc = clean(cells[columns["description"]])
         status_key = status.lower()
         if status_key.startswith("open") or status_key.startswith("mitigating"):
-            risks.append({
-                "id": rid,
-                "severity": severity,
-                "status": status,
-                "description": desc[:80],
-            })
+            risks.append(
+                {
+                    "id": rid,
+                    "severity": severity,
+                    "status": status,
+                    "description": desc[:80],
+                }
+            )
 
     def severity_rank(risk: Dict) -> int:
         severity = risk["severity"].upper()
@@ -420,17 +450,22 @@ def get_temporal_notes(repo: Path) -> List[str]:
             if "updated:" in line or "date:" in line:
                 observed = line.split(":", 1)[1].strip().strip('"')
                 if len(observed) >= 10 and observed[:10] > today:
-                    notes.append(f"{doc.relative_to(repo)} dated {observed[:10]} after local date {today}")
+                    notes.append(
+                        f"{doc.relative_to(repo)} dated {observed[:10]} after local date {today}"
+                    )
                 break
 
     runs_dir = repo / "docs" / "runs"
     if runs_dir.exists():
         future_runs = sorted(
-            d.name for d in runs_dir.iterdir()
+            d.name
+            for d in runs_dir.iterdir()
             if d.is_dir() and len(d.name) >= 10 and d.name[:10] > today
         )
         if future_runs:
-            notes.append(f"{len(future_runs)} run directories are dated after local date {today}")
+            notes.append(
+                f"{len(future_runs)} run directories are dated after local date {today}"
+            )
     if acknowledged and notes:
         return [
             f"local workspace date: {today}",
@@ -457,7 +492,9 @@ def gather_status(repo: Path) -> Dict:
         "contracts": contracted,
         "indexed_contracts": indexed_contracts,
         "contract_coverage": coverage,
-        "runtime_contract_coverage": round(indexed_contracts / total, 2) if total > 0 else 0,
+        "runtime_contract_coverage": round(indexed_contracts / total, 2)
+        if total > 0
+        else 0,
         "tests": test_count,
         "latest_runs": latest_runs,
         "risks": open_risks,
@@ -470,6 +507,7 @@ def gather_status(repo: Path) -> Dict:
 
 def format_terminal(status: Dict, full: bool = False) -> str:
     """Format status as terminal output."""
+
     def fit(value: object, width: int) -> str:
         text = str(value)
         return text[:width].ljust(width)
@@ -510,7 +548,11 @@ def format_terminal(status: Dict, full: bool = False) -> str:
 
     if status["temporal_notes"]:
         lines.append("╠══════════════════════════════════════════════════╣")
-        label = "Temporal provenance:" if status.get("temporal_provenance") else "Temporal warnings:"
+        label = (
+            "Temporal provenance:"
+            if status.get("temporal_provenance")
+            else "Temporal warnings:"
+        )
         lines.append(f"║  {label:<47}║")
         for note in status["temporal_notes"][:3]:
             lines.append(f"║    {note[:43]:<43} ║")
@@ -547,26 +589,22 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="VBB Status Dashboard — read-only terminal view"
     )
+    parser.add_argument("--json", action="store_true", help="Output as JSON")
     parser.add_argument(
-        "--json", action="store_true",
-        help="Output as JSON"
+        "--full", action="store_true", help="Show extra details (activity log)"
     )
     parser.add_argument(
-        "--full", action="store_true",
-        help="Show extra details (activity log)"
+        "--repo",
+        type=str,
+        default=None,
+        help="Path to repo root (default: auto-detect)",
     )
     parser.add_argument(
-        "--repo", type=str, default=None,
-        help="Path to repo root (default: auto-detect)"
+        "--review-tier",
+        action="store_true",
+        help="Compute and display the P0-4 review-tier advisory (opt-in, non-blocking)",
     )
-    parser.add_argument(
-        "--review-tier", action="store_true",
-        help="Compute and display the P0-4 review-tier advisory (opt-in, non-blocking)"
-    )
-    parser.add_argument(
-        "--tier", action="store_true",
-        help="Alias for --review-tier"
-    )
+    parser.add_argument("--tier", action="store_true", help="Alias for --review-tier")
 
     args = parser.parse_args()
 

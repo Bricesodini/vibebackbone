@@ -31,8 +31,7 @@ INDEX_DIR = REPO_ROOT / ".vbb" / "index"
 
 def _run_index(args: list) -> tuple:
     result = subprocess.run(
-        [sys.executable, str(TOOL)] + args,
-        capture_output=True, text=True
+        [sys.executable, str(TOOL)] + args, capture_output=True, text=True
     )
     return result.returncode, result.stdout, result.stderr
 
@@ -45,7 +44,9 @@ def test_build_creates_manifest():
     manifest = INDEX_DIR / "manifest.json"
     assert manifest.exists(), "Manifest not created"
     data = json.loads(manifest.read_text())
-    assert data["total_entries"] > 0, f"Expected entries > 0, got {data['total_entries']}"
+    assert data["total_entries"] > 0, (
+        f"Expected entries > 0, got {data['total_entries']}"
+    )
 
 
 def test_search_returns_results():
@@ -53,7 +54,9 @@ def test_search_returns_results():
     _run_index(["build"])  # ensure built
     rc, out, err = _run_index(["search", "contract"])
     assert rc == 0, f"Expected exit 0, got {rc}\n{err}"
-    assert "contract" in out.lower() or "CONTRACT" in out, f"Expected 'contract' in results\n{out}"
+    assert "contract" in out.lower() or "CONTRACT" in out, (
+        f"Expected 'contract' in results\n{out}"
+    )
 
 
 def test_search_json():
@@ -84,7 +87,9 @@ def test_minimal_repo():
         (repo / "docs" / "CONTEXT.md").write_text("# Context\nMinimal test\n")
         (repo / "skills").mkdir()
         (repo / "skills" / "1-test").mkdir()
-        (repo / "skills" / "1-test" / "SKILL.md").write_text("---\nname: test\n---\n# Test\n")
+        (repo / "skills" / "1-test" / "SKILL.md").write_text(
+            "---\nname: test\n---\n# Test\n"
+        )
 
         rc, out, err = _run_index(["build", "--repo", str(repo)])
         assert rc == 0, f"Expected exit 0, got {rc}\n{err}"
@@ -95,10 +100,14 @@ def test_search_without_build():
     with tempfile.TemporaryDirectory() as tmp:
         repo = Path(tmp)
         (repo / "docs").mkdir()
-        (repo / "docs" / "CONTEXT.md").write_text("# Context\nTest searchable content\n")
+        (repo / "docs" / "CONTEXT.md").write_text(
+            "# Context\nTest searchable content\n"
+        )
         rc, out, err = _run_index(["search", "test", "--repo", str(repo)])
         assert rc == 0, f"Expected auto-build search success\n{out}\n{err}"
-        assert (repo / ".vbb" / "index" / "manifest.json").exists(), "Expected manifest to be auto-built"
+        assert (repo / ".vbb" / "index" / "manifest.json").exists(), (
+            "Expected manifest to be auto-built"
+        )
 
 
 def test_search_rebuilds_stale_index():
@@ -124,11 +133,13 @@ def test_vbb_gitignored():
         content = gitignore.read_text()
         assert ".vbb" in content, f"Expected .vbb in .gitignore\n{content}"
 
+
 # --- Direct execution fallback ---
 
 if __name__ == "__main__":
     try:
         import pytest
+
         sys.exit(pytest.main([__file__, "-q"]))
     except ImportError:
         passed = failed = 0

@@ -17,7 +17,9 @@ from pathlib import Path
 
 # --- Configuration ---
 REGISTRY_PATH = Path(__file__).parent.parent / "docs" / "LLM_PROVIDERS.md"
-OVERRIDES_PATH = Path(__file__).parent.parent / "distributions" / "pi" / "overrides.template.json"
+OVERRIDES_PATH = (
+    Path(__file__).parent.parent / "distributions" / "pi" / "overrides.template.json"
+)
 
 # Providers locaux standards
 PROVIDERS = {
@@ -51,8 +53,11 @@ def check_provider(name: str, config: dict, full: bool = False) -> dict:
     try:
         start = time.time()
         cmd = [
-            "curl", "-s", "--max-time", "5",
-            f"{config['endpoint']}{config['tags_endpoint']}"
+            "curl",
+            "-s",
+            "--max-time",
+            "5",
+            f"{config['endpoint']}{config['tags_endpoint']}",
         ]
         output = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
         result["latency_ms"] = round((time.time() - start) * 1000)
@@ -74,23 +79,31 @@ def check_provider(name: str, config: dict, full: bool = False) -> dict:
         try:
             if name == "ollama":
                 gen_cmd = [
-                    "curl", "-s", "--max-time", "30",
+                    "curl",
+                    "-s",
+                    "--max-time",
+                    "30",
                     f"{config['endpoint']}{config['generate_endpoint']}",
-                    "-d", json.dumps({
-                        "model": config["model"],
-                        "prompt": "Hi",
-                        "stream": False
-                    })
+                    "-d",
+                    json.dumps(
+                        {"model": config["model"], "prompt": "Hi", "stream": False}
+                    ),
                 ]
             else:
                 gen_cmd = [
-                    "curl", "-s", "--max-time", "30",
+                    "curl",
+                    "-s",
+                    "--max-time",
+                    "30",
                     f"{config['endpoint']}{config['generate_endpoint']}",
-                    "-d", json.dumps({
-                        "model": config["model"],
-                        "messages": [{"role": "user", "content": "Hi"}],
-                        "max_tokens": 10
-                    })
+                    "-d",
+                    json.dumps(
+                        {
+                            "model": config["model"],
+                            "messages": [{"role": "user", "content": "Hi"}],
+                            "max_tokens": 10,
+                        }
+                    ),
                 ]
             output = subprocess.run(gen_cmd, capture_output=True, text=True, timeout=35)
             if output.returncode != 0 or not output.stdout.strip():
@@ -119,7 +132,10 @@ def get_fallback_chain() -> list:
             return chain
         except Exception:
             pass
-    return ["ollama/qwen3.6-27b-agent-nvfp4-64k:latest", "ollama/deepseek-v4-flash:cloud"]
+    return [
+        "ollama/qwen3.6-27b-agent-nvfp4-64k:latest",
+        "ollama/deepseek-v4-flash:cloud",
+    ]
 
 
 def main():
@@ -132,7 +148,9 @@ def main():
     for name, config in PROVIDERS.items():
         r = check_provider(name, config, full=full)
         results.append(r)
-        status_icon = "✅" if "UP" in r["status"] else "❌" if "DOWN" in r["status"] else "⚠️"
+        status_icon = (
+            "✅" if "UP" in r["status"] else "❌" if "DOWN" in r["status"] else "⚠️"
+        )
         print(f"{status_icon} {name.upper()}")
         print(f"   Endpoint: {r['endpoint']}")
         print(f"   Model:    {r['model']}")
@@ -149,7 +167,9 @@ def main():
 
     # Verdict
     local_up = any(r["name"] == "ollama" and "UP" in r["status"] for r in results)
-    fallback_up = any(r["name"] == "ollama-cloud" and "UP" in r["status"] for r in results)
+    fallback_up = any(
+        r["name"] == "ollama-cloud" and "UP" in r["status"] for r in results
+    )
 
     if local_up and fallback_up:
         verdict = "✅ READY — Local + fallback disponibles"

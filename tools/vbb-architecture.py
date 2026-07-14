@@ -134,14 +134,18 @@ def parse_blocks(text: str) -> Tuple[List[Dict], List[str]]:
     return blocks, warnings
 
 
-def validate_blocks(blocks: List[Dict], parse_warnings: List[str]) -> Tuple[List[str], List[str]]:
+def validate_blocks(
+    blocks: List[Dict], parse_warnings: List[str]
+) -> Tuple[List[str], List[str]]:
     """Validate block shape and local dependency references."""
     errors = []
     warnings = list(parse_warnings)
     ids = []
 
     if not blocks:
-        errors.append("No architecture blocks found. Expected headings like '## Bloc: Auth'.")
+        errors.append(
+            "No architecture blocks found. Expected headings like '## Bloc: Auth'."
+        )
         return errors, warnings
 
     for i, block in enumerate(blocks):
@@ -194,7 +198,9 @@ def validate_blocks(blocks: List[Dict], parse_warnings: List[str]) -> Tuple[List
         block_id = block.get("id", block.get("title", "unknown"))
         for dep in _normalize_list(block.get("depends_on")):
             if dep not in known:
-                warnings.append(f"{block_id}: depends_on '{dep}' does not match a known block id")
+                warnings.append(
+                    f"{block_id}: depends_on '{dep}' does not match a known block id"
+                )
 
     return errors, warnings
 
@@ -292,23 +298,46 @@ def render_relations(blocks: List[Dict]) -> str:
     sensitive = []
     for block in blocks:
         risks = _normalize_list(block.get("risks"))
-        high = [risk for risk in risks if isinstance(risk, dict) and risk.get("level") in {"P0", "P1"}]
+        high = [
+            risk
+            for risk in risks
+            if isinstance(risk, dict) and risk.get("level") in {"P0", "P1"}
+        ]
         if high:
             sensitive.append((block, high))
 
     if sensitive:
         lines.extend(["| Block | Risks |", "|-------|-------|"])
         for block, risks in sensitive:
-            risk_text = "; ".join(f"{risk.get('id')}: {risk.get('note')}" for risk in risks)
+            risk_text = "; ".join(
+                f"{risk.get('id')}: {risk.get('note')}" for risk in risks
+            )
             lines.append(f"| `{block.get('id')}` | {risk_text} |")
     else:
         lines.append("No P0/P1 risks declared in architecture blocks.")
 
-    lines.extend(["", "## Impact Index", "", "| Block | Depends on | Impacts | Files |", "|-------|------------|---------|-------|"])
+    lines.extend(
+        [
+            "",
+            "## Impact Index",
+            "",
+            "| Block | Depends on | Impacts | Files |",
+            "|-------|------------|---------|-------|",
+        ]
+    )
     for block in blocks:
-        depends = ", ".join(f"`{dep}`" for dep in _normalize_list(block.get("depends_on"))) or "-"
-        impacts = ", ".join(str(item) for item in _normalize_list(block.get("impacts"))) or "-"
-        files = ", ".join(f"`{item}`" for item in _normalize_list(block.get("files"))) or "-"
+        depends = (
+            ", ".join(f"`{dep}`" for dep in _normalize_list(block.get("depends_on")))
+            or "-"
+        )
+        impacts = (
+            ", ".join(str(item) for item in _normalize_list(block.get("impacts")))
+            or "-"
+        )
+        files = (
+            ", ".join(f"`{item}`" for item in _normalize_list(block.get("files")))
+            or "-"
+        )
         lines.append(f"| `{block.get('id')}` | {depends} | {impacts} | {files} |")
 
     lines.append("")
@@ -322,7 +351,9 @@ def cmd_lint(repo: Path) -> int:
         print(f"VBB Architecture Linter — BLOCKED: {exc}")
         return 1
 
-    print(f"VBB Architecture Linter — {len(errors)} error(s), {len(warnings)} warning(s)")
+    print(
+        f"VBB Architecture Linter — {len(errors)} error(s), {len(warnings)} warning(s)"
+    )
     print(f"  Blocks: {len(blocks)}")
     for warning in warnings:
         print(f"  WARN: {warning}")
@@ -364,20 +395,30 @@ def cmd_json(repo: Path) -> int:
     except FileNotFoundError as exc:
         print(json.dumps({"status": "BLOCKED", "error": str(exc)}, indent=2))
         return 1
-    print(json.dumps({
-        "status": "PASS" if not errors else "FAIL",
-        "blocks": blocks,
-        "errors": errors,
-        "warnings": warnings,
-    }, indent=2, ensure_ascii=False))
+    print(
+        json.dumps(
+            {
+                "status": "PASS" if not errors else "FAIL",
+                "blocks": blocks,
+                "errors": errors,
+                "warnings": warnings,
+            },
+            indent=2,
+            ensure_ascii=False,
+        )
+    )
     return 0 if not errors else 1
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Validate and render structured VBB architecture docs.")
+    parser = argparse.ArgumentParser(
+        description="Validate and render structured VBB architecture docs."
+    )
     parser.add_argument("command", choices=["lint", "graph", "json"])
     parser.add_argument("--repo", default=str(REPO_ROOT), help="Repository root")
-    parser.add_argument("--write", action="store_true", help="Write docs/RELATIONS.md for graph command")
+    parser.add_argument(
+        "--write", action="store_true", help="Write docs/RELATIONS.md for graph command"
+    )
     args = parser.parse_args()
 
     repo = Path(args.repo).resolve()

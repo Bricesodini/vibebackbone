@@ -51,7 +51,9 @@ def score_triggers(contract: Dict, query: str) -> float:
             # Exact substring match
             score += 1.0
             # Bonus for word boundary
-            if query_lower.startswith(trigger_lower) or query_lower.endswith(trigger_lower):
+            if query_lower.startswith(trigger_lower) or query_lower.endswith(
+                trigger_lower
+            ):
                 score += 0.5
 
     return score
@@ -90,8 +92,13 @@ def phase_exists(index: Dict, target_phase: str) -> bool:
     return False
 
 
-def route(query: str, agent: str = "local", phase: Optional[str] = None,
-         strict: bool = False, dry_run: bool = False) -> List[Tuple[str, float, Dict]]:
+def route(
+    query: str,
+    agent: str = "local",
+    phase: Optional[str] = None,
+    strict: bool = False,
+    dry_run: bool = False,
+) -> List[Tuple[str, float, Dict]]:
     """
     Route a query to matching contracts.
 
@@ -139,8 +146,13 @@ def route(query: str, agent: str = "local", phase: Optional[str] = None,
     return [(sid, score, c) for sid, score, c in candidates if score >= 0.5]
 
 
-def route_to_skill(query: str, agent: str = "local", phase: Optional[str] = None,
-                   strict: bool = False, dry_run: bool = False) -> Optional[str]:
+def route_to_skill(
+    query: str,
+    agent: str = "local",
+    phase: Optional[str] = None,
+    strict: bool = False,
+    dry_run: bool = False,
+) -> Optional[str]:
     """Route and return just the top skill_id, or None."""
     candidates = route(query, agent, phase, strict, dry_run)
     if not candidates:
@@ -148,8 +160,9 @@ def route_to_skill(query: str, agent: str = "local", phase: Optional[str] = None
     return candidates[0][0]
 
 
-def print_routing(query: str, agent: str = "local", phase: Optional[str] = None,
-                  strict: bool = False) -> None:
+def print_routing(
+    query: str, agent: str = "local", phase: Optional[str] = None, strict: bool = False
+) -> None:
     """Print routing decision for a query."""
     print(f"Router: query='{query}' agent='{agent}' phase='{phase}' strict={strict}")
     print()
@@ -168,7 +181,9 @@ def print_routing(query: str, agent: str = "local", phase: Optional[str] = None,
     for skill_id, score, contract in candidates:
         print(f"  [{score:.1f}] {skill_id}")
         print(f"       triggers : {contract.get('routing', {}).get('triggers', [])}")
-        print(f"       phase_scope : {contract.get('routing', {}).get('phase_scope', [])}")
+        print(
+            f"       phase_scope : {contract.get('routing', {}).get('phase_scope', [])}"
+        )
         print(f"       agents : {contract.get('compatibility', {}).get('agents', [])}")
 
 
@@ -176,18 +191,22 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="VBB Phase Router")
-    parser.add_argument("query", nargs="?", default=None,
-                        help="Query string to route")
-    parser.add_argument("--agent", default="local",
-                        help="Target agent (default: local)")
-    parser.add_argument("--phase", default=None,
-                        help="Target phase scope (e.g. phase_0, closeout)")
-    parser.add_argument("--strict", action="store_true",
-                        help="Fail on ambiguous routing")
-    parser.add_argument("--dry-run", action="store_true",
-                        help="Show routing without executing")
-    parser.add_argument("--list", action="store_true",
-                        help="List all contracts and their triggers")
+    parser.add_argument("query", nargs="?", default=None, help="Query string to route")
+    parser.add_argument(
+        "--agent", default="local", help="Target agent (default: local)"
+    )
+    parser.add_argument(
+        "--phase", default=None, help="Target phase scope (e.g. phase_0, closeout)"
+    )
+    parser.add_argument(
+        "--strict", action="store_true", help="Fail on ambiguous routing"
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Show routing without executing"
+    )
+    parser.add_argument(
+        "--list", action="store_true", help="List all contracts and their triggers"
+    )
 
     args = parser.parse_args()
 
@@ -198,14 +217,22 @@ if __name__ == "__main__":
             contract = load_contract(entry["id"])
             if contract:
                 print(f"{entry['id']}")
-                print(f"  triggers  : {contract.get('routing', {}).get('triggers', [])}")
-                print(f"  phase_scope: {contract.get('routing', {}).get('phase_scope', [])}")
-                print(f"  agents    : {contract.get('compatibility', {}).get('agents', [])}")
+                print(
+                    f"  triggers  : {contract.get('routing', {}).get('triggers', [])}"
+                )
+                print(
+                    f"  phase_scope: {contract.get('routing', {}).get('phase_scope', [])}"
+                )
+                print(
+                    f"  agents    : {contract.get('compatibility', {}).get('agents', [])}"
+                )
                 print()
         sys.exit(0)
 
     if not args.query:
-        print("Usage: python vbb-phase-router.py <query> [--agent local] [--phase PHASE] [--strict] [--dry-run]")
+        print(
+            "Usage: python vbb-phase-router.py <query> [--agent local] [--phase PHASE] [--strict] [--dry-run]"
+        )
         print("       python vbb-phase-router.py --list")
         sys.exit(1)
 

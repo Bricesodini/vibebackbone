@@ -71,8 +71,8 @@ def extract_files_changed(content: str) -> list:
     """Extract file paths mentioned in content (heuristic)."""
     # Match common patterns: `path/to/file`, path/to/file.md, etc.
     patterns = [
-        r'`([a-zA-Z0-9_/.-]+\.[a-zA-Z0-9]+)`',  # `file.ext`
-        r'([a-zA-Z0-9_/.-]+\.(?:py|sh|yml|yaml|md|json|toml))',  # bare file.ext
+        r"`([a-zA-Z0-9_/.-]+\.[a-zA-Z0-9]+)`",  # `file.ext`
+        r"([a-zA-Z0-9_/.-]+\.(?:py|sh|yml|yaml|md|json|toml))",  # bare file.ext
     ]
     files = set()
     for pattern in patterns:
@@ -147,8 +147,16 @@ def compact_run(run_dir: Path) -> Optional[str]:
 
     # Build current status from closeout or summary
     current_status = ""
-    for key in ["Verdict", "Statut global", "Résumé", "Current status", "Summary",
-                "Statut", "CLOSEOUT", "Résultats"]:
+    for key in [
+        "Verdict",
+        "Statut global",
+        "Résumé",
+        "Current status",
+        "Summary",
+        "Statut",
+        "CLOSEOUT",
+        "Résultats",
+    ]:
         if key in all_sections:
             current_status = all_sections[key][:300]
             break
@@ -165,8 +173,7 @@ def compact_run(run_dir: Path) -> Optional[str]:
 
     # Build risks section
     risks = ""
-    for key in ["Risques résiduels", "Risques", "Risks",
-                "ACCEPTED_RISK"]:
+    for key in ["Risques résiduels", "Risques", "Risks", "ACCEPTED_RISK"]:
         if key in all_sections:
             risks = all_sections[key][:500]
             break
@@ -214,21 +221,23 @@ def compact_run(run_dir: Path) -> Optional[str]:
     else:
         lines.append("_(no files identified)_")
 
-    lines.extend([
-        "",
-        "## Risks",
-        "",
-        risks or "_(no risks recorded)_",
-        "",
-        "## Next action",
-        "",
-        next_action or "_(no next action recorded)_",
-        "",
-        "## Re-entry prompt",
-        "",
-        f"> {reentry}",
-        "",
-    ])
+    lines.extend(
+        [
+            "",
+            "## Risks",
+            "",
+            risks or "_(no risks recorded)_",
+            "",
+            "## Next action",
+            "",
+            next_action or "_(no next action recorded)_",
+            "",
+            "## Re-entry prompt",
+            "",
+            f"> {reentry}",
+            "",
+        ]
+    )
 
     return "\n".join(lines)
 
@@ -240,18 +249,16 @@ def main() -> int:
     parser.add_argument(
         "run_path",
         type=str,
-        help="Path to the run directory (e.g. docs/runs/2026-06-11_0900_lot1c-quick-wins/)"
+        help="Path to the run directory (e.g. docs/runs/2026-06-11_0900_lot1c-quick-wins/)",
     )
     parser.add_argument(
-        "--stdout",
-        action="store_true",
-        help="Write summary to stdout instead of file"
+        "--stdout", action="store_true", help="Write summary to stdout instead of file"
     )
     parser.add_argument(
         "--output",
         type=str,
         default=None,
-        help="Write summary to a custom path instead of <run>/CONTEXT_SUMMARY.md"
+        help="Write summary to a custom path instead of <run>/CONTEXT_SUMMARY.md",
     )
 
     args = parser.parse_args()

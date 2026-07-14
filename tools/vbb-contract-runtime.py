@@ -49,14 +49,14 @@ def load_contract(skill_id: str) -> Optional[Dict]:
 def run_linter() -> Dict[str, Any]:
     """Run linter and return result."""
     import subprocess
+
     result = subprocess.run(
-        [sys.executable, str(LINTER_SCRIPT)],
-        capture_output=True, text=True
+        [sys.executable, str(LINTER_SCRIPT)], capture_output=True, text=True
     )
     return {
         "passed": result.returncode == 0,
         "output": result.stdout,
-        "errors": result.stderr
+        "errors": result.stderr,
     }
 
 
@@ -86,21 +86,25 @@ def resolve_gates(contract: Dict, depth: int = 0, dry_run: bool = False) -> List
         if skill_ref and blocking:
             sub_contract = load_contract(skill_ref)
             if sub_contract:
-                sub_result = execute_contract(skill_ref, sub_contract, depth + 1, dry_run)
+                sub_result = execute_contract(
+                    skill_ref, sub_contract, depth + 1, dry_run
+                )
                 status = sub_result["status"]
             else:
                 status = "BLOCKED"
         else:
             status = expected
 
-        results.append({
-            "gate_id": gate_id,
-            "skill": skill_ref,
-            "expected_status": expected,
-            "actual_status": status,
-            "blocking": blocking,
-            "passed": status == expected
-        })
+        results.append(
+            {
+                "gate_id": gate_id,
+                "skill": skill_ref,
+                "expected_status": expected,
+                "actual_status": status,
+                "blocking": blocking,
+                "passed": status == expected,
+            }
+        )
 
     return results
 
@@ -117,19 +121,26 @@ def evaluate_gates(contract: Dict, outputs: Dict) -> List[Dict]:
         missing = [f for f in required_fields if f not in outputs]
         passed = len(missing) == 0
 
-        results.append({
-            "gate_id": gate_id,
-            "required_fields": required_fields,
-            "present_fields": [f for f in required_fields if f in outputs],
-            "missing_fields": missing,
-            "passed": passed
-        })
+        results.append(
+            {
+                "gate_id": gate_id,
+                "required_fields": required_fields,
+                "present_fields": [f for f in required_fields if f in outputs],
+                "missing_fields": missing,
+                "passed": passed,
+            }
+        )
 
     return results
 
 
-def execute_contract(skill_id: str, contract: Optional[Dict] = None, depth: int = 0,
-                   dry_run: bool = False, run_id: Optional[str] = None) -> Dict[str, Any]:
+def execute_contract(
+    skill_id: str,
+    contract: Optional[Dict] = None,
+    depth: int = 0,
+    dry_run: bool = False,
+    run_id: Optional[str] = None,
+) -> Dict[str, Any]:
     """Execute a single contract and return structured result."""
     started_at = datetime.now(timezone.utc).isoformat()
     tick = time.time()
@@ -153,7 +164,12 @@ def execute_contract(skill_id: str, contract: Optional[Dict] = None, depth: int 
             "gates": [],
             "outputs": {},
             "warnings": [],
-            "errors": [{"code": "CONTRACT_NOT_FOUND", "message": f"Contract '{skill_id}' not found in INDEX.yaml"}]
+            "errors": [
+                {
+                    "code": "CONTRACT_NOT_FOUND",
+                    "message": f"Contract '{skill_id}' not found in INDEX.yaml",
+                }
+            ],
         }
 
     max_depth = contract.get("limits", {}).get("max_gate_depth", 2)
@@ -169,7 +185,12 @@ def execute_contract(skill_id: str, contract: Optional[Dict] = None, depth: int 
             "gates": gate_results,
             "outputs": {},
             "warnings": warnings,
-            "errors": [{"code": "GATE_DEPTH_EXCEEDED", "message": f"Gate depth {depth} > max {max_depth}"}]
+            "errors": [
+                {
+                    "code": "GATE_DEPTH_EXCEEDED",
+                    "message": f"Gate depth {depth} > max {max_depth}",
+                }
+            ],
         }
 
     gate_results = resolve_gates(contract, depth, dry_run)
@@ -187,7 +208,13 @@ def execute_contract(skill_id: str, contract: Optional[Dict] = None, depth: int 
             "gates": gate_results,
             "outputs": {},
             "warnings": warnings,
-            "errors": [{"code": "BLOCKING_GATE_FAILED", "message": f"Gate '{g['gate_id']}' failed"} for g in blocking_failed]
+            "errors": [
+                {
+                    "code": "BLOCKING_GATE_FAILED",
+                    "message": f"Gate '{g['gate_id']}' failed",
+                }
+                for g in blocking_failed
+            ],
         }
 
     read_skill_md(skill_id)
@@ -195,7 +222,7 @@ def execute_contract(skill_id: str, contract: Optional[Dict] = None, depth: int 
         "status": "PASS",
         "summary": f"Contract '{skill_id}' executed successfully",
         "next_action": "Continue to next phase",
-        "artifacts": []
+        "artifacts": [],
     }
 
     required_outputs = contract.get("outputs", {}).get("required", [])
@@ -209,7 +236,11 @@ def execute_contract(skill_id: str, contract: Optional[Dict] = None, depth: int 
     failed_gates = [g for g in evaluated_gates if not g["passed"]]
     if failed_gates:
         outputs["status"] = "PARTIAL"
-        outputs["partial_reason"] = "DRY_RUN_STUB_OUTPUT_INCOMPLETE" if dry_run else "SUCCESS_GATE_OUTPUT_INCOMPLETE"
+        outputs["partial_reason"] = (
+            "DRY_RUN_STUB_OUTPUT_INCOMPLETE"
+            if dry_run
+            else "SUCCESS_GATE_OUTPUT_INCOMPLETE"
+        )
         outputs["partial_details"] = [
             {
                 "gate_id": g.get("gate_id"),
@@ -242,23 +273,35 @@ def execute_contract(skill_id: str, contract: Optional[Dict] = None, depth: int 
         "gates": gate_results,
         "outputs": outputs,
         "warnings": (
-            [{"type": "EVENTS_SKIPPED", "events": events_skipped, "reason": "Events disabled in Phase 4 minimal runtime"}]
-            if events_skipped else []
-        ) + (
-            [{
-                "type": "EXPECTED_PARTIAL",
-                "reason": outputs.get("partial_reason"),
-                "failed_success_gates": len(failed_gates),
-            }]
-            if failed_gates and dry_run else []
-        ) + artifact_warnings,
+            [
+                {
+                    "type": "EVENTS_SKIPPED",
+                    "events": events_skipped,
+                    "reason": "Events disabled in Phase 4 minimal runtime",
+                }
+            ]
+            if events_skipped
+            else []
+        )
+        + (
+            [
+                {
+                    "type": "EXPECTED_PARTIAL",
+                    "reason": outputs.get("partial_reason"),
+                    "failed_success_gates": len(failed_gates),
+                }
+            ]
+            if failed_gates and dry_run
+            else []
+        )
+        + artifact_warnings,
         "errors": errors,
         "events": {
             "declared": len(events_skipped) > 0,
             "executed": False,
-            "reason": "Events disabled in Phase 4 minimal runtime"
+            "reason": "Events disabled in Phase 4 minimal runtime",
         },
-        "dry_run": dry_run
+        "dry_run": dry_run,
     }
 
     return result
@@ -293,7 +336,9 @@ def check_artifact_existence(skill_id: str, contract: Dict, run_id: str) -> List
       - path patterns with non-{run_id} vars → skipped (cannot resolve at runtime)
     """
     warnings: List[Dict] = []
-    version = str(contract.get("contract_schema_version", contract.get("version", "0.1")))
+    version = str(
+        contract.get("contract_schema_version", contract.get("version", "0.1"))
+    )
     if version < "0.3":
         return warnings  # pre-v0.3 contracts don't declare artifacts
 
@@ -312,15 +357,17 @@ def check_artifact_existence(skill_id: str, contract: Dict, run_id: str) -> List
             if resolved is not None:
                 path = REPO_ROOT / resolved
                 if not path.exists():
-                    warnings.append({
-                        "type": "ARTIFACT_MISSING",
-                        "field": "outputs.artifact",
-                        "path": resolved,
-                        "message": (
-                            f"[{skill_id}] primary artifact not found at '{resolved}' "
-                            f"(must_exist_after_run=true)"
-                        ),
-                    })
+                    warnings.append(
+                        {
+                            "type": "ARTIFACT_MISSING",
+                            "field": "outputs.artifact",
+                            "path": resolved,
+                            "message": (
+                                f"[{skill_id}] primary artifact not found at '{resolved}' "
+                                f"(must_exist_after_run=true)"
+                            ),
+                        }
+                    )
 
     # --- Secondary artifacts ---
     secondaries = outputs.get("secondary_artifacts")
@@ -335,15 +382,17 @@ def check_artifact_existence(skill_id: str, contract: Dict, run_id: str) -> List
                 if resolved is not None:
                     path = REPO_ROOT / resolved
                     if not path.exists():
-                        warnings.append({
-                            "type": "SECONDARY_ARTIFACT_MISSING",
-                            "field": f"outputs.secondary_artifacts[{i}]",
-                            "path": resolved,
-                            "message": (
-                                f"[{skill_id}] secondary artifact not found at '{resolved}' "
-                                f"(must_exist_after_run=true)"
-                            ),
-                        })
+                        warnings.append(
+                            {
+                                "type": "SECONDARY_ARTIFACT_MISSING",
+                                "field": f"outputs.secondary_artifacts[{i}]",
+                                "path": resolved,
+                                "message": (
+                                    f"[{skill_id}] secondary artifact not found at '{resolved}' "
+                                    f"(must_exist_after_run=true)"
+                                ),
+                            }
+                        )
 
     return warnings
 
@@ -383,24 +432,40 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="VBB Contract Runtime")
-    parser.add_argument("command", nargs="?", default="run",
-                        choices=["run", "test-all", "validate"])
-    parser.add_argument("skill_id", nargs="?", default=None,
-                        help="Contract skill ID to execute")
-    parser.add_argument("--dry-run", action="store_true",
-                        help="Simulate execution without side effects")
-    parser.add_argument("--strict", action="store_true",
-                        help="Fail on ambiguous routing or incomplete state")
-    parser.add_argument("--phase", default=None,
-                        help="Phase scope for routing (e.g. phase_0, closeout)")
-    parser.add_argument("--query", default=None,
-                        help="Query string for Phase Router (instead of skill_id)")
-    parser.add_argument("--agent", default="local",
-                        help="Agent type for routing")
-    parser.add_argument("--all", action="store_true",
-                        help="Run all contracts in INDEX.yaml (use with 'run')")
-    parser.add_argument("--run-id", dest="run_id", default=None,
-                        help="Run ID for artifact existence verification (e.g. 2026-05-23_1700_my-run)")
+    parser.add_argument(
+        "command", nargs="?", default="run", choices=["run", "test-all", "validate"]
+    )
+    parser.add_argument(
+        "skill_id", nargs="?", default=None, help="Contract skill ID to execute"
+    )
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Simulate execution without side effects"
+    )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Fail on ambiguous routing or incomplete state",
+    )
+    parser.add_argument(
+        "--phase", default=None, help="Phase scope for routing (e.g. phase_0, closeout)"
+    )
+    parser.add_argument(
+        "--query",
+        default=None,
+        help="Query string for Phase Router (instead of skill_id)",
+    )
+    parser.add_argument("--agent", default="local", help="Agent type for routing")
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        help="Run all contracts in INDEX.yaml (use with 'run')",
+    )
+    parser.add_argument(
+        "--run-id",
+        dest="run_id",
+        default=None,
+        help="Run ID for artifact existence verification (e.g. 2026-05-23_1700_my-run)",
+    )
 
     args = parser.parse_args()
 
@@ -414,10 +479,15 @@ if __name__ == "__main__":
     # Route query if provided
     if args.query:
         import importlib.util
-        router_spec = importlib.util.spec_from_file_location("vbb_phase_router", REPO_ROOT / "tools" / "vbb-phase-router.py")
+
+        router_spec = importlib.util.spec_from_file_location(
+            "vbb_phase_router", REPO_ROOT / "tools" / "vbb-phase-router.py"
+        )
         router_module = importlib.util.module_from_spec(router_spec)
         router_spec.loader.exec_module(router_module)
-        routed = router_module.route_to_skill(args.query, agent=args.agent, phase=args.phase, strict=args.strict)
+        routed = router_module.route_to_skill(
+            args.query, agent=args.agent, phase=args.phase, strict=args.strict
+        )
         if not routed:
             print(f"No route found for query '{args.query}'")
             sys.exit(1)
@@ -428,7 +498,9 @@ if __name__ == "__main__":
     elif args.skill_id:
         skill_id = args.skill_id
     else:
-        print("Usage: python vbb-contract-runtime.py run <contract_id> [--dry-run] [--strict]")
+        print(
+            "Usage: python vbb-contract-runtime.py run <contract_id> [--dry-run] [--strict]"
+        )
         print("       python vbb-contract-runtime.py run --all [--dry-run]")
         print("       python vbb-contract-runtime.py validate")
         sys.exit(1)
@@ -447,7 +519,11 @@ if __name__ == "__main__":
             r = execute_contract(sid, dry_run=args.dry_run, run_id=args.run_id)
             write_trace(r)
             results.append(r)
-            suffix = f" [artifact warnings: {len([w for w in r['warnings'] if 'ARTIFACT' in w.get('type','')])}]" if args.run_id else ""
+            suffix = (
+                f" [artifact warnings: {len([w for w in r['warnings'] if 'ARTIFACT' in w.get('type', '')])}]"
+                if args.run_id
+                else ""
+            )
             print(f"  {sid}: {r['status']} ({r['duration_ms']}ms){suffix}")
         passed = sum(1 for r in results if r["status"] == "PASS")
         partial = sum(1 for r in results if r["status"] == "PARTIAL")
@@ -456,7 +532,9 @@ if __name__ == "__main__":
         sys.exit(0)
     else:
         if not args.skill_id and not args.query and not args.all:
-            print("Usage: python vbb-contract-runtime.py run <contract_id> [--dry-run] [--strict]")
+            print(
+                "Usage: python vbb-contract-runtime.py run <contract_id> [--dry-run] [--strict]"
+            )
             print("       python vbb-contract-runtime.py run --all [--dry-run]")
             print("       python vbb-contract-runtime.py validate")
             sys.exit(1)

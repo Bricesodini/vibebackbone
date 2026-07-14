@@ -103,7 +103,7 @@ def _run_linter(skill_dir: Path) -> tuple:
         "type": "vbb_skill_contract_index",
         "skills": [
             {"id": skill_dir.name, "contract": f"./{skill_dir.name}/CONTRACT.yaml"}
-        ]
+        ],
     }
     index_file = skills_tmp / "INDEX.yaml"
     index_file.write_text(yaml.dump(index_data, default_flow_style=False))
@@ -132,9 +132,11 @@ def _run_runtime(skill_id: str, extra_args: list = None) -> tuple:
 # Linter negative tests — invalid contracts
 # ---------------------------------------------------------------------------
 
+
 def test_missing_required_key():
     """Contract missing 'entrypoint' → linter must report error."""
     import yaml
+
     contract = yaml.safe_load(MINIMAL_CONTRACT)
     del contract["entrypoint"]
 
@@ -149,12 +151,15 @@ def test_missing_required_key():
 
         count, errors = _run_linter(skill_dir)
         assert count > 0, f"Expected errors, got {count}"
-        assert any("entrypoint" in str(e) for e in errors), f"Expected 'entrypoint' in errors: {errors}"
+        assert any("entrypoint" in str(e) for e in errors), (
+            f"Expected 'entrypoint' in errors: {errors}"
+        )
 
 
 def test_invalid_type():
     """Contract with type != prompt_skill → linter must report error."""
     import yaml
+
     contract = yaml.safe_load(MINIMAL_CONTRACT)
     contract["type"] = "python_function"
 
@@ -169,12 +174,15 @@ def test_invalid_type():
 
         count, errors = _run_linter(skill_dir)
         assert count > 0, f"Expected errors, got {count}"
-        assert any("type" in str(e).lower() for e in errors), f"Expected 'type' in errors: {errors}"
+        assert any("type" in str(e).lower() for e in errors), (
+            f"Expected 'type' in errors: {errors}"
+        )
 
 
 def test_invalid_status():
     """Contract with invalid output status → linter must report error."""
     import yaml
+
     contract = yaml.safe_load(MINIMAL_CONTRACT)
     contract["outputs"]["statuses"] = ["PASS", "UNKNOWN", "IN_PROGRESS"]
 
@@ -189,13 +197,15 @@ def test_invalid_status():
 
         count, errors = _run_linter(skill_dir)
         assert count > 0, f"Expected errors, got {count}"
-        assert any("statuses" in str(e).lower() or "status" in str(e).lower() for e in errors), \
-            f"Expected 'statuses' in errors: {errors}"
+        assert any(
+            "statuses" in str(e).lower() or "status" in str(e).lower() for e in errors
+        ), f"Expected 'statuses' in errors: {errors}"
 
 
 def test_missing_output_required_field():
     """Contract missing required output field 'summary' → linter must report error."""
     import yaml
+
     contract = yaml.safe_load(MINIMAL_CONTRACT)
     contract["outputs"]["required"] = ["status"]  # missing summary, next_action
 
@@ -210,13 +220,16 @@ def test_missing_output_required_field():
 
         count, errors = _run_linter(skill_dir)
         assert count > 0, f"Expected errors, got {count}"
-        assert any("summary" in str(e).lower() or "next_action" in str(e).lower() for e in errors), \
-            f"Expected output.required field mention in errors: {errors}"
+        assert any(
+            "summary" in str(e).lower() or "next_action" in str(e).lower()
+            for e in errors
+        ), f"Expected output.required field mention in errors: {errors}"
 
 
 def test_unknown_agent():
     """Contract with unknown agent → linter must report error."""
     import yaml
+
     contract = yaml.safe_load(MINIMAL_CONTRACT)
     contract["compatibility"]["agents"] = ["claude-code", "unknown-agent-xyz"]
 
@@ -231,18 +244,18 @@ def test_unknown_agent():
 
         count, errors = _run_linter(skill_dir)
         assert count > 0, f"Expected errors, got {count}"
-        assert any("unknown-agent-xyz" in str(e) or "agent" in str(e).lower() for e in errors), \
-            f"Expected agent name in errors: {errors}"
+        assert any(
+            "unknown-agent-xyz" in str(e) or "agent" in str(e).lower() for e in errors
+        ), f"Expected agent name in errors: {errors}"
 
 
 def test_event_unindexed_skill():
     """Contract referencing an unindexed skill in events → linter must report error."""
     import yaml
+
     contract = yaml.safe_load(MINIMAL_CONTRACT)
     contract["events"] = {
-        "on_success": [
-            {"skill": "nonexistent-skill-xyz", "reason": "test"}
-        ]
+        "on_success": [{"skill": "nonexistent-skill-xyz", "reason": "test"}]
     }
 
     with tempfile.TemporaryDirectory() as tmp:
@@ -256,17 +269,19 @@ def test_event_unindexed_skill():
 
         count, errors = _run_linter(skill_dir)
         assert count > 0, f"Expected errors, got {count}"
-        assert any("nonexistent-skill-xyz" in str(e) for e in errors), \
+        assert any("nonexistent-skill-xyz" in str(e) for e in errors), (
             f"Expected unindexed skill name in errors: {errors}"
+        )
 
 
 def test_artifact_missing_required_field():
     """v0.3 contract with artifact missing path_pattern → linter must report error."""
     import yaml
+
     contract = yaml.safe_load(MINIMAL_CONTRACT)
     contract["outputs"]["artifact"] = {
         "kind": "phase_artifact",
-        "must_exist_after_run": True
+        "must_exist_after_run": True,
         # missing path_pattern
     }
 
@@ -281,13 +296,15 @@ def test_artifact_missing_required_field():
 
         count, errors = _run_linter(skill_dir)
         assert count > 0, f"Expected errors, got {count}"
-        assert any("path_pattern" in str(e) for e in errors), \
+        assert any("path_pattern" in str(e) for e in errors), (
             f"Expected 'path_pattern' in errors: {errors}"
+        )
 
 
 def test_unsupported_version():
     """Contract with unsupported contract schema version → linter must report error."""
     import yaml
+
     contract = yaml.safe_load(MINIMAL_CONTRACT)
     contract["version"] = "9.9"
     contract["contract_schema_version"] = "9.9"
@@ -303,8 +320,9 @@ def test_unsupported_version():
 
         count, errors = _run_linter(skill_dir)
         assert count > 0, f"Expected errors, got {count}"
-        assert any("version" in str(e).lower() for e in errors), \
+        assert any("version" in str(e).lower() for e in errors), (
             f"Expected 'version' in errors: {errors}"
+        )
 
 
 def test_blocking_gate_no_expected_status():
@@ -331,13 +349,17 @@ def test_blocking_gate_no_expected_status():
         ref_dir.mkdir()
         ref_contract = yaml.safe_load(MINIMAL_CONTRACT)
         ref_contract["id"] = "test-bad-version"
-        (ref_dir / "CONTRACT.yaml").write_text(yaml.dump(ref_contract, default_flow_style=False))
+        (ref_dir / "CONTRACT.yaml").write_text(
+            yaml.dump(ref_contract, default_flow_style=False)
+        )
         (ref_dir / "SKILL.md").write_text("# Ref\n")
 
         skill_dir = skills_tmp / "test-bad-gate"
         skill_dir.mkdir()
         contract["id"] = "test-bad-gate"
-        (skill_dir / "CONTRACT.yaml").write_text(yaml.dump(contract, default_flow_style=False))
+        (skill_dir / "CONTRACT.yaml").write_text(
+            yaml.dump(contract, default_flow_style=False)
+        )
         (skill_dir / "SKILL.md").write_text("# Test skill\n")
 
         # Update INDEX to include both
@@ -346,21 +368,27 @@ def test_blocking_gate_no_expected_status():
             "type": "vbb_skill_contract_index",
             "skills": [
                 {"id": "test-bad-gate", "contract": "./test-bad-gate/CONTRACT.yaml"},
-                {"id": "test-bad-version", "contract": "./test-bad-version/CONTRACT.yaml"}
-            ]
+                {
+                    "id": "test-bad-version",
+                    "contract": "./test-bad-version/CONTRACT.yaml",
+                },
+            ],
         }
 
         orig_skills_dir = lint_mod.SKILLS_DIR
         orig_index_file = lint_mod.INDEX_FILE
         lint_mod.SKILLS_DIR = skills_tmp
         lint_mod.INDEX_FILE = skills_tmp / "INDEX.yaml"
-        (skills_tmp / "INDEX.yaml").write_text(yaml.dump(index, default_flow_style=False))
+        (skills_tmp / "INDEX.yaml").write_text(
+            yaml.dump(index, default_flow_style=False)
+        )
 
         try:
             count, errors, _warnings = lint_mod.lint_all()
             assert count > 0, f"Expected errors, got {count}"
-            assert any("expected_status" in str(e) for e in errors), \
+            assert any("expected_status" in str(e) for e in errors), (
                 f"Expected 'expected_status' in errors: {errors}"
+            )
         finally:
             lint_mod.SKILLS_DIR = orig_skills_dir
             lint_mod.INDEX_FILE = orig_index_file
@@ -369,6 +397,7 @@ def test_blocking_gate_no_expected_status():
 # ---------------------------------------------------------------------------
 # Linter positive test — valid contract passes
 # ---------------------------------------------------------------------------
+
 
 def test_valid_contract_passes():
     """A minimal valid v0.3 contract → linter must report 0 errors."""
@@ -380,7 +409,9 @@ def test_valid_contract_passes():
         skill_dir = skills_tmp / "test-minimal"
         skill_dir.mkdir()
         contract_file = skill_dir / "CONTRACT.yaml"
-        contract_file.write_text(yaml.dump(yaml.safe_load(MINIMAL_CONTRACT), default_flow_style=False))
+        contract_file.write_text(
+            yaml.dump(yaml.safe_load(MINIMAL_CONTRACT), default_flow_style=False)
+        )
         (skill_dir / "SKILL.md").write_text("# Test skill\n")
 
         count, errors = _run_linter(skill_dir)
@@ -391,9 +422,11 @@ def test_valid_contract_passes():
 # Runtime negative tests
 # ---------------------------------------------------------------------------
 
+
 def test_runtime_nonexistent_skill():
     """Runtime: non-existent skill_id → status=BLOCKED."""
     import json
+
     rc, out, _ = _run_runtime("nonexistent-skill-xyz-999")
     # Runtime may exit 0 or 1; check the JSON output
     try:
@@ -410,6 +443,7 @@ def test_runtime_nonexistent_skill():
 def test_runtime_real_skill_dry_run():
     """Runtime: real skill with --dry-run → status in PASS/PARTIAL/BLOCKED."""
     import json
+
     # Use an existing contracted skill
     rc, out, _ = _run_runtime("1-vbb-adr")
     try:
@@ -420,22 +454,27 @@ def test_runtime_real_skill_dry_run():
         return
 
     status = result.get("status", "UNKNOWN")
-    assert status in ("PASS", "PARTIAL", "BLOCKED"), \
+    assert status in ("PASS", "PARTIAL", "BLOCKED"), (
         f"Expected PASS/PARTIAL/BLOCKED, got {status}\n{out}"
+    )
 
 
 def test_runtime_all_dry_run():
     """Runtime: --all --dry-run → completes without error."""
     cmd = [sys.executable, str(RUNTIME), "run", "--all", "--dry-run"]
     result = subprocess.run(cmd, capture_output=True, text=True)
-    assert result.returncode == 0, f"Expected exit 0, got {result.returncode}\n{result.stdout}\n{result.stderr}"
-    assert "PASS:" in result.stdout or "BLOCKED" in result.stdout, \
+    assert result.returncode == 0, (
+        f"Expected exit 0, got {result.returncode}\n{result.stdout}\n{result.stderr}"
+    )
+    assert "PASS:" in result.stdout or "BLOCKED" in result.stdout, (
         f"Expected summary output\n{result.stdout}"
+    )
 
 
 def test_runtime_partial_has_machine_reason():
     """Runtime: expected dry-run PARTIAL includes a machine-readable reason."""
     import json
+
     rc, out, _ = _run_runtime("1-vbb-adr")
     assert rc == 0, f"Expected partial dry-run to exit 0, got {rc}\n{out}"
     result = json.loads(out)
@@ -450,6 +489,7 @@ def test_runtime_partial_has_machine_reason():
 # Phase Router tests (if vbb-phase-router.py exists)
 # ---------------------------------------------------------------------------
 
+
 def test_phase_router_unknown_phase():
     """Router: query with completely unknown context → should fail or return None."""
     router = REPO_ROOT / "tools" / "vbb-phase-router.py"
@@ -457,14 +497,18 @@ def test_phase_router_unknown_phase():
         return  # skip — router tool doesn't exist yet
 
     import importlib.util
+
     spec = importlib.util.spec_from_file_location("vbb_phase_router", router)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
 
     # Test routing with an unknown phase
-    result = mod.route_to_skill("nonexistent query xyz 123", phase="phase_99", agent="claude-code")
-    assert result is None or result == "", \
+    result = mod.route_to_skill(
+        "nonexistent query xyz 123", phase="phase_99", agent="claude-code"
+    )
+    assert result is None or result == "", (
         f"Expected None/empty for unknown phase, got {result}"
+    )
 
 
 def test_phase_router_valid_query():
@@ -474,6 +518,7 @@ def test_phase_router_valid_query():
         return  # skip
 
     import importlib.util
+
     spec = importlib.util.spec_from_file_location("vbb_phase_router", router)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
@@ -481,8 +526,9 @@ def test_phase_router_valid_query():
     result = mod.route_to_skill("ADR", agent="claude-code", phase="phase_1")
     # The router should return a skill ID (or None if routing fails — that's also acceptable)
     # We just check it doesn't crash
-    assert result is None or isinstance(result, str), \
+    assert result is None or isinstance(result, str), (
         f"Expected None or str, got {type(result)}"
+    )
 
 
 def test_phase_router_responsibility_corpus():
@@ -492,6 +538,7 @@ def test_phase_router_responsibility_corpus():
         return
 
     import importlib.util
+
     spec = importlib.util.spec_from_file_location("vbb_phase_router_corpus", router)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
@@ -500,9 +547,15 @@ def test_phase_router_responsibility_corpus():
         ("detect god files and split monoliths", "1-vbb-monolith-detector"),
         ("find duplicated business rules", "1-vbb-logic-duplication-detector"),
         ("find inconsistent API call patterns", "1-vbb-pattern-inconsistency-detector"),
-        ("detect unnecessary interfaces and factories", "1-vbb-premature-abstraction-detector"),
+        (
+            "detect unnecessary interfaces and factories",
+            "1-vbb-premature-abstraction-detector",
+        ),
         ("audit code documentation drift", "1-vbb-code-doc-coherence-auditor"),
-        ("write missing documentation for undocumented code", "1-vbb-code-doc-gap-integrator"),
+        (
+            "write missing documentation for undocumented code",
+            "1-vbb-code-doc-gap-integrator",
+        ),
         ("classify this task into the correct route", "vibebackbone"),
         ("audit security controls", "2-vbb-security"),
     ]
@@ -511,11 +564,13 @@ def test_phase_router_responsibility_corpus():
         actual = mod.route_to_skill(query, agent="codex", strict=True)
         assert actual == expected, f"{query!r}: expected {expected}, got {actual}"
 
+
 # --- Direct execution fallback ---
 
 if __name__ == "__main__":
     try:
         import pytest
+
         sys.exit(pytest.main([__file__, "-q"]))
     except ImportError:
         passed = failed = 0

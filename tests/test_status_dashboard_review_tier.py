@@ -13,6 +13,7 @@ Covers:
 Usage:
     pytest tests/test_status_dashboard_review_tier.py -q
 """
+
 import json
 import subprocess
 import sys
@@ -26,11 +27,14 @@ PYTHON = sys.executable
 def _run(*args: str) -> subprocess.CompletedProcess:
     return subprocess.run(
         [PYTHON, str(DASH), *args],
-        capture_output=True, text=True, cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        cwd=REPO_ROOT,
     )
 
 
 # --- Flag presence and default behavior -------------------------------------
+
 
 def test_help_lists_review_tier_flag() -> None:
     p = _run("--help")
@@ -50,6 +54,7 @@ def test_default_dashboard_unchanged_without_flag() -> None:
 
 # --- Text output ------------------------------------------------------------
 
+
 def test_review_tier_text_output_structure() -> None:
     p = _run("--review-tier")
     assert p.returncode == 0
@@ -68,13 +73,19 @@ def test_review_tier_text_output_structure() -> None:
 
 # --- JSON contract ----------------------------------------------------------
 
+
 def test_review_tier_json_has_all_required_fields() -> None:
     p = _run("--review-tier", "--json")
     assert p.returncode == 0, f"stderr={p.stderr}"
     data = json.loads(p.stdout)
     required = {
-        "review_tier", "label", "reasons", "suggested_actions",
-        "blocking", "confidence", "mode",
+        "review_tier",
+        "label",
+        "reasons",
+        "suggested_actions",
+        "blocking",
+        "confidence",
+        "mode",
     }
     assert required.issubset(data.keys()), (
         f"missing fields: {required - data.keys()}\ngot: {data}"
@@ -109,6 +120,7 @@ def test_review_tier_json_suggested_actions_is_list() -> None:
 
 # --- Alias ------------------------------------------------------------------
 
+
 def test_tier_alias_matches_review_tier() -> None:
     p1 = _run("--review-tier", "--json")
     p2 = _run("--tier", "--json")
@@ -121,6 +133,7 @@ def test_tier_alias_matches_review_tier() -> None:
 
 # --- Sanity on a known tier -------------------------------------------------
 
+
 def test_review_tier_t6_for_status_dashboard_change() -> None:
     """If tools/vbb-status-dashboard.py is in the working tree, tier should
     be T6 (architecture / hooks / CI tool)."""
@@ -128,7 +141,9 @@ def test_review_tier_t6_for_status_dashboard_change() -> None:
     data = json.loads(p.stdout)
     # The dashboard itself is untracked (we're in the middle of editing it).
     # When vbb-status-dashboard.py is in the diff, it must classify T6.
-    if data.get("files_analyzed", 0) > 0 and "tools/vbb-status-dashboard.py" in str(data):
+    if data.get("files_analyzed", 0) > 0 and "tools/vbb-status-dashboard.py" in str(
+        data
+    ):
         assert data["review_tier"] == "T6", (
             f"status-dashboard edit should be T6, got {data['review_tier']}"
         )

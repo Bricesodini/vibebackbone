@@ -65,7 +65,9 @@ def _iter_index_files(repo: Path) -> List[Path]:
         if fpath.exists() and fpath.is_file():
             files.append(fpath)
     for glob_pattern in INDEX_GLOBS:
-        files.extend(fpath for fpath in sorted(repo.glob(glob_pattern)) if fpath.is_file())
+        files.extend(
+            fpath for fpath in sorted(repo.glob(glob_pattern)) if fpath.is_file()
+        )
     return files
 
 
@@ -120,14 +122,30 @@ def _extract_headings(text: str) -> List[str]:
 
 def _extract_keywords(text: str) -> List[str]:
     """Extract simple keywords from text (lowercase, >3 chars, word frequency)."""
-    words = re.findall(r'[a-zA-ZàâéèêëïîôùûüçÀÂÉÈÊËÏÎÔÙÛÜÇ]{4,}', text.lower())
+    words = re.findall(r"[a-zA-ZàâéèêëïîôùûüçÀÂÉÈÊËÏÎÔÙÛÜÇ]{4,}", text.lower())
     # Count and return top 15 unique by frequency
     freq = {}
     for w in words:
         freq[w] = freq.get(w, 0) + 1
     # Stop words
-    stops = {"dans", "pour", "avec", "sans", "cette", "elles", "leurs", "aussi",
-             "that", "this", "with", "from", "have", "been", "were", "will"}
+    stops = {
+        "dans",
+        "pour",
+        "avec",
+        "sans",
+        "cette",
+        "elles",
+        "leurs",
+        "aussi",
+        "that",
+        "this",
+        "with",
+        "from",
+        "have",
+        "been",
+        "were",
+        "will",
+    }
     for s in stops:
         freq.pop(s, None)
     top = sorted(freq.keys(), key=lambda w: freq[w], reverse=True)[:15]
@@ -181,15 +199,19 @@ def build_index(repo: Path) -> Dict:
 
     # Write index
     index_dir.mkdir(parents=True, exist_ok=True)
-    manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
     return manifest
 
 
 def _get_mtime(path: Path) -> str:
     try:
         import os
+
         t = os.path.getmtime(path)
         from datetime import datetime
+
         return datetime.fromtimestamp(t).isoformat()[:10]
     except OSError:
         return "unknown"
@@ -204,7 +226,9 @@ def search_index(query: str, repo: Path, json_mode: bool = False) -> List[Dict]:
     with open(manifest_path, encoding="utf-8") as f:
         manifest = json.load(f)
 
-    query_terms = [w.lower() for w in re.findall(r'[a-zA-ZàâéèêëïîôùûüçÀÂÉÈÊËÏÎÔÙÛÜÇ]{3,}', query)]
+    query_terms = [
+        w.lower() for w in re.findall(r"[a-zA-ZàâéèêëïîôùûüçÀÂÉÈÊËÏÎÔÙÛÜÇ]{3,}", query)
+    ]
     if not query_terms:
         return []
 
@@ -242,13 +266,15 @@ def search_index(query: str, repo: Path, json_mode: bool = False) -> List[Dict]:
             if kw:
                 excerpt += f" [{', '.join(kw)}]"
 
-            results.append({
-                "path": entry["path"],
-                "title": entry.get("title", ""),
-                "score": score,
-                "kind": entry.get("kind", "doc"),
-                "excerpt": excerpt[:120],
-            })
+            results.append(
+                {
+                    "path": entry["path"],
+                    "title": entry.get("title", ""),
+                    "score": score,
+                    "kind": entry.get("kind", "doc"),
+                    "excerpt": excerpt[:120],
+                }
+            )
 
     # Sort by score descending
     results.sort(key=lambda r: r["score"], reverse=True)
@@ -309,11 +335,15 @@ def main() -> int:
 
     if args.command == "build":
         manifest = build_index(repo)
-        print(f"✓ Index built: {manifest['total_entries']} entries, ~{manifest['total_tokens']:,} tokens")
+        print(
+            f"✓ Index built: {manifest['total_entries']} entries, ~{manifest['total_tokens']:,} tokens"
+        )
         return 0
 
     elif args.command == "search":
-        results = search_index(args.query, repo, json_mode=getattr(args, "json_mode", False))
+        results = search_index(
+            args.query, repo, json_mode=getattr(args, "json_mode", False)
+        )
         if not results:
             return 1
         if getattr(args, "json_mode", False):

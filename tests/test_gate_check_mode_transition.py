@@ -91,6 +91,7 @@ def test_mode_transition_skipped_without_project_mode() -> None:
         project_mode = REPO_ROOT / "docs" / "PROJECT_MODE.md"
         if project_mode.exists():
             import pytest
+
             pytest.skip(
                 "docs/PROJECT_MODE.md exists in this repo — cannot test SKIPPED state"
             )
@@ -113,9 +114,8 @@ def test_mode_transition_recommended_with_project_mode(
     via import. We pick the import path for stability.
     """
     import importlib.util
-    spec = importlib.util.spec_from_file_location(
-        "vbb_gate_check_test", str(TOOL)
-    )
+
+    spec = importlib.util.spec_from_file_location("vbb_gate_check_test", str(TOOL))
     assert spec is not None
     mod = importlib.util.module_from_spec(spec)
     assert spec.loader is not None
@@ -133,15 +133,15 @@ def test_mode_transition_recommended_with_project_mode(
     # Build a run_dir with intake that triggers the keyword
     run_dir = tmp_path / "2026-06-13_1212_recommended"
     run_dir.mkdir()
-    (run_dir / "01_INTAKE.md").write_text(_INTAKE_FM.format(
-        run_id="2026-06-13_1212_recommended",
-        body="## Objectif\n\nDeploy to production.",
-    ))
+    (run_dir / "01_INTAKE.md").write_text(
+        _INTAKE_FM.format(
+            run_id="2026-06-13_1212_recommended",
+            body="## Objectif\n\nDeploy to production.",
+        )
+    )
 
     result = mod.check_mode_transition(run_dir)
-    assert result["status"] == "RECOMMENDED", (
-        f"expected RECOMMENDED, got: {result}"
-    )
+    assert result["status"] == "RECOMMENDED", f"expected RECOMMENDED, got: {result}"
     assert result["skill"] == "t-vbb-mode-transition-gate", (
         f"expected t-vbb-mode-transition-gate, got: {result}"
     )

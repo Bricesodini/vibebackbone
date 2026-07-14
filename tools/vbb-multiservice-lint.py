@@ -131,9 +131,7 @@ def get_db_orientation(context_path: Path) -> Optional[str]:
     return None
 
 
-def rule_db_isolation(
-    config: Dict, context_path: Path = CONTEXT_FILE
-) -> List[Dict]:
+def rule_db_isolation(config: Dict, context_path: Path = CONTEXT_FILE) -> List[Dict]:
     """If db_orientation: shared_external_*, warn about direct DB cross-access."""
     rule_cfg = config["rules"].get("db_isolation", {})
     if not rule_cfg.get("enabled", False):
@@ -232,7 +230,9 @@ def rule_contracts_consumed_freshness(config: Dict) -> List[Dict]:
         return violations
 
     # Find "Last updated" line (case-insensitive)
-    m = re.search(r"Last\s+updated\s*[:=]\s*(\d{4}-\d{2}-\d{2})", content, re.IGNORECASE)
+    m = re.search(
+        r"Last\s+updated\s*[:=]\s*(\d{4}-\d{2}-\d{2})", content, re.IGNORECASE
+    )
     if not m:
         violations.append(
             {
@@ -330,7 +330,11 @@ def main() -> int:
         errors = errors + warnings
         warnings = []
 
-    output = format_json(errors, warnings) if args.json_output else format_text(errors, warnings)
+    output = (
+        format_json(errors, warnings)
+        if args.json_output
+        else format_text(errors, warnings)
+    )
     print(output)
 
     if errors:

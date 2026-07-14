@@ -75,6 +75,7 @@ GITIGNORE_ENTRIES = [
 # Content generators for governance files
 # ---------------------------------------------------------------------------
 
+
 def _project_mode_md(mode: str, today: str) -> str:
     return f"""\
 ---
@@ -298,6 +299,7 @@ Exemple : `0001-choix-framework-api.md`
 # .gitignore helper
 # ---------------------------------------------------------------------------
 
+
 def _update_gitignore(target_dir: Path, dry_run: bool) -> Tuple[str, bool]:
     """Append VBB SESSION.md entries to .gitignore if not already present.
 
@@ -324,6 +326,7 @@ def _update_gitignore(target_dir: Path, dry_run: bool) -> Tuple[str, bool]:
 # Pre-commit hook helper
 # ---------------------------------------------------------------------------
 
+
 def _sha256(path: Path) -> str:
     """Return a content hash without exposing file contents."""
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -334,13 +337,17 @@ def _load_managed_manifest(path: Path, force: bool) -> dict:
         return {"schema_version": 1, "files": {}}
     try:
         manifest = json.loads(path.read_text(encoding="utf-8"))
-        if manifest.get("schema_version") != 1 or not isinstance(manifest.get("files"), dict):
+        if manifest.get("schema_version") != 1 or not isinstance(
+            manifest.get("files"), dict
+        ):
             raise ValueError("unsupported schema")
         return manifest
     except (OSError, json.JSONDecodeError, ValueError) as exc:
         if force:
             return {"schema_version": 1, "files": {}}
-        raise RuntimeError(f"invalid managed manifest {MANAGED_MANIFEST_REL}: {exc}") from exc
+        raise RuntimeError(
+            f"invalid managed manifest {MANAGED_MANIFEST_REL}: {exc}"
+        ) from exc
 
 
 def _sync_managed_hook_bundle(target_dir: Path, force: bool, dry_run: bool) -> str:
@@ -429,7 +436,11 @@ def _install_hook(
         text=True,
     )
     if result.returncode != 0:
-        detail = result.stderr.strip() or result.stdout.strip() or f"exit {result.returncode}"
+        detail = (
+            result.stderr.strip()
+            or result.stdout.strip()
+            or f"exit {result.returncode}"
+        )
         raise RuntimeError(f"canonical hook installer failed: {detail}")
     return "DONE (managed bundle synced; canonical hooks installed)"
 
@@ -437,6 +448,7 @@ def _install_hook(
 # ---------------------------------------------------------------------------
 # Main init logic
 # ---------------------------------------------------------------------------
+
 
 def init_project(
     target_dir: Path,
@@ -472,14 +484,18 @@ def init_project(
 
     # docs/runs/README.md — copy verbatim from VBB
     if RUNS_README_SRC.exists():
-        files[target_dir / "docs" / "runs" / "README.md"] = RUNS_README_SRC.read_text(encoding="utf-8")
+        files[target_dir / "docs" / "runs" / "README.md"] = RUNS_README_SRC.read_text(
+            encoding="utf-8"
+        )
     else:
         errors.append(f"Source not found: {RUNS_README_SRC}")
 
     # docs/templates/ — copy all 7 phase templates
     if TEMPLATES_SRC.exists():
         for tpl in sorted(TEMPLATES_SRC.glob("*.md.template")):
-            files[target_dir / "docs" / "templates" / tpl.name] = tpl.read_text(encoding="utf-8")
+            files[target_dir / "docs" / "templates" / tpl.name] = tpl.read_text(
+                encoding="utf-8"
+            )
     else:
         errors.append(f"Templates directory not found: {TEMPLATES_SRC}")
 
@@ -547,6 +563,7 @@ def init_project(
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(

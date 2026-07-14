@@ -88,9 +88,13 @@ def test_claims_coherent_passes() -> None:
 
             - aligned docs (KNOWN LIMITATION: out-of-repo doc)
         """)
-        (run_dir / "07_CLOSEOUT.md").write_text(_FM.format(
-            run_id=run_id, phase="07_CLOSEOUT", body=body,
-        ))
+        (run_dir / "07_CLOSEOUT.md").write_text(
+            _FM.format(
+                run_id=run_id,
+                phase="07_CLOSEOUT",
+                body=body,
+            )
+        )
         proc = _invoke(run_dir, "--validate-claims", "--json")
         assert proc.returncode == 0, (
             f"expected 0, got {proc.returncode}\n"
@@ -114,9 +118,13 @@ def test_claims_unsupported_fails() -> None:
 
             (none)
         """)
-        (run_dir / "07_CLOSEOUT.md").write_text(_FM.format(
-            run_id=run_id, phase="07_CLOSEOUT", body=body,
-        ))
+        (run_dir / "07_CLOSEOUT.md").write_text(
+            _FM.format(
+                run_id=run_id,
+                phase="07_CLOSEOUT",
+                body=body,
+            )
+        )
         proc = _invoke(run_dir, "--validate-claims", "--json")
         assert "MISSING_EVIDENCE" in proc.stdout or proc.returncode != 0, (
             f"expected MISSING_EVIDENCE or non-zero, got rc={proc.returncode}\n"
@@ -170,9 +178,13 @@ def test_plan_complete_passes() -> None:
         run_dir.mkdir()
         _build_complete_run(run_dir, run_id)
         # overwrite 04_PLAN with a complete plan
-        (run_dir / "04_PLAN.md").write_text(_FM.format(
-            run_id=run_id, phase="04_PLAN", body=_PLAN_COMPLETE_BODY,
-        ))
+        (run_dir / "04_PLAN.md").write_text(
+            _FM.format(
+                run_id=run_id,
+                phase="04_PLAN",
+                body=_PLAN_COMPLETE_BODY,
+            )
+        )
         proc = _invoke(run_dir, "--validate-plan", "--json")
         assert proc.returncode == 0, (
             f"expected 0, got {proc.returncode}\n"
@@ -196,13 +208,16 @@ def test_plan_missing_sections_fails() -> None:
 
             - one risk
         """)
-        (run_dir / "04_PLAN.md").write_text(_FM.format(
-            run_id=run_id, phase="04_PLAN", body=body,
-        ))
+        (run_dir / "04_PLAN.md").write_text(
+            _FM.format(
+                run_id=run_id,
+                phase="04_PLAN",
+                body=body,
+            )
+        )
         proc = _invoke(run_dir, "--validate-plan", "--json")
         assert "MISSING_SECTION" in proc.stdout or proc.returncode != 0, (
-            f"expected MISSING_SECTION, got rc={proc.returncode}\n"
-            f"stdout: {proc.stdout}"
+            f"expected MISSING_SECTION, got rc={proc.returncode}\nstdout: {proc.stdout}"
         )
 
 
@@ -222,8 +237,11 @@ def test_test_audit_with_recent_report_passes() -> None:
         empty_audits.mkdir()
         (empty_audits / "test-coverage-FRESH.md").write_text("# fresh")
         proc = _invoke(
-            run_dir, "--validate-test-audit",
-            "--audits-dir", str(empty_audits), "--json",
+            run_dir,
+            "--validate-test-audit",
+            "--audits-dir",
+            str(empty_audits),
+            "--json",
         )
         assert proc.returncode == 0, (
             f"expected 0, got {proc.returncode}\n"
@@ -252,15 +270,20 @@ def test_claims_fixed_price_not_detected_as_bugfix() -> None:
 
             (none)
         """)
-        (run_dir / "07_CLOSEOUT.md").write_text(_FM.format(
-            run_id=run_id, phase="07_CLOSEOUT", body=body,
-        ))
+        (run_dir / "07_CLOSEOUT.md").write_text(
+            _FM.format(
+                run_id=run_id,
+                phase="07_CLOSEOUT",
+                body=body,
+            )
+        )
         proc = _invoke(run_dir, "--validate-claims", "--json")
         assert proc.returncode == 0, (
             f"expected 0, got {proc.returncode}\n"
             f"stderr: {proc.stderr}\nstdout: {proc.stdout}"
         )
         import json
+
         report = json.loads(proc.stdout)
         # Must be a real PASS, not a silent false positive
         assert report.get("exit_intent") == "PASS", (
@@ -286,14 +309,21 @@ def test_test_audit_no_surface_marker_passes() -> None:
 
             Documentation-only run.
         """)
-        (run_dir / "05_EXECUTION.md").write_text(_FM.format(
-            run_id=run_id, phase="05_EXECUTION", body=body,
-        ))
+        (run_dir / "05_EXECUTION.md").write_text(
+            _FM.format(
+                run_id=run_id,
+                phase="05_EXECUTION",
+                body=body,
+            )
+        )
         empty_audits = Path(tmp) / "empty_audits"
         empty_audits.mkdir()
         proc = _invoke(
-            run_dir, "--validate-test-audit",
-            "--audits-dir", str(empty_audits), "--json",
+            run_dir,
+            "--validate-test-audit",
+            "--audits-dir",
+            str(empty_audits),
+            "--json",
         )
         assert proc.returncode == 0, (
             f"expected 0, got {proc.returncode}\n"

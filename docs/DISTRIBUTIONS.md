@@ -556,6 +556,19 @@ adaptateur, contrat, sortie textuelle ou état installé ne change.
 
 **Author**: Codex, après GO Brice
 
+### 2026-07-14 — Format Ruff conservé dans Core
+
+**Decision**: Appliquer le formatter canonique aux 29 outils/tests signalés,
+dans un lot mécanique isolé.
+
+**Reason**: Le style Python Core est partagé ; l'équivalence AST prouve
+l'absence de changement sémantique.
+
+**Impact**: Pi, OpenCode, Codex et Claude Code héritent du même code formaté.
+Aucun adaptateur, contrat ou état runtime ne change.
+
+**Author**: Codex, après GO Brice
+
 ## 9. References
 
 - `README.md` — entry point; "VBB Core vs Distributions" anchors the

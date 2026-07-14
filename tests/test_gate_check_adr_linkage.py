@@ -103,9 +103,7 @@ def test_explicit_ref_never_falls_back_to_global(gate_env) -> None:
 
 def test_missing_referenced_adr_file_blocks(gate_env) -> None:
     gate, _write_adr, make_run = gate_env
-    run_dir = make_run(
-        "# 01_INTAKE\nLiée à ADR: docs/adr/0099-ghost-decision.md\n"
-    )
+    run_dir = make_run("# 01_INTAKE\nLiée à ADR: docs/adr/0099-ghost-decision.md\n")
     ok, path, blocker = gate.check_adr(run_dir)
     assert ok is False
     assert path is None

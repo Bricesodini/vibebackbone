@@ -83,19 +83,27 @@ VOIE_ALIASES: Dict[str, str] = {
 
 # Voie → required phase file stems (matches filenames in docs/runs/{slug}/)
 VOIE_REQUIRED_PHASES: Dict[str, List[str]] = {
-    "RAPIDE-ZERO":   [],                                    # Activity Log only
-    "RAPIDE-MINIMAL": ["05_PATCH_SUMMARY"],                 # Activity Log + patch summary
-    "RAPIDE":        ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"],
-    "STRUCTUREE":    ["01_INTAKE", "04_PLAN", "05_EXECUTION", "07_CLOSEOUT"],
-    "AUDIT":         ["01_INTAKE", "02_AUDIT", "03_DECISION", "07_CLOSEOUT"],
-    "CLOTURE":       ["07_CLOSEOUT"],
+    "RAPIDE-ZERO": [],  # Activity Log only
+    "RAPIDE-MINIMAL": ["05_PATCH_SUMMARY"],  # Activity Log + patch summary
+    "RAPIDE": ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"],
+    "STRUCTUREE": ["01_INTAKE", "04_PLAN", "05_EXECUTION", "07_CLOSEOUT"],
+    "AUDIT": ["01_INTAKE", "02_AUDIT", "03_DECISION", "07_CLOSEOUT"],
+    "CLOTURE": ["07_CLOSEOUT"],
 }
 
 # Minimum frontmatter fields required in every phase artifact
-FRONTMATTER_MIN = frozenset({
-    "run_id", "phase", "voie", "status", "agent",
-    "started_at", "ended_at", "artifacts_produced",
-})
+FRONTMATTER_MIN = frozenset(
+    {
+        "run_id",
+        "phase",
+        "voie",
+        "status",
+        "agent",
+        "started_at",
+        "ended_at",
+        "artifacts_produced",
+    }
+)
 
 KNOWN_VOIES = frozenset(VOIE_REQUIRED_PHASES.keys())
 
@@ -103,6 +111,7 @@ KNOWN_VOIES = frozenset(VOIE_REQUIRED_PHASES.keys())
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def read_frontmatter(path: Path) -> Tuple[Optional[Dict], Optional[str]]:
     """Parse YAML frontmatter from a Markdown file.
@@ -238,7 +247,7 @@ def validate_claims_evidence(closeout_path: Path) -> List[str]:
             if ln.lstrip().startswith(">"):
                 continue
             # Look ahead up to 10 lines for evidence
-            window = "\n".join(lines[idx: idx + 11])
+            window = "\n".join(lines[idx : idx + 11])
             has_evidence = bool(EVIDENCE_MARKER_RE.search(window))
             has_output = bool(OUTPUT_MARKER_RE.search(window))
             has_known = bool(KNOWN_LIMITATION_RE.search(window))
@@ -263,26 +272,51 @@ def validate_claims_evidence(closeout_path: Path) -> List[str]:
 # whitespace, (3) aucun placeholder <...> ne reste.
 
 PLAN_SECTION_ANCHORS: List[Tuple[str, Tuple[str, ...]]] = [
-    ("Objectif",        (r"objectif", r"but", r"goal")),
-    ("Pré-conditions",  (r"pr[ée]-conditions", r"pr[ée]requis", r"preconditions?", r"prerequisites?")),
-    ("Étapes ordonnées",(r"[ée]tapes?\s+ordonn[ée]es?", r"steps?\s+ordonn[ée]es?",
-                          r"ordered\s+steps?", r"steps?")),
-    ("Critères d'acceptation", (
-        r"crit[èe]res?\s+d'acceptation", r"crit[èe]res?\s+de\s+acceptation",
-        r"definition\s+of\s+done", r"definition\s+of\s+done\s+\(dod\)",
-        r"acceptance\s+criteria",
-    )),
-    ("Plan de rollback global", (
-        r"plan\s+de\s+rollback\s+global", r"plan\s+de\s+rollback",
-        r"rollback",
-    )),
-    ("Risques identifiés", (
-        r"risques?\s+identifi[ée]s?", r"risques?",
-    )),
+    ("Objectif", (r"objectif", r"but", r"goal")),
+    (
+        "Pré-conditions",
+        (r"pr[ée]-conditions", r"pr[ée]requis", r"preconditions?", r"prerequisites?"),
+    ),
+    (
+        "Étapes ordonnées",
+        (
+            r"[ée]tapes?\s+ordonn[ée]es?",
+            r"steps?\s+ordonn[ée]es?",
+            r"ordered\s+steps?",
+            r"steps?",
+        ),
+    ),
+    (
+        "Critères d'acceptation",
+        (
+            r"crit[èe]res?\s+d'acceptation",
+            r"crit[èe]res?\s+de\s+acceptation",
+            r"definition\s+of\s+done",
+            r"definition\s+of\s+done\s+\(dod\)",
+            r"acceptance\s+criteria",
+        ),
+    ),
+    (
+        "Plan de rollback global",
+        (
+            r"plan\s+de\s+rollback\s+global",
+            r"plan\s+de\s+rollback",
+            r"rollback",
+        ),
+    ),
+    (
+        "Risques identifiés",
+        (
+            r"risques?\s+identifi[ée]s?",
+            r"risques?",
+        ),
+    ),
 ]
 
 
-def _find_section_header(body_lines: List[str], patterns: Tuple[str, ...]) -> Optional[int]:
+def _find_section_header(
+    body_lines: List[str], patterns: Tuple[str, ...]
+) -> Optional[int]:
     """Return the line index of the first matching header (case-insensitive)."""
     pat = re.compile(
         r"^#{1,6}\s*(?:" + "|".join(patterns) + r")\b",
@@ -297,7 +331,7 @@ def _find_section_header(body_lines: List[str], patterns: Tuple[str, ...]) -> Op
 def _section_body(body_lines: List[str], start: int) -> List[str]:
     """Return body lines from after `start` until next header or EOF."""
     out: List[str] = []
-    for ln in body_lines[start + 1:]:
+    for ln in body_lines[start + 1 :]:
         if re.match(r"^#{1,6}\s+\S", ln):
             break
         out.append(ln)
@@ -322,23 +356,19 @@ def validate_plan_sections(plan_path: Path) -> List[str]:
     if body.startswith("---"):
         end = body.find("\n---", 3)
         if end != -1:
-            body = body[end + 4:]
+            body = body[end + 4 :]
 
     body_lines = body.splitlines()
     for canonical_name, patterns in PLAN_SECTION_ANCHORS:
         idx = _find_section_header(body_lines, patterns)
         if idx is None:
-            errors.append(
-                f"{plan_path.name}: MISSING_SECTION: {canonical_name}"
-            )
+            errors.append(f"{plan_path.name}: MISSING_SECTION: {canonical_name}")
             continue
         section_body = _section_body(body_lines, idx)
         # Require at least 1 non-whitespace line of content
         non_empty = [ln for ln in section_body if ln.strip()]
         if not non_empty:
-            errors.append(
-                f"{plan_path.name}: EMPTY_SECTION: {canonical_name}"
-            )
+            errors.append(f"{plan_path.name}: EMPTY_SECTION: {canonical_name}")
             continue
         # Reject remaining placeholders
         joined = "\n".join(non_empty)
@@ -470,9 +500,7 @@ def validate_artifact(path: Path) -> List[str]:
     # Required fields
     for field in sorted(FRONTMATTER_MIN):
         if field not in fm:
-            errors.append(
-                f"{path.name}: frontmatter missing required field '{field}'"
-            )
+            errors.append(f"{path.name}: frontmatter missing required field '{field}'")
 
     # Placeholder detection — any <value> still means an unfilled template
     for key, val in fm.items():
@@ -489,6 +517,7 @@ def validate_artifact(path: Path) -> List[str]:
 # Core check
 # ---------------------------------------------------------------------------
 
+
 def check_run(
     run_id: str,
     runs_dir: Optional[Path] = None,
@@ -496,7 +525,9 @@ def check_run(
     validate_claims: bool = False,
     validate_plan: bool = False,
     validate_test_audit_for_voies: Optional[Tuple[str, ...]] = (
-        "STRUCTUREE", "AUDIT", "CLOSEOUT",
+        "STRUCTUREE",
+        "AUDIT",
+        "CLOSEOUT",
     ),
     audits_dir: Optional[Path] = None,
 ) -> Tuple[bool, List[str]]:
@@ -608,8 +639,7 @@ def check_run(
         artifact_path = run_dir / f"{phase_stem}.md"
         if not artifact_path.exists():
             errors.append(
-                f"{phase_stem}.md: missing "
-                f"(required for voie {voie or 'UNKNOWN'})"
+                f"{phase_stem}.md: missing (required for voie {voie or 'UNKNOWN'})"
             )
         else:
             fm_errors = validate_artifact(artifact_path)
@@ -640,18 +670,12 @@ def check_run(
             # Only relevant if the voie requires 04_PLAN
             if voie and "04_PLAN" in VOIE_REQUIRED_PHASES.get(voie, []):
                 errors.append(
-                    "04_PLAN.md: missing "
-                    f"(required for voie {voie}, --validate-plan)"
+                    f"04_PLAN.md: missing (required for voie {voie}, --validate-plan)"
                 )
 
     # P0-3 — test audit on STRUCTUREE/AUDIT/CLOSEOUT
-    if (
-        validate_test_audit_for_voies
-        and voie in validate_test_audit_for_voies
-    ):
-        ta_errors, ta_info = validate_test_audit(
-            run_dir, audits_dir=audits_dir
-        )
+    if validate_test_audit_for_voies and voie in validate_test_audit_for_voies:
+        ta_errors, ta_info = validate_test_audit(run_dir, audits_dir=audits_dir)
         for line in ta_info:
             report.append(f"  {line}")
         errors.extend(ta_errors)
@@ -663,9 +687,7 @@ def check_run(
         for e in errors:
             report.append(f"  ✗ {e}")
         report.append("")
-        report.append(
-            f"RESULT: FAIL — {len(errors)} issue(s) found"
-        )
+        report.append(f"RESULT: FAIL — {len(errors)} issue(s) found")
         return False, report
     else:
         report.append(
@@ -678,6 +700,7 @@ def check_run(
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(
@@ -795,31 +818,40 @@ def main() -> int:
         )
         if args.json_output:
             import json as _json
-            print(_json.dumps({
-                "exit_intent": "GATE_BLOCKED",
-                "run_id": None,
-                "voie": None,
-                "errors": [msg],
-                "report": [],
-            }, indent=2))
+
+            print(
+                _json.dumps(
+                    {
+                        "exit_intent": "GATE_BLOCKED",
+                        "run_id": None,
+                        "voie": None,
+                        "errors": [msg],
+                        "report": [],
+                    },
+                    indent=2,
+                )
+            )
         else:
             print(msg, file=sys.stderr)
         return 64
 
     if not run_id:
-        msg = (
-            "Error: run_id is required.\n"
-            "Usage: vbb-loop-closure-check.py <run_id>"
-        )
+        msg = "Error: run_id is required.\nUsage: vbb-loop-closure-check.py <run_id>"
         if args.json_output:
             import json as _json
-            print(_json.dumps({
-                "exit_intent": "GATE_BLOCKED",
-                "run_id": None,
-                "voie": None,
-                "errors": [msg],
-                "report": [],
-            }, indent=2))
+
+            print(
+                _json.dumps(
+                    {
+                        "exit_intent": "GATE_BLOCKED",
+                        "run_id": None,
+                        "voie": None,
+                        "errors": [msg],
+                        "report": [],
+                    },
+                    indent=2,
+                )
+            )
         else:
             print(msg, file=sys.stderr)
         return 1  # retrocompatible exit for "no run_id" in default mode
@@ -832,13 +864,9 @@ def main() -> int:
             validate_claims=args.validate_claims,
             validate_plan=args.validate_plan,
             validate_test_audit_for_voies=(
-                ("STRUCTUREE", "AUDIT", "CLOSEOUT")
-                if args.validate_test_audit
-                else ()
+                ("STRUCTUREE", "AUDIT", "CLOSEOUT") if args.validate_test_audit else ()
             ),
-            audits_dir=(
-                Path(args.audits_dir) if args.audits_dir else None
-            ),
+            audits_dir=(Path(args.audits_dir) if args.audits_dir else None),
         )
     except Exception as exc:  # noqa: BLE001 — we want to surface ANY error as TOOL_BROKEN
         msg = (
@@ -847,23 +875,33 @@ def main() -> int:
         )
         if args.json_output:
             import json as _json
-            print(_json.dumps({
-                "exit_intent": "GATE_BLOCKED",
-                "run_id": run_id,
-                "voie": None,
-                "errors": [msg],
-                "report": [],
-            }, indent=2))
+
+            print(
+                _json.dumps(
+                    {
+                        "exit_intent": "GATE_BLOCKED",
+                        "run_id": run_id,
+                        "voie": None,
+                        "errors": [msg],
+                        "report": [],
+                    },
+                    indent=2,
+                )
+            )
         else:
             print(msg, file=sys.stderr)
         return 3  # TOOL_BROKEN — same in both modes (an internal error is an
-                  # internal error).
+        # internal error).
 
     if args.json_output:
         import json as _json
+
         # Build errors list from report (lines starting with "  ✗ ")
-        errors = [ln.lstrip().lstrip("✗").strip() for ln in report_lines
-                  if ln.strip().startswith("✗")]
+        errors = [
+            ln.lstrip().lstrip("✗").strip()
+            for ln in report_lines
+            if ln.strip().startswith("✗")
+        ]
         # Extract resolved voie from report
         voie = None
         for ln in report_lines:
@@ -871,13 +909,18 @@ def main() -> int:
                 voie = ln.split(":", 1)[1].strip() if ":" in ln else None
                 break
         exit_intent = "PASS" if passed else "GATE_BLOCKED"
-        print(_json.dumps({
-            "exit_intent": exit_intent,
-            "run_id": run_id,
-            "voie": voie,
-            "errors": errors,
-            "report": report_lines,
-        }, indent=2))
+        print(
+            _json.dumps(
+                {
+                    "exit_intent": exit_intent,
+                    "run_id": run_id,
+                    "voie": voie,
+                    "errors": errors,
+                    "report": report_lines,
+                },
+                indent=2,
+            )
+        )
     else:
         for line in report_lines:
             print(line)

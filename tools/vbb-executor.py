@@ -54,6 +54,7 @@ EXECUTOR_LOG = REPO_ROOT / ".vbb" / "executor.log"
 # State machine
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 class ExecutorState:
     """Executor state machine states."""
 
@@ -74,6 +75,7 @@ class ExecutorState:
 # Core contract loading
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def load_index() -> Dict:
     with open(INDEX_FILE, encoding="utf-8") as f:
         return json.load(f) if INDEX_FILE.suffix == ".json" else _yaml_load(INDEX_FILE)
@@ -81,6 +83,7 @@ def load_index() -> Dict:
 
 def _yaml_load(path: Path) -> Dict:
     import yaml
+
     with open(path, encoding="utf-8") as f:
         return yaml.safe_load(f)
 
@@ -98,13 +101,15 @@ def load_contract(skill_id: str) -> Optional[Dict]:
 # Gate evaluation
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def _contract_status(result: Dict) -> str:
     """Return the contract status emitted by a nested execution."""
     return result.get("outputs", {}).get("status") or result.get("state", "BLOCKED")
 
 
-def evaluate_before_gates(contract: Dict, run_id: str, strict: bool,
-                          depth: int, ancestors: tuple[str, ...]) -> List[Dict]:
+def evaluate_before_gates(
+    contract: Dict, run_id: str, strict: bool, depth: int, ancestors: tuple[str, ...]
+) -> List[Dict]:
     """Evaluate gates.before. Recursively resolves blocking skill references."""
     results = []
     for gate in contract.get("gates", {}).get("before", []):
@@ -124,14 +129,16 @@ def evaluate_before_gates(contract: Dict, run_id: str, strict: bool,
             actual = expected
 
         passed = actual == expected
-        results.append({
-            "gate_id": gate_id,
-            "skill": skill_ref,
-            "expected": expected,
-            "actual": actual,
-            "blocking": blocking,
-            "passed": passed,
-        })
+        results.append(
+            {
+                "gate_id": gate_id,
+                "skill": skill_ref,
+                "expected": expected,
+                "actual": actual,
+                "blocking": blocking,
+                "passed": passed,
+            }
+        )
 
     return results
 
@@ -144,18 +151,21 @@ def evaluate_success_gates(contract: Dict, outputs: Dict) -> List[Dict]:
         required = gate.get("output_must_contain", [])
         present = [f for f in required if f in outputs]
         missing = [f for f in required if f not in outputs]
-        results.append({
-            "gate_id": gate_id,
-            "required": required,
-            "present": present,
-            "missing": missing,
-            "passed": len(missing) == 0,
-        })
+        results.append(
+            {
+                "gate_id": gate_id,
+                "required": required,
+                "present": present,
+                "missing": missing,
+                "passed": len(missing) == 0,
+            }
+        )
     return results
 
 
-def evaluate_after_gates(contract: Dict, run_id: str, depth: int,
-                         ancestors: tuple[str, ...]) -> List[Dict]:
+def evaluate_after_gates(
+    contract: Dict, run_id: str, depth: int, ancestors: tuple[str, ...]
+) -> List[Dict]:
     """Evaluate gates.after — post-execution cleanup/notification gates."""
     results = []
     for gate in contract.get("gates", {}).get("after", []):
@@ -173,19 +183,22 @@ def evaluate_after_gates(contract: Dict, run_id: str, depth: int,
             passed = True
             actual = "PASS"
 
-        results.append({
-            "gate_id": gate_id,
-            "skill": skill_ref,
-            "actual": actual,
-            "blocking": blocking,
-            "passed": passed,
-        })
+        results.append(
+            {
+                "gate_id": gate_id,
+                "skill": skill_ref,
+                "actual": actual,
+                "blocking": blocking,
+                "passed": passed,
+            }
+        )
     return results
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Artifact handling
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def _resolve_path_pattern(path_pattern: str, run_id: str) -> Optional[str]:
     """Resolve path patterns with {run_id} substitution."""
@@ -200,7 +213,9 @@ def _resolve_path_pattern(path_pattern: str, run_id: str) -> Optional[str]:
 def check_artifact_existence(skill_id: str, contract: Dict, run_id: str) -> List[Dict]:
     """Verify that declared artifacts exist for the run (v0.3+ contracts)."""
     warnings: List[Dict] = []
-    version = str(contract.get("contract_schema_version", contract.get("version", "0.1")))
+    version = str(
+        contract.get("contract_schema_version", contract.get("version", "0.1"))
+    )
     if version < "0.3":
         return warnings
 
@@ -218,11 +233,13 @@ def check_artifact_existence(skill_id: str, contract: Dict, run_id: str) -> List
             if resolved is not None:
                 path = REPO_ROOT / resolved
                 if not path.exists():
-                    warnings.append({
-                        "type": "ARTIFACT_MISSING",
-                        "path": resolved,
-                        "message": f"[{skill_id}] artifact not found at '{resolved}'",
-                    })
+                    warnings.append(
+                        {
+                            "type": "ARTIFACT_MISSING",
+                            "path": resolved,
+                            "message": f"[{skill_id}] artifact not found at '{resolved}'",
+                        }
+                    )
 
     for i, sec in enumerate(outputs.get("secondary_artifacts", [])):
         if not isinstance(sec, dict):
@@ -234,12 +251,14 @@ def check_artifact_existence(skill_id: str, contract: Dict, run_id: str) -> List
             if resolved is not None:
                 path = REPO_ROOT / resolved
                 if not path.exists():
-                    warnings.append({
-                        "type": "SECONDARY_ARTIFACT_MISSING",
-                        "field": f"secondary_artifacts[{i}]",
-                        "path": resolved,
-                        "message": f"[{skill_id}] secondary artifact not found at '{resolved}'",
-                    })
+                    warnings.append(
+                        {
+                            "type": "SECONDARY_ARTIFACT_MISSING",
+                            "field": f"secondary_artifacts[{i}]",
+                            "path": resolved,
+                            "message": f"[{skill_id}] secondary artifact not found at '{resolved}'",
+                        }
+                    )
 
     return warnings
 
@@ -275,9 +294,11 @@ def write_phase_artifact(run_id: str, phase: str, content: Dict) -> Path:
             passed = g.get("passed", False)
             icon = "✓" if passed else "✗"
             skill = f" → `{g.get('skill', '')}`" if g.get("skill") else ""
-            lines.append(f"- {icon} `{g.get('gate_id', '?')}`{skill} "
-                         f"[exp:{g.get('expected', g.get('expected_status', '?'))} "
-                         f"got:{g.get('actual', g.get('actual_status', '?'))}]")
+            lines.append(
+                f"- {icon} `{g.get('gate_id', '?')}`{skill} "
+                f"[exp:{g.get('expected', g.get('expected_status', '?'))} "
+                f"got:{g.get('actual', g.get('actual_status', '?'))}]"
+            )
 
     outputs = content.get("outputs", {})
     if outputs:
@@ -297,7 +318,9 @@ def write_phase_artifact(run_id: str, phase: str, content: Dict) -> Path:
     if warnings:
         lines.extend(["", "## Warnings", ""])
         for w in warnings:
-            lines.append(f"- `{w.get('type', '?')}` — {w.get('message', w.get('reason', ''))}")
+            lines.append(
+                f"- `{w.get('type', '?')}` — {w.get('message', w.get('reason', ''))}"
+            )
 
     artifact_path.write_text("\n".join(lines), encoding="utf-8")
     return artifact_path
@@ -347,7 +370,15 @@ def write_closeout(run_id: str, skill_id: str, result: Dict[str, Any]) -> Path:
         for w in warnings:
             lines.append(f"- `{w.get('type', '?')}`")
 
-    lines.extend(["", "## Decisions", "", "- Executor state machine: PASS / PARTIAL / BLOCKED / FAIL semantics applied", ""])
+    lines.extend(
+        [
+            "",
+            "## Decisions",
+            "",
+            "- Executor state machine: PASS / PARTIAL / BLOCKED / FAIL semantics applied",
+            "",
+        ]
+    )
 
     path.write_text("\n".join(lines), encoding="utf-8")
     return path
@@ -356,6 +387,7 @@ def write_closeout(run_id: str, skill_id: str, result: Dict[str, Any]) -> Path:
 # ─────────────────────────────────────────────────────────────────────────────
 # Core executor
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def execute_skill(
     skill_id: str,
@@ -389,10 +421,12 @@ def execute_skill(
         result["state"] = ExecutorState.BLOCKED
         result["ended_at"] = _now(tick)
         result["duration_ms"] = _dur(tick)
-        result["errors"].append({
-            "code": "CIRCULAR_GATE_DEPENDENCY",
-            "message": f"Circular gate dependency detected: {' -> '.join((*ancestors, skill_id))}",
-        })
+        result["errors"].append(
+            {
+                "code": "CIRCULAR_GATE_DEPENDENCY",
+                "message": f"Circular gate dependency detected: {' -> '.join((*ancestors, skill_id))}",
+            }
+        )
         return result
 
     lineage = (*ancestors, skill_id)
@@ -402,10 +436,12 @@ def execute_skill(
         result["state"] = ExecutorState.BLOCKED
         result["ended_at"] = _now(tick)
         result["duration_ms"] = _dur(tick)
-        result["errors"].append({
-            "code": "CONTRACT_NOT_FOUND",
-            "message": f"Contract '{skill_id}' not found in INDEX.yaml",
-        })
+        result["errors"].append(
+            {
+                "code": "CONTRACT_NOT_FOUND",
+                "message": f"Contract '{skill_id}' not found in INDEX.yaml",
+            }
+        )
         return result
 
     max_depth = contract.get("limits", {}).get("max_gate_depth", 2)
@@ -413,10 +449,12 @@ def execute_skill(
         result["state"] = ExecutorState.BLOCKED
         result["ended_at"] = _now(tick)
         result["duration_ms"] = _dur(tick)
-        result["errors"].append({
-            "code": "GATE_DEPTH_EXCEEDED",
-            "message": f"Gate depth {depth} > max {max_depth}",
-        })
+        result["errors"].append(
+            {
+                "code": "GATE_DEPTH_EXCEEDED",
+                "message": f"Gate depth {depth} > max {max_depth}",
+            }
+        )
         return result
 
     result["state"] = ExecutorState.RUNNING
@@ -427,13 +465,20 @@ def execute_skill(
     )
     result["gates"].extend(before_gates)
 
-    blocking_failed = [g for g in before_gates if g.get("blocking") and not g.get("passed")]
+    blocking_failed = [
+        g for g in before_gates if g.get("blocking") and not g.get("passed")
+    ]
     if blocking_failed:
         result["state"] = ExecutorState.BLOCKED
-        result["errors"].extend([
-            {"code": "GATE_FAILED", "message": f"Blocking gate '{g['gate_id']}' failed"}
-            for g in blocking_failed
-        ])
+        result["errors"].extend(
+            [
+                {
+                    "code": "GATE_FAILED",
+                    "message": f"Blocking gate '{g['gate_id']}' failed",
+                }
+                for g in blocking_failed
+            ]
+        )
         result["ended_at"] = _now(tick)
         result["duration_ms"] = _dur(tick)
         return result
@@ -467,10 +512,12 @@ def execute_skill(
     after_failed = [g for g in after_gates if g.get("blocking") and not g.get("passed")]
     if after_failed:
         # After gate failure doesn't change the main status but is recorded
-        result["warnings"].append({
-            "type": "AFTER_GATE_FAILED",
-            "message": f"Blocking after-gate(s) failed: {[g['gate_id'] for g in after_failed]}",
-        })
+        result["warnings"].append(
+            {
+                "type": "AFTER_GATE_FAILED",
+                "message": f"Blocking after-gate(s) failed: {[g['gate_id'] for g in after_failed]}",
+            }
+        )
 
     # ── EVALUATING: artifact existence check (v0.3+) ──────────────────────
     if run_id:
@@ -510,21 +557,27 @@ def _stub_outputs(contract: Dict, skill_id: str) -> Dict[str, Any]:
 # Helpers
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def _tick() -> float:
     import time
+
     return time.time()
+
 
 def _now(tick: float) -> str:
     return datetime.now(timezone.utc).isoformat()
 
+
 def _dur(tick: float) -> int:
     import time
+
     return int((time.time() - tick) * 1000)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Commands
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def cmd_run(skill_id: str, run_id: Optional[str], strict: bool) -> int:
     """Execute a skill with full gate enforcement."""
@@ -553,20 +606,30 @@ def cmd_run(skill_id: str, run_id: Optional[str], strict: bool) -> int:
         write_closeout(run_id, skill_id, result)
 
     # Emit structured status
-    print(json.dumps({
-        "run_id": run_id,
-        "skill_id": skill_id,
-        "state": result["state"],
-        "status": result.get("outputs", {}).get("status", result["state"]),
-        "duration_ms": result["duration_ms"],
-        "gates_passed": sum(1 for g in result["gates"] if g.get("passed")),
-        "gates_total": len(result["gates"]),
-        "errors": result["errors"],
-        "warnings": result["warnings"],
-    }, indent=2))
+    print(
+        json.dumps(
+            {
+                "run_id": run_id,
+                "skill_id": skill_id,
+                "state": result["state"],
+                "status": result.get("outputs", {}).get("status", result["state"]),
+                "duration_ms": result["duration_ms"],
+                "gates_passed": sum(1 for g in result["gates"] if g.get("passed")),
+                "gates_total": len(result["gates"]),
+                "errors": result["errors"],
+                "warnings": result["warnings"],
+            },
+            indent=2,
+        )
+    )
 
     log_state(result)
-    return 0 if ExecutorState.is_terminal(result["state"]) and result["state"] not in {ExecutorState.BLOCKED, ExecutorState.FAIL} else 1
+    return (
+        0
+        if ExecutorState.is_terminal(result["state"])
+        and result["state"] not in {ExecutorState.BLOCKED, ExecutorState.FAIL}
+        else 1
+    )
 
 
 def cmd_state(run_id: str) -> int:
@@ -588,9 +651,11 @@ def cmd_state(run_id: str) -> int:
 def cmd_validate(strict: bool) -> int:
     """Validate all contracts without executing."""
     import subprocess
+
     result = subprocess.run(
         [sys.executable, str(LINTER_SCRIPT)],
-        capture_output=True, text=True,
+        capture_output=True,
+        text=True,
     )
     if result.returncode == 0:
         print("✓ All contracts valid")
@@ -605,18 +670,24 @@ def log_state(result: Dict) -> None:
     """Append execution trace to executor log."""
     EXECUTOR_LOG.parent.mkdir(parents=True, exist_ok=True)
     with open(EXECUTOR_LOG, "a", encoding="utf-8") as f:
-        f.write(json.dumps({
-            "ts": datetime.now(timezone.utc).isoformat(),
-            "run_id": result.get("run_id"),
-            "skill_id": result.get("skill_id"),
-            "state": result.get("state"),
-            "duration_ms": result.get("duration_ms"),
-        }) + "\n")
+        f.write(
+            json.dumps(
+                {
+                    "ts": datetime.now(timezone.utc).isoformat(),
+                    "run_id": result.get("run_id"),
+                    "skill_id": result.get("skill_id"),
+                    "state": result.get("state"),
+                    "duration_ms": result.get("duration_ms"),
+                }
+            )
+            + "\n"
+        )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CLI
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="VBB Executor — Formal runtime")

@@ -33,8 +33,7 @@ TOOL = REPO_ROOT / "tools" / "vbb-status-dashboard.py"
 
 def _run_dashboard(args: list) -> tuple:
     result = subprocess.run(
-        [sys.executable, str(TOOL)] + args,
-        capture_output=True, text=True
+        [sys.executable, str(TOOL)] + args, capture_output=True, text=True
     )
     return result.returncode, result.stdout, result.stderr
 
@@ -42,9 +41,8 @@ def _run_dashboard(args: list) -> tuple:
 def _import_dashboard():
     """Import the dashboard module directly (no subprocess) for unit tests."""
     import importlib.util
-    spec = importlib.util.spec_from_file_location(
-        "vbb_status_dashboard", str(TOOL)
-    )
+
+    spec = importlib.util.spec_from_file_location("vbb_status_dashboard", str(TOOL))
     if spec is None or spec.loader is None:
         raise RuntimeError(f"Could not load dashboard module from {TOOL}")
     mod = importlib.util.module_from_spec(spec)
@@ -52,8 +50,9 @@ def _import_dashboard():
     return mod
 
 
-def _make_run(repo: Path, name: str, mtime_offset: int = 0,
-              closeout_name: str = "07_CLOSEOUT.md") -> Path:
+def _make_run(
+    repo: Path, name: str, mtime_offset: int = 0, closeout_name: str = "07_CLOSEOUT.md"
+) -> Path:
     """Create a fake run directory with a closeout file.
 
     ``mtime_offset`` is added to the current time (seconds). Use positive values
@@ -64,11 +63,11 @@ def _make_run(repo: Path, name: str, mtime_offset: int = 0,
     closeout = rd / closeout_name
     closeout.write_text(
         "---\n"
-        f"run_id: \"{name}\"\n"
-        "phase: \"07_CLOSEOUT\"\n"
-        "voie: \"STRUCTURED\"\n"
-        "status: \"READY\"\n"
-        "agent: \"test\"\n"
+        f'run_id: "{name}"\n'
+        'phase: "07_CLOSEOUT"\n'
+        'voie: "STRUCTURED"\n'
+        'status: "READY"\n'
+        'agent: "test"\n'
         "---\n\n"
         f"# {name}\n"
     )
@@ -93,8 +92,16 @@ def test_json_output():
     rc, out, err = _run_dashboard(["--json"])
     assert rc == 0, f"Expected exit 0, got {rc}\n{err}"
     data = json.loads(out)
-    for field in ["repo", "skills", "contracts", "contract_coverage",
-                  "tests", "latest_runs", "risks", "next_action"]:
+    for field in [
+        "repo",
+        "skills",
+        "contracts",
+        "contract_coverage",
+        "tests",
+        "latest_runs",
+        "risks",
+        "next_action",
+    ]:
         assert field in data, f"Missing field '{field}' in JSON\n{out}"
     assert isinstance(data["skills"], int)
     assert isinstance(data["contracts"], int)
@@ -113,10 +120,13 @@ def test_contract_count():
     rc, out, _ = _run_dashboard(["--json"])
     assert rc == 0
     data = json.loads(out)
-    assert data["contracts"] > 0, f"Expected positive contract count, got {data['contracts']}"
+    assert data["contracts"] > 0, (
+        f"Expected positive contract count, got {data['contracts']}"
+    )
     assert data["skills"] > 0, f"Expected positive skill count, got {data['skills']}"
-    assert data["contracts"] <= data["skills"], \
+    assert data["contracts"] <= data["skills"], (
         f"Contracts ({data['contracts']}) should not exceed skills ({data['skills']})"
+    )
 
 
 def test_latest_runs():
@@ -173,7 +183,9 @@ def test_minimal_repo():
         skills = repo / "skills"
         skills.mkdir()
         (skills / "1-test-skill").mkdir()
-        (skills / "1-test-skill" / "SKILL.md").write_text("---\\nname: test\\n---\\n# Test\\n")
+        (skills / "1-test-skill" / "SKILL.md").write_text(
+            "---\\nname: test\\n---\\n# Test\\n"
+        )
 
         rc, out, err = _run_dashboard(["--repo", str(repo)])
         assert rc == 0, f"Expected exit 0 for minimal repo, got {rc}\n{err}"
@@ -226,9 +238,7 @@ def test_latest_runs_skips_loose_files():
         _make_run(repo, "2026-06-13_2200_xxx", mtime_offset=10)
         # Parasitic loose files: README + a routing-style note.
         (repo / "docs" / "runs" / "README.md").write_text("# runs")
-        (repo / "docs" / "runs" / "routing-fix-verification.md").write_text(
-            "# routing"
-        )
+        (repo / "docs" / "runs" / "routing-fix-verification.md").write_text("# routing")
 
         latest = mod.get_latest_runs(repo, limit=10)
         ids = [r["id"] for r in latest]
@@ -388,7 +398,11 @@ def test_get_open_risks_parses_all_tables_and_prioritizes_severity():
         risks = mod.get_open_risks(repo)
 
         assert [r["id"] for r in risks] == [
-            "TER-001", "SYS-POST-002", "GMA-003", "DUP-001", "QOA-005"
+            "TER-001",
+            "SYS-POST-002",
+            "GMA-003",
+            "DUP-001",
+            "QOA-005",
         ]
         assert risks[0]["severity"] == "P1"
         assert risks[1]["status"] == "Open — verified"
@@ -398,6 +412,7 @@ def test_get_open_risks_parses_all_tables_and_prioritizes_severity():
 if __name__ == "__main__":
     try:
         import pytest
+
         sys.exit(pytest.main([__file__, "-q"]))
     except ImportError:
         passed = failed = 0

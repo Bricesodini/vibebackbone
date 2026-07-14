@@ -77,6 +77,7 @@ def _run(run_id: str, runs_dir: Path, extra_args=None):
 # Positive tests
 # ---------------------------------------------------------------------------
 
+
 def test_rapide_complete():
     with tempfile.TemporaryDirectory() as tmp:
         d = Path(tmp) / "2026-01-01_1000_rapide"
@@ -169,6 +170,7 @@ def test_rapide_minimal():
 # ---------------------------------------------------------------------------
 # Negative tests
 # ---------------------------------------------------------------------------
+
 
 def test_missing_closeout():
     """RAPIDE run missing 07_CLOSEOUT → FAIL."""
@@ -311,6 +313,7 @@ def test_invalid_voie():
 # Dogfood: PR #3 run must pass its own check
 # ---------------------------------------------------------------------------
 
+
 def test_pr3_run_passes():
     """The PR #3 run artifact set must satisfy the closure invariant."""
     rc, out, _ = _run(
@@ -320,9 +323,11 @@ def test_pr3_run_passes():
     assert rc == 0, f"PR #3 run should pass the loop-closure check\n{out}"
     assert "PASS" in out
 
+
 # ---------------------------------------------------------------------------
 # --strict mode (VBB COMPLETE gate semantics)
 # ---------------------------------------------------------------------------
+
 
 def test_strict_fail_returns_exit_2():
     """--strict on a FAIL run_id → exit 2 (GATE_BLOCKED) + blocking msg on stderr."""
@@ -336,8 +341,9 @@ def test_strict_fail_returns_exit_2():
         rc, out, err = _run(rid, Path(tmp), extra_args=["--strict"])
         assert rc == 2, f"Expected exit 2 (GATE_BLOCKED), got {rc}\nstderr:\n{err}"
         assert "GATE FAILED" in err, f"Expected GATE FAILED on stderr\nstderr:\n{err}"
-        assert "FINAL_STATUS=COMPLETE is not allowed" in err, \
+        assert "FINAL_STATUS=COMPLETE is not allowed" in err, (
             f"Expected explicit COMPLETE-forbidden message\nstderr:\n{err}"
+        )
         assert rid in err, f"Expected run_id in blocking message\nstderr:\n{err}"
 
 
@@ -351,13 +357,18 @@ def test_strict_no_run_id_returns_exit_64():
         # Ensure VBB_RUN_ID is unset for this test
         env = {k: v for k, v in __import__("os").environ.items() if k != "VBB_RUN_ID"}
         result = subprocess.run(
-            cmd, capture_output=True, text=True, env=env,
+            cmd,
+            capture_output=True,
+            text=True,
+            env=env,
         )
-        assert result.returncode == 64, \
+        assert result.returncode == 64, (
             f"Expected exit 64 (USAGE_ERROR), got {result.returncode}\nstderr:\n{result.stderr}"
+        )
         assert "GATE FAILED" in result.stderr
-        assert "--run_id required" in result.stderr, \
+        assert "--run_id required" in result.stderr, (
             f"Expected explicit 'required' message\nstderr:\n{result.stderr}"
+        )
 
 
 def test_strict_pass_returns_exit_0():
@@ -369,11 +380,14 @@ def test_strict_pass_returns_exit_0():
         for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
             _make_artifact(d / f"{phase}.md", rid, phase, "RAPIDE")
         rc, out, err = _run(rid, Path(tmp), extra_args=["--strict"])
-        assert rc == 0, f"Expected exit 0 on PASS, got {rc}\nstdout:\n{out}\nstderr:\n{err}"
+        assert rc == 0, (
+            f"Expected exit 0 on PASS, got {rc}\nstdout:\n{out}\nstderr:\n{err}"
+        )
         assert "PASS" in out
         # On PASS, the strict gate does NOT emit a blocking message
-        assert "GATE FAILED" not in err, \
+        assert "GATE FAILED" not in err, (
             f"Strict PASS should be silent on stderr\nstderr:\n{err}"
+        )
 
 
 def test_default_mode_retrocompatible_exit_codes():
@@ -386,8 +400,9 @@ def test_default_mode_retrocompatible_exit_codes():
         for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
             _make_artifact(d_fail / f"{phase}.md", rid_fail, phase, "STRUCTUREE")
         rc_fail, out_fail, _ = _run(rid_fail, Path(tmp))  # no extra_args
-        assert rc_fail == 1, \
+        assert rc_fail == 1, (
             f"Default mode FAIL should still be exit 1, got {rc_fail}\n{out_fail}"
+        )
 
         # PASS case: complete RAPIDE
         d_pass = Path(tmp) / "2026-01-01_1000_default-pass"
@@ -396,8 +411,9 @@ def test_default_mode_retrocompatible_exit_codes():
         for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
             _make_artifact(d_pass / f"{phase}.md", rid_pass, phase, "RAPIDE")
         rc_pass, out_pass, _ = _run(rid_pass, Path(tmp))
-        assert rc_pass == 0, \
+        assert rc_pass == 0, (
             f"Default mode PASS should still be exit 0, got {rc_pass}\n{out_pass}"
+        )
 
 
 # --- Direct execution fallback ---
@@ -405,6 +421,7 @@ def test_default_mode_retrocompatible_exit_codes():
 if __name__ == "__main__":
     try:
         import pytest
+
         sys.exit(pytest.main([__file__, "-q"]))
     except ImportError:
         passed = failed = 0

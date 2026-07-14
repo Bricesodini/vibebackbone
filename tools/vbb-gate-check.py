@@ -85,17 +85,13 @@ MODE_TRANSITION_KEYWORDS = (
 )
 
 # Status accepted for an ADR
-ADR_ACCEPTED_RE = re.compile(r"\*\*Status\*\*\s*:\s*(ACCEPTED|SUPERSEDED)", re.IGNORECASE)
+ADR_ACCEPTED_RE = re.compile(
+    r"\*\*Status\*\*\s*:\s*(ACCEPTED|SUPERSEDED)", re.IGNORECASE
+)
 _POC_VERDICT_LABEL = r"(?:\*\*)?(?:Décision|Verdict|decision)(?:\*\*)?"
-POC_GO_RE = re.compile(
-    rf"{_POC_VERDICT_LABEL}\s*:\s*GO\b", re.IGNORECASE
-)
-POC_NOGO_RE = re.compile(
-    rf"{_POC_VERDICT_LABEL}\s*:\s*NO[\s\-]?GO\b", re.IGNORECASE
-)
-POC_PIVOT_RE = re.compile(
-    rf"{_POC_VERDICT_LABEL}\s*:\s*PIVOT\b", re.IGNORECASE
-)
+POC_GO_RE = re.compile(rf"{_POC_VERDICT_LABEL}\s*:\s*GO\b", re.IGNORECASE)
+POC_NOGO_RE = re.compile(rf"{_POC_VERDICT_LABEL}\s*:\s*NO[\s\-]?GO\b", re.IGNORECASE)
+POC_PIVOT_RE = re.compile(rf"{_POC_VERDICT_LABEL}\s*:\s*PIVOT\b", re.IGNORECASE)
 
 # Patterns to extract ADR reference from 01_INTAKE or 04_PLAN
 ADR_REF_RE = re.compile(
@@ -167,7 +163,7 @@ def _strip_clause(line: str) -> str:
         return line
     cue_start = m.start()
     # Find clause end AFTER the cue match
-    rest = line[m.end():]
+    rest = line[m.end() :]
     end_m = _NEGATION_CLAUSE_END_RE.search(rest)
     if end_m:
         clause_end = m.end() + end_m.end()
@@ -181,9 +177,7 @@ def _strip_clause(line: str) -> str:
     return ""
 
 
-_NEGATION_LINE_RE = re.compile(
-    r"(?im)^(?P<line>[^\n]*)$"
-)
+_NEGATION_LINE_RE = re.compile(r"(?im)^(?P<line>[^\n]*)$")
 
 
 def _strip_line_negations(text: str) -> str:
@@ -197,10 +191,10 @@ def _strip_line_negations(text: str) -> str:
 # Section headers that signal "this whole block is out of scope".
 # Match the header line and everything up to the next "##" or "###" header.
 _NEGATION_SECTION_RE = re.compile(
-    r"(?im)"                                   # case-insensitive, multi-line
+    r"(?im)"  # case-insensitive, multi-line
     r"^\s*#{2,4}\s*(?:Hors\s+p[ée]rim[èe]tre|Out\s+of\s+scope|"
     r"               Exclusions?|N/?A\s+scope)\s*$"
-    r"[^\n]*(?:\n(?!#{1,4}\s)[^\n]*)*"         # body lines until next # header
+    r"[^\n]*(?:\n(?!#{1,4}\s)[^\n]*)*"  # body lines until next # header
 )
 
 
@@ -308,7 +302,9 @@ def check_adr(run_dir: Path) -> Tuple[bool, Optional[Path], str]:
       3. keyword fallback — ONLY when no explicit reference exists at all
     """
     intake_text = _read(run_dir / "01_INTAKE.md")
-    plan_text = _read(run_dir / "04_PLAN.md") if (run_dir / "04_PLAN.md").exists() else ""
+    plan_text = (
+        _read(run_dir / "04_PLAN.md") if (run_dir / "04_PLAN.md").exists() else ""
+    )
     combined = intake_text + "\n" + plan_text
 
     ref = find_linked_adr_ref(combined) or find_adr_ref(combined)
@@ -441,12 +437,16 @@ def evaluate(run_dir: Path) -> Dict:
 def render_text(report: Dict) -> str:
     lines = []
     lines.append(f"Run: {report['run_dir']}")
-    lines.append(f"ADR_REQUIRED: {report['adr_required']} | "
-                 f"ADR_ACCEPTED: {report['adr_present_and_accepted']}"
-                 + (f" ({report['adr_path']})" if report.get('adr_path') else ""))
-    lines.append(f"POC_REQUIRED: {report['poc_required']} | "
-                 f"POC_GO: {report['poc_present_and_go']}"
-                 + (f" ({report['poc_path']})" if report.get('poc_path') else ""))
+    lines.append(
+        f"ADR_REQUIRED: {report['adr_required']} | "
+        f"ADR_ACCEPTED: {report['adr_present_and_accepted']}"
+        + (f" ({report['adr_path']})" if report.get("adr_path") else "")
+    )
+    lines.append(
+        f"POC_REQUIRED: {report['poc_required']} | "
+        f"POC_GO: {report['poc_present_and_go']}"
+        + (f" ({report['poc_path']})" if report.get("poc_path") else "")
+    )
     lines.append(f"CAN_CODE_START: {report['can_code_start']}")
     if report["blockers"]:
         lines.append("Blockers:")
@@ -460,7 +460,9 @@ def main(argv: Optional[List[str]] = None) -> int:
         prog="vbb-gate-check",
         description="ADR + POC + Integration Gate check (stdlib only).",
     )
-    parser.add_argument("run_dir", help="Path to run directory (containing 01_INTAKE.md)")
+    parser.add_argument(
+        "run_dir", help="Path to run directory (containing 01_INTAKE.md)"
+    )
     parser.add_argument("--json", action="store_true", help="Emit JSON only")
     args = parser.parse_args(argv)
 

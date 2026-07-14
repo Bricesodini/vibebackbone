@@ -34,7 +34,9 @@ def _init_repo(path: Path) -> None:
 
 
 def _stage_blob(repo: Path, path: str, content: bytes) -> None:
-    blob = _git(repo, "hash-object", "-w", "--stdin", input_bytes=content).decode().strip()
+    blob = (
+        _git(repo, "hash-object", "-w", "--stdin", input_bytes=content).decode().strip()
+    )
     _git(repo, "update-index", "--add", "--cacheinfo", f"100644,{blob},{path}")
 
 
