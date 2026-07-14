@@ -15,19 +15,16 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 ## Global verdict
 
-**`PARTIAL — reference-ready; bounded consumer, quality, and traceability gaps remain`**
+**`PARTIAL — reference-ready; bounded quality and traceability gaps remain`**
 
-The Core contracts, architecture checks, runtime executor, and four supported
-distribution adapters are operational. Credentials enforcement is the current
-security decision point; implementation remains gated by ADR + POC. Reopen
-`TER-001` only with an explicit ownership/generated-file design mandate.
+The Core contracts, architecture checks, runtime executor, consumer hook bundle,
+and four supported distribution adapters are operational. Remaining gaps are
+bounded quality and historical traceability items.
 
 ## Active risks
 
 | ID | Severity | Description | Status |
 |---|---|---|---|
-| SEC-CRED-005 | P1 | `vbb-project-init --install-hook` exits 0 while no consumer hook is installed: it copies only the deprecated redirect and omits its canonical installer/tool dependencies. | **OPEN — OWNERSHIP DECISION REQUIRED** — verified in a temporary consumer repo during SEC-02; fix jointly with TER-001 so copied/generated consumer files have an explicit update owner. |
-| TER-001 | P1 | Consumer refresh cannot safely reconcile customized project truth: skip mode does not refresh, while repeated overwrite replaces both the project file and its prior backup. | **OPEN — DEFERRED** — POC [`2026-07-14_0721_consumer-refresh-poc`](runs/2026-07-14_0721_consumer-refresh-poc/07_CLOSEOUT.md) is NO-GO; requires an ownership design. |
 | GMA-003 | P1 | Executor loader duplication and concentrated typing debt remain outside the correctness fix. | **MITIGATING** — correctness paths are directly covered; cleanup is deferred to a bounded code-quality run. |
 | SYS-POST-002 | P1 | A final external audit bypassed the canonical AUDIT artifact and FINAL_STATUS contract. | **OPEN / HISTORICAL** — commit `d0eab3c` cannot be retroactively rewritten; current runs follow the contract. |
 | QOA-006 | P2 | `docs/runs/routing-fix-verification.md` is a loose artifact outside a timestamped run directory. | **OPEN** — archive or reconstruct only after explicit approval. |
@@ -41,6 +38,20 @@ security decision point; implementation remains gated by ADR + POC. Reopen
 | QA-007 | LOW | The canon-change proposal template has not been exercised. | **OPEN** — validate on the next real canon change. |
 
 ## Latest evidence
+
+- Consumer hook ownership: [intent decomposition](audits/intent-decomp-20260714-1242.md),
+  [impact analysis](audits/impact-analysis-20260714-1242.md),
+  [ADR 0034](adr/0034-consumer-managed-runtime-assets.md), and
+  [POC 6/6](runs/2026-07-14_1242_consumer-managed-hook-bundle/POC.md), with
+  [critical-path test coverage](audits/test-coverage-20260714-1252.md).
+
+## Resolved by consumer hook ownership
+
+- `SEC-CRED-005`: the initializer now copies the complete canonical hook bundle,
+  installs both hooks, and returns non-zero on conflict or installer failure.
+- `TER-001` (ownership boundary): project documents are generated-once while
+  runtime hook assets use explicit VBB provenance and non-destructive refresh.
+  Document synchronization remains manual by design, not an open merge promise.
 
 - Credentials remediation design: [impact analysis](audits/impact-analysis-20260714-1150.md),
   [remediation plan](audits/security-remediation-20260714-1150.md), and

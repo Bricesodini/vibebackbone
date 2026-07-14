@@ -106,7 +106,7 @@ secret, runtime flag, persona), it stays in the distribution.
 ### Documentation requirement
 
 Every decision to **promote to Core** or **keep in distribution** must be
-recorded in the [Decisions log](#7-decisions-log) below. The log is the
+recorded in the [Decisions log](#8-decisions-log) below. The log is the
 audit trail for "why is X where it is".
 
 ## 6. Worked examples
@@ -139,13 +139,54 @@ The retired security proxy was Hermes-specific glue. ADR 0025 removes it rather
 than promoting it to Core because no runtime-neutral requirement or adoption
 evidence justifies that complexity. Its history remains available in git.
 
-## 7. Decisions log
+## 7. Consumer runtime bundle refresh
+
+The project initializer distinguishes two ownership classes (ADR-0034):
+
+- governance documents are project-owned and generated once; compare and merge
+  canon changes manually when the project chooses to adopt them;
+- the hook runtime bundle is VBB-managed through `.vbb/managed-files.json` and
+  can be refreshed only while its recorded assets remain unchanged.
+
+Non-destructive refresh checklist:
+
+1. Commit or stash all consumer work and inspect `.vbb/managed-files.json`.
+2. From the current VBB Core checkout, preview the operation:
+   `python3 tools/vbb-project-init.py --target-dir <consumer> --install-hook --overwrite-hook --dry-run`.
+3. Run the same command without `--dry-run`. Existing generated Git hooks need
+   `--overwrite-hook`; this never grants document or managed-asset overwrite.
+4. If an asset conflict is reported, diff it against Core and preserve the
+   consumer file. Use `--overwrite-managed` only after deciding that the local
+   customization must be discarded or adopted as VBB-owned.
+5. Ensure the VBB Python requirements declared in `.vbb/requirements.txt` are
+   available, run the installed pre-commit hook, then commit the manifest and
+   managed assets together.
+6. Review governance documents separately; never use the runtime refresh as a
+   document merge mechanism.
+
+Rollback is a normal Git revert of the bundle/manifest commit. Do not delete or
+rewrite project-owned governance files as part of that rollback.
+
+## 8. Decisions log
 
 This log records every explicit decision of the form **"X is Core"** or
 **"Y stays in distribution Z"**. Entries are dated and reference the change
 that triggered the decision.
 
 <!-- Add entries below as decisions are made -->
+
+### 2026-07-14 — Consumer managed hook assets (ADR-0034)
+**Decision**: keep the ownership and provenance mechanism in Core; no provider
+adapter owns or overrides it.
+**Trigger**: SEC-CRED-005 + TER-001 and explicit `Go` from Brice.
+**Reason**: project-owned versus VBB-managed file ownership, SHA-256 provenance,
+and local Git hook installation are generic contracts shared by Pi, OpenCode,
+Codex and Claude Code. Paths, personas and provider secrets are unaffected.
+**Impact**: the four distributions inherit the corrected project initializer.
+No file under `distributions/{pi,opencode,codex,claude}` changes. Existing
+consumer assets without a manifest require explicit adoption; project truth is
+never included in the managed bundle.
+**Author**: Codex (GO Brice)
 
 ### 2026-07-14 — Layered credentials enforcement (ADR-0033)
 **Decision**: keep in Core (aucune déclinaison distribution requise)
@@ -370,7 +411,7 @@ Distributions : aucune modification de code.
   |---|---|
   | VBB Core canon | repo root + `docs/` + `skills/` + `prompts/` + `tools/vbb-*.py` + `setup.sh` + `setup-lib.sh` + `core/setup.sh` + `distributions/` |
   | VBB Core ADR | `docs/adr/0001-0004` |
-  | VBB Core decision log | `docs/DISTRIBUTIONS.md` §7 |
+  | VBB Core decision log | `docs/DISTRIBUTIONS.md` §8 |
   | Distribution Hermes | `distributions/hermes/{install,verify,docs,proxy,bypass-lint}` |
   | Distribution Hermes ADR | `distributions/hermes/proxy/adr/0006-0012` |
   | Distribution Pi | `distributions/pi/{SYSTEM.md,overrides.template.json,README.md}` |
@@ -475,7 +516,7 @@ runtime ne change. TER-001 reste différé.
 
 **Author**: Codex, après GO Brice
 
-## 8. References
+## 9. References
 
 - `README.md` — entry point; "VBB Core vs Distributions" anchors the
   high-level distinction.
@@ -488,4 +529,4 @@ Supported runtime details live in each `distributions/<provider>/README.md`.
 ---
 
 *This file is canon. Changes are governed by AGENTS.md Critical Rule #12 and
-must be recorded in §7 above.*
+must be recorded in §8 above.*

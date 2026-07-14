@@ -10,10 +10,12 @@ Options:
     --target-dir DIR     Target project root (default: current directory)
     --project-name NAME  Project name used in CONTEXT.md (default: dir name)
     --mode DEV|PROD      Initial project mode (default: DEV)
-    --overwrite          Overwrite existing files (default: skip)
+    --overwrite          Overwrite project-owned documents (default: skip)
     --backup             Back up existing files before overwriting (.bak)
     --dry-run            Show what would be created/skipped without writing
     --install-hook       Install VBB pre-commit hook in target .git/hooks/
+    --overwrite-hook     Replace existing generated Git hooks
+    --overwrite-managed  Adopt/replace customized VBB-managed hook assets
 
 Files created in the target project (if absent):
     docs/PROJECT_MODE.md
@@ -25,16 +27,22 @@ Files created in the target project (if absent):
     docs/adr/README.md
     docs/templates/*.md.template  (7 phase templates, copied from VBB)
     .gitignore                 (SESSION.md entries appended if absent)
-    scripts/install-vbb-pre-commit.sh  (copied from VBB; --install-hook runs it)
+    .vbb/managed-files.json  (created only with --install-hook)
+    scripts/hooks/* and tools required by the canonical hook (VBB-managed)
 
 Idempotent: existing files are reported as SKIP unless --overwrite is passed.
-Non-destructive: --install-hook checks for existing .git/hooks/pre-commit
-before installing; aborts if one already exists unless --overwrite is passed.
+Non-destructive: --install-hook refuses existing Git hooks unless
+--overwrite-hook is passed, and refuses customized managed assets unless
+--overwrite-managed is passed. Project documents are never included in the
+managed runtime bundle.
 """
 
-import sys
 import argparse
+import hashlib
+import json
 import shutil
+import subprocess
+import sys
 from datetime import date
 from pathlib import Path
 from typing import List, Tuple
@@ -42,7 +50,17 @@ from typing import List, Tuple
 VBB_ROOT = Path(__file__).parent.parent.resolve()
 TEMPLATES_SRC = VBB_ROOT / "docs" / "templates"
 RUNS_README_SRC = VBB_ROOT / "docs" / "runs" / "README.md"
-HOOK_SCRIPT_SRC = VBB_ROOT / "scripts" / "install-vbb-pre-commit.sh"
+HOOK_INSTALLER_REL = "scripts/install-vbb-hooks.sh"
+MANAGED_MANIFEST_REL = ".vbb/managed-files.json"
+MANAGED_HOOK_BUNDLE = {
+    "scripts/install-vbb-hooks.sh": "scripts/install-vbb-hooks.sh",
+    "scripts/hooks/pre-commit-framework-gate": "scripts/hooks/pre-commit-framework-gate",
+    "scripts/hooks/commit-msg-framework-gate": "scripts/hooks/commit-msg-framework-gate",
+    "tools/vbb-credentials-gate.py": "tools/vbb-credentials-gate.py",
+    "tools/vbb-loop-closure-check.py": "tools/vbb-loop-closure-check.py",
+    "tools/vbb_run_resolution.py": "tools/vbb_run_resolution.py",
+    "requirements.txt": ".vbb/requirements.txt",
+}
 
 GITIGNORE_ENTRIES = [
     "# VBB — local session state (not versioned)",
@@ -306,50 +324,114 @@ def _update_gitignore(target_dir: Path, dry_run: bool) -> Tuple[str, bool]:
 # Pre-commit hook helper
 # ---------------------------------------------------------------------------
 
-def _install_hook(target_dir: Path, overwrite: bool, dry_run: bool) -> str:
-    """Copy install-vbb-pre-commit.sh and optionally run it.
+def _sha256(path: Path) -> str:
+    """Return a content hash without exposing file contents."""
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
-    Returns action label.
-    """
-    import subprocess
 
-    # Copy the script
-    dest_scripts = target_dir / "scripts"
-    hook_dest = dest_scripts / "install-vbb-pre-commit.sh"
+def _load_managed_manifest(path: Path, force: bool) -> dict:
+    if not path.exists():
+        return {"schema_version": 1, "files": {}}
+    try:
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        if manifest.get("schema_version") != 1 or not isinstance(manifest.get("files"), dict):
+            raise ValueError("unsupported schema")
+        return manifest
+    except (OSError, json.JSONDecodeError, ValueError) as exc:
+        if force:
+            return {"schema_version": 1, "files": {}}
+        raise RuntimeError(f"invalid managed manifest {MANAGED_MANIFEST_REL}: {exc}") from exc
 
-    if not HOOK_SCRIPT_SRC.exists():
-        return "SKIP (scripts/install-vbb-pre-commit.sh not found in VBB distribution)"
 
-    if not dry_run:
-        dest_scripts.mkdir(parents=True, exist_ok=True)
-        if not hook_dest.exists() or overwrite:
-            shutil.copy2(HOOK_SCRIPT_SRC, hook_dest)
-            hook_dest.chmod(0o755)
+def _sync_managed_hook_bundle(target_dir: Path, force: bool, dry_run: bool) -> str:
+    """Preflight then copy the VBB-owned hook runtime bundle."""
+    manifest_path = target_dir / MANAGED_MANIFEST_REL
+    manifest = _load_managed_manifest(manifest_path, force)
+    recorded_files = manifest["files"]
+    planned = []
 
-    # Check existing hook
-    git_hook = target_dir / ".git" / "hooks" / "pre-commit"
-    if git_hook.exists() and not overwrite:
-        return (
-            "SKIP (install-hook: .git/hooks/pre-commit already exists; "
-            "run with --overwrite to replace)"
-        )
+    for source_rel, target_rel in MANAGED_HOOK_BUNDLE.items():
+        source = VBB_ROOT / source_rel
+        dest = target_dir / target_rel
+        if not source.is_file():
+            raise RuntimeError(f"managed source missing: {source_rel}")
+        if dest.exists() and not force:
+            recorded_hash = recorded_files.get(target_rel)
+            if recorded_hash is None:
+                raise RuntimeError(
+                    f"unmanaged target exists: {target_rel}; "
+                    "use --overwrite-managed to adopt it"
+                )
+            if _sha256(dest) != recorded_hash:
+                raise RuntimeError(
+                    f"managed target was customized: {target_rel}; "
+                    "preserved (use --overwrite-managed to replace)"
+                )
+        planned.append((source, dest, target_rel))
 
     if dry_run:
-        return "DRY-RUN (would run: bash scripts/install-vbb-pre-commit.sh)"
+        return f"DRY-RUN (would sync {len(planned)} managed hook assets)"
 
-    try:
-        result = subprocess.run(
-            ["bash", str(hook_dest)],
-            cwd=str(target_dir),
-            capture_output=True,
-            text=True,
+    # Preserve provenance for any asset retired from the current bundle. The
+    # initializer does not delete consumer files implicitly.
+    new_hashes = dict(recorded_files)
+    for source, dest, target_rel in planned:
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, dest)
+        new_hashes[target_rel] = _sha256(dest)
+
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_manifest = manifest_path.with_suffix(".json.tmp")
+    temporary_manifest.write_text(
+        json.dumps(
+            {"schema_version": 1, "owner": "vibebackbone", "files": new_hashes},
+            indent=2,
+            sort_keys=True,
         )
-        if result.returncode == 0:
-            return f"DONE (pre-commit hook installed)"
-        else:
-            return f"ERROR installing hook: {result.stderr.strip()}"
-    except Exception as exc:
-        return f"ERROR: {exc}"
+        + "\n",
+        encoding="utf-8",
+    )
+    temporary_manifest.replace(manifest_path)
+    return f"DONE ({len(planned)} managed hook assets synced)"
+
+
+def _install_hook(
+    target_dir: Path,
+    overwrite_hook: bool,
+    overwrite_managed: bool,
+    dry_run: bool,
+) -> str:
+    """Synchronize the managed bundle and run the canonical hook installer."""
+    existing_hooks = [
+        path
+        for path in (
+            target_dir / ".git" / "hooks" / "pre-commit",
+            target_dir / ".git" / "hooks" / "commit-msg",
+        )
+        if path.exists()
+    ]
+    if existing_hooks and not overwrite_hook:
+        names = ", ".join(path.name for path in existing_hooks)
+        raise RuntimeError(
+            f"existing Git hook(s): {names}; preserved "
+            "(use --overwrite-hook to replace)"
+        )
+
+    bundle_label = _sync_managed_hook_bundle(target_dir, overwrite_managed, dry_run)
+    if dry_run:
+        return f"{bundle_label}; would run: bash {HOOK_INSTALLER_REL}"
+
+    installer = target_dir / HOOK_INSTALLER_REL
+    result = subprocess.run(
+        ["bash", str(installer)],
+        cwd=str(target_dir),
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        detail = result.stderr.strip() or result.stdout.strip() or f"exit {result.returncode}"
+        raise RuntimeError(f"canonical hook installer failed: {detail}")
+    return f"DONE (managed bundle synced; canonical hooks installed)"
 
 
 # ---------------------------------------------------------------------------
@@ -364,6 +446,8 @@ def init_project(
     backup: bool,
     dry_run: bool,
     install_hook: bool,
+    overwrite_hook: bool,
+    overwrite_managed: bool,
 ) -> Tuple[List[str], List[str], List[str]]:
     """Bootstrap VBB governance files in target_dir.
 
@@ -442,11 +526,20 @@ def init_project(
 
     # --- Pre-commit hook (optional) ---
     if install_hook:
-        hook_label = _install_hook(target_dir, overwrite, dry_run)
-        if "SKIP" in hook_label or "ERROR" in hook_label:
-            skipped.append(f"pre-commit hook: {hook_label}")
+        try:
+            hook_label = _install_hook(
+                target_dir,
+                overwrite_hook,
+                overwrite_managed,
+                dry_run,
+            )
+        except (OSError, RuntimeError) as exc:
+            errors.append(f"Cannot install managed hooks: {exc}")
         else:
-            created.append(f"pre-commit hook: {hook_label}")
+            if "SKIP" in hook_label:
+                skipped.append(f"pre-commit hook: {hook_label}")
+            else:
+                created.append(f"pre-commit hook: {hook_label}")
 
     return created, skipped, errors
 
@@ -497,7 +590,17 @@ def main() -> int:
     parser.add_argument(
         "--install-hook",
         action="store_true",
-        help="Install VBB pre-commit hook in .git/hooks/ (non-destructive)",
+        help="Install the VBB-managed canonical hooks (non-destructive)",
+    )
+    parser.add_argument(
+        "--overwrite-hook",
+        action="store_true",
+        help="Replace existing generated Git hooks",
+    )
+    parser.add_argument(
+        "--overwrite-managed",
+        action="store_true",
+        help="Adopt or replace customized VBB-managed hook assets",
     )
     args = parser.parse_args()
 
@@ -521,6 +624,8 @@ def main() -> int:
         backup=args.backup,
         dry_run=args.dry_run,
         install_hook=args.install_hook,
+        overwrite_hook=args.overwrite_hook,
+        overwrite_managed=args.overwrite_managed,
     )
 
     prefix = "[dry-run] " if args.dry_run else ""
@@ -545,8 +650,8 @@ def main() -> int:
         print(f"  Next: fill in docs/CONTEXT.md with your project details.")
         if not args.install_hook:
             print(
-                f"  Tip : install the pre-commit hook with:\n"
-                f"        bash scripts/install-vbb-pre-commit.sh"
+                f"  Tip : rerun this initializer with --install-hook to install "
+                f"the managed canonical hooks."
             )
 
     return 1 if errors else 0

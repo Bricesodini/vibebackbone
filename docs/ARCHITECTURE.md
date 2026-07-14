@@ -148,6 +148,7 @@ role: Local validation, security gates, dry-run runtime, route lookup and dashbo
 responsibilities:
   - Lint skill contracts
   - Prevent newly added credential-like content from entering commits and CI
+  - Bootstrap project-owned governance once and refresh VBB-managed hook assets only with verified provenance
   - Execute contract dry-runs
   - Route queries to skills
   - Report repository status
@@ -184,6 +185,7 @@ tests:
   - tests/test_gate_check_adr_linkage.py
   - tests/test_credentials_gate.py
   - tests/test_install_vbb_hooks.sh
+  - tests/test_project_init.py
 risks:
   - id: TOOL-001
     level: P2
@@ -194,6 +196,9 @@ risks:
   - id: TOOL-003
     level: P1
     note: Credentials enforcement is shared by the staged hook and commit-range CI through tools/vbb-credentials-gate.py (ADR-0033); detection is differential and intentionally not exhaustive.
+  - id: TOOL-004
+    level: P2
+    note: Consumer hook assets use a SHA-256 provenance manifest and full-bundle preflight (ADR-0034); project-owned documents remain generated-once and are never part of managed refresh.
 ```
 
 ## Bloc: Architecture Source

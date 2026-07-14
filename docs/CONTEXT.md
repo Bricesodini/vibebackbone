@@ -25,21 +25,20 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Release posture**: v1.0 hardening complete; bounded maintenance continues
 - **Active run**: none
 - **Latest completed run**:
-  [`2026-07-14_1150_credentials-enforcement`](runs/2026-07-14_1150_credentials-enforcement/07_CLOSEOUT.md)
+  [`2026-07-14_1242_consumer-managed-hook-bundle`](runs/2026-07-14_1242_consumer-managed-hook-bundle/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: decide the consumer ownership/copy-update model before fixing
-  `vbb-project-init --install-hook` (SEC-CRED-005 + TER-001)
+- **Next action**: address `GMA-003` only through a dedicated executor cleanup
+  run; keep document resync manual under ADR 0034
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
 - **Quality**: [CONVENTIONS.md](CONVENTIONS.md), pillars P1–P5 and P.R1–P.R8
 
 ## Current priorities
 
-1. Keep SEC-CRED-005 and TER-001 deferred until a dedicated consumer
-   ownership/generated-file design is approved.
-2. Observe the first remote credentials workflow after SEC-02 is pushed.
+1. Keep managed consumer assets and project-owned documents strictly separate.
+2. Address executor duplication only in a dedicated, bounded quality run.
 3. Decide whether the loose routing-verification note should be archived or
    reconstructed only if its placement becomes operationally relevant.
 

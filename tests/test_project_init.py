@@ -22,14 +22,24 @@ Usage:
     python3 tests/test_project_init.py
 """
 
-import sys
+import json
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parent.parent.resolve()
 TOOL = REPO_ROOT / "tools" / "vbb-project-init.py"
 TEMPLATES_SRC = REPO_ROOT / "docs" / "templates"
+MANAGED_BUNDLE_TARGETS = (
+    "scripts/install-vbb-hooks.sh",
+    "scripts/hooks/pre-commit-framework-gate",
+    "scripts/hooks/commit-msg-framework-gate",
+    "tools/vbb-credentials-gate.py",
+    "tools/vbb-loop-closure-check.py",
+    "tools/vbb_run_resolution.py",
+    ".vbb/requirements.txt",
+)
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -44,6 +54,10 @@ def _run(args: list, cwd=None):
         cwd=str(cwd) if cwd else None,
     )
     return result.returncode, result.stdout, result.stderr
+
+
+def _git_init(path: Path):
+    subprocess.run(["git", "init", "-q", str(path)], check=True)
 
 
 # ---------------------------------------------------------------------------
@@ -129,6 +143,154 @@ def test_architecture_initialized_as_fresh_state():
         assert "Project Core" in arch
         assert "global-implementation-readiness" not in arch
         assert "source: ARCHITECTURE.md" in relations
+
+
+def test_install_hook_copies_complete_managed_bundle():
+    """--install-hook installs runnable canonical hooks and their sources."""
+    with tempfile.TemporaryDirectory() as tmp:
+        target = Path(tmp)
+        _git_init(target)
+
+        rc, out, err = _run(["--target-dir", tmp, "--install-hook"])
+        assert rc == 0, f"Expected exit 0\n{out}\n{err}"
+        for rel in MANAGED_BUNDLE_TARGETS:
+            assert (target / rel).is_file(), f"Missing managed target: {rel}"
+        assert (target / ".git/hooks/pre-commit").is_file()
+        assert (target / ".git/hooks/commit-msg").is_file()
+
+        manifest = json.loads((target / ".vbb/managed-files.json").read_text())
+        assert manifest["schema_version"] == 1
+        assert manifest["owner"] == "vibebackbone"
+        assert set(manifest["files"]) == set(MANAGED_BUNDLE_TARGETS)
+
+        readme = target / "README.md"
+        readme.write_text("consumer smoke test\n")
+        subprocess.run(["git", "-C", tmp, "add", "README.md"], check=True)
+        hook = subprocess.run(
+            [str(target / ".git/hooks/pre-commit")],
+            cwd=tmp,
+            capture_output=True,
+            text=True,
+        )
+        assert hook.returncode == 0, f"Hook failed\n{hook.stdout}\n{hook.stderr}"
+
+
+def test_managed_bundle_refresh_is_idempotent():
+    """An unchanged managed bundle can be refreshed with explicit hook replacement."""
+    with tempfile.TemporaryDirectory() as tmp:
+        target = Path(tmp)
+        _git_init(target)
+        assert _run(["--target-dir", tmp, "--install-hook"])[0] == 0
+        manifest = target / ".vbb/managed-files.json"
+        before = manifest.read_text()
+        context = target / "docs/CONTEXT.md"
+        context.write_text("PROJECT_TRUTH_SENTINEL\n")
+
+        rc, out, err = _run(
+            ["--target-dir", tmp, "--install-hook", "--overwrite-hook"]
+        )
+        assert rc == 0, f"Expected exit 0\n{out}\n{err}"
+        assert manifest.read_text() == before
+        assert context.read_text() == "PROJECT_TRUTH_SENTINEL\n"
+
+
+def test_customized_managed_asset_blocks_without_partial_copy():
+    """A local customization is preserved and stops the whole bundle preflight."""
+    with tempfile.TemporaryDirectory() as tmp:
+        target = Path(tmp)
+        _git_init(target)
+        assert _run(["--target-dir", tmp, "--install-hook"])[0] == 0
+        custom = target / "scripts/hooks/pre-commit-framework-gate"
+        custom.write_text(custom.read_text() + "\n# LOCAL_SENTINEL\n")
+        untouched = target / "tools/vbb-credentials-gate.py"
+        untouched_before = untouched.read_bytes()
+
+        rc, out, err = _run(
+            ["--target-dir", tmp, "--install-hook", "--overwrite-hook"]
+        )
+        assert rc == 1, f"Expected exit 1\n{out}\n{err}"
+        assert "was customized" in err
+        assert "LOCAL_SENTINEL" in custom.read_text()
+        assert untouched.read_bytes() == untouched_before
+
+
+def test_overwrite_managed_is_separate_from_hook_overwrite():
+    """Replacing managed assets requires its own explicit flag."""
+    with tempfile.TemporaryDirectory() as tmp:
+        target = Path(tmp)
+        _git_init(target)
+        assert _run(["--target-dir", tmp, "--install-hook"])[0] == 0
+        custom = target / "tools/vbb-credentials-gate.py"
+        custom.write_text("# LOCAL_SENTINEL\n")
+
+        rc, out, err = _run(
+            [
+                "--target-dir", tmp,
+                "--install-hook",
+                "--overwrite-hook",
+                "--overwrite-managed",
+            ]
+        )
+        assert rc == 0, f"Expected exit 0\n{out}\n{err}"
+        assert "LOCAL_SENTINEL" not in custom.read_text()
+
+
+def test_existing_foreign_hook_is_preserved_by_document_overwrite():
+    """--overwrite never grants permission to replace Git hooks."""
+    with tempfile.TemporaryDirectory() as tmp:
+        target = Path(tmp)
+        _git_init(target)
+        hook = target / ".git/hooks/pre-commit"
+        hook.write_text("#!/bin/sh\necho foreign\n")
+
+        rc, out, err = _run(
+            ["--target-dir", tmp, "--overwrite", "--install-hook"]
+        )
+        assert rc == 1, f"Expected exit 1\n{out}\n{err}"
+        assert hook.read_text() == "#!/bin/sh\necho foreign\n"
+        assert "--overwrite-hook" in err
+        assert not (target / ".vbb/managed-files.json").exists()
+
+
+def test_unmanaged_bundle_target_requires_explicit_adoption():
+    """A pre-existing runtime source is not silently claimed by VBB."""
+    with tempfile.TemporaryDirectory() as tmp:
+        target = Path(tmp)
+        _git_init(target)
+        unmanaged = target / "tools/vbb-credentials-gate.py"
+        unmanaged.parent.mkdir()
+        unmanaged.write_text("# PROJECT_OWNED_SENTINEL\n")
+
+        rc, out, err = _run(["--target-dir", tmp, "--install-hook"])
+        assert rc == 1, f"Expected exit 1\n{out}\n{err}"
+        assert "unmanaged target exists" in err
+        assert "--overwrite-managed" in err
+        assert unmanaged.read_text() == "# PROJECT_OWNED_SENTINEL\n"
+        assert not (target / ".vbb/managed-files.json").exists()
+
+
+def test_install_hook_dry_run_writes_no_bundle_or_hooks():
+    """Hook dry-run reports the bundle plan without writing runtime files."""
+    with tempfile.TemporaryDirectory() as tmp:
+        target = Path(tmp)
+        _git_init(target)
+
+        rc, out, err = _run(
+            ["--target-dir", tmp, "--install-hook", "--dry-run"]
+        )
+        assert rc == 0, f"Expected exit 0\n{out}\n{err}"
+        assert "would sync" in out
+        assert not (target / ".vbb").exists()
+        assert not (target / ".git/hooks/pre-commit").exists()
+
+
+def test_install_hook_failure_is_an_error():
+    """A non-Git target cannot report hook installation as a successful skip."""
+    with tempfile.TemporaryDirectory() as tmp:
+        rc, out, err = _run(["--target-dir", tmp, "--install-hook"])
+        assert rc == 1, f"Expected exit 1\n{out}\n{err}"
+        assert "Cannot install managed hooks" in err
+        assert "governance bootstrapped" not in out
 
 
 # ---------------------------------------------------------------------------

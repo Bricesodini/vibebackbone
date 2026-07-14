@@ -4,7 +4,8 @@ description: |
   Bootstraps vibebackbone governance in a target project that has none.
   Creates docs/{PROJECT_MODE,CONTEXT,AUDIT_STATUS,INDEX}.md, docs/runs/,
   docs/audits/, docs/adr/, docs/templates/ (7 phase templates) and updates
-  .gitignore. Idempotent — skips files that already exist unless --overwrite.
+  .gitignore. Optionally installs a VBB-managed canonical hook bundle with
+  provenance checks. Project-owned documents are generated once by default.
 version: "1.0"
 phase: transverse
 token_budget: low
@@ -31,7 +32,9 @@ You do NOT force overwrite without explicit confirmation.
 Absolute rules:
 
 - Idempotent: skip if file already exists (unless explicit `--overwrite`).
-- Non-destructive: if `.git/hooks/pre-commit` exists, do not overwrite without `--overwrite`.
+- Non-destructive: `--overwrite` applies only to project-owned documents.
+- Existing Git hooks require `--overwrite-hook`; customized managed assets
+  require the separate `--overwrite-managed` flag.
 - Evidence required: clearly report files created, skipped, or in error.
 
 ## INPUT CONTRACT
@@ -45,6 +48,8 @@ Absolute rules:
 - [ ] Project name (to populate `docs/CONTEXT.md`)
 - [ ] Initial mode (`DEV` or `PROD`, default: `DEV`)
 - [ ] `--overwrite` flag to force rewriting existing files
+- [ ] `--install-hook` to install the managed canonical hook bundle
+- [ ] `--overwrite-hook` / `--overwrite-managed` only after explicit approval
 - [ ] `--dry-run` flag to preview without writing
 
 ## BLOCKING CONDITIONS
@@ -68,7 +73,8 @@ Absolute rules:
 - creation of `docs/adr/README.md`
 - copy of `docs/templates/*.md.template` (7 phase templates)
 - update of `.gitignore` (SESSION.md entries)
-- optional copy of `scripts/install-vbb-pre-commit.sh`
+- optional managed bundle under `scripts/`, `tools/`, and `.vbb/`, followed by
+  canonical pre-commit and commit-msg hook installation
 
 ### Excluded
 
@@ -99,11 +105,12 @@ Absolute rules:
    - Project description
    - Main stack
    - Expected operating mode
-8. Report that the pre-commit hook is available:
+8. Report that the canonical hooks can be installed from the VBB checkout:
    ```bash
-   bash scripts/install-vbb-pre-commit.sh
+   python3 tools/vbb-project-init.py --target-dir <path> --install-hook
    ```
-   (or use `--install-hook` to do it automatically)
+   On refresh, never combine permissions implicitly: `--overwrite-hook` replaces
+   generated Git hooks; `--overwrite-managed` adopts customized runtime assets.
 9. Produce the `07_CLOSEOUT.md` of the initialization run.
 
 ## OUTPUT CONTRACT

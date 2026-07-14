@@ -4,6 +4,7 @@ Journal minimal des activités. Obligatoire pour RAPIDE-ZERO et RAPIDE-MINIMAL.
 
 | Date | Mode | Résumé | Fichiers | Commit |
 |------|------|--------|----------|--------|
+| 2026-07-14 | STRUCTUREE | **Consumer managed hook bundle terminé** : ADR-0034 sépare documents project-owned et assets runtime VBB-managed ; manifeste SHA-256, preflight global, permissions document/hook/asset distinctes, erreurs installateur fail-closed. POC 6/6, 19 tests project-init, P.R2 PASS (178 passed, 1 skipped ; CI locale 9/9). SEC-CRED-005 et frontière TER-001 fermés. | tools/vbb-project-init.py, tests/test_project_init.py, skills/t-vbb-project-context-init/SKILL.md, docs/{ARCHITECTURE,RELATIONS,DISTRIBUTIONS,AUDIT_STATUS,CONTEXT}.md, docs/adr/0034-*.md, docs/runs/2026-07-14_1242_consumer-managed-hook-bundle/ | PENDING |
 | 2026-06-11 | RAPIDE-ZERO | Run 07 : Voie RAPIDE allégée (ZERO/MINIMAL/STANDARD) | GUIDE.md, AGENTS.md, docs/ACTIVITY_LOG.md, prompts/0-p-vbb-zero-friction.md, tools/vbb-loop-closure-check.py, tests/ | PENDING |
 | 2026-06-11 | STRUCTUREE | Run 08 : setup.sh hardening (symlinks relatifs, ln -sfn, relpath, _is_vbb_symlink) | setup.sh | PENDING |
 | 2026-06-11 | STRUCTUREE | Run 09A : Contractualisation progressive t1 (+6 contracts, 28/59) | skills/* | PENDING |
