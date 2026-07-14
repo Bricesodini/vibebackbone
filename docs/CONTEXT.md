@@ -21,22 +21,24 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 ## Active state
 
-- **Route**: STRUCTURED
+- **Route**: AUDIT
 - **Release posture**: v1.0 hardening complete; bounded maintenance continues
 - **Active run**: none
 - **Latest completed run**:
-  [`2026-07-14_0830_weakpoint-responsibility-routing`](runs/2026-07-14_0830_weakpoint-responsibility-routing/07_CLOSEOUT.md)
+  [`2026-07-14_1040_credentials-enforcement-audit`](runs/2026-07-14_1040_credentials-enforcement-audit/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: no mandatory run; reopen TER-001 only with an ownership-design mandate
+- **Next action**: validate or reject the layered Core credentials scanner
+  recommendation before opening the SEC-02 implementation design run
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
 - **Quality**: [CONVENTIONS.md](CONVENTIONS.md), pillars P1–P5 and P.R1–P.R8
 
 ## Current priorities
 
-1. Keep credentials enforcement on a separate AUDIT route; do not claim P0-5-D closed.
+1. Decide whether SEC-02 may design one Core credentials scanner shared by the
+   local hook and CI; do not claim P0-5-D closed before implementation evidence.
 2. Keep TER-001 deferred unless a dedicated ownership/generated-file design is approved.
 3. Decide whether the loose routing-verification note should be archived or
    reconstructed only if its placement becomes operationally relevant.

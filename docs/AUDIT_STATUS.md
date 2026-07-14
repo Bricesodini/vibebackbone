@@ -18,13 +18,16 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 **`PARTIAL — reference-ready; bounded consumer, quality, and traceability gaps remain`**
 
 The Core contracts, architecture checks, runtime executor, and four supported
-distribution adapters are operational. No remediation run is mandatory. Reopen
+distribution adapters are operational. Credentials enforcement is the current
+security decision point; implementation remains gated by ADR + POC. Reopen
 `TER-001` only with an explicit ownership/generated-file design mandate.
 
 ## Active risks
 
 | ID | Severity | Description | Status |
 |---|---|---|---|
+| SEC-CRED-001 | P1 | The canonical credentials prohibition has no automatic staged-content enforcement; the current hook is log-only. | **OPEN — DECISION REQUIRED** — audit [`2026-07-14_1040_credentials-enforcement-audit`](runs/2026-07-14_1040_credentials-enforcement-audit/07_CLOSEOUT.md) recommends one Core scanner in hook + CI, conditional on ADR and POC. |
+| SEC-CRED-002 | P1 | Local hooks are optional/bypassable and the versioned CI workflow provides no credentials-scan backstop. | **OPEN — DECISION REQUIRED** — close jointly with SEC-CRED-001; do not implement a hook-only fix. |
 | TER-001 | P1 | Consumer refresh cannot safely reconcile customized project truth: skip mode does not refresh, while repeated overwrite replaces both the project file and its prior backup. | **OPEN — DEFERRED** — POC [`2026-07-14_0721_consumer-refresh-poc`](runs/2026-07-14_0721_consumer-refresh-poc/07_CLOSEOUT.md) is NO-GO; requires an ownership design. |
 | GMA-003 | P1 | Executor loader duplication and concentrated typing debt remain outside the correctness fix. | **MITIGATING** — correctness paths are directly covered; cleanup is deferred to a bounded code-quality run. |
 | SYS-POST-002 | P1 | A final external audit bypassed the canonical AUDIT artifact and FINAL_STATUS contract. | **OPEN / HISTORICAL** — commit `d0eab3c` cannot be retroactively rewritten; current runs follow the contract. |
@@ -40,6 +43,9 @@ distribution adapters are operational. No remediation run is mandatory. Reopen
 
 ## Latest evidence
 
+- Credentials enforcement audit:
+  [`2026-07-14_1040_credentials-enforcement-audit`](runs/2026-07-14_1040_credentials-enforcement-audit/07_CLOSEOUT.md)
+  and [security report](audits/security-credentials-20260714-1040.md).
 - Documentation cleanup: [`2026-07-14_0727_documentation-cleanup`](runs/2026-07-14_0727_documentation-cleanup/07_CLOSEOUT.md)
   and [documentation context report](audits/doc-context-20260714-0727.md).
 - Consumer-refresh decision: [`2026-07-14_0721_consumer-refresh-poc`](runs/2026-07-14_0721_consumer-refresh-poc/07_CLOSEOUT.md).
