@@ -40,6 +40,12 @@ Une fixture temporaire non suivie a produit `ruff_check=1`, `ruff_format=1` et
 Après création du handoff, la P.R2 complète passe : 184 tests, 1 ignoré et CI
 locale 12/12 sans warning.
 
+## Vérification distante
+
+GitHub Actions run `29334146499` : success. Les jobs
+`contracts (ubuntu-latest, 3.11)` et `contracts (macos-latest, 3.11)` sont tous
+deux `completed/success` après exécution des trois nouvelles gates.
+
 ## Passe qualité scopée
 
 **EXECUTED** — `t-vbb-test-coverage-mapper`, verdict READY :
