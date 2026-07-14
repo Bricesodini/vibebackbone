@@ -25,7 +25,7 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Release posture**: v1.0 hardening complete; bounded maintenance continues
 - **Active run**: none
 - **Latest completed run**:
-  [`2026-07-14_0721_consumer-refresh-poc`](runs/2026-07-14_0721_consumer-refresh-poc/07_CLOSEOUT.md)
+  [`2026-07-14_0727_documentation-cleanup`](runs/2026-07-14_0727_documentation-cleanup/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
@@ -37,7 +37,8 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 ## Current priorities
 
 1. Keep TER-001 deferred unless a dedicated ownership/generated-file design is approved.
-2. Address remaining documentation links only through bounded active scopes.
+2. Decide whether the loose routing-verification note should be archived or
+   reconstructed only if its placement becomes operationally relevant.
 
 ## Stable decisions
 

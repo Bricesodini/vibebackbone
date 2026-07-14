@@ -2,7 +2,7 @@
 context_role: navigation-index
 phase: transverse
 status: active
-updated: 2026-06-13
+updated: 2026-07-14
 ---
 
 # INDEX — Carte de navigation du dépôt
@@ -58,9 +58,9 @@ updated: 2026-06-13
 
 | Type | Localisation | Catalogue |
 |------|--------------|-----------|
-| Skills (64) | [`../skills/`](../skills/) | [`../skills/INDEX.yaml`](../skills/INDEX.yaml) |
-| Prompts spécialisés (25) + 1 router | [`../prompts/`](../prompts/) | — |
-| Prompts canoniques (7) | [`../prompts/canonical/`](../prompts/canonical/) | — |
+| Skills | [`../skills/`](../skills/) | [`../skills/INDEX.yaml`](../skills/INDEX.yaml) |
+| Prompts spécialisés et router | [`../prompts/`](../prompts/) | — |
+| Prompts canoniques | [`../prompts/canonical/`](../prompts/canonical/) | — |
 
 ## Maturité
 
@@ -90,6 +90,8 @@ updated: 2026-06-13
 | Runtime des contrats | [`../tools/vbb-contract-runtime.py`](../tools/vbb-contract-runtime.py) |
 | Linter / projection architecture | [`../tools/vbb-architecture.py`](../tools/vbb-architecture.py) |
 | Phase router (lookup) | [`../tools/vbb-phase-router.py`](../tools/vbb-phase-router.py) |
+| Index textuel local | [`../tools/vbb-index.py`](../tools/vbb-index.py) |
+| Dashboard d'état généré | [`../tools/vbb-status-dashboard.py`](../tools/vbb-status-dashboard.py) |
 | CI locale | [`../scripts/vbb-ci-local.sh`](../scripts/vbb-ci-local.sh) |
 
 ## Documentation longue (humain)

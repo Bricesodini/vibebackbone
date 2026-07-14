@@ -439,6 +439,15 @@ que l'overwrite répété remplace la vérité projet puis sa sauvegarde.
 **Impact**: aucun adaptateur ne change ; un refresh attendra une frontière
 d'ownership explicite. **Author**: Codex, après GO Brice.
 
+### 2026-07-14 — Nettoyage documentaire conservé dans Core
+
+**Decision**: Compacter la vérité documentaire active dans Core et corriger
+les liens relatifs partagés, sans déclinaison spécifique par distribution.
+**Impact**: Pi, OpenCode, Codex et Claude Code héritent du même état courant ;
+seul le lien relatif du profil Pi est ajusté, sans changer son contenu ni son
+runtime. Les preuves historiques restent à leur emplacement. **Author**: Codex,
+après GO Brice.
+
 ## 8. References
 
 - `README.md` — entry point; "VBB Core vs Distributions" anchors the

@@ -72,7 +72,7 @@ result is canonical or best-effort.
 - Architecture source: Critical Rule 6 — a `vbb-architecture.py lint` failure
   blocks implementation until the reference is fixed.
 - Quality: Critical Rule 9 — P.R2 pre-merge gate lives in
-  [`docs/REFERENCE/pre-merge-gate.md`](docs/REFERENCE/pre-merge-gate.md).
+  `docs/REFERENCE/pre-merge-gate.md`.
 - Do not rewrite governance documents unless the task explicitly requires it.
 - Do not claim certainty when inferring.
 
