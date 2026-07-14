@@ -25,7 +25,6 @@ bounded quality and historical traceability items.
 
 | ID | Severity | Description | Status |
 |---|---|---|---|
-| QOA-006 | P2 | `docs/runs/routing-fix-verification.md` is a loose artifact outside a timestamped run directory. | **OPEN** — archive or reconstruct only after explicit approval. |
 | GMA-005 | P2 | Long functions, Python naming ambiguity, and French prompt prose remain convention-drift candidates. | **OPEN** — requires a separate, bounded canon proposal and migration decision. |
 | DOC-001 | P2 | Prompt entrypoints still lack one final responsibility matrix across canonical, specialized, router, and short-name layers. | **OPEN** — continue only if current navigation proves insufficient. |
 | SYS-POC-004 | P2 | POC-to-implementation transitions do not always record a distinct durable decision. | **OPEN** — require the decision for future canon, architecture, and cross-service changes. |
@@ -48,6 +47,7 @@ bounded quality and historical traceability items.
 - Mypy cleanup coverage: [critical-path report](audits/test-coverage-20260714-1505.md).
 - CI promotion scope: [baseline audit](audits/ci-baseline-20260714-1515.md).
 - CI promotion coverage: [gate-path report](audits/test-coverage-20260714-1530.md).
+- Wave 4 documentation scope: [harmonization report](audits/doc-context-20260714-1545.md).
 
 ## READY campaign exit criteria
 
@@ -96,6 +96,12 @@ The verdict remains `PARTIAL` until the seven conditions hold simultaneously.
 - `QOA-007`: Ruff check, Ruff format and mypy pass at zero, reject controlled
   violations, run as blocking local checks (12/12), and pass the GitHub Actions
   Ubuntu/macOS matrix in [run 29334146499](https://github.com/Bricesodini/vibebackbone/actions/runs/29334146499).
+
+## Resolved by documentation archive
+
+- `QOA-006`: the loose pending routing note moved byte-for-byte to
+  [`docs/archive/runs/2026-05-28-routing-fix-verification.md`](archive/runs/2026-05-28-routing-fix-verification.md),
+  preserving its historical status while removing it from active run space.
 
 - Credentials remediation design: [impact analysis](audits/impact-analysis-20260714-1150.md),
   [remediation plan](audits/security-remediation-20260714-1150.md), and
