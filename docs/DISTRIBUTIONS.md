@@ -516,6 +516,19 @@ runtime ne change. TER-001 reste différé.
 
 **Author**: Codex, après GO Brice
 
+### 2026-07-14 — Nettoyage de l'executor conservé dans Core
+
+**Decision**: Dédupliquer le loader YAML, normaliser le writer closeout et
+expliciter le type du résultat dans `tools/vbb-executor.py`.
+
+**Reason**: Cette dette appartient à l'exécuteur générique partagé ; elle ne
+porte aucun comportement, chemin ou secret propre à un provider.
+
+**Impact**: Pi, OpenCode, Codex et Claude Code héritent du module nettoyé et de
+ses tests. Aucun adaptateur, contrat CLI/JSON ou état runtime ne change.
+
+**Author**: Codex, après GO Brice
+
 ## 9. References
 
 - `README.md` — entry point; "VBB Core vs Distributions" anchors the

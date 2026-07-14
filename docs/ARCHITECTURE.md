@@ -189,7 +189,7 @@ tests:
 risks:
   - id: TOOL-001
     level: P2
-    note: Formal executor boundary is active and directly tested; nested status, depth progression, and circular gate blocking are characterized by tests/test_executor.py.
+    note: Formal executor boundary is active and directly tested; nested status, depth progression, circular gate blocking, YAML loading and closeout writing are characterized by tests/test_executor.py, and the module passes mypy.
   - id: TOOL-002
     level: P2
     note: Run resolution is shared via tools/vbb_run_resolution.py (ADR-0027, TD-101) with two declared selectors (latest existing / latest closed). Hook installation converges on scripts/install-vbb-hooks.sh (TD-102); legacy installers are deprecated redirects.

@@ -25,7 +25,6 @@ bounded quality and historical traceability items.
 
 | ID | Severity | Description | Status |
 |---|---|---|---|
-| GMA-003 | P1 | Executor loader duplication and concentrated typing debt remain outside the correctness fix. | **MITIGATING** — correctness paths are directly covered; cleanup is deferred to a bounded code-quality run. |
 | QOA-006 | P2 | `docs/runs/routing-fix-verification.md` is a loose artifact outside a timestamped run directory. | **OPEN** — archive or reconstruct only after explicit approval. |
 | QOA-007 | P2 | Optional Ruff, formatting, mypy, and pyright baselines are not clean or canonically gated. | **OPEN** — keep non-gating until a dedicated baseline run. |
 | GMA-005 | P2 | Long functions, Python naming ambiguity, and French prompt prose remain convention-drift candidates. | **OPEN** — requires a separate, bounded canon proposal and migration decision. |
@@ -38,6 +37,8 @@ bounded quality and historical traceability items.
 ## Latest evidence
 
 - READY convergence plan: [intent decomposition](audits/intent-decomp-20260714-1355.md).
+- Executor cleanup: [run closeout](runs/2026-07-14_1410_executor-cleanup/07_CLOSEOUT.md)
+  and [critical-path coverage](audits/test-coverage-20260714-1406.md).
 
 ## READY campaign exit criteria
 
@@ -74,6 +75,12 @@ The verdict remains `PARTIAL` until the seven conditions hold simultaneously.
   Document synchronization remains manual by design, not an open merge promise.
 - `QA-007`: the canon-change proposal template was exercised, human-approved,
   verified and closed in the ADR 0034 consumer hook run.
+
+## Resolved by executor cleanup
+
+- `GMA-003`: the duplicate YAML loader is removed, the closeout writer name is
+  normalized, focused coverage reaches 10 passing tests, and mypy for
+  `tools/vbb-executor.py` falls from 34 errors to zero.
 
 - Credentials remediation design: [impact analysis](audits/impact-analysis-20260714-1150.md),
   [remediation plan](audits/security-remediation-20260714-1150.md), and

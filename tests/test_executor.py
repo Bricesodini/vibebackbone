@@ -143,3 +143,32 @@ def test_static_gate_keeps_declared_expected_status(monkeypatch, executor):
 
     assert result["state"] == executor.ExecutorState.DONE
     assert result["gates"][0]["actual"] == "PASS"
+
+
+def test_yaml_loader_parses_mapping(tmp_path, executor):
+    source = tmp_path / "contract.yaml"
+    source.write_text("root:\n  enabled: true\n", encoding="utf-8")
+
+    assert executor._yaml_load(source) == {"root": {"enabled": True}}
+
+
+def test_closeout_writer_preserves_phase_contract(tmp_path, monkeypatch, executor):
+    monkeypatch.setattr(executor, "RUNS_DIR", tmp_path)
+    result = {
+        "state": executor.ExecutorState.DONE,
+        "started_at": "2026-07-14T12:00:00+00:00",
+        "ended_at": "2026-07-14T12:00:01+00:00",
+        "duration_ms": 1000,
+        "outputs": {"summary": "characterized"},
+        "errors": [],
+        "warnings": [],
+    }
+
+    path = executor.write_closeout("test-run", "test-skill", result)
+
+    assert path == tmp_path / "test-run" / "07_CLOSEOUT.md"
+    content = path.read_text(encoding="utf-8")
+    assert "phase: 07_CLOSEOUT" in content
+    assert "**Verdict global**: `DONE`" in content
+    assert "characterized" in content
+    assert not hasattr(executor, "write_closEOUT")

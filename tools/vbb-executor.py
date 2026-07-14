@@ -303,7 +303,7 @@ def write_phase_artifact(run_id: str, phase: str, content: Dict) -> Path:
     return artifact_path
 
 
-def write_closEOUT(run_id: str, skill_id: str, result: Dict) -> Path:
+def write_closeout(run_id: str, skill_id: str, result: Dict[str, Any]) -> Path:
     """Write the 07_CLOSEOUT.md phase artifact."""
     phase = "07_CLOSEOUT"
     run_dir = RUNS_DIR / run_id
@@ -374,7 +374,7 @@ def execute_skill(
 
     contract = load_contract(skill_id)
 
-    result = {
+    result: Dict[str, Any] = {
         "skill_id": skill_id,
         "run_id": run_id,
         "state": ExecutorState.READY,
@@ -522,12 +522,6 @@ def _dur(tick: float) -> int:
     return int((time.time() - tick) * 1000)
 
 
-def _yaml_load(path: Path) -> Dict:
-    import yaml
-    with open(path, encoding="utf-8") as f:
-        return yaml.safe_load(f)
-
-
 # ─────────────────────────────────────────────────────────────────────────────
 # Commands
 # ─────────────────────────────────────────────────────────────────────────────
@@ -559,7 +553,7 @@ def cmd_run(skill_id: str, run_id: Optional[str], strict: bool) -> int:
     # Write phase artifacts
     if run_id:
         write_phase_artifact(run_id, "02_AUDIT", result)
-        write_closEOUT(run_id, skill_id, result)
+        write_closeout(run_id, skill_id, result)
 
     # Emit structured status
     print(json.dumps({
