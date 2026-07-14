@@ -15,21 +15,17 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 ## Global verdict
 
-**`PARTIAL — reference-ready; bounded quality and traceability gaps remain`**
+**`PARTIAL — Wave 4 complete; independent READY revalidation remains`**
 
 The Core contracts, architecture checks, runtime executor, consumer hook bundle,
-and four supported distribution adapters are operational. Remaining gaps are
-bounded quality and historical traceability items.
+and four supported distribution adapters are operational. All P2 findings are
+resolved or explicitly accepted; the independent read-only revalidation remains.
 
 ## Active risks
 
 | ID | Severity | Description | Status |
 |---|---|---|---|
-| GMA-005 | P2 | Long functions, Python naming ambiguity, and French prompt prose remain convention-drift candidates. | **OPEN** — requires a separate, bounded canon proposal and migration decision. |
-| SYS-POC-004 | P2 | POC-to-implementation transitions do not always record a distinct durable decision. | **OPEN** — require the decision for future canon, architecture, and cross-service changes. |
-| SYS-SUB-003 | P2 | Reintegration checks paths and presence more readily than counts, citations, and semantic contradictions. | **OPEN** — add semantic acceptance checks to future delegation briefs when delegation is used. |
-| QA-004 | LOW | Temporal provenance is documented but not automated in artifact generators. | **OPEN** — automate only with a dedicated generator change. |
-| QA-005 | LOW | Skill-level architecture decisions may lack explicit ADR traceability. | **OPEN** — verify on demand; do not create ADRs by count. |
+| — | — | No unresolved finding remains in the active table. | Wave 5 review pending. |
 
 ## Latest evidence
 
@@ -47,6 +43,8 @@ bounded quality and historical traceability items.
 - CI promotion scope: [baseline audit](audits/ci-baseline-20260714-1515.md).
 - CI promotion coverage: [gate-path report](audits/test-coverage-20260714-1530.md).
 - Wave 4 documentation scope: [harmonization report](audits/doc-context-20260714-1545.md).
+- Residual-risk disposition: [conventions audit](runs/2026-07-14_1615_ready-risk-reconciliation/02_AUDIT_REPORT.md)
+  and [decision](runs/2026-07-14_1615_ready-risk-reconciliation/03_DECISION.md).
 
 ## READY campaign exit criteria
 
@@ -67,6 +65,26 @@ The verdict remains `PARTIAL` until the seven conditions hold simultaneously.
 - `SYS-POST-002` — historical audit protocol bypass in commit `d0eab3c`.
   It cannot be repaired retroactively; current runs enforce durable FINAL_STATUS.
   Reopen only if a new audit bypasses the canonical artifact contract.
+
+- `GMA-005` long functions — accepted by the maintainers of the touched tools.
+  The 40-line target remains indicative; reopen on demonstrated multiple
+  responsibility, a testability defect, or a regression in a touched function.
+- `GMA-005` French prompts — accepted by the prompt architecture maintainer as
+  a literal convention variance without a demonstrated behavior defect. Reopen
+  on language-caused routing failure, an English-only consumer requirement, or
+  a rewrite touching the affected prompt surface.
+- `SYS-POC-004` — accepted by the governance maintainer as a historical
+  transition gap. Reopen if a future canon, architecture, or cross-service
+  implementation starts after POC without a linked durable decision.
+- `SYS-SUB-003` — accepted by the orchestrator maintainer as conditional on
+  delegation. Reopen when explicit delegation lacks count, citation,
+  contradiction, or output-to-integration diff checks.
+- `QA-004` — accepted LOW by the artifact tooling maintainer. Reopen when an
+  artifact generator changes or a new active artifact has ambiguous temporal
+  provenance.
+- `QA-005` — accepted LOW by the architecture maintainer. Reopen when an
+  architecture-impacting skill change has neither an ADR nor an explicit
+  non-ADR rationale; ADR count alone is not a trigger.
 
 - Consumer hook ownership: [intent decomposition](audits/intent-decomp-20260714-1242.md),
   [impact analysis](audits/impact-analysis-20260714-1242.md),
@@ -95,6 +113,8 @@ The verdict remains `PARTIAL` until the seven conditions hold simultaneously.
 - `QOA-007`: Ruff check, Ruff format and mypy pass at zero, reject controlled
   violations, run as blocking local checks (12/12), and pass the GitHub Actions
   Ubuntu/macOS matrix in [run 29334146499](https://github.com/Bricesodini/vibebackbone/actions/runs/29334146499).
+- `GMA-005` naming ambiguity: Ruff E741 passes at zero on the supported Python
+  scope and remains enforced locally and remotely.
 
 ## Resolved by documentation archive
 

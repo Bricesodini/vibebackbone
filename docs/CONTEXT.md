@@ -25,23 +25,21 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Release posture**: v1.0 hardening complete; bounded maintenance continues
 - **Active run**: none
 - **Latest completed run**:
-  [`2026-07-14_1600_prompt-responsibility-matrix`](runs/2026-07-14_1600_prompt-responsibility-matrix/07_CLOSEOUT.md)
+  [`2026-07-14_1615_ready-risk-reconciliation`](runs/2026-07-14_1615_ready-risk-reconciliation/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: complete READY Wave 4 by reconciling the remaining
-  methodological risks and GMA-005 against current evidence
+- **Next action**: execute Wave 5 as an independent read-only revalidation of
+  the seven READY exit criteria
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
 - **Quality**: [CONVENTIONS.md](CONVENTIONS.md), pillars P1–P5 and P.R1–P.R8
 
 ## Current priorities
 
-1. Keep managed consumer assets and project-owned documents strictly separate.
-2. Make the supported Python static-quality commands reproducible, then clean
-   their bounded baseline in the following wave.
-3. Keep historical evidence in `docs/archive/`; active runs remain timestamped
-   directories with canonical phase artifacts.
+1. Revalidate the seven READY exit criteria from a fresh, read-only context.
+2. Preserve the accepted-risk owners and reopen triggers in `AUDIT_STATUS.md`.
+3. Keep `main`, `origin/main`, CI and active governance truth aligned.
 
 ## Stable decisions
 
