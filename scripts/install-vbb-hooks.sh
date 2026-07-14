@@ -44,6 +44,24 @@ cat > "$HOOKS_DIR/pre-commit" << 'HOOK_BODY'
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 
+# Resolve an interpreter that can execute the versioned VBB tooling. Provider
+# shells may expose different environments as `python` and `python3`.
+PYTHON_BIN="${PYTHON_OVERRIDE:-}"
+if [ -z "$PYTHON_BIN" ]; then
+    for candidate in python python3; do
+        if command -v "$candidate" >/dev/null 2>&1 && \
+                "$candidate" -c 'import yaml' >/dev/null 2>&1; then
+            PYTHON_BIN="$candidate"
+            break
+        fi
+    done
+fi
+if [ -z "$PYTHON_BIN" ]; then
+    echo "[vbb] BLOCKED: no Python interpreter with PyYAML is available." >&2
+    echo "[vbb] Install project dependencies or set PYTHON_OVERRIDE." >&2
+    exit 1
+fi
+
 # Stage 1 — framework gate (versioned, tested)
 if ! bash "$REPO_ROOT/scripts/hooks/pre-commit-framework-gate"; then
     exit 1
@@ -55,7 +73,7 @@ if echo "$STAGED" | grep -q "^docs/runs/[^/]*/"; then
     RUN_ID="$(echo "$STAGED" | grep "^docs/runs/[^/]*/" | head -1 | cut -d/ -f3)"
     if [ -n "$RUN_ID" ]; then
         echo "[vbb] Checking loop closure for run: $RUN_ID"
-        if ! python3 "$REPO_ROOT/tools/vbb-loop-closure-check.py" "$RUN_ID"; then
+        if ! "$PYTHON_BIN" "$REPO_ROOT/tools/vbb-loop-closure-check.py" "$RUN_ID"; then
             echo ""
             echo "[vbb] BLOCKED: loop-closure-check failed for run '$RUN_ID'."
             echo "[vbb] Resolve the missing or invalid artifacts, then retry."

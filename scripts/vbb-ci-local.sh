@@ -79,52 +79,60 @@ echo ""
 
 require_python_modules
 
-echo "[1/12] Contract lint"
+echo "[1/14] Contract lint"
 run_check "Lint 0 errors" "$PYTHON" tools/vbb-contract-lint.py
 
 echo ""
-echo "[2/12] Architecture lint"
+echo "[2/14] Architecture lint"
 run_check "Architecture valid" "$PYTHON" tools/vbb-architecture.py lint
 
 echo ""
-echo "[3/12] Contract runtime dry-run"
+echo "[3/14] Contract runtime dry-run"
 run_check "Runtime dry-run" "$PYTHON" tools/vbb-contract-runtime.py run --all --dry-run
 
 echo ""
-echo "[4/12] Credentials gate (staged additions)"
+echo "[4/14] Runtime conformance self-test"
+run_check "Runtime conformance" "$PYTHON" tools/vbb_runtime_conformance.py self-test
+
+echo ""
+echo "[5/14] Hook installer regression"
+run_check "Hook installer" bash tests/test_install_vbb_hooks.sh
+
+echo ""
+echo "[6/14] Credentials gate (staged additions)"
 run_check "Credentials clean" "$PYTHON" tools/vbb-credentials-gate.py --staged
 
 echo ""
-echo "[5/12] Ruff check"
+echo "[7/14] Ruff check"
 run_check "Ruff check" "$PYTHON" -m ruff check tools tests
 
 echo ""
-echo "[6/12] Ruff format check"
+echo "[8/14] Ruff format check"
 run_check "Ruff format check" "$PYTHON" -m ruff format --check tools tests
 
 echo ""
-echo "[7/12] Mypy"
+echo "[9/14] Mypy"
 run_check "Mypy" "$PYTHON" -m mypy tools
 
 echo ""
-echo "[8/12] Loop closure (latest run)"
+echo "[10/14] Loop closure (latest run)"
 # WARN is acceptable if the latest run has unknown voie (ad-hoc session)
 run_check_warn "Closure check" "$PYTHON" tools/vbb-loop-closure-check.py
 
 echo ""
-echo "[9/12] Loop closure tests"
+echo "[11/14] Loop closure tests"
 run_check "test_loop_closure.py" "$PYTHON" tests/test_loop_closure.py
 
 echo ""
-echo "[10/12] Portability tests"
+echo "[12/14] Portability tests"
 run_check "test_portability.py" "$PYTHON" tests/test_portability.py
 
 echo ""
-echo "[11/12] Project init tests"
+echo "[13/14] Project init tests"
 run_check "test_project_init.py" "$PYTHON" tests/test_project_init.py
 
 echo ""
-echo "[12/12] Pytest suite"
+echo "[14/14] Pytest suite"
 run_check "pytest tests/" "$PYTHON" -m pytest tests/ -q
 
 # ── Summary ─────────────────────────────────────────────────────────

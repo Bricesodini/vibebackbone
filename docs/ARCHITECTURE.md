@@ -153,6 +153,7 @@ responsibilities:
   - Route queries to skills
   - Report documentary and measured repository status separately
   - Enforce structured long-run declarations during strict closure
+  - Evaluate provider-neutral runtime conformance without mandatory LLM calls
 depends_on:
   - skills-catalog
   - governance-core
@@ -173,6 +174,8 @@ files:
   - tools/vbb-gate-check.py
   - tools/vbb-credentials-gate.py
   - tools/vbb_run_resolution.py
+  - tools/vbb_runtime_conformance.py
+  - conformance/**
   - scripts/hooks/pre-commit-framework-gate
   - scripts/install-vbb-hooks.sh
 contracts:
@@ -191,6 +194,7 @@ tests:
   - tests/test_install_vbb_hooks.sh
   - tests/test_project_init.py
   - tests/test_static_quality_ci.py
+  - tests/test_runtime_conformance.py
 risks:
   - id: TOOL-001
     level: P2
@@ -266,6 +270,7 @@ responsibilities:
   - Reject compilation when a canonical governance source contains runtime markers
   - Source routeur `setup.sh` (no provider logic inline) into per-distribution `setup.sh`
   - Limit official provider support to Pi, OpenCode, Codex and Claude Code
+  - Compare observable governance behavior through one shared Core protocol
 depends_on:
   - governance-core
   - skills-catalog
@@ -283,6 +288,8 @@ files:
   - distributions/codex/setup.sh      # compiled AGENTS.md block (VBB:START/END markers)
   - distributions/pi/setup.sh         # symlinks AGENTS + SYSTEM + 26 prompts
   - distributions/opencode/setup.sh   # opencode.json instructions + 26 commands
+  - conformance/**                    # shared scenarios, schema, and CLI adapters
+  - tools/vbb_runtime_conformance.py  # deterministic evaluator + opt-in live runner
   - tests/test_setup_smoke.sh
   - scripts/vbb-ci-local.sh
   - .github/workflows/vbb-contracts.yml
@@ -291,6 +298,7 @@ contracts: []
 tests:
   - tests/test_setup_smoke.sh
   - tests/smoke-install.sh
+  - tests/test_runtime_conformance.py
 risks:
   - id: SETUP-001
     level: P1
@@ -298,6 +306,9 @@ risks:
   - id: SETUP-002
     level: P1
     note: Runtime destinations must never be followed into Core sources; Codex migration and uninstall enforce this boundary under ADR-0046.
+  - id: SETUP-003
+    level: P2
+    note: Optional live adapters depend on external provider CLI schemas; deterministic CI remains provider-neutral and network-free under ADR-0047.
 ```
 
 ## Bloc: Quality Conventions

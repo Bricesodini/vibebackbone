@@ -23,6 +23,8 @@ def test_remote_ci_installs_and_runs_static_quality_gates() -> None:
     assert "python3 -m ruff check tools tests" in workflow
     assert "python3 -m ruff format --check tools tests" in workflow
     assert "python3 -m mypy tools" in workflow
+    assert "python3 tools/vbb_runtime_conformance.py self-test" in workflow
+    assert "bash tests/test_install_vbb_hooks.sh" in workflow
 
 
 def test_local_ci_runs_same_static_quality_gates() -> None:
@@ -31,4 +33,6 @@ def test_local_ci_runs_same_static_quality_gates() -> None:
     assert '"$PYTHON" -m ruff check tools tests' in local_ci
     assert '"$PYTHON" -m ruff format --check tools tests' in local_ci
     assert '"$PYTHON" -m mypy tools' in local_ci
+    assert '"$PYTHON" tools/vbb_runtime_conformance.py self-test' in local_ci
+    assert "bash tests/test_install_vbb_hooks.sh" in local_ci
     assert "requirements-dev.txt" in local_ci

@@ -38,5 +38,9 @@ jobs:
         run: python3 tools/vbb-architecture.py lint
       - name: Contract runtime dry-run
         run: python3 tools/vbb-contract-runtime.py run --all --dry-run
+      - name: Runtime conformance self-test
+        run: python3 tools/vbb_runtime_conformance.py self-test
+      - name: Hook installer regression
+        run: bash tests/test_install_vbb_hooks.sh
       - name: Pytest suite
         run: python3 -m pytest tests/ -q

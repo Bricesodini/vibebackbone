@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "adapters": {
+    "codex": {
+      "command": ["codex", "exec", "--sandbox", "read-only", "--ephemeral", "--output-schema", "{schema}", "-"],
+      "prompt_mode": "stdin"
+    },
+    "claude": {
+      "command": ["claude", "--print", "--permission-mode", "plan", "--no-session-persistence", "--output-format", "json", "--json-schema", "{schema_json}", "{prompt}"],
+      "prompt_mode": "argument"
+    },
+    "pi": {
+      "command": ["pi", "--print", "--mode", "json", "--no-session", "--tools", "read,grep,find,ls", "{prompt}"],
+      "prompt_mode": "argument"
+    },
+    "opencode": {
+      "command": ["opencode", "run", "--format", "json", "{prompt}"],
+      "prompt_mode": "argument"
+    }
+  }
+}

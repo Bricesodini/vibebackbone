@@ -32,6 +32,11 @@ No active P0/P1/P2 risk remains.
 
 ## Latest evidence
 
+- Runtime conformance benchmark impact analysis:
+  [report](audits/impact-analysis-runtime-conformance-20260714-2319.md),
+  [test coverage](audits/test-coverage-runtime-conformance-20260714-2329.md),
+  [ADR 0047](adr/0047-runtime-conformance-benchmark.md), and
+  [run](runs/2026-07-14_2316_runtime-conformance/01_INTAKE.md).
 - Readiness integrity remediation: [ADR 0046](adr/0046-readiness-integrity-enforcement.md),
   [POC and run](runs/2026-07-14_2124_readiness-integrity/POC.md).
 - Final SHA validation: `0278614` with successful smoke and vbb-contracts

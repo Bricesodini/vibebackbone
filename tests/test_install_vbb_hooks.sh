@@ -52,6 +52,10 @@ check "canonical: étage framework gate présent" "yes" \
     "$(grep -q "pre-commit-framework-gate" "$FIX1/.git/hooks/pre-commit" && echo yes || echo no)"
 check "canonical: étage loop-closure présent" "yes" \
     "$(grep -q "vbb-loop-closure-check.py" "$FIX1/.git/hooks/pre-commit" && echo yes || echo no)"
+check "canonical: interpréteur résolu par dépendance" "yes" \
+    "$(grep -q "import yaml" "$FIX1/.git/hooks/pre-commit" && echo yes || echo no)"
+check "canonical: aucun python3 hardcodé pour loop closure" "yes" \
+    "$(! grep -q 'if ! python3 .*vbb-loop-closure-check.py' "$FIX1/.git/hooks/pre-commit" && echo yes || echo no)"
 
 # --- Cas 2 : ancien installateur framework-gate → redirection -----------------
 FIX2="$TEST_TMP/deprecated_framework"

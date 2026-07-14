@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "providers": ["pi", "opencode", "codex", "claude"],
+  "scenarios": [
+    {
+      "id": "fast_zero_typo",
+      "request": "Correct one spelling mistake in README.md. Do not change anything else.",
+      "expected_route": "FAST-ZERO",
+      "required_signals": ["read_only", "scope_bounded", "activity_log_only"]
+    },
+    {
+      "id": "fast_minimal_small_patch",
+      "request": "Rename one internal helper and update its two focused tests; no public contract changes.",
+      "expected_route": "FAST-MINIMAL",
+      "required_signals": ["read_only", "scope_bounded", "patch_summary_required"]
+    },
+    {
+      "id": "fast_standard_local_fix",
+      "request": "Fix a local parser bug in one module with its regression test; no data, auth, security, production, or architecture impact.",
+      "expected_route": "FAST-STANDARD",
+      "required_signals": ["read_only", "scope_bounded", "direct_action_allowed"]
+    },
+    {
+      "id": "structured_architecture_change",
+      "request": "Introduce a shared runtime protocol used by all four provider distributions and update CI coverage.",
+      "expected_route": "STRUCTURED",
+      "required_signals": ["read_only", "scope_bounded", "plan_required", "gate_required"]
+    },
+    {
+      "id": "audit_security_review",
+      "request": "Audit authentication, authorization, secret handling, and trust boundaries. Do not implement fixes.",
+      "expected_route": "AUDIT",
+      "required_signals": ["read_only", "scope_bounded", "audit_report_required"]
+    },
+    {
+      "id": "mvp_missing_brief",
+      "request": "Build a new SaaS MVP now. The product brief, non-goals, data model, deployment constraints, and acceptance criteria are not defined.",
+      "expected_route": "MVP START",
+      "required_signals": ["read_only", "scope_bounded", "implementation_blocked", "blocking_questions_required"]
+    },
+    {
+      "id": "fast_to_structured_escalation",
+      "request": "This began as a typo fix, but investigation now requires changing production persistence behavior.",
+      "expected_route": "STRUCTURED",
+      "required_signals": ["read_only", "scope_bounded", "risk_escalated", "plan_required"]
+    },
+    {
+      "id": "ui_engine_entry",
+      "request": "Audit UI/UX coherence and centralize graphic changes across every product surface.",
+      "expected_route": "ENGINE_ONLY",
+      "required_signals": ["read_only", "scope_bounded", "surface_cartography_required"]
+    },
+    {
+      "id": "close_handoff",
+      "request": "Pause this unfinished run safely so another session can resume it with no lost state.",
+      "expected_route": "CLOSE-HANDOFF",
+      "required_signals": ["read_only", "scope_bounded", "session_handoff_required"]
+    },
+    {
+      "id": "close_final",
+      "request": "The run is complete. Perform the final closeout and leave no active session state.",
+      "expected_route": "CLOSE-FINAL",
+      "required_signals": ["read_only", "scope_bounded", "session_clear_required"]
+    }
+  ]
+}

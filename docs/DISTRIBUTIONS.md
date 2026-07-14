@@ -730,6 +730,22 @@ sans écriture dans la cible.
 
 **Author**: Brice (`go`), Codex — ADR 0046
 
+### 2026-07-14 — Benchmark de conformité promu dans Core
+
+**Decision**: Conserver les dix scénarios, le schéma de résultat, l'évaluateur
+déterministe et le runner live optionnel dans Core. Les commandes Pi, OpenCode,
+Codex et Claude restent des adaptateurs déclaratifs sans règle métier dupliquée.
+
+**Reason**: Les décisions de route, d'escalade, de non-mutation et de closeout
+sont génériques aux quatre runtimes et doivent être comparées sur un protocole
+unique.
+
+**Impact**: Aucun fichier runtime installé ne change. La CI ajoute un self-test
+4 × 10 sans réseau ni appel LLM. Les appels live restent explicites, read-only
+et hors release gate jusqu'à promotion humaine d'une baseline enregistrée.
+
+**Author**: Brice (demande explicite), Codex — ADR 0047
+
 ## 9. References
 
 - `README.md` — entry point; "VBB Core vs Distributions" anchors the

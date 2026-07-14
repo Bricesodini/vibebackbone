@@ -25,7 +25,7 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Release posture**: READY; bounded maintenance only
 - **Active run**: none
 - **Latest completed run**:
-  [`2026-07-14_2124_readiness-integrity`](runs/2026-07-14_2124_readiness-integrity/07_CLOSEOUT.md)
+  [`2026-07-14_2316_runtime-conformance`](runs/2026-07-14_2316_runtime-conformance/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
