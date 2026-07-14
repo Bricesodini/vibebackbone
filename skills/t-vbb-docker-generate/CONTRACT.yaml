@@ -32,7 +32,53 @@ outputs:
   - PARTIAL
   - FAIL
   - BLOCKED
-  artifact: null
+  artifact:
+    path_pattern: docs/audits/docker-generate-{YYYYMMDD-HHMM}.md
+    kind: audit_report
+    must_exist_after_run: true
+  secondary_artifacts:
+  - path_pattern: Dockerfile
+    kind: infrastructure_file
+    must_exist_after_run: true
+  - path_pattern: .dockerignore
+    kind: infrastructure_file
+    must_exist_after_run: true
+  - path_pattern: docker-compose.dev.yml
+    kind: infrastructure_file
+    must_exist_after_run: true
+  - path_pattern: docker-compose.staging.yml
+    kind: infrastructure_file
+    must_exist_after_run: true
+  - path_pattern: docker-compose.prod.yml
+    kind: infrastructure_file
+    must_exist_after_run: true
+  - path_pattern: .env.dev
+    kind: infrastructure_file
+    must_exist_after_run: true
+  - path_pattern: .env.staging
+    kind: infrastructure_file
+    must_exist_after_run: true
+  - path_pattern: .env.prod
+    kind: infrastructure_file
+    must_exist_after_run: true
+  - path_pattern: .env.example
+    kind: infrastructure_file
+    must_exist_after_run: true
+  - path_pattern: nginx/nginx.conf
+    kind: infrastructure_file
+    must_exist_after_run: true
+  - path_pattern: nginx/security-headers.conf
+    kind: infrastructure_file
+    must_exist_after_run: true
+  - path_pattern: docker-services.map
+    kind: infrastructure_file
+    must_exist_after_run: true
+  - path_pattern: .gitignore
+    kind: persistent_state_update
+    must_exist_after_run: false
+  - path_pattern: docs/AUDIT_STATUS.md
+    kind: persistent_state_update
+    must_exist_after_run: false
 gates:
   before:
   - id: docker_audit_done

@@ -31,7 +31,14 @@ outputs:
   - PARTIAL
   - FAIL
   - BLOCKED
-  artifact: null
+  artifact:
+    path_pattern: docs/audits/docker-audit-{YYYYMMDD-HHMM}.md
+    kind: audit_report
+    must_exist_after_run: true
+  secondary_artifacts:
+  - path_pattern: docs/AUDIT_STATUS.md
+    kind: persistent_state_update
+    must_exist_after_run: false
 gates:
   before: []
   success:

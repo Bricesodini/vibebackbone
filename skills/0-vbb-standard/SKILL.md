@@ -72,10 +72,11 @@ Adjacent responsibilities use qualified action or stage phrases; they do not
 share a generic trigger and rely on catalog order or hidden numeric priority.
 
 Formal artifact kinds are closed: `phase_artifact`, `audit_report`,
-`design_document`, `release_document`, `ADR`, and `persistent_state_update`. A
-`1-vbb-*` skill with a line-start normative instruction to write a report or
-document must declare a non-null primary artifact. The same rule applies to
-`4-vbb-*` skills with a normative `Emit:` or `Update (or create)` instruction.
+`design_document`, `release_document`, `infrastructure_file`, `ADR`, and
+`persistent_state_update`. A `1-vbb-*` skill with a line-start normative
+instruction to write a report or document must declare a non-null primary
+artifact. The same rule applies to `4-vbb-*` skills with a normative `Emit:` or
+`Update (or create)` instruction and to bounded transverse report writers.
 Conditional or alternative files remain structured outputs unless their paths
 are deterministic enough to declare separately.
 

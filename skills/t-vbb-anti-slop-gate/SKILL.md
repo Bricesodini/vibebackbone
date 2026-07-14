@@ -189,10 +189,10 @@ Compile results, produce verdict, write report.
 
 ## OUTPUT CONTRACT
 
-Determine report destination:
+Ensure `docs/audits/` exists, then write:
+`docs/audits/anti-slop-{YYYYMMDD-HHMM}.md`.
 
-- If `docs/audits/` exists → `docs/audits/anti-slop-{YYYYMMDD-HHMM}.md` then update `docs/AUDIT_STATUS.md` if present.
-- Otherwise → `anti-slop-report-{YYYYMMDD-HHMM}.md` at project root.
+Update `docs/AUDIT_STATUS.md` if present.
 
 The report must contain:
 

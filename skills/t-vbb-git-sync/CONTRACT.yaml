@@ -31,7 +31,10 @@ outputs:
   - PARTIAL
   - FAIL
   - BLOCKED
-  artifact: null
+  artifact:
+    path_pattern: docs/audits/git-sync-{YYYYMMDD-HHMM}.md
+    kind: audit_report
+    must_exist_after_run: false
 gates:
   before: []
   success:

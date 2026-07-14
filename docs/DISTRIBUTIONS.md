@@ -175,6 +175,17 @@ that triggered the decision.
 
 <!-- Add entries below as decisions are made -->
 
+### 2026-07-14 — Transverse artifacts and infrastructure files (ADR-0041)
+**Decision**: keep transverse artifact and Docker infrastructure semantics in
+Core; distributions inherit the same observable outputs.
+**Trigger**: final PATT-03 batch and explicit `Go` from Brice.
+**Reason**: audit, sync, coverage and generated infrastructure artifacts are
+provider-neutral shared contracts.
+**Impact**: Pi, OpenCode, Codex and Claude Code inherit five corrected contracts,
+`infrastructure_file`, deterministic anti-slop reports and blocking transverse
+null-drift lint. No adapter or provider runtime state changes.
+**Author**: Codex (GO Brice)
+
 ### 2026-07-14 — Front-pass and release artifact semantics (ADR-0040)
 **Decision**: keep front/release artifact semantics in Core; distributions do
 not reinterpret shared pass outputs or changelog artifacts.

@@ -33,6 +33,7 @@ ARTIFACT_KINDS = {
     "phase_artifact",
     "audit_report",
     "design_document",
+    "infrastructure_file",
     "release_document",
     "ADR",
     "persistent_state_update",
@@ -315,6 +316,14 @@ def check_authored_artifact_alignment(skill_id: str, contract: Dict) -> List[str
     elif skill_id.startswith("4-vbb-"):
         authored_output = re.search(
             r"(?im)^\s*(?:emit:|update \(or create\)[^\n]*)$", content
+        )
+    elif skill_id.startswith("t-vbb-"):
+        authored_output = re.search(
+            r"(?im)^\s*(?:"
+            r"write\b[^\n]*(?:report|docs/audits/)"
+            r"|ensure `docs/audits/` exists, then write:"
+            r"|report in `docs/audits/)",
+            content,
         )
 
     if authored_output and contract.get("outputs", {}).get("artifact") is None:

@@ -324,6 +324,89 @@ def test_front_pipeline_reference_keeps_canonical_pass_order():
     assert positions == sorted(positions)
 
 
+def test_transverse_normative_writer_rejects_null_artifact():
+    """A transverse report writer must declare its report artifact."""
+    import yaml
+
+    with tempfile.TemporaryDirectory() as tmp:
+        skill_dir = Path(tmp) / "skills" / "t-vbb-writer"
+        skill_dir.mkdir(parents=True)
+        contract = yaml.safe_load(MINIMAL_CONTRACT)
+        contract["id"] = skill_dir.name
+        contract["routing"]["phase_scope"] = ["transverse"]
+        (skill_dir / "CONTRACT.yaml").write_text(
+            yaml.dump(contract, default_flow_style=False)
+        )
+        (skill_dir / "SKILL.md").write_text(
+            "# Writer\n\nWrite ONE Markdown report in: `docs/audits/test.md`\n"
+        )
+
+        count, errors = _run_linter(skill_dir)
+        assert count == 1, errors
+        assert "null contradicts normative SKILL.md writer instruction" in errors[0]
+
+
+def test_infrastructure_file_satisfies_transverse_writer_contract():
+    """The infrastructure_file kind truthfully types generated Docker assets."""
+    import yaml
+
+    with tempfile.TemporaryDirectory() as tmp:
+        skill_dir = Path(tmp) / "skills" / "t-vbb-writer"
+        skill_dir.mkdir(parents=True)
+        contract = yaml.safe_load(MINIMAL_CONTRACT)
+        contract["id"] = skill_dir.name
+        contract["routing"]["phase_scope"] = ["transverse"]
+        contract["outputs"]["artifact"] = {
+            "path_pattern": "Dockerfile",
+            "kind": "infrastructure_file",
+            "must_exist_after_run": True,
+        }
+        (skill_dir / "CONTRACT.yaml").write_text(
+            yaml.dump(contract, default_flow_style=False)
+        )
+        (skill_dir / "SKILL.md").write_text(
+            "# Writer\n\nWrite report and Docker infrastructure files.\n"
+        )
+
+        count, errors = _run_linter(skill_dir)
+        assert count == 0, errors
+
+
+def test_patt03_catalog_artifact_batch_is_closed():
+    """All nineteen independently identified artifact gaps remain non-null."""
+    import yaml
+
+    skill_ids = [
+        "1-vbb-api-contract-designer",
+        "1-vbb-code-doc-gap-integrator",
+        "1-vbb-code-janitor",
+        "1-vbb-doc-harmonizer",
+        "1-vbb-error-handling-auditor",
+        "1-vbb-formatter",
+        "1-vbb-intent-decomposer",
+        "1-vbb-monolith-detector",
+        "4-vbb-cognitive-load-optimizer",
+        "4-vbb-interaction-coherence-auditor",
+        "4-vbb-micro-interaction-refiner",
+        "4-vbb-product-changelog",
+        "4-vbb-visual-identity-gatekeeper",
+        "4-vbb-visual-identity-layer",
+        "t-vbb-anti-slop-gate",
+        "t-vbb-docker-audit",
+        "t-vbb-docker-generate",
+        "t-vbb-git-sync",
+        "t-vbb-test-coverage-mapper",
+    ]
+    null_artifacts = []
+    for skill_id in skill_ids:
+        contract = yaml.safe_load(
+            (REPO_ROOT / "skills" / skill_id / "CONTRACT.yaml").read_text()
+        )
+        if contract["outputs"].get("artifact") is None:
+            null_artifacts.append(skill_id)
+    assert null_artifacts == []
+
+
 def test_missing_required_key():
     """Contract missing 'entrypoint' → linter must report error."""
     import yaml

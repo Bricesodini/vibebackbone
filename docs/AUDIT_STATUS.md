@@ -27,7 +27,6 @@ READY revalidation.
 | ID | Severity | Description | Status |
 |---|---|---|---|
 | PATT-01 | P1 | Twelve skills diverge from the mandatory standard section layout. | **OPEN** — normalize equivalent headings, then add minimal sections to compact wrappers. |
-| PATT-03 | P1 | Five transverse authored artifacts remain null after the completed Phase-1 and front-pipeline batches. | **OPEN** — close the transverse batch; Phase-1 and front-family null drift are blocking lint. |
 | PATT-05 | P2 | Domain verdict to runtime status mapping exists in only 6/64 contracts. | **OPEN** — decide one schema/runtime boundary before adding metadata. |
 
 ## Latest evidence
@@ -66,6 +65,9 @@ READY revalidation.
 - Front artifact contracts: [impact analysis](audits/impact-analysis-front-artifact-contracts-20260714-1945.md),
   [ADR 0040](adr/0040-front-pass-and-release-artifact-semantics.md), and
   [run closeout](runs/2026-07-14_1945_front-artifact-contracts/07_CLOSEOUT.md).
+- Transverse artifact contracts: [impact analysis](audits/impact-analysis-transverse-artifact-contracts-20260714-2015.md),
+  [ADR 0041](adr/0041-transverse-artifact-and-infrastructure-file-semantics.md),
+  and [run closeout](runs/2026-07-14_2015_transverse-artifact-contracts/07_CLOSEOUT.md).
 
 ## READY campaign exit criteria
 
@@ -96,6 +98,9 @@ The verdict remains `PARTIAL` until the seven conditions hold simultaneously.
 - `PATT-03 / front batch` — resolved 2026-07-14. Five pass artifacts and the
   product changelog are formally mapped; all seven normative front writers are
   non-null under blocking lint. Five transverse cases remain.
+- `PATT-03` — fully resolved 2026-07-14. The final five transverse writers are
+  mapped, all nineteen independently identified null gaps are non-null under a
+  catalog regression test, and bounded family-specific null drift is blocking.
 
 ## Accepted residual risks
 
