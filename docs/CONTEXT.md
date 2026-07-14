@@ -25,12 +25,12 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Release posture**: v1.0 hardening complete; bounded maintenance continues
 - **Active run**: none
 - **Latest completed run**:
-  [`2026-07-14_1242_consumer-managed-hook-bundle`](runs/2026-07-14_1242_consumer-managed-hook-bundle/07_CLOSEOUT.md)
+  [`2026-07-14_1402_ready-contract`](runs/2026-07-14_1402_ready-contract/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: address `GMA-003` only through a dedicated executor cleanup
-  run; keep document resync manual under ADR 0034
+- **Next action**: execute READY Wave 1 for `GMA-003` through a dedicated
+  executor characterization and cleanup run
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
 - **Quality**: [CONVENTIONS.md](CONVENTIONS.md), pillars P1–P5 and P.R1–P.R8

@@ -26,7 +26,6 @@ bounded quality and historical traceability items.
 | ID | Severity | Description | Status |
 |---|---|---|---|
 | GMA-003 | P1 | Executor loader duplication and concentrated typing debt remain outside the correctness fix. | **MITIGATING** — correctness paths are directly covered; cleanup is deferred to a bounded code-quality run. |
-| SYS-POST-002 | P1 | A final external audit bypassed the canonical AUDIT artifact and FINAL_STATUS contract. | **OPEN / HISTORICAL** — commit `d0eab3c` cannot be retroactively rewritten; current runs follow the contract. |
 | QOA-006 | P2 | `docs/runs/routing-fix-verification.md` is a loose artifact outside a timestamped run directory. | **OPEN** — archive or reconstruct only after explicit approval. |
 | QOA-007 | P2 | Optional Ruff, formatting, mypy, and pyright baselines are not clean or canonically gated. | **OPEN** — keep non-gating until a dedicated baseline run. |
 | GMA-005 | P2 | Long functions, Python naming ambiguity, and French prompt prose remain convention-drift candidates. | **OPEN** — requires a separate, bounded canon proposal and migration decision. |
@@ -35,9 +34,30 @@ bounded quality and historical traceability items.
 | SYS-SUB-003 | P2 | Reintegration checks paths and presence more readily than counts, citations, and semantic contradictions. | **OPEN** — add semantic acceptance checks to future delegation briefs when delegation is used. |
 | QA-004 | LOW | Temporal provenance is documented but not automated in artifact generators. | **OPEN** — automate only with a dedicated generator change. |
 | QA-005 | LOW | Skill-level architecture decisions may lack explicit ADR traceability. | **OPEN** — verify on demand; do not create ADRs by count. |
-| QA-007 | LOW | The canon-change proposal template has not been exercised. | **OPEN** — validate on the next real canon change. |
 
 ## Latest evidence
+
+- READY convergence plan: [intent decomposition](audits/intent-decomp-20260714-1355.md).
+
+## READY campaign exit criteria
+
+The global verdict may change to `READY` only when all of these are evidenced:
+
+1. no actionable P0/P1 remains;
+2. every P2 is resolved or explicitly accepted with an owner and reopen trigger;
+3. canonical Ruff check, Ruff format and mypy commands pass with zero errors;
+4. executor tests, full pytest, P.R2 and local/remote CI pass;
+5. active governance surfaces contain no stale or contradictory truth;
+6. an independent read-only revalidation concludes READY;
+7. `main == origin/main` and the worktree is clean.
+
+The verdict remains `PARTIAL` until the seven conditions hold simultaneously.
+
+## Accepted residual risks
+
+- `SYS-POST-002` — historical audit protocol bypass in commit `d0eab3c`.
+  It cannot be repaired retroactively; current runs enforce durable FINAL_STATUS.
+  Reopen only if a new audit bypasses the canonical artifact contract.
 
 - Consumer hook ownership: [intent decomposition](audits/intent-decomp-20260714-1242.md),
   [impact analysis](audits/impact-analysis-20260714-1242.md),
@@ -52,6 +72,8 @@ bounded quality and historical traceability items.
 - `TER-001` (ownership boundary): project documents are generated-once while
   runtime hook assets use explicit VBB provenance and non-destructive refresh.
   Document synchronization remains manual by design, not an open merge promise.
+- `QA-007`: the canon-change proposal template was exercised, human-approved,
+  verified and closed in the ADR 0034 consumer hook run.
 
 - Credentials remediation design: [impact analysis](audits/impact-analysis-20260714-1150.md),
   [remediation plan](audits/security-remediation-20260714-1150.md), and
