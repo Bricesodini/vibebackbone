@@ -6,7 +6,7 @@ description: |
   testable tasks, orders dependencies, and exposes risks before implementation.
   Use for product-to-code planning, feature breakdown, and implementation plans.
 version: "1.1"
-phase: 1
+phase: 02_AUDIT
 token_budget: medium
 subagent_eligible: true
 mode_sensitive: false

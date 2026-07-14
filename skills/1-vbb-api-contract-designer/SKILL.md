@@ -6,7 +6,7 @@ description: |
   before code exists or before audit begins. Keywords: API contract, endpoint design,
   request/response schema, authentication, versioning, compatibility, pre-audit.
 version: "2.0"
-phase: 1
+phase: 02_AUDIT
 token_budget: medium
 subagent_eligible: true
 mode_sensitive: true

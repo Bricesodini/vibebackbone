@@ -6,7 +6,7 @@ description: |
   obsolete, stale, redundant, and orphaned documentation. Use for post-change
   drift analysis and prioritized remediation; read-only, never writes fixes.
 version: "1.1"
-phase: 1
+phase: 02_AUDIT
 token_budget: medium
 subagent_eligible: true
 mode_sensitive: false

@@ -8,7 +8,7 @@ description: |
   Keywords: architecture decision record, ADR, design decision, technical choice,
   decision log, architecture rationale, tradeoff documentation, design rationale.
 version: "1.0"
-phase: 1
+phase: 02_AUDIT
 token_budget: medium
 subagent_eligible: true
 mode_sensitive: false

@@ -140,8 +140,10 @@ updated: 2026-07-12
 
 1. **Toute nouvelle skill** DOIT avoir son `phase:` aligné sur la convention ci-dessus.
 2. **Toute modification de `phase:`** doit être tracée dans ce fichier (pas de drift silencieux).
-3. **La valeur `phase: 1` ou `phase: 2` (entier)** est **deprecated** et ne doit plus être utilisée dans une nouvelle skill.
-4. **Le frontmatter `phase:`** est une **clé string**, jamais un entier validé par tooling. Aucun outil canonique ne fait d'assertion stricte sur sa valeur au runtime.
+3. **The integer values `phase: 1` and `phase: 2`** are deprecated and must not be used in a new skill.
+4. **The `SKILL.md` frontmatter namespace** follows the agentic lifecycle (`02_AUDIT` for all `1-vbb-*` skills).
+5. **The `CONTRACT.yaml` routing namespace is distinct:** `routing.phase_scope: phase_1` is the stable catalog-router API for `1-vbb-*` skills. It must not be replaced with `02_AUDIT`.
+6. The contract linter blocks drift across these two surfaces.
 
 ---
 

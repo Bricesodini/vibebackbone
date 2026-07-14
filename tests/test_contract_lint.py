@@ -10,11 +10,12 @@ Validates that the linter correctly rejects invalid contracts:
   5. Unknown agent
   6. Event referencing unindexed skill
   7. Valid minimal contract passes
+  8. Phase-1 frontmatter and contract routing namespaces remain distinct
 
 And for the runtime:
-  8. Non-existent skill_id returns BLOCKED
-  9. Gate depth exceeded returns BLOCKED
-  10. Valid skill dry-run returns PASS/PARTIAL
+  9. Non-existent skill_id returns BLOCKED
+  10. Gate depth exceeded returns BLOCKED
+  11. Valid skill dry-run returns PASS/PARTIAL
 
 Usage:
     pytest tests/test_contract_lint.py -q
@@ -132,9 +133,69 @@ def _run_runtime(skill_id: str, extra_args: list = None) -> tuple:
     return result.returncode, result.stdout, result.stderr
 
 
+def _write_phase_one_fixture(skill_dir: Path, skill_phase: str, phase_scope: str):
+    """Write a controlled 1-vbb fixture using both phase namespaces."""
+    import yaml
+
+    contract = yaml.safe_load(MINIMAL_CONTRACT)
+    contract["id"] = skill_dir.name
+    contract["routing"]["phase_scope"] = [phase_scope]
+    (skill_dir / "CONTRACT.yaml").write_text(
+        yaml.dump(contract, default_flow_style=False)
+    )
+    (skill_dir / "SKILL.md").write_text(
+        textwrap.dedent(
+            f"""\
+            ---
+            name: {skill_dir.name}
+            description: Controlled phase namespace fixture.
+            phase: {skill_phase}
+            ---
+
+            # Fixture
+            """
+        )
+    )
+
+
 # ---------------------------------------------------------------------------
 # Linter negative tests — invalid contracts
 # ---------------------------------------------------------------------------
+
+
+def test_phase_one_namespaces_valid():
+    """Agentic 02_AUDIT plus router phase_1 is the valid combination."""
+    with tempfile.TemporaryDirectory() as tmp:
+        skill_dir = Path(tmp) / "skills" / "1-vbb-test"
+        skill_dir.mkdir(parents=True)
+        _write_phase_one_fixture(skill_dir, "02_AUDIT", "phase_1")
+
+        count, errors = _run_linter(skill_dir)
+        assert count == 0, errors
+
+
+def test_phase_one_frontmatter_drift_rejected():
+    """Deprecated integer-like frontmatter phase is blocked."""
+    with tempfile.TemporaryDirectory() as tmp:
+        skill_dir = Path(tmp) / "skills" / "1-vbb-test"
+        skill_dir.mkdir(parents=True)
+        _write_phase_one_fixture(skill_dir, "1", "phase_1")
+
+        count, errors = _run_linter(skill_dir)
+        assert count > 0
+        assert any("expected '02_AUDIT'" in str(error) for error in errors)
+
+
+def test_phase_one_contract_scope_drift_rejected():
+    """Agentic lifecycle values must not leak into contract routing."""
+    with tempfile.TemporaryDirectory() as tmp:
+        skill_dir = Path(tmp) / "skills" / "1-vbb-test"
+        skill_dir.mkdir(parents=True)
+        _write_phase_one_fixture(skill_dir, "02_AUDIT", "02_AUDIT")
+
+        count, errors = _run_linter(skill_dir)
+        assert count > 0
+        assert any("expected 'phase_1'" in str(error) for error in errors)
 
 
 def test_missing_required_key():

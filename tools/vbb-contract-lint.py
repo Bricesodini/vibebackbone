@@ -12,6 +12,7 @@ Checks:
   6. Outputs contain required fields
   7. Agents are recognized
   8. Contract schema version is explicit and supported
+  9. Phase-1 skill frontmatter and contract routing use their canonical namespaces
 """
 
 import sys
@@ -223,6 +224,44 @@ def check_agents(skill_id: str, contract: Dict) -> List[str]:
     return errors
 
 
+def check_phase_alignment(skill_id: str, contract: Dict) -> List[str]:
+    """Enforce the two canonical phase namespaces for Phase-1 skills.
+
+    SKILL.md uses the agentic lifecycle value ``02_AUDIT``. CONTRACT.yaml uses
+    the stable catalog-router value ``phase_1``. The different spellings are
+    intentional and must not be normalized into one another.
+    """
+    if not skill_id.startswith("1-vbb-"):
+        return []
+
+    errors: List[str] = []
+    skill_md = SKILLS_DIR / skill_id / "SKILL.md"
+    try:
+        content = skill_md.read_text(encoding="utf-8")
+        if not content.startswith("---\n"):
+            raise ValueError("missing leading YAML frontmatter")
+        end = content.find("\n---\n", 4)
+        if end == -1:
+            raise ValueError("unterminated YAML frontmatter")
+        frontmatter = yaml.safe_load(content[4:end]) or {}
+    except Exception as exc:
+        errors.append(f"[{skill_id}] SKILL.md phase: cannot read frontmatter ({exc})")
+        return errors
+
+    if frontmatter.get("phase") != "02_AUDIT":
+        errors.append(
+            f"[{skill_id}] SKILL.md phase: expected '02_AUDIT' in the agentic lifecycle namespace"
+        )
+
+    phase_scope = contract.get("routing", {}).get("phase_scope", [])
+    if not isinstance(phase_scope, list) or "phase_1" not in phase_scope:
+        errors.append(
+            f"[{skill_id}] routing.phase_scope: expected 'phase_1' in the catalog-router namespace"
+        )
+
+    return errors
+
+
 def _check_artifact_mapping(skill_id: str, label: str, artifact: Dict) -> List[str]:
     """Validate a single artifact mapping (primary or secondary)."""
     errors = []
@@ -422,6 +461,7 @@ def lint_all() -> Tuple[int, List[str], List[str]]:
         all_errors.extend(check_circular_deps(skill_id, contract, all_contracts))
         all_errors.extend(check_outputs(skill_id, contract))
         all_errors.extend(check_agents(skill_id, contract))
+        all_errors.extend(check_phase_alignment(skill_id, contract))
         all_errors.extend(check_artifact(skill_id, contract))
 
     # Non-blocking warnings: SKILL.md description length (CONVENTIONS.md Pillar 1)

@@ -5,7 +5,7 @@ description: |
   into a small canonical documentation set while preserving traceability and historical evidence.
   Works on Markdown only. Never deletes files. May propose archive moves in text only.
 version: "2.0"
-phase: 1
+phase: 02_AUDIT
 token_budget: medium
 subagent_eligible: true
 mode_sensitive: false

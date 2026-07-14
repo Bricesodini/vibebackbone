@@ -175,6 +175,17 @@ that triggered the decision.
 
 <!-- Add entries below as decisions are made -->
 
+### 2026-07-14 — Dual phase namespace semantics (ADR-0037)
+**Decision**: keep the phase alignment rule in Core; no provider adapter owns
+or overrides it.
+**Trigger**: PATT-02 and explicit `Go` from Brice.
+**Reason**: agentic lifecycle metadata and catalog-router compatibility are
+generic skill-contract invariants shared by Pi, OpenCode, Codex and Claude Code.
+**Impact**: all four distributions inherit `SKILL.md phase: 02_AUDIT`, stable
+`CONTRACT.yaml routing.phase_scope: phase_1`, and the blocking Core linter.
+No adapter or provider runtime state changes.
+**Author**: Codex (GO Brice)
+
 ### 2026-07-14 — Consumer managed hook assets (ADR-0034)
 **Decision**: keep the ownership and provenance mechanism in Core; no provider
 adapter owns or overrides it.

@@ -9,7 +9,7 @@ description: |
   inconsistent patterns, mixed conventions, minority divergence,
   approach fragmentation, style fragmentation, multiple conventions.
 version: "1.0"
-phase: 1
+phase: 02_AUDIT
 token_budget: medium
 subagent_eligible: true
 mode_sensitive: true

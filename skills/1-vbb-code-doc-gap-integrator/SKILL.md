@@ -6,7 +6,7 @@ description: |
   and emits a gap report. Use for evidence-grounded code→doc integration in
   COMPLETE or DELEGATED mode; never modifies code or deletes files.
 version: "2.1"
-phase: 1
+phase: 02_AUDIT
 token_budget: medium
 subagent_eligible: true
 mode_sensitive: false

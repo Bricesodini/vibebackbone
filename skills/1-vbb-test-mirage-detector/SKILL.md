@@ -10,7 +10,7 @@ description: |
   happy path only, test quality, useless tests, test anti-patterns,
   coverage illusion, green tests no safety, testing theater.
 version: "1.0"
-phase: 1
+phase: 02_AUDIT
 token_budget: medium
 subagent_eligible: true
 mode_sensitive: true
