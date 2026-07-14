@@ -94,8 +94,8 @@ routing:
   finding_id_prefix: API
   triggers:
   - api audit
-  - audit des contrats
-  - API contract
+  - contract audit
+  - implemented api audit
   excludes:
   - general_security
   - performance_scalability

@@ -103,11 +103,15 @@ def _run_linter(skill_dir: Path) -> tuple:
 
     # Write temp INDEX.yaml in the skill dir's parent
     skills_tmp = skill_dir.parent
+    catalog_dirs = sorted(
+        path for path in skills_tmp.iterdir() if (path / "CONTRACT.yaml").exists()
+    )
     index_data = {
         "version": "0.1",
         "type": "vbb_skill_contract_index",
         "skills": [
-            {"id": skill_dir.name, "contract": f"./{skill_dir.name}/CONTRACT.yaml"}
+            {"id": path.name, "contract": f"./{path.name}/CONTRACT.yaml"}
+            for path in catalog_dirs
         ],
     }
     index_file = skills_tmp / "INDEX.yaml"
@@ -196,6 +200,31 @@ def test_phase_one_contract_scope_drift_rejected():
         count, errors = _run_linter(skill_dir)
         assert count > 0
         assert any("expected 'phase_1'" in str(error) for error in errors)
+
+
+def test_duplicate_routing_trigger_rejected_case_insensitively():
+    """Two contracts may not claim the same normalized trigger."""
+    import yaml
+
+    with tempfile.TemporaryDirectory() as tmp:
+        skills_dir = Path(tmp) / "skills"
+        first = skills_dir / "test-first"
+        second = skills_dir / "test-second"
+        first.mkdir(parents=True)
+        second.mkdir()
+
+        for skill_dir, trigger in [(first, "Status"), (second, " status ")]:
+            contract = yaml.safe_load(MINIMAL_CONTRACT)
+            contract["id"] = skill_dir.name
+            contract["routing"]["triggers"] = [trigger]
+            (skill_dir / "CONTRACT.yaml").write_text(
+                yaml.dump(contract, default_flow_style=False)
+            )
+            (skill_dir / "SKILL.md").write_text("# Fixture\n")
+
+        count, errors = _run_linter(first)
+        assert count == 1, errors
+        assert "multiple owners" in errors[0]
 
 
 def test_missing_required_key():
@@ -634,6 +663,24 @@ def test_phase_router_responsibility_corpus():
         ),
         ("classify this task into the correct route", "vibebackbone"),
         ("audit security controls", "2-vbb-security"),
+        ("api contract", "1-vbb-api-contract-designer"),
+        ("implemented api audit", "2-vbb-api-auditor"),
+        ("dead code", "1-vbb-code-janitor"),
+        ("unused imports", "1-vbb-code-janitor"),
+        (
+            "anti-slop repository quality gate for dead code",
+            "t-vbb-anti-slop-gate",
+        ),
+        (
+            "anti-slop repository quality gate for unused imports",
+            "t-vbb-anti-slop-gate",
+        ),
+        ("monolith", "1-vbb-monolith-detector"),
+        ("technical debt in a legacy architecture", "1-vbb-tech-debt"),
+        ("pilotage", "vibebackbone"),
+        ("governance reference for route selection", "0-vbb-pilotage"),
+        ("status", "t-vbb-status-dashboard"),
+        ("closeout report", "t-vbb-status-report"),
     ]
 
     for query, expected in cases:

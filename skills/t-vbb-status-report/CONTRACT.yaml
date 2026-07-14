@@ -51,9 +51,9 @@ routing:
   phase_scope:
   - closeout
   triggers:
-  - status
-  - rapport
-  - bilan
+  - closeout report
+  - release report
+  - outcome summary
 limits:
   max_gate_depth: 2
   circular_dependencies: forbidden

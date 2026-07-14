@@ -55,10 +55,10 @@ routing:
   triggers:
   - tech debt
   - technical debt
-  - dette technique
+  - debt assessment
   - legacy
   - maintainability
-  - monolith
+  - legacy architecture debt
 limits:
   max_gate_depth: 2
   circular_dependencies: forbidden

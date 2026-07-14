@@ -25,12 +25,11 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Release posture**: v1.0 hardening complete; bounded maintenance continues
 - **Active run**: none
 - **Latest completed run**:
-  [`2026-07-14_1815_phase-semantics`](runs/2026-07-14_1815_phase-semantics/07_CLOSEOUT.md)
+  [`2026-07-14_1845_routing-trigger-precedence`](runs/2026-07-14_1845_routing-trigger-precedence/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: remediate PATT-04 routing precedence, then the first PATT-03
-  Phase-1 artifact-contract batch
+- **Next action**: implement the first PATT-03 Phase-1 artifact-contract batch
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
 - **Quality**: [CONVENTIONS.md](CONVENTIONS.md), pillars P1–P5 and P.R1–P.R8

@@ -13,6 +13,7 @@ Checks:
   7. Agents are recognized
   8. Contract schema version is explicit and supported
   9. Phase-1 skill frontmatter and contract routing use their canonical namespaces
+ 10. Routing triggers have unique case-insensitive owners across the catalog
 """
 
 import sys
@@ -262,6 +263,34 @@ def check_phase_alignment(skill_id: str, contract: Dict) -> List[str]:
     return errors
 
 
+def check_duplicate_triggers(all_contracts: Dict[str, Dict]) -> List[str]:
+    """Reject exact case-insensitive trigger sharing across the catalog."""
+    errors: List[str] = []
+    owners: Dict[str, List[Tuple[str, str]]] = {}
+
+    for skill_id, contract in sorted(all_contracts.items()):
+        triggers = contract.get("routing", {}).get("triggers", [])
+        for index, trigger in enumerate(triggers):
+            if not isinstance(trigger, str) or not trigger.strip():
+                errors.append(
+                    f"[{skill_id}] routing.triggers[{index}]: must be a non-empty string"
+                )
+                continue
+            normalized = trigger.strip().casefold()
+            owners.setdefault(normalized, []).append((skill_id, trigger))
+
+    for normalized, occurrences in sorted(owners.items()):
+        if len(occurrences) > 1:
+            rendered = ", ".join(
+                f"{skill_id} ({trigger!r})" for skill_id, trigger in occurrences
+            )
+            errors.append(
+                f"routing trigger {normalized!r} has multiple owners: {rendered}"
+            )
+
+    return errors
+
+
 def _check_artifact_mapping(skill_id: str, label: str, artifact: Dict) -> List[str]:
     """Validate a single artifact mapping (primary or secondary)."""
     errors = []
@@ -463,6 +492,8 @@ def lint_all() -> Tuple[int, List[str], List[str]]:
         all_errors.extend(check_agents(skill_id, contract))
         all_errors.extend(check_phase_alignment(skill_id, contract))
         all_errors.extend(check_artifact(skill_id, contract))
+
+    all_errors.extend(check_duplicate_triggers(all_contracts))
 
     # Non-blocking warnings: SKILL.md description length (CONVENTIONS.md Pillar 1)
     for skill_id in sorted(set(list(all_contracts.keys()) + list(indexed))):

@@ -44,10 +44,10 @@ routing:
   phase_scope:
   - transverse
   triggers:
-  - pilotage
+  - governance reference
   - governance decision
   - mode selection
-  - voie selection
+  - route selection
   - escalation decision
 limits:
   max_gate_depth: 1

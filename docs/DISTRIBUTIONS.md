@@ -175,6 +175,16 @@ that triggered the decision.
 
 <!-- Add entries below as decisions are made -->
 
+### 2026-07-14 — Unique generic routing-trigger ownership (ADR-0038)
+**Decision**: keep trigger ownership and collision lint in Core; no distribution
+may introduce provider-specific precedence for shared skills.
+**Trigger**: PATT-04 and explicit `Go` from Brice.
+**Reason**: deterministic responsibility routing is a generic catalog invariant
+shared by Pi, OpenCode, Codex and Claude Code.
+**Impact**: the four distributions inherit six clarified trigger owners and the
+blocking duplicate check. No adapter, provider path or runtime state changes.
+**Author**: Codex (GO Brice)
+
 ### 2026-07-14 — Dual phase namespace semantics (ADR-0037)
 **Decision**: keep the phase alignment rule in Core; no provider adapter owns
 or overrides it.

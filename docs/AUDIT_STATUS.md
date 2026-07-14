@@ -28,7 +28,6 @@ READY revalidation.
 |---|---|---|---|
 | PATT-01 | P1 | Twelve skills diverge from the mandatory standard section layout. | **OPEN** — normalize equivalent headings, then add minimal sections to compact wrappers. |
 | PATT-03 | P1 | Nineteen authored artifacts are described by skills but null in formal contracts. | **OPEN** — close in Phase-1/front/transverse batches and strengthen lint. |
-| PATT-04 | P1 | Six exact routing triggers collide without contract-level precedence. | **OPEN** — qualify stage/action and add routing precedence tests. |
 | PATT-05 | P2 | Domain verdict to runtime status mapping exists in only 6/64 contracts. | **OPEN** — decide one schema/runtime boundary before adding metadata. |
 
 ## Latest evidence
@@ -58,6 +57,9 @@ READY revalidation.
 - Phase semantics: [impact analysis](audits/impact-analysis-phase-semantics-20260714-1815.md),
   [ADR 0037](adr/0037-dual-phase-namespace-semantics.md), and
   [run closeout](runs/2026-07-14_1815_phase-semantics/07_CLOSEOUT.md).
+- Routing trigger ownership: [impact analysis](audits/impact-analysis-routing-trigger-precedence-20260714-1845.md),
+  [ADR 0038](adr/0038-unique-generic-routing-trigger-ownership.md), and
+  [run closeout](runs/2026-07-14_1845_routing-trigger-precedence/07_CLOSEOUT.md).
 
 ## READY campaign exit criteria
 
@@ -78,6 +80,9 @@ The verdict remains `PARTIAL` until the seven conditions hold simultaneously.
 - `PATT-02` — resolved 2026-07-14. All sixteen `1-vbb-*` skills use
   `SKILL.md phase: 02_AUDIT`, all contracts retain catalog routing scope
   `phase_1`, and the cross-surface invariant is blocking in contract lint.
+- `PATT-04` — resolved 2026-07-14. The six generic trigger collisions have
+  unique owners, adjacent responsibilities have qualified action/stage
+  triggers, and contract lint blocks case-insensitive exact duplicates.
 
 ## Accepted residual risks
 

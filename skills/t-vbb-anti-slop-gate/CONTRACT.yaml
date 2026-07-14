@@ -54,10 +54,9 @@ routing:
   triggers:
   - slop
   - quality gate
-  - dead code
   - style drift
-  - unused imports
   - anti-slop
+  - repository quality gate
 limits:
   max_gate_depth: 2
   circular_dependencies: forbidden
