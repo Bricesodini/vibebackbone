@@ -1,8 +1,8 @@
 ---
 name: t-vbb-llm-healthcheck
 description: |
-  Vérifie la santé des LLMs déclarés dans docs/LLM_PROVIDERS.md.
-  Teste la connectivité, la disponibilité du modèle local, et le fallback.
+  Checks the health of LLMs declared in docs/LLM_PROVIDERS.md.
+  Tests connectivity, local-model availability, and fallback behavior.
   Use when: checking LLM availability, before launching subagents, or troubleshooting
   subagent failures. Keywords: healthcheck, LLM, Ollama, provider, connectivity,
   subagent fallback, model availability.
@@ -15,41 +15,56 @@ mode_sensitive: false
 
 # T-VBB-LLM-Healthcheck
 
-Vérifie que les LLMs déclarés dans `docs/LLM_PROVIDERS.md` sont accessibles.
+## ROLE & POSTURE
 
-## ROUTINE
+Check whether providers declared in `docs/LLM_PROVIDERS.md` are reachable.
+Read-only: do not modify provider configuration or start/stop services.
 
-### 1. Lire le registry
+## INPUT CONTRACT
+
+Required: none. Optional: `docs/LLM_PROVIDERS.md` and full generation-test mode.
+
+## BLOCKING CONDITIONS
+
+Return `DOWN` when no declared provider can be reached. Return `BLOCKED` only
+when the provider registry is required but missing or unreadable.
+
+## SCOPE
+
+Provider connectivity, declared model availability, minimal optional generation,
+and fallback-chain reporting. Exclude model benchmarking and configuration edits.
+
+## PROCESS
+
+### 1. Read the registry
 
 ```
 docs/LLM_PROVIDERS.md
 ```
 
-Extraire:
-- Modèles locaux (`provider: Ollama` / `provider: LM Studio`)
-- Endpoint de chaque provider local
-- Modèle fallback
+Extract local models (`provider: Ollama` / `provider: LM Studio`), each local
+endpoint, and the fallback model.
 
-### 2. Tester chaque provider local
+### 2. Test each local provider
 
 ```bash
-# Test Ollama
+# Check Ollama
 curl -s --max-time 5 http://localhost:11434/api/tags
 
-# Vérifier que le modèle est disponible
+# Verify that the model is available
 ollama list | grep qwen3.6-27b-agent-nvfp4-64k
 ```
 
-### 3. Test de génération minimal (optionnel, si --full)
+### 3. Minimal generation test (optional with `--full`)
 
 ```bash
-# Teste que Ollama répond vraiment
+# Verify that Ollama actually generates a response
 curl -s --max-time 30 http://localhost:11434/api/generate \
   -d '{"model":"qwen3.6-27b-agent-nvfp4-64k:latest","prompt":"Hi","stream":false}' \
   | jq -r '.response' | head -c 100
 ```
 
-### 4.Rapport
+### 4. Report
 
 Output:
 
@@ -68,25 +83,32 @@ Output:
 
 ## OUTPUT CONTRACT
 
-| Champ | Description |
-|-------|-------------|
-| `providers` | Liste des providers avec status |
-| `fallback_chain` | Liste ordonnée des modèles |
-| `verdict` | `READY` (local OK) / `DEGRADED` (fallback only) / `DOWN` (aucun accessible) |
-| `recommendation` | Action si verdict != READY |
+| Field | Description |
+|---|---|
+| `providers` | Provider list with status |
+| `fallback_chain` | Ordered model list |
+| `verdict` | `READY` (local OK) / `DEGRADED` (fallback only) / `DOWN` (none reachable) |
+| `recommendation` | Action when verdict is not READY |
+
+## VERDICT RULES
+
+- `READY`: the declared local provider and model are available.
+- `DEGRADED`: local provider unavailable but a fallback is reachable.
+- `DOWN`: no declared provider is reachable.
+- `BLOCKED`: registry evidence is unavailable.
 
 ## USAGE
 
 ```bash
-# Healthcheck rapide
+# Quick healthcheck
 python3 tools/vbb-llm-healthcheck.py
 
-# Healthcheck complet avec test de génération
+# Full healthcheck with generation test
 python3 tools/vbb-llm-healthcheck.py --full
 ```
 
 ## NOTES
 
-- Le fallback est automatique si le provider local échoue
-- Ce skill ne modifie rien — lecture seule
-- Si local est DOWN, les subagents utilisent automatiquement le fallback
+- Fallback is automatic when the local provider fails.
+- This skill is read-only.
+- When local status is DOWN, subagents use the declared fallback automatically.

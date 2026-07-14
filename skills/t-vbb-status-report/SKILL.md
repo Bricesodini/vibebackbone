@@ -36,6 +36,21 @@ You render the known state in readable form.
 - [ ] `docs/SESSION.md`
 - [ ] `docs/AUDIT_STATUS.md`
 
+## BLOCKING CONDITIONS
+
+Stop when no source artifact is readable or when sources contradict one another
+without an authoritative current-state document.
+
+## SCOPE
+
+Condense known evidence into an inline status report. Do not audit, remediate,
+invent findings, or write a standalone artifact.
+
+## PROCESS
+
+Read the supplied artifacts, prefer current canonical state over historical
+evidence, extract bounded findings, and emit the shortest actionable summary.
+
 ## OUTPUT CONTRACT
 
 ### Own artifact: none

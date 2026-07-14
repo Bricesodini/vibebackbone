@@ -16,7 +16,7 @@ mode_sensitive: false
 
 Standard reference: `0-vbb-standard`. Read `docs/PILOTAGE.md` first.
 
-## ROLE
+## ROLE & POSTURE
 
 Answer: “Did we build what was requested?” Compare the original specification
 with observable implementation evidence. Never modify code, rewrite or contest
@@ -30,7 +30,7 @@ Rules:
 - Route correction work to implementation and security/performance/accessibility
   reviews to their phase 2 skills.
 
-## INPUT AND BLOCKING
+## INPUT CONTRACT
 
 Required: a reference specification and access to implemented code. Optionally
 use an `1-vbb-intent-decomposer` plan, architecture/context docs, completed-task
@@ -39,11 +39,13 @@ list, commits, logs, screenshots, and explicit non-functional requirements.
 Ask only questions whose answers change scope or verification, at most four.
 Default scope is the full specification with no additional non-functional checks.
 
+## BLOCKING CONDITIONS
+
 Stop when the specification is absent or not objectively verifiable, or when
 the code is inaccessible. Redirect technical-quality audits and requests to fix
 the detected gaps.
 
-## SCOPE AND TAXONOMY
+## SCOPE
 
 Extract verifiable requirements; map them to code; verify presence, behavior,
 data and completeness; detect unspecified user-visible behavior; classify
@@ -107,7 +109,7 @@ The report must contain:
 
 Never report `MISSING` without stating what locations or surfaces were searched.
 
-## VERDICT
+## VERDICT RULES
 
 - `CONFORM`: all `CRITICAL` and `IMPORTANT` requirements are covered; no HIGH
   missing, partial, or divergent item.

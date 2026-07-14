@@ -16,7 +16,7 @@ mode_sensitive: false
 
 Standard reference: `0-vbb-standard`. Read `docs/PILOTAGE.md` first.
 
-## ROLE
+## ROLE & POSTURE
 
 Detect documentable code that lacks documentation, then write only the missing
 or materially incomplete docs. Never change code/config, delete/move files,
@@ -31,7 +31,7 @@ Rules:
   dependency mapping to `t-vbb-dependency-mapper`, and impact analysis to
   `t-vbb-impact-analyzer`.
 
-## INPUT AND BLOCKING
+## INPUT CONTRACT
 
 Required: repository access to source and existing documentation. Optional:
 target scope, known gaps, naming convention, architecture/index docs, and write
@@ -40,8 +40,15 @@ no hints.
 
 Ask at most three optional questions and use defaults without re-prompting.
 
+## BLOCKING CONDITIONS
+
 Stop when the repo is inaccessible, contains no source, has fewer than five
 files, or cannot support a coherent target path. Redirect doc↔doc harmonization.
+
+## SCOPE
+
+Cover evidence-grounded gap detection, retained HIGH/MEDIUM documentation
+creation, orphan reporting, and COMPLETE or authorized DELEGATED execution.
 
 ## MODES
 
@@ -130,7 +137,7 @@ The report must contain:
 7. LOW gaps not written;
 8. unknowns and limitations.
 
-## VERDICT
+## VERDICT RULES
 
 - `READY`: all retained HIGH/MEDIUM gaps are filled and coverage is complete or
   near-complete.

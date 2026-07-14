@@ -26,7 +26,6 @@ READY revalidation.
 
 | ID | Severity | Description | Status |
 |---|---|---|---|
-| PATT-01 | P1 | Twelve skills diverge from the mandatory standard section layout. | **OPEN** — normalize equivalent headings, then add minimal sections to compact wrappers. |
 | PATT-05 | P2 | Domain verdict to runtime status mapping exists in only 6/64 contracts. | **OPEN** — decide one schema/runtime boundary before adding metadata. |
 
 ## Latest evidence
@@ -68,6 +67,9 @@ READY revalidation.
 - Transverse artifact contracts: [impact analysis](audits/impact-analysis-transverse-artifact-contracts-20260714-2015.md),
   [ADR 0041](adr/0041-transverse-artifact-and-infrastructure-file-semantics.md),
   and [run closeout](runs/2026-07-14_2015_transverse-artifact-contracts/07_CLOSEOUT.md).
+- Exact skill sections: [impact analysis](audits/impact-analysis-skill-section-normalization-20260714-2045.md),
+  [ADR 0042](adr/0042-exact-seven-section-skill-layout.md), and
+  [run closeout](runs/2026-07-14_2045_skill-section-normalization/07_CLOSEOUT.md).
 
 ## READY campaign exit criteria
 
@@ -101,6 +103,9 @@ The verdict remains `PARTIAL` until the seven conditions hold simultaneously.
 - `PATT-03` — fully resolved 2026-07-14. The final five transverse writers are
   mapped, all nineteen independently identified null gaps are non-null under a
   catalog regression test, and bounded family-specific null drift is blocking.
+- `PATT-01` — resolved 2026-07-14. All 64 skills contain the seven exact
+  canonical level-two headings; twelve divergent skills were normalized with
+  no command, path, routing or verdict change, and catalog lint blocks drift.
 
 ## Accepted residual risks
 

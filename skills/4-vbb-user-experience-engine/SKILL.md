@@ -17,7 +17,7 @@ mode_sensitive: false
 Standard reference: `0-vbb-standard`. Read `docs/PILOTAGE.md` and use
 `4-vbb-front-pipeline-reference`.
 
-## ROLE
+## ROLE & POSTURE
 
 Optimize business workflows before visual styling. The primary objective is
 graphic propagation architecture: show where a visual change is controlled,
@@ -27,14 +27,24 @@ system.
 Never modify code or backend behavior, make aesthetic decisions, add features,
 or propose token/primitive migrations before propagation and surface mapping.
 
-## INPUT AND BLOCKING
+## INPUT CONTRACT
 
 Required: interface evidence (source, screenshots, or flow description), target
 user, primary task, usage context, and repository context sufficient to identify
 real surfaces.
 
-Ask at most one clarification round. If inputs remain incomplete, stop with
-`PASS_BLOCKED: insufficient_context`.
+Ask at most one clarification round.
+
+## BLOCKING CONDITIONS
+
+Stop when interface evidence or the context required to identify real surfaces
+remains incomplete after one clarification round.
+
+## SCOPE
+
+Cover propagation architecture, surface cartography, workflow friction, state
+coverage, action hierarchy, and flow simplification. Exclude visual styling,
+design-system creation, backend behavior and code changes.
 
 ## NON-NEGOTIABLE ORDER
 
@@ -106,7 +116,7 @@ where relevant.
 Pass 4 owns the complete token map, registry check, `CENTRALIZATION_GAPS`, and
 `CENTRALIZATION_ROADMAP`; pass 1 must not claim them as complete.
 
-## REJECTION AND VERDICT
+## VERDICT RULES
 
 Classify as `GENERIC_DESIGN_SYSTEM_RESPONSE` and set `PASS_STATUS: BLOCKED` if
 registries, tokens, primitives, or migration are proposed before

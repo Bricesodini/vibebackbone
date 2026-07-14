@@ -16,7 +16,7 @@ mode_sensitive: false
 
 Standard reference: `0-vbb-standard`. Read `docs/PILOTAGE.md` first.
 
-## ROLE
+## ROLE & POSTURE
 
 Produce an evidence-backed state of synchronization between source code and
 documentation. Audit only: never modify code/config, write documentation,
@@ -31,7 +31,7 @@ Rules:
   `1-vbb-doc-harmonizer`, debt analysis to `1-vbb-tech-debt`, dependency mapping
   to `t-vbb-dependency-mapper`, and change impact to `t-vbb-impact-analyzer`.
 
-## INPUT AND BLOCKING
+## INPUT CONTRACT
 
 Required: repository access to source and documentation. Optional: target scope,
 refactoring context, renames/moves, architecture/context/index docs, and severity
@@ -39,8 +39,15 @@ threshold. Defaults: full repo, uniform priority, all severities.
 
 Ask at most three optional questions and use defaults without re-prompting.
 
+## BLOCKING CONDITIONS
+
 Stop when the repo is inaccessible or contains neither code nor documentation.
 Redirect requests to write missing docs or harmonize existing docs.
+
+## SCOPE
+
+Cover bidirectional code↔documentation inventory, discrepancy classification,
+severity, healthy pairs, uncertainty, and remediation routing. Remain read-only.
 
 ## INVENTORY RULES
 
@@ -100,7 +107,7 @@ The report must contain:
 7. healthy code↔doc pairs;
 8. unknowns and search limitations.
 
-## VERDICT
+## VERDICT RULES
 
 - `COHERENT`: no HIGH/MEDIUM discrepancy; docs faithfully reflect code.
 - `PARTIAL`: bounded HIGH/MEDIUM discrepancies; most pairs remain coherent and

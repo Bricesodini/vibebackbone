@@ -86,6 +86,35 @@ MINIMAL_CONTRACT = textwrap.dedent("""\
       allowed_fields: []
 """)
 
+CANONICAL_SKILL_BODY = textwrap.dedent("""\
+    # Fixture
+
+    ## ROLE & POSTURE
+    Fixture role.
+
+    ## INPUT CONTRACT
+    Fixture input.
+
+    ## BLOCKING CONDITIONS
+    Fixture blocking conditions.
+
+    ## SCOPE
+    Fixture scope.
+
+    ## PROCESS
+    Fixture process.
+
+    ## OUTPUT CONTRACT
+    Fixture output.
+
+    ## VERDICT RULES
+    Fixture verdict.
+""")
+
+
+def _canonical_skill_text(extra: str = "") -> str:
+    return CANONICAL_SKILL_BODY + (f"\n{extra.rstrip()}\n" if extra else "")
+
 
 def _run_linter(skill_dir: Path) -> tuple:
     """Run linter with a temp INDEX and return its error count and errors."""
@@ -156,9 +185,9 @@ def _write_phase_one_fixture(skill_dir: Path, skill_phase: str, phase_scope: str
             phase: {skill_phase}
             ---
 
-            # Fixture
             """
         )
+        + _canonical_skill_text()
     )
 
 
@@ -220,7 +249,7 @@ def test_duplicate_routing_trigger_rejected_case_insensitively():
             (skill_dir / "CONTRACT.yaml").write_text(
                 yaml.dump(contract, default_flow_style=False)
             )
-            (skill_dir / "SKILL.md").write_text("# Fixture\n")
+            (skill_dir / "SKILL.md").write_text(_canonical_skill_text())
 
         count, errors = _run_linter(first)
         assert count == 1, errors
@@ -279,7 +308,7 @@ def test_front_normative_emitter_rejects_null_artifact():
             yaml.dump(contract, default_flow_style=False)
         )
         (skill_dir / "SKILL.md").write_text(
-            "# Front pass\n\n## OUTPUT CONTRACT\n\nEmit:\n`pass-3-output.md`\n"
+            _canonical_skill_text("Emit:\n`pass-3-output.md`")
         )
 
         count, errors = _run_linter(skill_dir)
@@ -306,7 +335,7 @@ def test_release_document_satisfies_front_writer_contract():
             yaml.dump(contract, default_flow_style=False)
         )
         (skill_dir / "SKILL.md").write_text(
-            "# Changelog\n\nUpdate (or create) `CHANGELOG.md` at the repo root.\n"
+            _canonical_skill_text("Update (or create) `CHANGELOG.md` at the repo root.")
         )
 
         count, errors = _run_linter(skill_dir)
@@ -338,7 +367,7 @@ def test_transverse_normative_writer_rejects_null_artifact():
             yaml.dump(contract, default_flow_style=False)
         )
         (skill_dir / "SKILL.md").write_text(
-            "# Writer\n\nWrite ONE Markdown report in: `docs/audits/test.md`\n"
+            _canonical_skill_text("Write ONE Markdown report in: `docs/audits/test.md`")
         )
 
         count, errors = _run_linter(skill_dir)
@@ -365,7 +394,7 @@ def test_infrastructure_file_satisfies_transverse_writer_contract():
             yaml.dump(contract, default_flow_style=False)
         )
         (skill_dir / "SKILL.md").write_text(
-            "# Writer\n\nWrite report and Docker infrastructure files.\n"
+            _canonical_skill_text("Write report and Docker infrastructure files.")
         )
 
         count, errors = _run_linter(skill_dir)
@@ -421,7 +450,7 @@ def test_missing_required_key():
         skill_dir.mkdir()
         contract_file = skill_dir / "CONTRACT.yaml"
         contract_file.write_text(yaml.dump(contract, default_flow_style=False))
-        (skill_dir / "SKILL.md").write_text("# Test skill\n")
+        (skill_dir / "SKILL.md").write_text(_canonical_skill_text())
 
         count, errors = _run_linter(skill_dir)
         assert count > 0, f"Expected errors, got {count}"
@@ -444,7 +473,7 @@ def test_invalid_type():
         skill_dir.mkdir()
         contract_file = skill_dir / "CONTRACT.yaml"
         contract_file.write_text(yaml.dump(contract, default_flow_style=False))
-        (skill_dir / "SKILL.md").write_text("# Test skill\n")
+        (skill_dir / "SKILL.md").write_text(_canonical_skill_text())
 
         count, errors = _run_linter(skill_dir)
         assert count > 0, f"Expected errors, got {count}"
@@ -467,7 +496,7 @@ def test_invalid_status():
         skill_dir.mkdir()
         contract_file = skill_dir / "CONTRACT.yaml"
         contract_file.write_text(yaml.dump(contract, default_flow_style=False))
-        (skill_dir / "SKILL.md").write_text("# Test skill\n")
+        (skill_dir / "SKILL.md").write_text(_canonical_skill_text())
 
         count, errors = _run_linter(skill_dir)
         assert count > 0, f"Expected errors, got {count}"
@@ -490,7 +519,7 @@ def test_missing_output_required_field():
         skill_dir.mkdir()
         contract_file = skill_dir / "CONTRACT.yaml"
         contract_file.write_text(yaml.dump(contract, default_flow_style=False))
-        (skill_dir / "SKILL.md").write_text("# Test skill\n")
+        (skill_dir / "SKILL.md").write_text(_canonical_skill_text())
 
         count, errors = _run_linter(skill_dir)
         assert count > 0, f"Expected errors, got {count}"
@@ -514,7 +543,7 @@ def test_unknown_agent():
         skill_dir.mkdir()
         contract_file = skill_dir / "CONTRACT.yaml"
         contract_file.write_text(yaml.dump(contract, default_flow_style=False))
-        (skill_dir / "SKILL.md").write_text("# Test skill\n")
+        (skill_dir / "SKILL.md").write_text(_canonical_skill_text())
 
         count, errors = _run_linter(skill_dir)
         assert count > 0, f"Expected errors, got {count}"
@@ -539,7 +568,7 @@ def test_event_unindexed_skill():
         skill_dir.mkdir()
         contract_file = skill_dir / "CONTRACT.yaml"
         contract_file.write_text(yaml.dump(contract, default_flow_style=False))
-        (skill_dir / "SKILL.md").write_text("# Test skill\n")
+        (skill_dir / "SKILL.md").write_text(_canonical_skill_text())
 
         count, errors = _run_linter(skill_dir)
         assert count > 0, f"Expected errors, got {count}"
@@ -566,7 +595,7 @@ def test_artifact_missing_required_field():
         skill_dir.mkdir()
         contract_file = skill_dir / "CONTRACT.yaml"
         contract_file.write_text(yaml.dump(contract, default_flow_style=False))
-        (skill_dir / "SKILL.md").write_text("# Test skill\n")
+        (skill_dir / "SKILL.md").write_text(_canonical_skill_text())
 
         count, errors = _run_linter(skill_dir)
         assert count > 0, f"Expected errors, got {count}"
@@ -590,7 +619,7 @@ def test_unsupported_version():
         skill_dir.mkdir()
         contract_file = skill_dir / "CONTRACT.yaml"
         contract_file.write_text(yaml.dump(contract, default_flow_style=False))
-        (skill_dir / "SKILL.md").write_text("# Test skill\n")
+        (skill_dir / "SKILL.md").write_text(_canonical_skill_text())
 
         count, errors = _run_linter(skill_dir)
         assert count > 0, f"Expected errors, got {count}"
@@ -626,7 +655,7 @@ def test_blocking_gate_no_expected_status():
         (ref_dir / "CONTRACT.yaml").write_text(
             yaml.dump(ref_contract, default_flow_style=False)
         )
-        (ref_dir / "SKILL.md").write_text("# Ref\n")
+        (ref_dir / "SKILL.md").write_text(_canonical_skill_text())
 
         skill_dir = skills_tmp / "test-bad-gate"
         skill_dir.mkdir()
@@ -634,7 +663,7 @@ def test_blocking_gate_no_expected_status():
         (skill_dir / "CONTRACT.yaml").write_text(
             yaml.dump(contract, default_flow_style=False)
         )
-        (skill_dir / "SKILL.md").write_text("# Test skill\n")
+        (skill_dir / "SKILL.md").write_text(_canonical_skill_text())
 
         # Update INDEX to include both
         index = {
@@ -673,6 +702,30 @@ def test_blocking_gate_no_expected_status():
 # ---------------------------------------------------------------------------
 
 
+def test_missing_required_skill_section_rejected():
+    """A skill missing one exact canonical heading must fail layout linting."""
+    import yaml
+
+    with tempfile.TemporaryDirectory() as tmp:
+        skills_tmp = Path(tmp) / "skills"
+        skills_tmp.mkdir()
+        skill_dir = skills_tmp / "test-missing-section"
+        skill_dir.mkdir()
+        contract = yaml.safe_load(MINIMAL_CONTRACT)
+        contract["id"] = skill_dir.name
+        (skill_dir / "CONTRACT.yaml").write_text(
+            yaml.dump(contract, default_flow_style=False)
+        )
+        incomplete_skill = _canonical_skill_text().replace(
+            "## SCOPE\nFixture scope.\n\n", ""
+        )
+        (skill_dir / "SKILL.md").write_text(incomplete_skill)
+
+        count, errors = _run_linter(skill_dir)
+        assert count == 1, errors
+        assert "missing exact headings ['SCOPE']" in errors[0]
+
+
 def test_valid_contract_passes():
     """A minimal valid v0.3 contract → linter must report 0 errors."""
     import yaml
@@ -686,7 +739,7 @@ def test_valid_contract_passes():
         contract_file.write_text(
             yaml.dump(yaml.safe_load(MINIMAL_CONTRACT), default_flow_style=False)
         )
-        (skill_dir / "SKILL.md").write_text("# Test skill\n")
+        (skill_dir / "SKILL.md").write_text(_canonical_skill_text())
 
         count, errors = _run_linter(skill_dir)
         assert count == 0, f"Expected 0 errors, got {count}: {errors}"

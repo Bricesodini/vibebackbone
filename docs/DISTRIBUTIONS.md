@@ -175,6 +175,16 @@ that triggered the decision.
 
 <!-- Add entries below as decisions are made -->
 
+### 2026-07-14 — Exact seven-section skill layout (ADR-0042)
+**Decision**: keep the exact skill layout and its blocking lint in Core; no
+distribution owns a provider-specific section alias.
+**Trigger**: PATT-01 and explicit `Go` from Brice.
+**Reason**: predictable skill boundaries are a shared catalog invariant, while
+compact wrappers remain free to keep their section bodies concise.
+**Impact**: Pi, OpenCode, Codex and Claude Code inherit twelve normalized skills
+and the same drift guard. No adapter, provider path or runtime state changes.
+**Author**: Codex (GO Brice)
+
 ### 2026-07-14 — Transverse artifacts and infrastructure files (ADR-0041)
 **Decision**: keep transverse artifact and Docker infrastructure semantics in
 Core; distributions inherit the same observable outputs.

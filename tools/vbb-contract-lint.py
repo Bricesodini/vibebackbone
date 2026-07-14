@@ -43,6 +43,15 @@ ARTIFACT_REQUIRED_FIELDS = {"path_pattern", "kind", "must_exist_after_run"}
 # Non-blocking warning thresholds (CONVENTIONS.md Pillar 1, "SKILL.md description length")
 DESCRIPTION_CHAR_TARGET = 500
 DESCRIPTION_LINE_TARGET = 10
+REQUIRED_SKILL_SECTIONS = (
+    "ROLE & POSTURE",
+    "INPUT CONTRACT",
+    "BLOCKING CONDITIONS",
+    "SCOPE",
+    "PROCESS",
+    "OUTPUT CONTRACT",
+    "VERDICT RULES",
+)
 
 
 def load_index() -> Dict:
@@ -333,6 +342,27 @@ def check_authored_artifact_alignment(skill_id: str, contract: Dict) -> List[str
     return []
 
 
+def check_required_skill_sections(skill_id: str) -> List[str]:
+    """Require the seven exact canonical level-two headings in every skill."""
+    skill_md = SKILLS_DIR / skill_id / "SKILL.md"
+    try:
+        content = skill_md.read_text(encoding="utf-8")
+    except Exception as exc:
+        return [f"[{skill_id}] SKILL.md section layout: read error ({exc})"]
+
+    headings = {
+        match.group(1).strip() for match in re.finditer(r"(?m)^##\s+(.+?)\s*$", content)
+    }
+    missing = [
+        section for section in REQUIRED_SKILL_SECTIONS if section not in headings
+    ]
+    if missing:
+        return [
+            f"[{skill_id}] SKILL.md section layout: missing exact headings {missing}"
+        ]
+    return []
+
+
 def _check_artifact_mapping(skill_id: str, label: str, artifact: Dict) -> List[str]:
     """Validate a single artifact mapping (primary or secondary)."""
     errors = []
@@ -533,6 +563,7 @@ def lint_all() -> Tuple[int, List[str], List[str]]:
         all_errors.extend(check_outputs(skill_id, contract))
         all_errors.extend(check_agents(skill_id, contract))
         all_errors.extend(check_phase_alignment(skill_id, contract))
+        all_errors.extend(check_required_skill_sections(skill_id))
         all_errors.extend(check_authored_artifact_alignment(skill_id, contract))
         all_errors.extend(check_artifact(skill_id, contract))
 

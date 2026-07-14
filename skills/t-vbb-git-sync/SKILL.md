@@ -45,7 +45,15 @@ Absolute rules:
 - [ ] Remote name (default: origin)
 - [ ] `--execute` flag (otherwise = dry-run)
 
-## PROCESS — Exact procedure
+## SCOPE
+
+Execute only the approved Git synchronization lifecycle: inspect, stage targeted
+files, commit, push, optionally fast-forward/merge as authorized, and report.
+Never broaden staging or delete branches without explicit confirmation.
+
+## PROCESS
+
+Exact procedure:
 
 Execute steps in order. After each step, verify the result before continuing. If a verification fails, STOP and report.
 

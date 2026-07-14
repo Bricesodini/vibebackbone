@@ -16,7 +16,7 @@ mode_sensitive: false
 
 Standard reference: `0-vbb-standard`. Read `docs/PILOTAGE.md` first.
 
-## ROLE
+## ROLE & POSTURE
 
 Translate a product brief into a technical plan that a product architect can
 validate before code starts. Plan only: never modify code, implement, audit
@@ -30,7 +30,7 @@ Rules:
 - Consume existing dependency maps; route missing mapping to
   `t-vbb-dependency-mapper`.
 
-## INPUT AND BLOCKING
+## INPUT CONTRACT
 
 Required: product specification or feature brief, plus repository access.
 Useful context: `docs/ARCHITECTURE.md`, `docs/RELATIONS.md`,
@@ -39,6 +39,8 @@ Useful context: `docs/ARCHITECTURE.md`, `docs/RELATIONS.md`,
 Ask only for missing information that changes the plan, at most five questions.
 Defaults: no imposed constraint, no known fragile zone, no explicit non-goal,
 and `MEDIUM` detail.
+
+## BLOCKING CONDITIONS
 
 Stop when:
 
@@ -124,7 +126,7 @@ The report must contain:
 Do not include a time estimate unless the repository provides an explicit
 estimation convention or the user asks for one.
 
-## VERDICT
+## VERDICT RULES
 
 - `ACTIONABLE`: all tasks are `CERTAIN` or `LIKELY`; no unresolved blocker.
 - `ACTIONABLE_WITH_CAVEATS`: non-blocking uncertainty remains, but wave 1 can start.

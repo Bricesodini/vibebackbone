@@ -62,6 +62,20 @@ This skill defines:
 - absolute rules
 - Pi-oriented routing description quality
 
+Every skill contains these exact level-two headings; additional specialized
+sections are allowed:
+
+1. `ROLE & POSTURE`
+2. `INPUT CONTRACT`
+3. `BLOCKING CONDITIONS`
+4. `SCOPE`
+5. `PROCESS`
+6. `OUTPUT CONTRACT`
+7. `VERDICT RULES`
+
+Compact wrappers keep each section proportional and do not duplicate long-form
+guidance owned by another canonical resource.
+
 Phase values use two explicit namespaces. `SKILL.md` frontmatter follows the
 agentic lifecycle (for example, every `1-vbb-*` skill uses `02_AUDIT`), while
 `CONTRACT.yaml` keeps the stable catalog routing scope (the same skills use

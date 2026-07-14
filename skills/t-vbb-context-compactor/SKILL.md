@@ -27,10 +27,35 @@ modified files, risks, next action, and a re-entry prompt.
 
 You are **read-only** — you never modify source files.
 
-## TOOL
+## INPUT CONTRACT
+
+Required: one readable run path. Optional: output path and stdout-only mode.
+
+## BLOCKING CONDITIONS
+
+Stop when the run path is missing, unreadable, or contains insufficient evidence
+for an objective re-entry summary.
+
+## SCOPE
+
+Compress existing run evidence only. Never add decisions, infer missing status,
+or modify source files.
+
+## PROCESS
 
 ```bash
 python tools/vbb-context-compactor.py docs/runs/<run_id>
 python tools/vbb-context-compactor.py docs/runs/<run_id> --stdout
 python tools/vbb-context-compactor.py docs/runs/<run_id> --output <path>
 ```
+
+## OUTPUT CONTRACT
+
+Return status, compact summary, next action, and—unless stdout-only—an optional
+`docs/runs/{run_id}/CONTEXT_SUMMARY.md`.
+
+## VERDICT RULES
+
+- `PASS`: grounded summary produced.
+- `PARTIAL`: useful summary with explicit evidence gaps.
+- `BLOCKED`: input cannot support reliable compaction.

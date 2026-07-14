@@ -51,6 +51,7 @@ Exemple : `0001-choix-framework-api.md`
 | [0039](0039-design-document-artifact-kind-and-authored-output-alignment.md) | Design-document artifact kind and authored-output alignment | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_1915_phase1-artifact-contracts/) |
 | [0040](0040-front-pass-and-release-artifact-semantics.md) | Front-pass and release artifact semantics | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_1945_front-artifact-contracts/) |
 | [0041](0041-transverse-artifact-and-infrastructure-file-semantics.md) | Transverse artifact and infrastructure-file semantics | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_2015_transverse-artifact-contracts/) |
+| [0042](0042-exact-seven-section-skill-layout.md) | Exact seven-section skill layout | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_2045_skill-section-normalization/) |
 | [0013-arch](0013-repo-organization-core-vs-distributions.md) | Repo organization Core vs Distributions | — | — | — |
 
 ## Conventions
