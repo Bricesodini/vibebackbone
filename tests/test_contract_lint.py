@@ -22,10 +22,14 @@ Usage:
 """
 
 import sys
+import importlib.util
+import runpy
 import subprocess
 import tempfile
 import textwrap
 from pathlib import Path
+
+import pytest
 
 REPO_ROOT = Path(__file__).parent.parent.resolve()
 LINTER = REPO_ROOT / "tools" / "vbb-contract-lint.py"
@@ -488,6 +492,17 @@ def test_runtime_partial_has_machine_reason():
 # ---------------------------------------------------------------------------
 # Phase Router tests (if vbb-phase-router.py exists)
 # ---------------------------------------------------------------------------
+
+
+def test_runtime_query_fails_explicitly_when_router_cannot_load(monkeypatch, capsys):
+    monkeypatch.setattr(importlib.util, "spec_from_file_location", lambda *_: None)
+    monkeypatch.setattr(sys, "argv", [str(RUNTIME), "run", "--query", "scope freeze"])
+
+    with pytest.raises(SystemExit) as exc_info:
+        runpy.run_path(str(RUNTIME), run_name="__main__")
+
+    assert exc_info.value.code == 2
+    assert "Unable to load phase router" in capsys.readouterr().err
 
 
 def test_phase_router_unknown_phase():

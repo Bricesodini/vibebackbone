@@ -228,7 +228,7 @@ def count_skills(repo: Path) -> int:
     )
 
 
-def count_contracts(repo: Path) -> Tuple[int, int, int]:
+def count_contracts(repo: Path) -> Tuple[int, int, float]:
     """Return (contracted, total, coverage%). Total = dirs with SKILL.md."""
     skills_dir = repo / "skills"
     if not skills_dir.exists():

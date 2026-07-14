@@ -15,7 +15,7 @@ import json
 import re
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Set, Tuple
 
 import yaml
 
@@ -207,7 +207,7 @@ def validate_blocks(
 
 def _iter_architecture_touch_files(repo: Path) -> List[str]:
     """Return existing files considered architecture-sensitive."""
-    files = set()
+    files: Set[str] = set()
     for pattern in ARCHITECTURE_TOUCH_GLOBS:
         files.update(
             str(path.relative_to(repo))
@@ -228,7 +228,7 @@ def _pattern_matches(path: str, pattern: str) -> bool:
 
 def validate_architecture_coverage(repo: Path, blocks: List[Dict]) -> List[str]:
     """Ensure architecture-sensitive files are referenced by at least one block."""
-    patterns = []
+    patterns: List[str] = []
     for block in blocks:
         patterns.extend(str(item) for item in _normalize_list(block.get("files")))
 

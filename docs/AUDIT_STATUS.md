@@ -26,7 +26,7 @@ bounded quality and historical traceability items.
 | ID | Severity | Description | Status |
 |---|---|---|---|
 | QOA-006 | P2 | `docs/runs/routing-fix-verification.md` is a loose artifact outside a timestamped run directory. | **OPEN** — archive or reconstruct only after explicit approval. |
-| QOA-007 | P2 | Ruff check and format are clean; mypy retains 20 errors and none of the three is gated yet. | **MITIGATING** — [format run](runs/2026-07-14_1440_ruff-format/07_CLOSEOUT.md) proves AST equivalence; continue mypy, then gate promotion. |
+| QOA-007 | P2 | Ruff check, Ruff format and mypy are clean but not yet enforced by local/remote CI. | **MITIGATING** — [mypy cleanup](runs/2026-07-14_1500_mypy-cleanup/07_CLOSEOUT.md) reaches zero; next run promotes and failure-tests all three gates. |
 | GMA-005 | P2 | Long functions, Python naming ambiguity, and French prompt prose remain convention-drift candidates. | **OPEN** — requires a separate, bounded canon proposal and migration decision. |
 | DOC-001 | P2 | Prompt entrypoints still lack one final responsibility matrix across canonical, specialized, router, and short-name layers. | **OPEN** — continue only if current navigation proves insufficient. |
 | SYS-POC-004 | P2 | POC-to-implementation transitions do not always record a distinct durable decision. | **OPEN** — require the decision for future canon, architecture, and cross-service changes. |
@@ -45,6 +45,8 @@ bounded quality and historical traceability items.
 - Ruff cleanup scope: [Code Janitor report](audits/code-janitor-ruff-check-baseline-20260714-1428.md).
 - Ruff cleanup coverage: [critical-path report](audits/test-coverage-20260714-1435.md).
 - Ruff format coverage: [AST-equivalence report](audits/test-coverage-20260714-1445.md).
+- Mypy cleanup scope: [technical-debt report](audits/tech-debt-mypy-baseline-20260714-1455.md).
+- Mypy cleanup coverage: [critical-path report](audits/test-coverage-20260714-1505.md).
 
 ## READY campaign exit criteria
 

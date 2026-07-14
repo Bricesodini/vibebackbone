@@ -16,7 +16,7 @@ import json
 import re
 import argparse
 from pathlib import Path
-from typing import Dict, List
+from typing import Any, Dict, List
 
 REPO_ROOT = Path(__file__).parent.parent.resolve()
 INDEX_DIR = REPO_ROOT / ".vbb" / "index"
@@ -124,7 +124,7 @@ def _extract_keywords(text: str) -> List[str]:
     """Extract simple keywords from text (lowercase, >3 chars, word frequency)."""
     words = re.findall(r"[a-zA-ZàâéèêëïîôùûüçÀÂÉÈÊËÏÎÔÙÛÜÇ]{4,}", text.lower())
     # Count and return top 15 unique by frequency
-    freq = {}
+    freq: Dict[str, int] = {}
     for w in words:
         freq[w] = freq.get(w, 0) + 1
     # Stop words
@@ -171,7 +171,7 @@ def _read_file(path: Path) -> str:
 
 def build_index(repo: Path) -> Dict:
     """Build the text index from repo sources."""
-    entries = []
+    entries: List[Dict[str, Any]] = []
     index_dir = repo / ".vbb" / "index"
     manifest_path = index_dir / "manifest.json"
 
@@ -294,7 +294,7 @@ def show_stats(repo: Path) -> str:
     tokens = manifest.get("total_tokens", 0)
     entries = manifest.get("entries", [])
 
-    by_kind = {}
+    by_kind: Dict[str, int] = {}
     for e in entries:
         k = e.get("kind", "unknown")
         by_kind[k] = by_kind.get(k, 0) + 1

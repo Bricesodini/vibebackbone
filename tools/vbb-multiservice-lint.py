@@ -136,7 +136,7 @@ def rule_db_isolation(config: Dict, context_path: Path = CONTEXT_FILE) -> List[D
     rule_cfg = config["rules"].get("db_isolation", {})
     if not rule_cfg.get("enabled", False):
         return []
-    violations = []
+    violations: List[Dict] = []
     db_orientation = get_db_orientation(context_path)
     if db_orientation and "shared_external" in db_orientation:
         # Heuristic: search imports for client DB packages of other services
@@ -163,7 +163,7 @@ def rule_impact_log_required(config: Dict) -> List[Dict]:
     rule_cfg = config["rules"].get("impact_log_required", {})
     if not rule_cfg.get("enabled", False):
         return []
-    violations = []
+    violations: List[Dict] = []
     if not CONTRACTS_CONSUMED_FILE.exists():
         return violations  # No consumed contracts → rule N/A
 

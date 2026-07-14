@@ -17,7 +17,7 @@ import sys
 import re
 import argparse
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 
 def read_file(path: Path) -> str:
@@ -53,7 +53,7 @@ def extract_sections(content: str) -> dict:
     """Extract ## sections from markdown content."""
     sections = {}
     current_section = None
-    current_lines = []
+    current_lines: List[str] = []
     for line in content.split("\n"):
         if line.startswith("## "):
             if current_section:

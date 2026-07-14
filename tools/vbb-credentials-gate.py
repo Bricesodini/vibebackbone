@@ -249,14 +249,14 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     added = parse_added_lines(diff)
     findings, allowed = scan_added_lines(added)
-    for item in allowed:
+    for example in allowed:
         print(
-            f"{item.path}:{item.number}: [ALLOW] credential example "
-            f"allowed (reason={item.reason})"
+            f"{example.path}:{example.number}: [ALLOW] credential example "
+            f"allowed (reason={example.reason})"
         )
-    for item in findings:
+    for finding in findings:
         print(
-            f"{item.path}:{item.number}: [{item.rule}] possible credential "
+            f"{finding.path}:{finding.number}: [{finding.rule}] possible credential "
             "in added content",
             file=sys.stderr,
         )

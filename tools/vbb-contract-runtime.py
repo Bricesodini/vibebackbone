@@ -145,9 +145,9 @@ def execute_contract(
     started_at = datetime.now(timezone.utc).isoformat()
     tick = time.time()
 
-    errors = []
-    warnings = []
-    gate_results = []
+    errors: List[Dict[str, Any]] = []
+    warnings: List[Dict[str, Any]] = []
+    gate_results: List[Dict[str, Any]] = []
 
     if contract is None:
         contract = load_contract(skill_id)
@@ -218,7 +218,7 @@ def execute_contract(
         }
 
     read_skill_md(skill_id)
-    outputs = {
+    outputs: Dict[str, Any] = {
         "status": "PASS",
         "summary": f"Contract '{skill_id}' executed successfully",
         "next_action": "Continue to next phase",
@@ -483,6 +483,9 @@ if __name__ == "__main__":
         router_spec = importlib.util.spec_from_file_location(
             "vbb_phase_router", REPO_ROOT / "tools" / "vbb-phase-router.py"
         )
+        if router_spec is None or router_spec.loader is None:
+            print("Unable to load phase router", file=sys.stderr)
+            sys.exit(2)
         router_module = importlib.util.module_from_spec(router_spec)
         router_spec.loader.exec_module(router_module)
         routed = router_module.route_to_skill(

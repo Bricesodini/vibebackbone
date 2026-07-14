@@ -569,6 +569,18 @@ Aucun adaptateur, contrat ou état runtime ne change.
 
 **Author**: Codex, après GO Brice
 
+### 2026-07-14 — Nettoyage mypy conservé dans Core
+
+**Decision**: Expliciter les structures typées de neuf outils et protéger le
+chargement dynamique du router, sans ignore ni modification de configuration.
+
+**Reason**: Ces frontières appartiennent au Contract Tooling Core partagé.
+
+**Impact**: Pi, OpenCode, Codex et Claude Code héritent des annotations et du
+guard explicite. Aucun adaptateur, format sérialisé ou gate CI ne change.
+
+**Author**: Codex, après GO Brice
+
 ## 9. References
 
 - `README.md` — entry point; "VBB Core vs Distributions" anchors the

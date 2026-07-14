@@ -294,7 +294,7 @@ def _check_artifact_mapping(skill_id: str, label: str, artifact: Dict) -> List[s
 
 def check_artifact(skill_id: str, contract: Dict) -> List[str]:
     """Validate outputs.artifact and outputs.secondary_artifacts (v0.3+)."""
-    errors = []
+    errors: List[str] = []
     version = str(
         contract.get("contract_schema_version", contract.get("version", "0.1"))
     )
@@ -343,7 +343,7 @@ def check_description_length(skill_id: str) -> List[str]:
     Behavior: emits a warning (does NOT add to errors). Length is a proxy,
     not a quality guarantee — precise descriptions may legitimately exceed.
     """
-    warnings = []
+    warnings: List[str] = []
     skill_md = SKILLS_DIR / skill_id / "SKILL.md"
     if not skill_md.exists():
         return warnings
