@@ -607,6 +607,21 @@ prompt installé, alias, adapter ou état runtime ne change.
 
 **Author**: Codex, après GO Brice
 
+### 2026-07-14 — Migration anglaise des prompts conservée dans Core
+
+**Decision**: Traduire en place les 18 prompts agent-actionables contenant de
+la prose française et ajouter un test de non-régression conservateur, selon
+l'ADR 0036.
+
+**Reason**: La langue des instructions et les contrats de phase sont génériques
+aux quatre runtimes. Les dupliquer dans les adaptateurs créerait quatre vérités.
+
+**Impact**: Pi, OpenCode, Codex et Claude Code héritent des mêmes prompts
+anglais lors de l'installation/résolution suivante. Aucun alias, chemin, adapter,
+setup provider ou état runtime installé n'est modifié dans ce dépôt.
+
+**Author**: Brice (demande explicite), Codex (formalisation et intégration)
+
 ## 9. References
 
 - `README.md` — entry point; "VBB Core vs Distributions" anchors the

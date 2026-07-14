@@ -2,13 +2,13 @@
 description: Post-build validation pipeline — verify that what was built matches what was specified
 ---
 
-Valide l'implémentation qui vient d'être réalisée pour : $@
+Validate the implementation that was just completed for: $@
 
-## Objectif
+## Objective
 
-Après une phase de construction (feature, refactoring, fix), vérifier que
-le résultat est conforme, qualitatif, et prêt pour la suite. C'est le
-"checklist d'atterrissage" pour un architecte produit.
+After a build phase (feature, refactoring, or fix), verify that the result
+conforms to its specification, meets quality expectations, and is ready for
+the next step. This is the product architect's landing checklist.
 
 ## Preferred Vibebackbone skills
 
@@ -21,106 +21,104 @@ le résultat est conforme, qualitatif, et prêt pour la suite. C'est le
 
 ## Skill routing and chaining rule
 
-### Phase 1 — Vérification de surface
+### Phase 1 — Surface verification
 
-Lancer `t-vbb-anti-slop-gate` pour vérifier l'état immédiat du code.
+Run `t-vbb-anti-slop-gate` to verify the immediate code state.
 
-- Si BLOCKED → STOP. Le code ne compile pas ou les tests échouent. Réparer.
-- Si READY_WITH_WARNINGS → noter les warnings, continuer.
-- Si READY → continuer.
+- If BLOCKED → STOP. The code does not compile or tests fail. Repair it.
+- If READY_WITH_WARNINGS → record the warnings and continue.
+- If READY → continue.
 
-### Phase 2 — Validation de la conformité
+### Phase 2 — Conformance validation
 
-Lancer `2-vbb-spec-validator` pour vérifier que l'implémentation
-correspond à la spécification originale.
+Run `2-vbb-spec-validator` to verify that the implementation matches the
+original specification.
 
-Utiliser la spécification fournie dans la demande ou récupérée du contexte.
-Si aucun plan d'implémentation (intent-decomposer) n'existe, le validator
-reconstruira le mapping.
+Use the specification provided in the request or recovered from context.
+If no implementation plan (intent-decomposer) exists, the validator will
+reconstruct the mapping.
 
-- Si CONFORM ou MOSTLY_CONFORM → continuer.
-- Si PARTIAL → signaler les écarts, continuer mais avec avertissement.
-- Si NON_CONFORM → STOP. L'implémentation ne correspond pas à la spec.
+- If CONFORM or MOSTLY_CONFORM → continue.
+- If PARTIAL → report the gaps and continue with a warning.
+- If NON_CONFORM → STOP. The implementation does not match the specification.
 
-### Phase 3 — Vérification de l'impact
+### Phase 3 — Impact verification
 
-Lancer `t-vbb-impact-analyzer` sur les changements effectués pour
-détecter des effets de bord non anticipés.
+Run `t-vbb-impact-analyzer` on the changes to detect unanticipated side effects.
 
-- Si NON_BREAKING → continuer.
-- Si CONDITIONAL → signaler les conditions.
-- Si BREAKING → documenter les ruptures. Si PROD, STOP.
+- If NON_BREAKING → continue.
+- If CONDITIONAL → report the conditions.
+- If BREAKING → document the breaking changes. If PROD, STOP.
 
-### Phase 4 — Audit de cohérence documentaire
+### Phase 4 — Documentation coherence audit
 
-Lancer `1-vbb-code-doc-coherence-auditor` sur les modules touchés.
+Run `1-vbb-code-doc-coherence-auditor` on the affected modules.
 
-- Si COHERENT → continuer.
-- Si PARTIAL → noter les écarts documentaires à résoudre.
-- Si FRAGMENTED → la doc est largement déphasée, planifier une remédiation.
+- If COHERENT → continue.
+- If PARTIAL → record documentation gaps to resolve.
+- If FRAGMENTED → documentation is substantially out of sync; plan remediation.
 
-### Phase 5 — Audit de performance
+### Phase 5 — Performance audit
 
-Lancer `2-vbb-performance` sur les modules touchés.
+Run `2-vbb-performance` on the affected modules.
 
-- Si PERFORMANT ou ADEQUATE → continuer.
-- Si AT_RISK → noter les risques et les actions recommandées.
-- Si CRITICAL → STOP en PROD, avertir en DEV.
+- If PERFORMANT or ADEQUATE → continue.
+- If AT_RISK → record risks and recommended actions.
+- If CRITICAL → STOP in PROD; warn in DEV.
 
-### Phase 6 — Changelog produit
+### Phase 6 — Product changelog
 
-Lancer `4-vbb-product-changelog` pour produire un résumé lisible
-des changements.
+Run `4-vbb-product-changelog` to produce a readable change summary.
 
 ## Required process
 
-1. **Restate** ce qui a été construit.
+1. **Restate** what was built.
 2. **Phase 1** — Anti-slop gate.
 3. **Phase 2** — Spec validation.
 4. **Phase 3** — Impact analysis.
 5. **Phase 4** — Doc coherence audit.
 6. **Phase 5** — Performance audit.
 7. **Phase 6** — Product changelog.
-8. **Résumé final** : verdict global, écarts, prochaines actions.
+8. **Final summary**: overall verdict, gaps, and next actions.
 
-## Gate criteria — l'implémentation est validée si :
+## Gate criteria — the implementation is validated when:
 
-- [ ] Surface propre (anti-slop READY ou READY_WITH_WARNINGS)
-- [ ] Conforme à la spec (CONFORM ou MOSTLY_CONFORM)
-- [ ] Impact maîtrisé (NON_BREAKING ou CONDITIONAL documenté)
-- [ ] Documentation cohérente (COHERENT ou PARTIAL avec plan)
-- [ ] Performance acceptable (PERFORMANT ou ADEQUATE)
-- [ ] Changelog produit généré
+- [ ] Surface is clean (anti-slop READY or READY_WITH_WARNINGS)
+- [ ] Specification conformance is established (CONFORM or MOSTLY_CONFORM)
+- [ ] Impact is controlled (NON_BREAKING or documented CONDITIONAL)
+- [ ] Documentation is coherent (COHERENT or PARTIAL with a plan)
+- [ ] Performance is acceptable (PERFORMANT or ADEQUATE)
+- [ ] Product changelog is generated
 
-## Phases optionnelles
+## Optional phases
 
-Ces phases sont lancées uniquement si pertinentes :
+Run these phases only when relevant:
 
-- **Accessibilité** (`2-vbb-accessibility`) — si la feature touche l'UI
-- **Analytics** (`2-vbb-analytics`) — si la feature a un impact utilisateur mesurable
-- **Sécurité** (`2-vbb-security`) — si la feature touche auth, données, ou API publiques
+- **Accessibility** (`2-vbb-accessibility`) — if the feature affects the UI
+- **Analytics** (`2-vbb-analytics`) — if the feature has measurable user impact
+- **Security** (`2-vbb-security`) — if the feature affects auth, data, or public APIs
 
 ## Blocking conditions
 
-Si une phase produit un BLOCKED → ne pas passer à la phase suivante sans
-résolution. Présenter le blocage à l'architecte.
+If a phase produces BLOCKED → do not proceed to the next phase without
+resolution. Present the blocker to the architect.
 
-Si l'architecte accepte de continuer malgré un blocage → documenter
-l'acceptation du risque dans SESSION.md.
+If the architect accepts continuing despite a blocker → document the risk
+acceptance in SESSION.md.
 
 ## Output format
 
 - **Goal**
-- **Phase 1 — Surface** : verdict anti-slop
-- **Phase 2 — Conformité** : verdict spec-validator + écarts
-- **Phase 3 — Impact** : verdict impact-analyzer
-- **Phase 4 — Doc** : verdict coherence-auditor
-- **Phase 5 — Performance** : verdict perf
-- **Phase 6 — Changelog** : résumé produit
-- **Phases optionnelles** : verdicts si exécutées
-- **Verdict global** : VALIDATED / VALIDATED_WITH_CAVEATS / NEEDS_REWORK
-- **Écarts résiduels** : ce qui reste à traiter
-- **Prochaine action** : release-check, handoff, ou retour en développement
+- **Phase 1 — Surface**: anti-slop verdict
+- **Phase 2 — Conformance**: spec-validator verdict + gaps
+- **Phase 3 — Impact**: impact-analyzer verdict
+- **Phase 4 — Documentation**: coherence-auditor verdict
+- **Phase 5 — Performance**: performance verdict
+- **Phase 6 — Changelog**: product summary
+- **Optional phases**: verdicts if run
+- **Overall verdict**: VALIDATED / VALIDATED_WITH_CAVEATS / NEEDS_REWORK
+- **Residual gaps**: remaining work
+- **Next action**: release-check, handoff, or return to development
 
 ---
 

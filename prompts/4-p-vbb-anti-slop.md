@@ -2,25 +2,25 @@
 description: Launch the Vibebackbone anti-slop quality gate on a target project
 ---
 
-Lance le contrôle anti-slop Vibebackbone sur ce projet : $@
+Run the Vibebackbone anti-slop check on this project: $@
 
-Objectif :
-Exécuter un garde-fou qualité multi-langage qui détecte le code sale, les imports inutiles,
-les incohérences de style, les types bancals, les builds cassés et les tests qui échouent,
-sans jamais modifier le code.
+Objective:
+Run a multi-language quality gate that detects low-quality code, unused imports,
+style inconsistencies, weak typing, broken builds, and failing tests without ever
+modifying the code.
 
-Preferred Vibebackbone skill :
+Preferred Vibebackbone skill:
 
 - `t-vbb-anti-slop-gate`
 
-Skill routing rule :
+Skill routing rule:
 
-- Utiliser `t-vbb-anti-slop-gate` comme skill principal.
-- Lire `0-vbb-standard` avant si besoin de rappel sur les conventions Vibebackbone.
-- Manuel fallback autorisé uniquement si le skill est absent du `[Skills]` list.
-  Si fallback, nommer le skill manquant et pourquoi.
+- Use `t-vbb-anti-slop-gate` as the primary skill.
+- Read `0-vbb-standard` first if a reminder of Vibebackbone conventions is needed.
+- Manual fallback is allowed only if the skill is absent from the `[Skills]` list.
+  If falling back, name the missing skill and explain why.
 
-Required process :
+Required process:
 
 1. Restate the goal briefly.
 2. Read relevant Vibebackbone governance if present (`docs/PILOTAGE.md`, `docs/PROJECT_MODE.md`).
@@ -30,7 +30,7 @@ Required process :
 6. Produce the structured report.
 7. Emit a clear verdict.
 
-Hard constraints :
+Hard constraints:
 
 - NEVER modify code.
 - NEVER apply automatic fixes (`--fix`, `--write`, `--unsafe-fixes`, `npm audit fix`).
@@ -45,7 +45,7 @@ Hard constraints :
 - ALWAYS distinguish verified fact, hypothesis, and unchecked item.
 - ALWAYS produce a verdict.
 
-Output format :
+Output format:
 
 - Goal
 - Scope (project path, detected languages)
@@ -75,7 +75,7 @@ After the anti-slop gate verdict:
 
 > The anti-slop gate is a quality gate — it should not leave files uncommitted. Do not stop after the verdict. The anti-slop gate loop is not closed until git push is done.
 
-Report destination :
+Report destination:
 
 - If the skill defines a report artifact destination, write the report there.
 - Otherwise, produce the report inline in the final response only.

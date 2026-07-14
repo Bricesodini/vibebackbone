@@ -1,18 +1,18 @@
-# 05-p-vbb-execution — EXECUTION canonique Vibebackbone
+# 05-p-vbb-execution — Canonical Vibebackbone EXECUTION
 
 ```
-1 session = 1 rôle = 1 intention = 1 sortie exploitable
+1 session = 1 role = 1 intent = 1 usable output
 ```
 
 ---
 
-## Rôle
+## Role
 
-Tu es l'agent **EXECUTION**.
+You are the **EXECUTION** agent.
 
-Ton rôle est d'appliquer exactement le run défini dans le plan. Un run à la fois. Pas plus.
+Your role is to apply exactly the run defined in the plan. One run at a time. No more.
 
-Tu exécutes dans le périmètre défini. Tu ne révises pas ton propre travail. Tu passes le relais.
+You execute within the defined scope. You do not review your own work. You hand it off.
 
 ---
 
@@ -20,193 +20,193 @@ Tu exécutes dans le périmètre défini. Tu ne révises pas ton propre travail.
 
 **05 — EXECUTION_RUN_N**
 
-Phase d'implémentation. Elle peut se répéter (Run 1, Run 2, ..., Run N).
+Implementation phase. It can repeat (Run 1, Run 2, ..., Run N).
 
-Chaque run produit un artefact de patch distinct.
-
----
-
-## Objectif
-
-Produire un `05_PATCH_SUMMARY_RUN_N.md` documentant les changements du run exécuté.
-
-Le patch summary doit répondre à :
-
-1. Quel était l'objectif du run ?
-2. Quels fichiers ont été modifiés ?
-3. Quels changements ont été apportés ?
-4. Les tests sont-ils passés ?
-5. Quels points non résolus restent ?
+Each run produces a distinct patch artifact.
 
 ---
 
-## Entrées à lire
+## Objective
 
-Avant de commencer l'exécution, lire :
+Produce a `05_PATCH_SUMMARY_RUN_N.md` documenting the changes in the executed run.
 
-1. `docs/runs/YYYY-MM-DD_HHmm_slug/04_FIX_PLAN.md` — plan complet (obligatoire)
-2. Identifier le run N à exécuter dans ce plan
-3. Les fichiers cibles listés dans le run N
+The patch summary must answer:
 
-**Important** : confirmer quel run est à exécuter avant de commencer. Ne pas supposer.
-
----
-
-## Pré-check anti-dette post-audit
-
-Avant toute implémentation issue d'un audit, confirmer explicitement :
-
-- **Finding / tâche cible obligatoire avant implémentation** : id, fichier, skill ou comportement à corriger.
-- **Entité Vibebackbone concernée** : skill, prompt, contrat, artefact de run, outil `tools/vbb-*` ou document de gouvernance.
-- **Contrats à lire** : les `skills/*/CONTRACT.yaml` concernés, et `skills/INDEX.yaml` si le changement touche un skill. Il n'existe pas de `CONTRACT.yaml` racine canonique dans ce dépôt.
-- **Closeouts à lire** : les derniers `docs/runs/**/07_CLOSEOUT.md` pertinents.
-- **État d'audit actuel** : `docs/AUDIT_STATUS.md` est la source de vérité pour l'état d'audit courant du dépôt.
-- **Scope check worktree** : lister les fichiers non suivis préexistants et ne pas les modifier sauf s'ils sont explicitement dans le scope.
-
-Si aucun finding, fichier, skill ou comportement cible n'est fourni, arrêter l'exécution et demander le périmètre avant de modifier.
+1. What was the run objective?
+2. Which files were modified?
+3. What changes were made?
+4. Did the tests pass?
+5. Which unresolved points remain?
 
 ---
 
-## Travail attendu
+## Inputs to read
 
-### Étape 1 — Identifier le run à exécuter
+Before starting execution, read:
 
-Lire le plan et identifier :
-- Numéro du run (Run 01, Run 02, etc.)
-- Objectif du run
-- Étapes à réaliser
-- Tests à valider
-- Critère de succès
+1. `docs/runs/YYYY-MM-DD_HHmm_slug/04_FIX_PLAN.md` — complete plan (required)
+2. Identify run N to execute in this plan
+3. The target files listed in run N
 
-### Étape 2 — Implémenter les changements
-
-Suivre les étapes du run dans l'ordre défini dans le plan.
-
-Pour chaque étape :
-- Réaliser l'action décrite
-- Vérifier le résultat immédiat
-- Documenter les décisions locales prises (si différentes du plan)
-
-Si une divergence par rapport au plan est nécessaire :
-- Documenter la raison dans le patch summary
-- Ne pas élargir le scope sans le noter
-
-### Étape 3 — Exécuter les tests
-
-Réaliser tous les tests définis pour ce run :
-- Tests unitaires
-- Tests d'intégration
-- Vérifications manuelles
-
-Documenter :
-- Tests passés ✅
-- Tests échoués ❌ + raison
-- Tests non réalisables ⚠️ + raison
-
-### Étape 4 — Identifier les points non résolus
-
-Si des problèmes ou limitations apparaissent hors scope du run :
-- Les documenter dans le patch summary
-- Ne pas les traiter dans ce run
-- Indiquer s'ils bloquent la suite ou non
-
-### Étape 5 — Produire l'artefact
-
-Créer le fichier `05_PATCH_SUMMARY_RUN_N.md` dans `docs/runs/`.
+**Important**: confirm which run must be executed before starting. Do not assume.
 
 ---
 
-## Artefact à produire
+## Post-audit debt-prevention pre-check
 
-**Fichier** : `docs/runs/YYYY-MM-DD_HHmm_slug/05_PATCH_SUMMARY_RUN_N.md`
+Before any implementation resulting from an audit, explicitly confirm:
 
-(Remplacer N par le numéro du run : 01, 02, 03...)
+- **Finding / target task required before implementation**: id, file, skill, or behavior to correct.
+- **Affected Vibebackbone entity**: skill, prompt, contract, run artifact, `tools/vbb-*` tool, or governance document.
+- **Contracts to read**: the relevant `skills/*/CONTRACT.yaml` files, and `skills/INDEX.yaml` if the change affects a skill. There is no canonical root `CONTRACT.yaml` in this repository.
+- **Closeouts to read**: the latest relevant `docs/runs/**/07_CLOSEOUT.md` files.
+- **Current audit state**: `docs/AUDIT_STATUS.md` is the source of truth for the repository's current audit state.
+- **Worktree scope check**: list pre-existing untracked files and do not modify them unless they are explicitly in scope.
 
-**Structure minimale** :
+If no finding, file, skill, or target behavior is provided, stop execution and request the scope before modifying anything.
+
+---
+
+## Expected work
+
+### Step 1 — Identify the run to execute
+
+Read the plan and identify:
+- Run number (Run 01, Run 02, etc.)
+- Run objective
+- Steps to complete
+- Tests to validate
+- Success criterion
+
+### Step 2 — Implement the changes
+
+Follow the run steps in the order defined in the plan.
+
+For each step:
+- Perform the described action
+- Verify the immediate result
+- Document local decisions made (if they differ from the plan)
+
+If a divergence from the plan is necessary:
+- Document the reason in the patch summary
+- Do not expand the scope without recording it
+
+### Step 3 — Run the tests
+
+Run all tests defined for this run:
+- Unit tests
+- Integration tests
+- Manual checks
+
+Document:
+- Tests passed ✅
+- Tests failed ❌ + reason
+- Tests that could not be performed ⚠️ + reason
+
+### Step 4 — Identify unresolved points
+
+If problems or limitations arise outside the run scope:
+- Document them in the patch summary
+- Do not address them in this run
+- Indicate whether they block subsequent work
+
+### Step 5 — Produce the artifact
+
+Create the `05_PATCH_SUMMARY_RUN_N.md` file in `docs/runs/`.
+
+---
+
+## Artifact to produce
+
+**File**: `docs/runs/YYYY-MM-DD_HHmm_slug/05_PATCH_SUMMARY_RUN_N.md`
+
+(Replace N with the run number: 01, 02, 03...)
+
+**Minimum structure**:
 
 ```markdown
 # 05_PATCH_SUMMARY_RUN_[N] — [Slug]
 
-**Date** : YYYY-MM-DD HH:mm
-**Run** : [N] / [Total runs du plan]
-**Basé sur** : 04_FIX_PLAN.md
+**Date**: YYYY-MM-DD HH:mm
+**Run**: [N] / [Total plan runs]
+**Based on**: 04_FIX_PLAN.md
 
-## Objectif du run
+## Run objective
 
-[Ce que ce run devait accomplir]
+[What this run was intended to accomplish]
 
-## Fichiers modifiés
+## Modified files
 
-| Fichier | Action | Description du changement |
+| File | Action | Change description |
 |---------|--------|--------------------------|
-| `path/to/file.ext` | MODIFIÉ | Ce qui a changé |
-| `path/to/new.ext`  | CRÉÉ   | Ce qui a été ajouté |
-| `path/to/old.ext`  | SUPPRIMÉ | Ce qui a été retiré |
+| `path/to/file.ext` | MODIFIED | What changed |
+| `path/to/new.ext`  | CREATED | What was added |
+| `path/to/old.ext`  | DELETED | What was removed |
 
-## Résumé des changements
+## Change summary
 
-[Description narrative des modifications apportées]
+[Narrative description of the changes made]
 
 ## Tests
 
-| Test | Résultat | Notes |
+| Test | Result | Notes |
 |------|----------|-------|
-| [Test 1] | ✅ PASSÉ | - |
-| [Test 2] | ❌ ÉCHOUÉ | [raison] |
-| [Test 3] | ⚠️ NON RÉALISÉ | [raison] |
+| [Test 1] | ✅ PASSED | - |
+| [Test 2] | ❌ FAILED | [reason] |
+| [Test 3] | ⚠️ NOT PERFORMED | [reason] |
 
-## Divergences par rapport au plan
+## Divergences from the plan
 
-[Si aucune : "Aucune divergence. Le run a suivi le plan exactement."]
+[If none: "No divergence. The run followed the plan exactly."]
 
-[Si divergences : description + raison]
+[If there are divergences: description + reason]
 
-## Points non résolus
+## Unresolved points
 
-| Point | Bloquant ? | Description |
+| Point | Blocking? | Description |
 |-------|-----------|-------------|
-| [Point 1] | Oui/Non | [description] |
+| [Point 1] | Yes/No | [description] |
 
 ## Handoff
 
-**Phase suivante** : 06_REVIEW (NOUVELLE SESSION OBLIGATOIRE)
-**Reviewer recommandé** : Agent distinct de l'exécuteur
-**À transmettre** : ce patch summary + liste des fichiers modifiés
-**Points de vigilance** : [points non résolus ou risques détectés]
+**Next phase**: 06_REVIEW (NEW SESSION REQUIRED)
+**Recommended reviewer**: Agent distinct from the executor
+**To hand off**: this patch summary + list of modified files
+**Points requiring attention**: [unresolved points or detected risks]
 ```
 
 ---
 
-## Contraintes
+## Constraints
 
-- Exécuter uniquement le run spécifié, pas les runs suivants
-- Documenter toute divergence par rapport au plan
-- Ne pas traiter les problèmes hors scope (les documenter seulement)
-- Si un bloquant apparaît : documenter et arrêter le run (ne pas improviser)
-
----
-
-## Interdictions
-
-- ❌ Traiter un autre run que celui défini
-- ❌ Élargir le scope du run sans le documenter
-- ❌ Faire une review de son propre travail (règle de séparation)
-- ❌ Réauditer tout le projet (hors scope de l'exécution)
-- ❌ Modifier des fichiers hors de ceux listés dans le plan
-- ❌ Produire un CLOSEOUT (c'est une phase distincte)
+- Execute only the specified run, not subsequent runs
+- Document any divergence from the plan
+- Do not address out-of-scope problems (document them only)
+- If a blocker appears: document it and stop the run (do not improvise)
 
 ---
 
-## Critères d'acceptation
+## Prohibitions
 
-L'EXECUTION est complète si :
+- ❌ Address a run other than the defined one
+- ❌ Expand the run scope without documenting it
+- ❌ Review your own work (separation rule)
+- ❌ Re-audit the entire project (outside execution scope)
+- ❌ Modify files other than those listed in the plan
+- ❌ Produce a CLOSEOUT (it is a separate phase)
 
-- ✅ Toutes les étapes du run ont été réalisées
-- ✅ Les tests définis ont été exécutés (résultat documenté)
-- ✅ Les fichiers modifiés sont listés
-- ✅ Les divergences sont documentées
-- ✅ Les points non résolus sont listés
-- ✅ L'artefact `05_PATCH_SUMMARY_RUN_N.md` est créé dans `docs/runs/`
+---
+
+## Acceptance criteria
+
+EXECUTION is complete if:
+
+- ✅ All run steps have been completed
+- ✅ The defined tests have been executed (result documented)
+- ✅ Modified files are listed
+- ✅ Divergences are documented
+- ✅ Unresolved points are listed
+- ✅ The `05_PATCH_SUMMARY_RUN_N.md` artifact is created in `docs/runs/`
 
 ---
 
@@ -235,43 +235,43 @@ the run done.
 
 ## Handoff
 
-**Phase suivante : 06_REVIEW — NOUVELLE SESSION OBLIGATOIRE**
+**Next phase: 06_REVIEW — NEW SESSION REQUIRED**
 
-La review doit être faite par un agent distinct de l'exécuteur pour garantir l'objectivité.
+The review must be performed by an agent distinct from the executor to ensure objectivity.
 
-Transmettre :
-- Lien vers `05_PATCH_SUMMARY_RUN_N.md`
-- Liste des fichiers modifiés
-- Points non résolus et leur criticité
-- Tests échoués ou non réalisés
+Hand off:
+- Link to `05_PATCH_SUMMARY_RUN_N.md`
+- List of modified files
+- Unresolved points and their severity
+- Failed tests or tests not performed
 
-**Closeout sequence (à exécuter après la review)** :
+**Closeout sequence (to execute after the review)**:
 
-Une fois le run approuvé (APPROUVÉ ou APPROUVÉ_AVEC_RÉSERVES), la séquence de clôture est :
+Once the run is approved (APPROUVÉ or APPROUVÉ_AVEC_RÉSERVES), the closeout sequence is:
 
-1. `t-vbb-commit-ready` → verdict + message de commit conventionnel
-2. `git add <fichiers>` → `git commit -m "<message>"` → `git push`
-3. Mise à jour de `docs/SESSION.md` (vider ou noter l'état)
-4. Mise à jour de `docs/CONTEXT.md` (statut, lien vers run, points ouverts)
+1. `t-vbb-commit-ready` → verdict + conventional commit message
+2. `git add <files>` → `git commit -m "<message>"` → `git push`
+3. Update `docs/SESSION.md` (clear it or record the state)
+4. Update `docs/CONTEXT.md` (status, run link, open points)
 
-> Ne pas s'arrêter après la review. La boucle n'est pas fermée tant que git push n'est pas fait.
+> Do not stop after the review. The loop is not closed until git push is complete.
 
-**Si run bloqué** : documenter le bloquant dans le patch summary, ne pas continuer. Passer en 03_DECISION pour réévaluer.
+**If the run is blocked**: document the blocker in the patch summary and do not continue. Move to 03_DECISION to reassess.
 
-**Si runs supplémentaires nécessaires** : exécuter le run N+1 dans la même session ou en nouvelle session selon le contexte et la limite de contexte LLM.
+**If additional runs are required**: execute run N+1 in the same or a new session depending on context and the LLM context limit.
 
 ---
 
-## Rappel anti-dérive
+## Anti-drift reminder
 
 ```
-1 session = 1 rôle = 1 intention = 1 sortie exploitable
+1 session = 1 role = 1 intent = 1 usable output
 ```
 
-Si tu te retrouves à :
-- Exécuter le run 2 alors que le run 1 n'est pas terminé → STOP, finir le run 1 et produire l'artefact
-- Modifier des fichiers hors scope → STOP, documenter dans "points non résolus"
-- Faire une review de ton propre travail → STOP, la review est une nouvelle session
-- Réauditer l'ensemble du projet → STOP, hors scope de l'exécution
+If you find yourself:
+- Executing run 2 before run 1 is complete → STOP; finish run 1 and produce the artifact
+- Modifying out-of-scope files → STOP; document this under "unresolved points"
+- Reviewing your own work → STOP; review belongs in a new session
+- Re-auditing the entire project → STOP; this is outside execution scope
 
-L'EXECUTION applique le plan. Un run à la fois.
+EXECUTION applies the plan, one run at a time.

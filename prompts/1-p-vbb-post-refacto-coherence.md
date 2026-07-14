@@ -2,20 +2,20 @@
 description: Post-refactoring code↔doc coherence pipeline — audit, gap fill, harmonize, and prepare clean handoff
 ---
 
-Réalise un audit complet de cohérence code↔documentation post-refactoring pour : $@
+Run a complete post-refactoring code↔documentation coherence audit for: $@
 
-## Objectif
+## Objective
 
-Après une phase lourde de refactoring, debugging, ou réduction de dette technique,
-remettre le projet sur des bases saines en vérifiant que TOUTE la documentation
-reflète fidèlement l'état réel du code.
+After substantial refactoring, debugging, or technical-debt reduction, restore
+a sound baseline by verifying that ALL documentation accurately reflects the
+actual state of the code.
 
-Le pipeline complet :
+Complete pipeline:
 
-1. Auditer la cohérence code↔doc (détection des écarts)
-2. Combler les gaps (écriture de la doc manquante)
-3. Harmoniser la doc (élimination des redondances)
-4. Produire un handoff propre pour repartir
+1. Audit code↔doc coherence (detect gaps)
+2. Fill gaps (write missing documentation)
+3. Harmonize documentation (eliminate redundancy)
+4. Produce a clean handoff for continued work
 
 ## Preferred Vibebackbone skills
 
@@ -26,83 +26,83 @@ Le pipeline complet :
 
 ## Skill routing and chaining rule
 
-### Phase 1 — Audit de cohérence
+### Phase 1 — Coherence audit
 
-Lancer `1-vbb-code-doc-coherence-auditor` en premier.
-C'est le pilier : il produit l'état des lieux complet et détermine si les phases suivantes
-sont nécessaires.
+Run `1-vbb-code-doc-coherence-auditor` first.
+It is the foundation: it produces the complete inventory and determines whether
+the following phases are necessary.
 
-Si l'utilisateur n'a pas précisé le scope, lui demander avant de lancer le scan :
-"Quel périmètre ? Tout le repo, ou des modules spécifiques ?"
+If the user has not specified the scope, ask before scanning:
+"Which scope: the entire repository or specific modules?"
 
-- "Quels modules ont été refactorés récemment ?"
+- "Which modules were refactored recently?"
 
-Après le rapport d'audit, analyser le verdict :
+After the audit report, analyze the verdict:
 
 | Verdict      | Action                                                           |
 | ------------ | ---------------------------------------------------------------- |
-| `COHERENT`   | Passer directement à la Phase 4 (handoff). Le projet est propre. |
-| `PARTIAL`    | Continuer en Phase 2 pour les gaps HIGH/MEDIUM uniquement.       |
-| `FRAGMENTED` | Continuer en Phase 2 + Phase 3. Le chantier est plus lourd.      |
-| `UNKNOWN`    | Demander clarification à l'utilisateur avant de continuer.       |
+| `COHERENT`   | Go directly to Phase 4 (handoff). The project is clean.           |
+| `PARTIAL`    | Continue to Phase 2 for HIGH/MEDIUM gaps only.                    |
+| `FRAGMENTED` | Continue to Phase 2 + Phase 3. The remediation is more extensive. |
+| `UNKNOWN`    | Ask the user for clarification before continuing.                |
 
-### Phase 2 — Comblement des gaps
+### Phase 2 — Gap filling
 
-Lancer `1-vbb-code-doc-gap-integrator` pour écrire la documentation manquante.
+Run `1-vbb-code-doc-gap-integrator` to write missing documentation.
 
-Utiliser le rapport du coherence-auditor comme **hint list** :
+Use the coherence-auditor report as the **hint list**:
 
-- Passer les gaps MISSING identifiés comme `gaps connus` à l'input du gap-integrator
-- Cibler le scope sur les zones refactorées si spécifiées
-- Seuil d'écriture : `HIGH+MEDIUM` en mode `PARTIAL`, `ALL` en mode `FRAGMENTED`
+- Pass identified MISSING gaps as `known gaps` to the gap-integrator input
+- Target the scope at refactored areas when specified
+- Writing threshold: `HIGH+MEDIUM` in `PARTIAL` mode, `ALL` in `FRAGMENTED` mode
 
-Ne PAS lancer le gap-integrator si le verdict du coherence-auditor est `COHERENT`.
+Do NOT run the gap-integrator if the coherence-auditor verdict is `COHERENT`.
 
-### Phase 3 — Harmonisation documentaire
+### Phase 3 — Documentation harmonization
 
-Lancer `1-vbb-doc-harmonizer` pour :
+Run `1-vbb-doc-harmonizer` to:
 
-- Traiter les écarts `REDUNDANT` identifiés par le coherence-auditor
-- Consolider la documentation après l'ajout des fiches manquantes (Phase 2)
-- Proposer un plan d'archivage pour les documents obsolètes
+- Address `REDUNDANT` gaps identified by the coherence-auditor
+- Consolidate documentation after adding missing reference sheets (Phase 2)
+- Propose an archival plan for obsolete documents
 
-Cette phase est optionnelle si le nombre de REDUNDANT est faible (< 3) et de sévérité LOW.
+This phase is optional when there are few REDUNDANT items (< 3) and their severity is LOW.
 
-### Phase 4 — Handoff de clôture
+### Phase 4 — Closeout handoff
 
-Lancer `t-vbb-session-handoff` pour sceller l'état propre du projet.
+Run `t-vbb-session-handoff` to seal the project's clean state.
 
-Le handoff doit inclure :
+The handoff must include:
 
-- Résumé du travail de remédiation effectué
-- Verdicts des 3 passes (audit → gap fill → harmonisation)
-- Écarts résiduels assumés (LOW non traités, orphelins intentionnels)
-- Prochaines actions recommandées
+- Summary of completed remediation work
+- Verdicts from the 3 passes (audit → gap fill → harmonization)
+- Accepted residual gaps (unaddressed LOW items, intentional orphans)
+- Recommended next actions
 
-### Règle de cascade des verdicts
+### Verdict cascade rule
 
-Si un verdict de la phase N est `BLOCKED`, ne pas lancer la phase N+1.
-Demander à l'utilisateur de résoudre le blocage.
+If phase N has a `BLOCKED` verdict, do not run phase N+1.
+Ask the user to resolve the blocker.
 
-Si le gap-integrator produit un verdict `READY`, passer à la phase suivante.
-Si `PARTIAL`, continuer mais signaler les gaps restants dans le handoff final.
-Si `BLOCKED`, arrêter et demander clarification.
+If the gap-integrator produces a `READY` verdict, proceed to the next phase.
+If `PARTIAL`, continue but report remaining gaps in the final handoff.
+If `BLOCKED`, stop and ask for clarification.
 
-### Fallback manuel
+### Manual fallback
 
-Le fallback manuel n'est autorisé que si une skill nommée est absente du `[Skills]` actif.
-Si tu tombes en fallback, nommer la skill manquante et expliquer pourquoi.
+Manual fallback is allowed only when a named skill is absent from the active `[Skills]` list.
+If fallback is necessary, name the missing skill and explain why.
 
 ## Required process
 
-1. **Restate** l'objectif en une phrase.
-2. **Demander** le périmètre et les zones refactorées (si non fournis).
-3. **Phase 1** — Lancer `1-vbb-code-doc-coherence-auditor`.
-4. **Analyser** le verdict et décider des phases suivantes.
-5. **Phase 2** — Lancer `1-vbb-code-doc-gap-integrator` (si nécessaire), avec les hints du rapport d'audit.
-6. **Phase 3** — Lancer `1-vbb-doc-harmonizer` (si nécessaire), avec les REDUNDANT du rapport d'audit.
-7. **Phase 4** — Lancer `t-vbb-session-handoff`.
-8. **Résumer** le pipeline complet et l'état final.
+1. **Restate** the objective in one sentence.
+2. **Ask** for the scope and refactored areas (if not provided).
+3. **Phase 1** — Run `1-vbb-code-doc-coherence-auditor`.
+4. **Analyze** the verdict and select the next phases.
+5. **Phase 2** — Run `1-vbb-code-doc-gap-integrator` (if needed), with hints from the audit report.
+6. **Phase 3** — Run `1-vbb-doc-harmonizer` (if needed), with REDUNDANT items from the audit report.
+7. **Phase 4** — Run `t-vbb-session-handoff`.
+8. **Summarize** the complete pipeline and final state.
 
 ---
 
@@ -119,23 +119,23 @@ After the Phase 4 handoff is produced:
 
 ## Constraints
 
-- Ne pas sauter la Phase 1 (audit). C'est la fondation de tout le pipeline.
-- Ne pas lancer le gap-integrator sans lui passer le rapport d'audit comme hint list.
-- Ne pas lancer le doc-harmonizer sans lui passer les écarts REDUNDANT détectés.
-- Ne pas confondre : le coherence-auditor détecte, le gap-integrator écrit, le doc-harmonizer consolide.
-- Distinguer clairement les orphelins intentionnels (architecture, guides) des orphelins accidentels.
-- La Phase 4 (handoff) est toujours exécutée, même si le verdict est `COHERENT` (pour tracer).
-- Si l'utilisateur interrompt le pipeline à une phase, produire un handoff partiel avec l'état connu.
-- Respecter la règle de cascade des verdicts : BLOCKED → arrêt, PARTIAL → continuer avec avertissement.
+- Do not skip Phase 1 (audit). It is the foundation of the entire pipeline.
+- Do not run the gap-integrator without passing it the audit report as a hint list.
+- Do not run the doc-harmonizer without passing it the detected REDUNDANT items.
+- Keep responsibilities distinct: the coherence-auditor detects, the gap-integrator writes, and the doc-harmonizer consolidates.
+- Clearly distinguish intentional orphans (architecture, guides) from accidental orphans.
+- Always run Phase 4 (handoff), even when the verdict is `COHERENT`, to preserve traceability.
+- If the user interrupts the pipeline during a phase, produce a partial handoff with the known state.
+- Follow the verdict cascade rule: BLOCKED → stop, PARTIAL → continue with a warning.
 
 ## Output format
 
-- **Goal** : résumé en 1 phrase
-- **Scope** : périmètre audité
-- **Phase 1 — Verdict** : verdict du coherence-auditor + résumé
-- **Phase 2 — Gap fill** : (si exécutée) verdict + fiches écrites
-- **Phase 3 — Harmonisation** : (si exécutée) verdict + actions
-- **Phase 4 — Handoff** : résumé du handoff final
-- **État final** : `prêt à repartir` | `prêt avec réserves` | `remédiation nécessaire`
-- **Écarts résiduels** : ce qui reste à traiter
-- **Prochaine action recommandée**
+- **Goal**: one-sentence summary
+- **Scope**: audited scope
+- **Phase 1 — Verdict**: coherence-auditor verdict + summary
+- **Phase 2 — Gap fill**: if run, verdict + reference sheets written
+- **Phase 3 — Harmonization**: if run, verdict + actions
+- **Phase 4 — Handoff**: final handoff summary
+- **Final state**: `ready to resume` | `ready with caveats` | `remediation required`
+- **Residual gaps**: remaining work
+- **Recommended next action**

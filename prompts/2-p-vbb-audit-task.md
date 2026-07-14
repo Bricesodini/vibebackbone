@@ -70,11 +70,11 @@ Output format:
 **After audit findings** :
 
 1. `3-vbb-risk-register` → consolidate findings into a risk register (if findings exist)
-2. `t-vbb-commit-ready` → verdict + message conventionnel
-3. `git add <fichiers>` → `git commit -m "<message>"` → `git push`
-4. Mise à jour de `docs/SESSION.md` (vier ou noter l'état)
-5. Mise à jour de `docs/CONTEXT.md` (statut, lien vers run, points ouverts)
-6. Si applicable : mise à jour de `docs/AUDIT_STATUS.md` (nouveau rapport d'audit)
+2. `t-vbb-commit-ready` → verdict + conventional message
+3. `git add <files>` → `git commit -m "<message>"` → `git push`
+4. Update `docs/SESSION.md` (clear it or record the state)
+5. Update `docs/CONTEXT.md` (status, run link, open points)
+6. If applicable, update `docs/AUDIT_STATUS.md` (new audit report)
 
 > Do not stop after "recommendations". The audit loop is not closed until findings are registered, report is committed, and git push is done.
 

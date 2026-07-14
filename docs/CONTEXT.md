@@ -25,12 +25,12 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Release posture**: v1.0 hardening complete; bounded maintenance continues
 - **Active run**: none
 - **Latest completed run**:
-  [`2026-07-14_1630_ready-independent-review`](runs/2026-07-14_1630_ready-independent-review/07_CLOSEOUT.md)
+  [`2026-07-14_1700_prompt-english-migration`](runs/2026-07-14_1700_prompt-english-migration/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: reconcile stale local `SESSION.md`, then translate the 19
-  remaining French prompt surfaces before repeating READY revalidation
+- **Next action**: run an exhaustive independent optimization scan of all 64
+  skills and revalidate the seven READY criteria
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
 - **Quality**: [CONVENTIONS.md](CONVENTIONS.md), pillars P1–P5 and P.R1–P.R8

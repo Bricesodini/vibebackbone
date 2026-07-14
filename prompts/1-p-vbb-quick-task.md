@@ -52,33 +52,33 @@ Output format:
 
 ---
 
-## Alignement protocole agentique
+## Agent protocol alignment
 
-**Phases correspondantes** : 01_INTAKE (implicite) + 05_EXECUTION
+**Corresponding phases**: 01_INTAKE (implicit) + 05_EXECUTION
 
-Ce prompt enchaîne le cadrage et l'exécution en une seule session. Adapté à la voie RAPIDE STANDARD uniquement.
+This prompt combines framing and execution in one session. It is suitable only for the RAPIDE STANDARD route.
 
-Pour RAPIDE-ZERO et RAPIDE-MINIMAL, utiliser `0-p-vbb-zero-friction` à la place.
+For RAPIDE-ZERO and RAPIDE-MINIMAL, use `0-p-vbb-zero-friction` instead.
 
-**Artefacts attendus** (RAPIDE STANDARD) :
-- `docs/runs/YYYY-MM-DD_HHmm_slug/01_INTAKE.md` — objectif + classification RAPIDE (peut être minimal)
-- `docs/runs/YYYY-MM-DD_HHmm_slug/05_PATCH_SUMMARY_RUN_01.md` — résumé des changements
+**Expected artifacts** (RAPIDE STANDARD):
+- `docs/runs/YYYY-MM-DD_HHmm_slug/01_INTAKE.md` — objective + RAPIDE classification (may be minimal)
+- `docs/runs/YYYY-MM-DD_HHmm_slug/05_PATCH_SUMMARY_RUN_01.md` — change summary
 
-Ces fichiers peuvent être courts. L'essentiel est qu'ils existent et soient nommés.
+These files may be short. They must exist and be named.
 
-**Handoff vers 07_CLOSEOUT** :
+**Handoff to 07_CLOSEOUT**:
 
-En voie RAPIDE, la review est optionnelle. Après l'exécution :
-- Si changement minimal → passer directement à `canonical/07-p-vbb-closeout` ou `t-p-vbb-session-handoff`
-- Si changement sensible → créer une session `canonical/06-p-vbb-review`
+On the RAPIDE route, review is optional. After execution:
+- For a minimal change → proceed directly to `canonical/07-p-vbb-closeout` or `t-p-vbb-session-handoff`
+- For a sensitive change → create a `canonical/06-p-vbb-review` session
 
-**Closeout sequence (toujours — même en RAPIDE)** :
+**Closeout sequence (always — including RAPIDE)**:
 
-1. `t-vbb-commit-ready` → verdict + message conventionnel
-2. `git add <fichiers>` → `git commit -m "<message>"` → `git push`
-3. Mise à jour de `docs/SESSION.md` (vier si session terminée)
-4. Mise à jour de `docs/CONTEXT.md` (statut, lien vers run)
+1. `t-vbb-commit-ready` → verdict + conventional message
+2. `git add <files>` → `git commit -m "<message>"` → `git push`
+3. Update `docs/SESSION.md` (clear it if the session is complete)
+4. Update `docs/CONTEXT.md` (status, run link)
 
-> Ne pas s'arrêter après l'exécution. La boucle n'est pas fermée tant que git push n'est pas fait. Pour RAPIDE-MINIMAL : le `05_PATCH_SUMMARY.md` existe déjà — l'utiliser comme base pour la séquence de commit.
+> Do not stop after execution. The loop remains open until git push succeeds. For RAPIDE-MINIMAL, `05_PATCH_SUMMARY.md` already exists — use it as the basis for the commit sequence.
 
-**Escalade obligatoire** : si en cours d'exécution le risque augmente (auth, données, prod, sécurité) → arrêter immédiatement, documenter dans le patch summary, créer une nouvelle session en voie STRUCTURÉE ou AUDIT.
+**Mandatory escalation**: if risk increases during execution (auth, data, production, security) → stop immediately, document it in the patch summary, and create a new STRUCTURÉE or AUDIT session.

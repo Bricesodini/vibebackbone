@@ -45,6 +45,7 @@ Exemple : `0001-choix-framework-api.md`
 | [0033](0033-layered-core-credentials-enforcement.md) | Layered Core credentials enforcement | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_1150_credentials-enforcement/) |
 | [0034](0034-consumer-managed-runtime-assets.md) | Consumer-managed runtime assets | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_1242_consumer-managed-hook-bundle/) |
 | [0035](0035-supported-python-static-toolchain.md) | Supported Python static toolchain | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_1411_static-toolchain/) |
+| [0036](0036-agent-facing-prompt-english-migration.md) | Agent-facing prompt English migration | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_1700_prompt-english-migration/) |
 | [0013-arch](0013-repo-organization-core-vs-distributions.md) | Repo organization Core vs Distributions | — | — | — |
 
 ## Conventions

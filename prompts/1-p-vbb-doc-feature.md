@@ -27,9 +27,9 @@ User interaction (gap-integrator only):
 
 When using `1-vbb-code-doc-gap-integrator`, ask the user up to 3 optional questions before scanning. Do not block on unanswered questions — use defaults silently.
 
-1. **Scope** — "Quel périmètre souhaitez-vous couvrir ?" (module, répertoire, feature, ou tout le repo) → default: tout le repo
-2. **Known gaps** — "Y a-t-il des modules ou features que vous savez non documentés ?" → default: aucun hint, scan complet
-3. **Write threshold** — "Quel seuil d'écriture ?" (HIGH seul ou HIGH+MEDIUM) → default: HIGH+MEDIUM
+1. **Scope** — "Which scope should be covered?" (module, directory, feature, or the entire repository) → default: entire repository
+2. **Known gaps** — "Are there modules or features you know are undocumented?" → default: no hint, full scan
+3. **Write threshold** — "Which writing threshold?" (HIGH only or HIGH+MEDIUM) → default: HIGH+MEDIUM
 
 Execution mode:
 
@@ -63,7 +63,7 @@ Constraints:
 - Prefer concise operational documentation over bloated generic documentation.
 - Keep the document type explicit.
 - When delegating to a local model, provide the micro-context as defined in the skill — never send the full repo context.
-- The default template is 5 fields: À propos, Emplacement, Surface publique, Configuration, Dépendances directes. Use it unless ≥ 3 existing fiches share a coherent structure.
+- The default template has 5 fields: About, Location, Public surface, Configuration, Direct dependencies. Use it unless ≥ 3 existing reference sheets share a coherent structure.
 
 Output format:
 

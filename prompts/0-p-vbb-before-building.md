@@ -2,13 +2,13 @@
 description: Pre-build validation gate — verify that the project is ready to start building a new feature
 ---
 
-Vérifie que le projet est prêt à démarrer la construction pour : $@
+Verify that the project is ready to start building: $@
 
-## Objectif
+## Objective
 
-Avant d'écrire une seule ligne de code, valider que toutes les préconditions
-sont réunies pour un développement sain et tracé. Ce prompt est le "checklist
-de décollage" pour un architecte produit qui s'apprête à lancer un chantier.
+Before writing any code, validate that every prerequisite is in place for
+healthy, traceable development. This prompt is the product architect's
+pre-flight checklist before starting a substantial workstream.
 
 ## Preferred Vibebackbone skills
 
@@ -21,111 +21,111 @@ de décollage" pour un architecte produit qui s'apprête à lancer un chantier.
 
 ## Skill routing and chaining rule
 
-### Phase 1 — Vérifier la gouvernance
+### Phase 1 — Verify governance
 
-1. Vérifier si le repo est sur les rails Vibebackbone (docs/PROJECT_MODE.md présent).
-2. Si absent → lancer `t-vbb-project-context-init` pour initialiser.
-3. Si présent → lire `docs/SESSION.md` et `docs/AUDIT_STATUS.md`.
-4. Si `docs/AUDIT_STATUS.md` montre des BLOCKED → STOP. Résoudre avant de continuer.
+1. Verify that the repository is on Vibebackbone rails (docs/PROJECT_MODE.md exists).
+2. If absent → run `t-vbb-project-context-init` to initialize it.
+3. If present → read `docs/SESSION.md` and `docs/AUDIT_STATUS.md`.
+4. If `docs/AUDIT_STATUS.md` contains BLOCKED items → STOP. Resolve them before continuing.
 
-### Phase 2 — Verifier la readiness RICO / MVP START
+### Phase 2 — Verify RICO / MVP START readiness
 
-1. Si le chantier est un MVP depuis zero, un RICO, un brief initial, ou une demande de coder avant cadrage → lancer `0-vbb-rico-readiness`.
-2. Si verdict = BLOCKED ou UNKNOWN → STOP. Produire uniquement les questions bloquantes.
-3. Si verdict = PARTIAL → rester en cadrage. Aucun code applicatif, migration, endpoint, modele, composant UI, structure Docker, persistence ou logique metier.
-4. Si verdict = READY → continuer vers scope/architecture.
+1. If the work is an MVP from scratch, a RICO, an initial brief, or a request to code before framing → run `0-vbb-rico-readiness`.
+2. If verdict = BLOCKED or UNKNOWN → STOP. Produce only the blocking questions.
+3. If verdict = PARTIAL → remain in framing. Do not create application code, migrations, endpoints, models, UI components, Docker structures, persistence, or business logic.
+4. If verdict = READY → continue to scope and architecture.
 
-### Phase 3 — Vérifier le scope
+### Phase 3 — Verify scope
 
-1. Lancer `0-vbb-scope-freeze` sur le périmètre concerné.
-2. Si verdict = BLOCKED → le scope n'est pas assez défini. STOP.
-3. Si verdict = PARTIAL → continuer mais noter les zones floues.
-4. Si verdict = READY → le scope est gelé, on peut continuer.
+1. Run `0-vbb-scope-freeze` on the relevant scope.
+2. If verdict = BLOCKED → the scope is insufficiently defined. STOP.
+3. If verdict = PARTIAL → continue, but record the ambiguous areas.
+4. If verdict = READY → the scope is frozen; continue.
 
-### Phase 4 — Vérifier l'architecture
+### Phase 4 — Verify architecture
 
-1. Vérifier si `docs/ARCHITECTURE.md` existe.
-2. Si absent → lancer `t-vbb-dependency-mapper`.
-3. Si présent mais ancien (> 30 jours ou > 50 commits) → proposer une mise à jour.
+1. Verify that `docs/ARCHITECTURE.md` exists.
+2. If absent → run `t-vbb-dependency-mapper`.
+3. If present but stale (> 30 days or > 50 commits) → propose an update.
 
-### Phase 5 — Vérifier l'état du code
+### Phase 5 — Verify code state
 
-1. Lancer `t-vbb-anti-slop-gate` pour vérifier l'état de surface.
-2. Si verdict = BLOCKED (build cassé, tests échoués) → STOP. Réparer avant de construire.
-3. Si verdict = READY_WITH_WARNINGS → noter les warnings, continuer.
-4. Si verdict = READY → surface propre.
+1. Run `t-vbb-anti-slop-gate` to verify the code surface.
+2. If verdict = BLOCKED (broken build, failing tests) → STOP. Repair it before building.
+3. If verdict = READY_WITH_WARNINGS → record the warnings and continue.
+4. If verdict = READY → the surface is clean.
 
-### Phase 6 — Décomposer l'intent
+### Phase 6 — Decompose intent
 
-1. Lancer `1-vbb-intent-decomposer` sur la spécification fournie.
-2. Le plan produit devient la feuille de route.
-3. Valider le plan avec l'architecte avant de coder.
+1. Run `1-vbb-intent-decomposer` on the provided specification.
+2. Use the resulting product plan as the roadmap.
+3. Validate the plan with the architect before coding.
 
 ## Required process
 
-1. **Restate** l'objectif : quelle feature va être construite.
-2. **Phase 1** — Vérifier/créer la gouvernance projet.
-3. **Phase 2** — Valider la readiness RICO / MVP START.
-4. **Phase 3** — Geler le scope.
-5. **Phase 4** — Vérifier/créer la cartographie d'architecture.
-6. **Phase 5** — Lancer l'anti-slop gate.
-7. **Phase 6** — Décomposer l'intent en plan.
-7. **Résumer** : verdict de readiness, risques, plan.
+1. **Restate** the objective: which feature will be built.
+2. **Phase 1** — Verify or create project governance.
+3. **Phase 2** — Validate RICO / MVP START readiness.
+4. **Phase 3** — Freeze the scope.
+5. **Phase 4** — Verify or create the architecture map.
+6. **Phase 5** — Run the anti-slop gate.
+7. **Phase 6** — Decompose the intent into a plan.
+7. **Summarize** the readiness verdict, risks, and plan.
 
-## Gate criteria — le projet est prêt à construire si :
+## Gate criteria — the project is ready to build when:
 
-- [ ] Gouvernance Vibebackbone présente (PROJECT_MODE, SESSION, AUDIT_STATUS)
-- [ ] RICO readiness READY si MVP depuis zero ou brief initial
-- [ ] Scope gelé et documenté
-- [ ] Architecture cartographiée (ARCHITECTURE.md)
-- [ ] Surface de code propre (anti-slop READY ou READY_WITH_WARNINGS)
-- [ ] Plan d'implémentation produit (intent-decomposer ACTIONABLE)
-- [ ] Aucun BLOCKED dans AUDIT_STATUS.md
+- [ ] Vibebackbone governance is present (PROJECT_MODE, SESSION, AUDIT_STATUS)
+- [ ] RICO readiness is READY for an MVP from scratch or an initial brief
+- [ ] Scope is frozen and documented
+- [ ] Architecture is mapped (ARCHITECTURE.md)
+- [ ] Code surface is clean (anti-slop READY or READY_WITH_WARNINGS)
+- [ ] A product implementation plan exists (intent-decomposer ACTIONABLE)
+- [ ] AUDIT_STATUS.md contains no BLOCKED items
 
 ## Blocking conditions
 
-Si une phase produit un BLOCKED → ne pas passer à la phase suivante.
-Présenter le blocage à l'architecte avec la question : "Voulez-vous résoudre ce point avant de continuer ?"
+If a phase produces BLOCKED → do not proceed to the next phase.
+Present the blocker to the architect and ask: "Do you want to resolve this before continuing?"
 
-Si l'architecte insiste pour continuer malgré un blocage → documenter l'acceptation du risque
-dans SESSION.md et continuer.
+If the architect insists on continuing despite a blocker → document the risk acceptance
+in SESSION.md and continue.
 
 ## Output format
 
 - **Goal**
-- **Phase 1 — Gouvernance** : verdict
-- **Phase 2 — RICO readiness** : verdict du rico-readiness
-- **Phase 3 — Scope** : verdict du scope-freeze
-- **Phase 4 — Architecture** : état de ARCHITECTURE.md
-- **Phase 5 — Code surface** : verdict anti-slop
-- **Phase 6 — Plan** : résumé du plan (nombre de tâches, vagues, risques)
-- **Readiness verdict** : READY / READY_WITH_CAVEATS / NOT_READY
-- **Blockers** : liste des points bloquants
-- **Next action** : commencer Wave 1, ou résoudre les blockers
+- **Phase 1 — Governance**: verdict
+- **Phase 2 — RICO readiness**: rico-readiness verdict
+- **Phase 3 — Scope**: scope-freeze verdict
+- **Phase 4 — Architecture**: ARCHITECTURE.md state
+- **Phase 5 — Code surface**: anti-slop verdict
+- **Phase 6 — Plan**: plan summary (task count, waves, risks)
+- **Readiness verdict**: READY / READY_WITH_CAVEATS / NOT_READY
+- **Blockers**: list of blocking items
+- **Next action**: start Wave 1 or resolve the blockers
 
 ---
 
-## Alignement protocole agentique
+## Agent protocol alignment
 
-**Phases correspondantes** : 01_INTAKE (phases 1–2) + 04_PLAN (phase 5)
+**Corresponding phases**: 01_INTAKE (phases 1–2) + 04_PLAN (phase 5)
 
-Ce prompt couvre plusieurs phases en une session. Il est adapté aux contexts où la rapidité prime sur la séparation stricte des rôles.
+This prompt covers several phases in one session. It suits contexts where speed takes priority over strict role separation.
 
-**Artefacts attendus** :
-- `docs/runs/YYYY-MM-DD_HHmm_slug/01_INTAKE.md` — reformulation + verdict readiness
-- `docs/runs/YYYY-MM-DD_HHmm_slug/04_FIX_PLAN.md` — plan produit en phase 5
+**Expected artifacts**:
+- `docs/runs/YYYY-MM-DD_HHmm_slug/01_INTAKE.md` — restatement + readiness verdict
+- `docs/runs/YYYY-MM-DD_HHmm_slug/04_FIX_PLAN.md` — phase 5 product plan
 
-Créer ces fichiers à la fin de chaque phase correspondante.
+Create these files at the end of each corresponding phase.
 
-**Avertissement de contexte** : ce prompt orchestre 5 phases et plusieurs skills. Si le contexte LLM est limité (<128K tokens disponibles), préférer une exécution en deux sessions séparées : `canonical/01-p-vbb-intake` puis `canonical/04-p-vbb-plan`.
+**Context warning**: this prompt orchestrates 5 phases and several skills. If LLM context is limited (<128K available tokens), prefer two separate sessions: `canonical/01-p-vbb-intake`, then `canonical/04-p-vbb-plan`.
 
-**Handoff vers 05_EXECUTION** :
+**Handoff to 05_EXECUTION**:
 
-Si verdict READY ou READY_WITH_CAVEATS :
-- Indiquer les runs prévus et le premier à exécuter
-- Lister les fichiers cibles
-- Documenter les risques acceptés
+If verdict is READY or READY_WITH_CAVEATS:
+- State the planned runs and which one to execute first
+- List target files
+- Document accepted risks
 
-Si verdict NOT_READY :
-- Lister les blockers et l'action requise pour chacun
-- Ne pas passer à l'exécution avant résolution
+If verdict is NOT_READY:
+- List blockers and the required action for each
+- Do not proceed to execution before resolution

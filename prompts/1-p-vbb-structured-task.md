@@ -153,31 +153,31 @@ The 07_CLOSEOUT.md must end with `## LONG_RUN_SUMMARY` section containing the FI
 
 ---
 
-## Alignement protocole agentique
+## Agent protocol alignment
 
-**Phases correspondantes** : 01_INTAKE + 04_PLAN + 05_EXECUTION
+**Corresponding phases**: 01_INTAKE + 04_PLAN + 05_EXECUTION
 
-Ce prompt enchaîne cadrage, planification et exécution en une session. Adapté à la voie STRUCTURÉE.
+This prompt combines framing, planning, and execution in one session. It is suitable for the STRUCTURÉE route.
 
-**Artefacts attendus** :
-- `docs/runs/YYYY-MM-DD_HHmm_slug/01_INTAKE.md` — objectif reformulé + classification STRUCTURÉE
-- `docs/runs/YYYY-MM-DD_HHmm_slug/04_FIX_PLAN.md` — plan produit avant exécution
-- `docs/runs/YYYY-MM-DD_HHmm_slug/05_PATCH_SUMMARY_RUN_01.md` — résumé des changements
+**Expected artifacts**:
+- `docs/runs/YYYY-MM-DD_HHmm_slug/01_INTAKE.md` — restated objective + STRUCTURÉE classification
+- `docs/runs/YYYY-MM-DD_HHmm_slug/04_FIX_PLAN.md` — plan produced before execution
+- `docs/runs/YYYY-MM-DD_HHmm_slug/05_PATCH_SUMMARY_RUN_01.md` — change summary
 
-Créer ces trois fichiers dans le dossier de run. Si plusieurs runs : `05_PATCH_SUMMARY_RUN_02.md`, etc.
+Create these three files in the run directory. For multiple runs, use `05_PATCH_SUMMARY_RUN_02.md`, etc.
 
-**Audit optionnel** : si en cours d'exploration un risque inattendu apparaît (sécurité, données, conformité) → interrompre, créer une session `canonical/02-p-vbb-audit`, et reprendre après le verdict.
+**Optional audit**: if an unexpected risk appears during exploration (security, data, compliance) → stop, create a `canonical/02-p-vbb-audit` session, and resume after its verdict.
 
-**Handoff vers 06_REVIEW** :
+**Handoff to 06_REVIEW**:
 
-Après exécution, ne pas reviewer soi-même. Créer une nouvelle session avec `canonical/06-p-vbb-review`.
-Transmettre : `05_PATCH_SUMMARY_RUN_N.md` + liste des fichiers modifiés + points non résolus.
+After execution, do not self-review. Create a new session with `canonical/06-p-vbb-review`.
+Pass: `05_PATCH_SUMMARY_RUN_N.md` + list of modified files + unresolved points.
 
-**Closeout sequence (à exécuter après approval)** :
+**Closeout sequence (run after approval)**:
 
-1. `t-vbb-commit-ready` → verdict + message de commit conventionnel
-2. `git add <fichiers>` → `git commit -m "<message>"` → `git push`
-3. Mise à jour de `docs/SESSION.md` (vier ou noter l'état)
-4. Mise à jour de `docs/CONTEXT.md` (statut, lien vers run, points ouverts)
+1. `t-vbb-commit-ready` → verdict + conventional commit message
+2. `git add <files>` → `git commit -m "<message>"` → `git push`
+3. Update `docs/SESSION.md` (clear it or record the state)
+4. Update `docs/CONTEXT.md` (status, run link, open points)
 
-> Ne pas s'arrêter après la review. La boucle n'est pas fermée tant que git push n'est pas fait. Pour STRUCTURED, le closeout formel est requis — produire `07_CLOSEOUT.md` avant de commiter.
+> Do not stop after review. The loop remains open until git push succeeds. For STRUCTURED, formal closeout is required — produce `07_CLOSEOUT.md` before committing.

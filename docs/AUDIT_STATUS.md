@@ -25,8 +25,7 @@ resolved or explicitly accepted; the independent read-only revalidation remains.
 
 | ID | Severity | Description | Status |
 |---|---|---|---|
-| READY-GOV-001 | P1 | Local `SESSION.md` contradicts `CONTEXT.md` and resolved GMA-003 state. | **OPEN** — reconcile the mandatory boot hierarchy before another READY review. |
-| READY-GIT-002 | P2 | Literal clean-worktree state cannot coexist with an uncommitted durable audit report. | **OPEN** — close, commit and push the audit, then verify clean synchronized Git state. |
+| — | — | No unresolved finding remains before the final skill-catalog audit. | Final independent scan pending. |
 
 ## Latest evidence
 
@@ -47,6 +46,9 @@ resolved or explicitly accepted; the independent read-only revalidation remains.
 - Residual-risk disposition: [conventions audit](runs/2026-07-14_1615_ready-risk-reconciliation/02_AUDIT_REPORT.md)
   and [decision](runs/2026-07-14_1615_ready-risk-reconciliation/03_DECISION.md).
 - Independent READY review: [PARTIAL report](runs/2026-07-14_1630_ready-independent-review/02_AUDIT_REPORT.md).
+- Prompt language migration: [formatter audit](audits/format-lint-prompt-language-20260714-1645.md),
+  [ADR 0036](adr/0036-agent-facing-prompt-english-migration.md), and
+  [run closeout](runs/2026-07-14_1700_prompt-english-migration/07_CLOSEOUT.md).
 
 ## READY campaign exit criteria
 
@@ -71,10 +73,6 @@ The verdict remains `PARTIAL` until the seven conditions hold simultaneously.
 - `GMA-005` long functions — accepted by the maintainers of the touched tools.
   The 40-line target remains indicative; reopen on demonstrated multiple
   responsibility, a testability defect, or a regression in a touched function.
-- `GMA-005` French prompts — accepted by the prompt architecture maintainer as
-  a literal convention variance without a demonstrated behavior defect. Reopen
-  on language-caused routing failure, an English-only consumer requirement, or
-  a rewrite touching the affected prompt surface.
 - `SYS-POC-004` — accepted by the governance maintainer as a historical
   transition gap. Reopen if a future canon, architecture, or cross-service
   implementation starts after POC without a linked durable decision.
@@ -129,6 +127,16 @@ The verdict remains `PARTIAL` until the seven conditions hold simultaneously.
 - `DOC-001`: `PROMPTS_ARCHITECTURE.md` now owns one matrix for canonical,
   specialized, router and short-name responsibilities; the detailed router
   links to it and no prompt behavior changed.
+
+## Resolved by prompt English migration
+
+- `GMA-005` prompt language: 18 affected prompt files now use English for all
+  human-readable instructions and embedded templates; three regression tests
+  allow only explicit machine-facing route/risk/verdict/status enums.
+- `READY-GOV-001`: local `SESSION.md` now agrees with current context and no
+  longer presents resolved GMA-003 as future work.
+- `READY-GIT-002`: after the independent audit commit, worktree cleanliness and
+  equality of local, tracking and live remote SHAs were verified before this run.
 
 - Credentials remediation design: [impact analysis](audits/impact-analysis-20260714-1150.md),
   [remediation plan](audits/security-remediation-20260714-1150.md), and
