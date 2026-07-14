@@ -25,19 +25,18 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Release posture**: v1.0 hardening complete; bounded maintenance continues
 - **Active run**: none
 - **Latest completed run**:
-  [`2026-07-14_0714_dashboard-risk-priority`](runs/2026-07-14_0714_dashboard-risk-priority/07_CLOSEOUT.md)
+  [`2026-07-14_0721_consumer-refresh-poc`](runs/2026-07-14_0721_consumer-refresh-poc/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: decide whether to start the bounded consumer-refresh POC
+- **Next action**: no mandatory run; reopen TER-001 only with an ownership-design mandate
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
 - **Quality**: [CONVENTIONS.md](CONVENTIONS.md), pillars P1–P5 and P.R1–P.R8
 
 ## Current priorities
 
-1. Evaluate a non-destructive consumer-governance refresh in a separate POC;
-   stop if it requires new tooling or a heavy codegen layer.
+1. Keep TER-001 deferred unless a dedicated ownership/generated-file design is approved.
 2. Address remaining documentation links only through bounded active scopes.
 
 ## Stable decisions

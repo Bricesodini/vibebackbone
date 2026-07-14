@@ -432,6 +432,13 @@ glue provider ni état runtime ne change. **Author**: Codex, après GO Brice.
 **Impact**: les quatre distributions voient les mêmes P1 prioritaires ; aucun
 adaptateur ni format JSON ne change. **Author**: Codex, après GO Brice.
 
+### 2026-07-14 — Refresh consommateur différé
+
+**Decision**: Garder `vbb-project-init.py` limité au bootstrap. Le POC montre
+que l'overwrite répété remplace la vérité projet puis sa sauvegarde.
+**Impact**: aucun adaptateur ne change ; un refresh attendra une frontière
+d'ownership explicite. **Author**: Codex, après GO Brice.
+
 ## 8. References
 
 - `README.md` — entry point; "VBB Core vs Distributions" anchors the

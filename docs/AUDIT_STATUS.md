@@ -27,6 +27,12 @@ Dashboard follow-up: run `2026-07-14_0714_dashboard-risk-priority` now parses
 all recognized risk tables, normalizes emphasized cells, deduplicates IDs, and
 orders active risks by severity so P1 entries cannot be hidden by P2/P3 rows.
 
+Consumer-refresh POC: run `2026-07-14_0721_consumer-refresh-poc` is `NO-GO`.
+Default initialization preserves customized consumers by skipping files, while
+repeated `--overwrite --backup` removes project truth and then replaces its
+backup. No implementation was started; TER-001 is deferred pending an explicit
+ownership/generated-file design.
+
 ## Latest audit note — deep post-sanding verification (2026-07-13)
 
 Run : [2026-07-13_2351_deep-post-sanding-audit](runs/2026-07-13_2351_deep-post-sanding-audit/02_AUDIT_REPORT.md).
@@ -68,7 +74,7 @@ au-dessus du minimum). Findings ouverts :
 
 | ID | Sévérité | Statut | Constat |
 |----|----------|--------|---------|
-| TER-001 | **P1** | Open | Aucun mécanisme de propagation des évolutions de gouvernance Core vers les projets consommateurs déjà initialisés (trame roule sur PILOTAGE v1 périmé) — chantier « consumer governance refresh » à arbitrer (recoupe ADR-0012) |
+| TER-001 | **P1** | **Open — DEFERRED 2026-07-14** | POC `2026-07-14_0721_consumer-refresh-poc` NO-GO: skip mode ne rafraîchit pas ; overwrite+backup remplace la vérité projet puis sa sauvegarde au second passage. Requiert une décision d'ownership hors périmètre léger. |
 | TER-002 | P2 | **RESOLVED 2026-07-14** (`792f6d5` : gabarit de finding avec tag) | Protocole scopé : tag `scope:` par finding exigé mais non illustré (gabarit manquant) — ignoré par le sujet |
 | TER-003 | P3 | **RESOLVED 2026-07-14** (`792f6d5` : règle mono-scope explicite) | Protocole scopé : cas mono-scope ambigu (registre requis ou non) |
 
