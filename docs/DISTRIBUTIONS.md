@@ -175,6 +175,16 @@ that triggered the decision.
 
 <!-- Add entries below as decisions are made -->
 
+### 2026-07-14 — Front-pass and release artifact semantics (ADR-0040)
+**Decision**: keep front/release artifact semantics in Core; distributions do
+not reinterpret shared pass outputs or changelog artifacts.
+**Trigger**: PATT-03 front batch and explicit `Go` from Brice.
+**Reason**: pipeline and release artifacts are shared skill-contract behavior.
+**Impact**: Pi, OpenCode, Codex and Claude Code inherit six corrected contracts,
+`release_document`, and front-family null-drift lint. No adapter or provider
+runtime state changes.
+**Author**: Codex (GO Brice)
+
 ### 2026-07-14 — Phase-1 authored artifact alignment (ADR-0039)
 **Decision**: keep artifact taxonomy and authored-output alignment in Core; no
 distribution may reinterpret shared output kinds or paths.

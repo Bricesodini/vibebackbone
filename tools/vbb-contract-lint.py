@@ -33,6 +33,7 @@ ARTIFACT_KINDS = {
     "phase_artifact",
     "audit_report",
     "design_document",
+    "release_document",
     "ADR",
     "persistent_state_update",
 }
@@ -298,9 +299,7 @@ def check_duplicate_triggers(all_contracts: Dict[str, Dict]) -> List[str]:
 
 
 def check_authored_artifact_alignment(skill_id: str, contract: Dict) -> List[str]:
-    """Reject Phase-1 normative writer instructions paired with a null artifact."""
-    if not skill_id.startswith("1-vbb-"):
-        return []
+    """Reject bounded normative writer instructions paired with a null artifact."""
 
     skill_md = SKILLS_DIR / skill_id / "SKILL.md"
     try:
@@ -308,9 +307,16 @@ def check_authored_artifact_alignment(skill_id: str, contract: Dict) -> List[str
     except Exception as exc:
         return [f"[{skill_id}] SKILL.md artifact alignment: read error ({exc})"]
 
-    authored_output = re.search(
-        r"(?im)^\s*write\b[^\n]*\b(?:report|document)\b", content
-    )
+    authored_output = None
+    if skill_id.startswith("1-vbb-"):
+        authored_output = re.search(
+            r"(?im)^\s*write\b[^\n]*\b(?:report|document)\b", content
+        )
+    elif skill_id.startswith("4-vbb-"):
+        authored_output = re.search(
+            r"(?im)^\s*(?:emit:|update \(or create\)[^\n]*)$", content
+        )
+
     if authored_output and contract.get("outputs", {}).get("artifact") is None:
         return [
             f"[{skill_id}] outputs.artifact: null contradicts normative SKILL.md writer instruction {authored_output.group(0).strip()!r}"

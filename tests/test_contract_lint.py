@@ -265,6 +265,65 @@ def test_design_document_satisfies_normative_writer_contract():
         assert count == 0, errors
 
 
+def test_front_normative_emitter_rejects_null_artifact():
+    """A front pass with an Emit instruction must declare its pass artifact."""
+    import yaml
+
+    with tempfile.TemporaryDirectory() as tmp:
+        skill_dir = Path(tmp) / "skills" / "4-vbb-test-pass"
+        skill_dir.mkdir(parents=True)
+        contract = yaml.safe_load(MINIMAL_CONTRACT)
+        contract["id"] = skill_dir.name
+        contract["routing"]["phase_scope"] = ["phase_4"]
+        (skill_dir / "CONTRACT.yaml").write_text(
+            yaml.dump(contract, default_flow_style=False)
+        )
+        (skill_dir / "SKILL.md").write_text(
+            "# Front pass\n\n## OUTPUT CONTRACT\n\nEmit:\n`pass-3-output.md`\n"
+        )
+
+        count, errors = _run_linter(skill_dir)
+        assert count == 1, errors
+        assert "null contradicts normative SKILL.md writer instruction" in errors[0]
+
+
+def test_release_document_satisfies_front_writer_contract():
+    """The release_document kind maps the changelog writer truthfully."""
+    import yaml
+
+    with tempfile.TemporaryDirectory() as tmp:
+        skill_dir = Path(tmp) / "skills" / "4-vbb-product-changelog"
+        skill_dir.mkdir(parents=True)
+        contract = yaml.safe_load(MINIMAL_CONTRACT)
+        contract["id"] = skill_dir.name
+        contract["routing"]["phase_scope"] = ["phase_4"]
+        contract["outputs"]["artifact"] = {
+            "path_pattern": "CHANGELOG.md",
+            "kind": "release_document",
+            "must_exist_after_run": True,
+        }
+        (skill_dir / "CONTRACT.yaml").write_text(
+            yaml.dump(contract, default_flow_style=False)
+        )
+        (skill_dir / "SKILL.md").write_text(
+            "# Changelog\n\nUpdate (or create) `CHANGELOG.md` at the repo root.\n"
+        )
+
+        count, errors = _run_linter(skill_dir)
+        assert count == 0, errors
+
+
+def test_front_pipeline_reference_keeps_canonical_pass_order():
+    """Contract-only remediation must not alter the seven-pass sequence."""
+    reference = (
+        REPO_ROOT / "skills" / "4-vbb-front-pipeline-reference" / "SKILL.md"
+    ).read_text()
+    gates = [f"pass {current} → {current + 1}" for current in range(1, 7)]
+    gates.append("pass 7 → delivery")
+    positions = [reference.index(gate) for gate in gates]
+    assert positions == sorted(positions)
+
+
 def test_missing_required_key():
     """Contract missing 'entrypoint' → linter must report error."""
     import yaml

@@ -27,7 +27,7 @@ READY revalidation.
 | ID | Severity | Description | Status |
 |---|---|---|---|
 | PATT-01 | P1 | Twelve skills diverge from the mandatory standard section layout. | **OPEN** — normalize equivalent headings, then add minimal sections to compact wrappers. |
-| PATT-03 | P1 | Eleven front-pipeline/transverse authored artifacts remain null in formal contracts after the completed eight-skill Phase-1 batch. | **OPEN** — close the front-pipeline and transverse batches; Phase-1 null drift is now blocking lint. |
+| PATT-03 | P1 | Five transverse authored artifacts remain null after the completed Phase-1 and front-pipeline batches. | **OPEN** — close the transverse batch; Phase-1 and front-family null drift are blocking lint. |
 | PATT-05 | P2 | Domain verdict to runtime status mapping exists in only 6/64 contracts. | **OPEN** — decide one schema/runtime boundary before adding metadata. |
 
 ## Latest evidence
@@ -63,6 +63,9 @@ READY revalidation.
 - Phase-1 artifact contracts: [impact analysis](audits/impact-analysis-phase1-artifact-contracts-20260714-1915.md),
   [ADR 0039](adr/0039-design-document-artifact-kind-and-authored-output-alignment.md),
   and [run closeout](runs/2026-07-14_1915_phase1-artifact-contracts/07_CLOSEOUT.md).
+- Front artifact contracts: [impact analysis](audits/impact-analysis-front-artifact-contracts-20260714-1945.md),
+  [ADR 0040](adr/0040-front-pass-and-release-artifact-semantics.md), and
+  [run closeout](runs/2026-07-14_1945_front-artifact-contracts/07_CLOSEOUT.md).
 
 ## READY campaign exit criteria
 
@@ -90,6 +93,9 @@ The verdict remains `PARTIAL` until the seven conditions hold simultaneously.
   contracts now declare exact authored outputs; all fifteen normative Phase-1
   writers are non-null and future null drift is blocking lint. Eleven
   front-pipeline/transverse cases remain under the active parent finding.
+- `PATT-03 / front batch` — resolved 2026-07-14. Five pass artifacts and the
+  product changelog are formally mapped; all seven normative front writers are
+  non-null under blocking lint. Five transverse cases remain.
 
 ## Accepted residual risks
 

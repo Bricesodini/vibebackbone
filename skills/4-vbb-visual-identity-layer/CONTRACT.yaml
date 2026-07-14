@@ -33,7 +33,11 @@ outputs:
   - PARTIAL
   - FAIL
   - BLOCKED
-  artifact: null
+  artifact:
+    path_pattern: pass-5-output.md
+    kind: phase_artifact
+    must_exist_after_run: true
+    frontmatter_required: []
 gates:
   before:
   - id: pass_4_not_blocked

@@ -36,7 +36,14 @@ outputs:
     - PARTIAL
     - FAIL
     - BLOCKED
-  artifact: null
+  artifact:
+    path_pattern: CHANGELOG.md
+    kind: release_document
+    must_exist_after_run: true
+  secondary_artifacts:
+    - path_pattern: docs/releases/{version}.md
+      kind: release_document
+      must_exist_after_run: false
 
 gates:
   before:
