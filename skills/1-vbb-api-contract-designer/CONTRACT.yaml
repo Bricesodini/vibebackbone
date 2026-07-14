@@ -31,7 +31,10 @@ outputs:
   - PARTIAL
   - FAIL
   - BLOCKED
-  artifact: null
+  artifact:
+    path_pattern: docs/api/api-contract-design-{YYYYMMDD-HHMM}.md
+    kind: design_document
+    must_exist_after_run: true
 gates:
   before: []
   success:

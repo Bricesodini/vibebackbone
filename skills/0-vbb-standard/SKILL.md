@@ -71,6 +71,12 @@ Routing triggers have one case-insensitive exact owner across the catalog.
 Adjacent responsibilities use qualified action or stage phrases; they do not
 share a generic trigger and rely on catalog order or hidden numeric priority.
 
+Formal artifact kinds are closed: `phase_artifact`, `audit_report`,
+`design_document`, `ADR`, and `persistent_state_update`. A `1-vbb-*` skill with
+a line-start normative instruction to write a report or document must declare a
+non-null primary artifact. Conditional or alternative files remain structured
+outputs unless their paths are deterministic enough to declare separately.
+
 ### Optional sections (for execution skills)
 
 - `SUPPORT BOUNDARY` — explicit list of supported and unsupported cases
@@ -104,8 +110,9 @@ are exempt — their scope is naturally bounded by their audit role.
 7. Check whether the description is precise enough for Pi routing.
 8. Check whether internal references use only canonical skills that exist in the same catalog.
 9. Check that routing triggers have no case-insensitive exact duplicate owner.
-10. Check whether `SUPPORT BOUNDARY` is present for execution skills (recommended, not mandatory yet).
-11. Flag any violation against absolute rules.
+10. Check normative authored outputs against formal primary/secondary artifacts.
+11. Check whether `SUPPORT BOUNDARY` is present for execution skills (recommended, not mandatory yet).
+12. Flag any violation against absolute rules.
 
 > **Note on description handling.** The `description:` field is NOT auto-truncated by any vibebackbone mechanism. It is hand-maintained and validated for **precision** (triggers, keywords) per step 6, not for length. The `setup.sh` → `distributions/codex/setup.sh` codegen pipeline operates on `~/.codex/AGENTS.md` via block replacement (`<!-- vibebackbone:generated:start -->` / `<!-- vibebackbone:generated:end -->` markers) and does NOT touch skill descriptions in this repo.
 

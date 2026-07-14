@@ -175,6 +175,17 @@ that triggered the decision.
 
 <!-- Add entries below as decisions are made -->
 
+### 2026-07-14 — Phase-1 authored artifact alignment (ADR-0039)
+**Decision**: keep artifact taxonomy and authored-output alignment in Core; no
+distribution may reinterpret shared output kinds or paths.
+**Trigger**: PATT-03 Phase-1 batch and explicit `Go` from Brice.
+**Reason**: artifact truth and verification are generic skill-contract concerns
+shared by Pi, OpenCode, Codex and Claude Code.
+**Impact**: all four distributions inherit eight corrected contracts, the
+`design_document` kind and blocking null-drift lint. No adapter or runtime state
+changes.
+**Author**: Codex (GO Brice)
+
 ### 2026-07-14 — Unique generic routing-trigger ownership (ADR-0038)
 **Decision**: keep trigger ownership and collision lint in Core; no distribution
 may introduce provider-specific precedence for shared skills.

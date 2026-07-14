@@ -27,7 +27,7 @@ READY revalidation.
 | ID | Severity | Description | Status |
 |---|---|---|---|
 | PATT-01 | P1 | Twelve skills diverge from the mandatory standard section layout. | **OPEN** — normalize equivalent headings, then add minimal sections to compact wrappers. |
-| PATT-03 | P1 | Nineteen authored artifacts are described by skills but null in formal contracts. | **OPEN** — close in Phase-1/front/transverse batches and strengthen lint. |
+| PATT-03 | P1 | Eleven front-pipeline/transverse authored artifacts remain null in formal contracts after the completed eight-skill Phase-1 batch. | **OPEN** — close the front-pipeline and transverse batches; Phase-1 null drift is now blocking lint. |
 | PATT-05 | P2 | Domain verdict to runtime status mapping exists in only 6/64 contracts. | **OPEN** — decide one schema/runtime boundary before adding metadata. |
 
 ## Latest evidence
@@ -60,6 +60,9 @@ READY revalidation.
 - Routing trigger ownership: [impact analysis](audits/impact-analysis-routing-trigger-precedence-20260714-1845.md),
   [ADR 0038](adr/0038-unique-generic-routing-trigger-ownership.md), and
   [run closeout](runs/2026-07-14_1845_routing-trigger-precedence/07_CLOSEOUT.md).
+- Phase-1 artifact contracts: [impact analysis](audits/impact-analysis-phase1-artifact-contracts-20260714-1915.md),
+  [ADR 0039](adr/0039-design-document-artifact-kind-and-authored-output-alignment.md),
+  and [run closeout](runs/2026-07-14_1915_phase1-artifact-contracts/07_CLOSEOUT.md).
 
 ## READY campaign exit criteria
 
@@ -83,6 +86,10 @@ The verdict remains `PARTIAL` until the seven conditions hold simultaneously.
 - `PATT-04` — resolved 2026-07-14. The six generic trigger collisions have
   unique owners, adjacent responsibilities have qualified action/stage
   triggers, and contract lint blocks case-insensitive exact duplicates.
+- `PATT-03 / Phase-1 batch` — resolved 2026-07-14. Eight previously null
+  contracts now declare exact authored outputs; all fifteen normative Phase-1
+  writers are non-null and future null drift is blocking lint. Eleven
+  front-pipeline/transverse cases remain under the active parent finding.
 
 ## Accepted residual risks
 

@@ -48,6 +48,7 @@ Exemple : `0001-choix-framework-api.md`
 | [0036](0036-agent-facing-prompt-english-migration.md) | Agent-facing prompt English migration | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_1700_prompt-english-migration/) |
 | [0037](0037-dual-phase-namespace-semantics.md) | Dual phase namespace semantics | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_1815_phase-semantics/) |
 | [0038](0038-unique-generic-routing-trigger-ownership.md) | Unique generic routing-trigger ownership | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_1845_routing-trigger-precedence/) |
+| [0039](0039-design-document-artifact-kind-and-authored-output-alignment.md) | Design-document artifact kind and authored-output alignment | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_1915_phase1-artifact-contracts/) |
 | [0013-arch](0013-repo-organization-core-vs-distributions.md) | Repo organization Core vs Distributions | — | — | — |
 
 ## Conventions

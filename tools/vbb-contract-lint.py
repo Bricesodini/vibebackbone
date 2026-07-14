@@ -29,7 +29,13 @@ INDEX_FILE = SKILLS_DIR / "INDEX.yaml"
 KNOWN_AGENTS = {"claude-code", "codex", "pi", "opencode", "pi+", "pi-"}
 PASS_STATUSES = {"PASS", "PARTIAL", "FAIL", "BLOCKED"}
 SUPPORTED_VERSIONS = {"0.1", "0.2", "0.3"}
-ARTIFACT_KINDS = {"phase_artifact", "audit_report", "ADR", "persistent_state_update"}
+ARTIFACT_KINDS = {
+    "phase_artifact",
+    "audit_report",
+    "design_document",
+    "ADR",
+    "persistent_state_update",
+}
 ARTIFACT_REQUIRED_FIELDS = {"path_pattern", "kind", "must_exist_after_run"}
 
 # Non-blocking warning thresholds (CONVENTIONS.md Pillar 1, "SKILL.md description length")
@@ -291,6 +297,27 @@ def check_duplicate_triggers(all_contracts: Dict[str, Dict]) -> List[str]:
     return errors
 
 
+def check_authored_artifact_alignment(skill_id: str, contract: Dict) -> List[str]:
+    """Reject Phase-1 normative writer instructions paired with a null artifact."""
+    if not skill_id.startswith("1-vbb-"):
+        return []
+
+    skill_md = SKILLS_DIR / skill_id / "SKILL.md"
+    try:
+        content = skill_md.read_text(encoding="utf-8")
+    except Exception as exc:
+        return [f"[{skill_id}] SKILL.md artifact alignment: read error ({exc})"]
+
+    authored_output = re.search(
+        r"(?im)^\s*write\b[^\n]*\b(?:report|document)\b", content
+    )
+    if authored_output and contract.get("outputs", {}).get("artifact") is None:
+        return [
+            f"[{skill_id}] outputs.artifact: null contradicts normative SKILL.md writer instruction {authored_output.group(0).strip()!r}"
+        ]
+    return []
+
+
 def _check_artifact_mapping(skill_id: str, label: str, artifact: Dict) -> List[str]:
     """Validate a single artifact mapping (primary or secondary)."""
     errors = []
@@ -491,6 +518,7 @@ def lint_all() -> Tuple[int, List[str], List[str]]:
         all_errors.extend(check_outputs(skill_id, contract))
         all_errors.extend(check_agents(skill_id, contract))
         all_errors.extend(check_phase_alignment(skill_id, contract))
+        all_errors.extend(check_authored_artifact_alignment(skill_id, contract))
         all_errors.extend(check_artifact(skill_id, contract))
 
     all_errors.extend(check_duplicate_triggers(all_contracts))

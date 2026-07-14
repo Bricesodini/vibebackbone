@@ -227,6 +227,44 @@ def test_duplicate_routing_trigger_rejected_case_insensitively():
         assert "multiple owners" in errors[0]
 
 
+def test_phase_one_normative_writer_rejects_null_artifact():
+    """A Phase-1 instruction to write a report must have a formal artifact."""
+    with tempfile.TemporaryDirectory() as tmp:
+        skill_dir = Path(tmp) / "skills" / "1-vbb-writer"
+        skill_dir.mkdir(parents=True)
+        _write_phase_one_fixture(skill_dir, "02_AUDIT", "phase_1")
+        with (skill_dir / "SKILL.md").open("a") as handle:
+            handle.write("\nWrite exactly one report to `docs/audits/example.md`.\n")
+
+        count, errors = _run_linter(skill_dir)
+        assert count == 1, errors
+        assert "null contradicts normative SKILL.md writer instruction" in errors[0]
+
+
+def test_design_document_satisfies_normative_writer_contract():
+    """The closed design_document kind truthfully maps design output."""
+    import yaml
+
+    with tempfile.TemporaryDirectory() as tmp:
+        skill_dir = Path(tmp) / "skills" / "1-vbb-writer"
+        skill_dir.mkdir(parents=True)
+        _write_phase_one_fixture(skill_dir, "02_AUDIT", "phase_1")
+        with (skill_dir / "SKILL.md").open("a") as handle:
+            handle.write("\nWrite ONE Markdown document in `docs/api/design.md`.\n")
+        contract = yaml.safe_load((skill_dir / "CONTRACT.yaml").read_text())
+        contract["outputs"]["artifact"] = {
+            "path_pattern": "docs/api/design-{YYYYMMDD-HHMM}.md",
+            "kind": "design_document",
+            "must_exist_after_run": True,
+        }
+        (skill_dir / "CONTRACT.yaml").write_text(
+            yaml.dump(contract, default_flow_style=False)
+        )
+
+        count, errors = _run_linter(skill_dir)
+        assert count == 0, errors
+
+
 def test_missing_required_key():
     """Contract missing 'entrypoint' → linter must report error."""
     import yaml
