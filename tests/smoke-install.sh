@@ -31,6 +31,61 @@ grep -q "custom suffix" "$TMP_HOME/.codex/AGENTS.md"
 HOME="$TMP_HOME" bash "$ROOT/setup.sh" > "$TMP_HOME/install-second.log"
 grep -qE "Done — [0-9]+ skills" "$TMP_HOME/install-second.log"
 
+# Regression: legacy Codex installations may link the runtime AGENTS.md
+# directly to the tracked Core source. Install and uninstall must migrate or
+# remove the link without ever changing the source bytes.
+LEGACY_CASE="$(mktemp -d)"
+mkdir -p "$LEGACY_CASE/home/.codex" "$LEGACY_CASE/source/prompts"
+cp "$ROOT/AGENTS.md" "$LEGACY_CASE/source/AGENTS.md"
+cp "$ROOT/SYSTEM.md" "$LEGACY_CASE/source/SYSTEM.md"
+cp "$LEGACY_CASE/source/AGENTS.md" "$LEGACY_CASE/source/AGENTS.before"
+ln -s "$LEGACY_CASE/source/AGENTS.md" "$LEGACY_CASE/home/.codex/AGENTS.md"
+(
+  HOME="$LEGACY_CASE/home"
+  AGENTS_SRC="$LEGACY_CASE/source/AGENTS.md"
+  SYSTEM_SRC="$LEGACY_CASE/source/SYSTEM.md"
+  PROMPTS_SRC="$LEGACY_CASE/source/prompts"
+  CODEX_AGENTS="$LEGACY_CASE/home/.codex/AGENTS.md"
+  FORCE_GOVERNANCE=true
+  SYSTEM_AVAILABLE=true
+  PROMPTS_AVAILABLE=true
+  needs_python() { command -v python3 >/dev/null 2>&1; }
+  source "$ROOT/distributions/codex/setup.sh"
+  codex_install
+  codex_install
+  test ! -L "$CODEX_AGENTS"
+  test "$(grep -c 'vibebackbone:generated:start' "$CODEX_AGENTS")" -eq 1
+  test "$(grep -c 'vibebackbone:generated:end' "$CODEX_AGENTS")" -eq 1
+  cmp "$AGENTS_SRC" "$LEGACY_CASE/source/AGENTS.before"
+  codex_uninstall
+  test ! -e "$CODEX_AGENTS"
+  cmp "$AGENTS_SRC" "$LEGACY_CASE/source/AGENTS.before"
+)
+
+# An unrelated symlink is never followed. Force mode backs up its content,
+# unlinks it, and creates a regular runtime file while preserving the target.
+mkdir -p "$LEGACY_CASE/external-home/.codex"
+printf '%s\n' 'custom external governance' > "$LEGACY_CASE/external-target.md"
+cp "$LEGACY_CASE/external-target.md" "$LEGACY_CASE/external-target.before"
+ln -s "$LEGACY_CASE/external-target.md" "$LEGACY_CASE/external-home/.codex/AGENTS.md"
+(
+  HOME="$LEGACY_CASE/external-home"
+  AGENTS_SRC="$LEGACY_CASE/source/AGENTS.md"
+  SYSTEM_SRC="$LEGACY_CASE/source/SYSTEM.md"
+  PROMPTS_SRC="$LEGACY_CASE/source/prompts"
+  CODEX_AGENTS="$LEGACY_CASE/external-home/.codex/AGENTS.md"
+  FORCE_GOVERNANCE=true
+  SYSTEM_AVAILABLE=true
+  PROMPTS_AVAILABLE=true
+  needs_python() { command -v python3 >/dev/null 2>&1; }
+  source "$ROOT/distributions/codex/setup.sh"
+  codex_install
+  test ! -L "$CODEX_AGENTS"
+  cmp "$LEGACY_CASE/external-target.md" "$LEGACY_CASE/external-target.before"
+  find "$LEGACY_CASE/external-home/.codex" -name 'AGENTS.md.backup.*' -type f | grep -q .
+)
+rm -rf "$LEGACY_CASE"
+
 # Check prompts deployed
 assert_dir_has_files() {
   local dir="$1"

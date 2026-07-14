@@ -107,6 +107,19 @@ FRONTMATTER_MIN = frozenset(
 
 KNOWN_VOIES = frozenset(VOIE_REQUIRED_PHASES.keys())
 
+LONG_RUN_LIMITS: Dict[str, Tuple[int, int, int]] = {
+    "RAPIDE": (60, 30, 300),
+    "STRUCTUREE": (180, 90, 1200),
+    "AUDIT": (180, 90, 900),
+    "CLOTURE": (90, 45, 300),
+}
+LONG_RUN_EXTENSIONS: Dict[str, Tuple[int, ...]] = {
+    "RAPIDE": (120,),
+    "STRUCTUREE": (300, 600),
+    "AUDIT": (300,),
+    "CLOTURE": (180,),
+}
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -513,6 +526,134 @@ def validate_artifact(path: Path) -> List[str]:
     return errors
 
 
+def validate_long_run_contract(run_dir: Path, voie: str) -> List[str]:
+    """Validate structured FINAL_STATUS timing claims when they are present.
+
+    Legacy artifacts without a structured timing summary remain accepted. Once
+    a run declares elapsed/budget fields, strict closure verifies their internal
+    consistency against the canonical route limits.
+    """
+    limits = LONG_RUN_LIMITS.get(voie)
+    if limits is None:
+        return []
+    expected_budget, progress_threshold, hard_max = limits
+    errors: List[str] = []
+    artifacts: List[Tuple[Path, str]] = []
+    extension_trace = False
+    requested_extensions: List[int] = []
+
+    for path in sorted(run_dir.glob("*.md")):
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            errors.append(f"{path.name}: cannot read long-run summary: {exc}")
+            continue
+        artifacts.append((path, text))
+        extension_trace = extension_trace or "EXTENSION_REQUEST:" in text
+        for match in re.finditer(
+            r"```ya?ml\s*(.*?)```", text, re.DOTALL | re.IGNORECASE
+        ):
+            block = match.group(1)
+            if "EXTENSION_REQUEST:" not in block:
+                continue
+            try:
+                parsed = yaml.safe_load(block) or {}
+            except yaml.YAMLError:
+                continue
+            request = (
+                parsed.get("EXTENSION_REQUEST") if isinstance(parsed, dict) else None
+            )
+            if isinstance(request, dict):
+                amount = request.get("additional_time_seconds")
+                if isinstance(amount, int) and amount > 0:
+                    requested_extensions.append(amount)
+
+    allowed_extensions = LONG_RUN_EXTENSIONS.get(voie, ())
+    if tuple(requested_extensions) not in tuple(
+        allowed_extensions[:count] for count in range(len(allowed_extensions) + 1)
+    ):
+        errors.append(
+            f"long-run extensions {requested_extensions} do not match allowed sequence "
+            f"{list(allowed_extensions)} for {voie}"
+        )
+    granted_budget = expected_budget + sum(requested_extensions)
+
+    summaries = 0
+    for path, text in artifacts:
+        for match in re.finditer(
+            r"```ya?ml\s*(.*?)```", text, re.DOTALL | re.IGNORECASE
+        ):
+            block = match.group(1)
+            if "FINAL_STATUS:" not in block:
+                continue
+            try:
+                parsed = yaml.safe_load(block) or {}
+            except yaml.YAMLError as exc:
+                errors.append(f"{path.name}: invalid FINAL_STATUS YAML: {exc}")
+                continue
+            status = parsed.get("FINAL_STATUS") if isinstance(parsed, dict) else None
+            if not isinstance(status, dict) or "elapsed_seconds" not in status:
+                continue
+            summaries += 1
+            prefix = f"{path.name}: FINAL_STATUS"
+            elapsed = status.get("elapsed_seconds")
+            budget = status.get("budget_initial")
+            if not isinstance(elapsed, int) or elapsed < 0:
+                errors.append(
+                    f"{prefix} elapsed_seconds must be a non-negative integer"
+                )
+                continue
+            if not isinstance(budget, int) or budget <= 0:
+                errors.append(f"{prefix} budget_initial must be a positive integer")
+                continue
+            if budget != expected_budget:
+                errors.append(
+                    f"{prefix} budget_initial={budget}, expected {expected_budget} for {voie}"
+                )
+
+            progress_emitted = status.get("progress_emitted") is True
+            progress_count = status.get("progress_count", 0)
+            extension_requested = status.get("extension_requested") is True
+            timeout_closeout = status.get("timeout_closeout_emitted") is True
+            verdict = str(status.get("verdict", "")).upper()
+
+            if elapsed > progress_threshold and (
+                not progress_emitted
+                or not isinstance(progress_count, int)
+                or progress_count < 1
+            ):
+                errors.append(
+                    f"{prefix} elapsed {elapsed}s exceeds {progress_threshold}s "
+                    "without a durable PROGRESS declaration"
+                )
+            if elapsed > budget and not extension_requested:
+                errors.append(
+                    f"{prefix} elapsed {elapsed}s exceeds initial budget {budget}s "
+                    "but extension_requested is false"
+                )
+            if extension_requested and not extension_trace:
+                errors.append(
+                    f"{prefix} declares an extension without an EXTENSION_REQUEST block"
+                )
+            if elapsed > granted_budget and not timeout_closeout:
+                errors.append(
+                    f"{prefix} elapsed {elapsed}s exceeds granted budget "
+                    f"{granted_budget}s"
+                )
+            if elapsed >= hard_max and not timeout_closeout:
+                errors.append(
+                    f"{prefix} reached hard max {hard_max}s without TIMEOUT_CLOSEOUT"
+                )
+            if timeout_closeout and verdict in ("COMPLETE", "EXTENDED"):
+                errors.append(
+                    f"{prefix} cannot declare {verdict} with timeout_closeout_emitted=true"
+                )
+
+    if summaries and not errors:
+        return []
+    return errors
+
+
 # ---------------------------------------------------------------------------
 # Core check
 # ---------------------------------------------------------------------------
@@ -524,6 +665,7 @@ def check_run(
     *,
     validate_claims: bool = False,
     validate_plan: bool = False,
+    validate_long_run: bool = False,
     validate_test_audit_for_voies: Optional[Tuple[str, ...]] = (
         "STRUCTUREE",
         "AUDIT",
@@ -541,6 +683,8 @@ def check_run(
       - validate_test_audit_for_voies: if voie ∈ this tuple, also call
         validate_test_audit (P0-3, spec: phase-1-p0-3-test-coverage.md).
         Pass an empty tuple to disable the test-audit check.
+      - validate_long_run: validate structured timing declarations against the
+        route budget, progress threshold, extension trace, and hard maximum.
 
     Returns (passed: bool, report_lines: List[str]).
     """
@@ -672,6 +816,13 @@ def check_run(
                 errors.append(
                     f"04_PLAN.md: missing (required for voie {voie}, --validate-plan)"
                 )
+
+    if validate_long_run and voie:
+        long_run_errors = validate_long_run_contract(run_dir, voie)
+        if long_run_errors:
+            errors.extend(long_run_errors)
+        else:
+            report.append("  ✓ long-run declarations")
 
     # P0-3 — test audit on STRUCTUREE/AUDIT/CLOSEOUT
     if validate_test_audit_for_voies and voie in validate_test_audit_for_voies:
@@ -863,6 +1014,7 @@ def main() -> int:
             runs_dir=base,
             validate_claims=args.validate_claims,
             validate_plan=args.validate_plan,
+            validate_long_run=args.strict,
             validate_test_audit_for_voies=(
                 ("STRUCTUREE", "AUDIT", "CLOSEOUT") if args.validate_test_audit else ()
             ),

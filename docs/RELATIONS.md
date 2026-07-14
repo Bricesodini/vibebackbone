@@ -46,9 +46,9 @@ graph TD
 | Block | Risks |
 |-------|-------|
 | `skills-catalog` | SKILL-001: Contract index drift reduces route and runtime coverage. |
-| `contract-tooling` | TOOL-003: Credentials enforcement is shared by the staged hook and commit-range CI through tools/vbb-credentials-gate.py (ADR-0033); detection is differential and intentionally not exhaustive. |
+| `contract-tooling` | TOOL-003: Credentials enforcement is shared by the staged hook and commit-range CI through tools/vbb-credentials-gate.py (ADR-0033); detection is differential and intentionally not exhaustive.; TOOL-005: Effective readiness conservatively combines documentary truth with local Git, source-integrity and open-risk measurements; strict closure validates declared long-run timing fields (ADR-0046). |
 | `architecture-source` | ARCH-001: The projection must never become a competing source of truth. |
-| `distribution-setup` | SETUP-001: Adapter counts can diverge from canonical catalog counts. |
+| `distribution-setup` | SETUP-001: Adapter counts can diverge from canonical catalog counts.; SETUP-002: Runtime destinations must never be followed into Core sources; Codex migration and uninstall enforce this boundary under ADR-0046. |
 
 ## Impact Index
 

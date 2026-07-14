@@ -15,18 +15,26 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 ## Global verdict
 
-**`READY — all seven campaign exit criteria evidenced`**
+**`PARTIAL — readiness integrity remediation implemented, revalidation pending`**
 
-The Core contracts, architecture checks, runtime executor, consumer hook bundle,
-and four supported distribution adapters are operational. Catalog alignment,
-active instruction-language migration and independent READY revalidation are
-complete.
+The previously published READY baseline was invalidated by a reproduced Codex
+legacy-symlink write into the canonical `AGENTS.md`, a documentary-only
+dashboard verdict, and an unenforced long-run declaration. ADR 0046 remediation
+is implemented on its structured branch; independent review, merge, exact-SHA
+CI and clean-main verification remain before READY can be restored.
 
 ## Active risks
 
-No active P0/P1/P2 risk remains.
+| ID | Severity | Status | Description |
+|---|---|---|---|
+| READY-INT-001 | P1 | MITIGATING | Codex legacy runtime symlink could write compiled governance into the Core source; code and local runtime migration are complete, merge verification pending. |
+| READY-INT-002 | P1 | MITIGATING | Dashboard READY was documentary-only; effective measured verdict is implemented, independent review pending. |
+| READY-INT-003 | P2 | MITIGATING | Strict closure did not validate long-run timing declarations; validator and regression tests are implemented. |
 
 ## Latest evidence
+
+- Readiness integrity remediation: [ADR 0046](adr/0046-readiness-integrity-enforcement.md),
+  [POC and run](runs/2026-07-14_2124_readiness-integrity/POC.md).
 
 - READY convergence plan: [intent decomposition](audits/intent-decomp-20260714-1355.md).
 - Executor cleanup: [run closeout](runs/2026-07-14_1410_executor-cleanup/07_CLOSEOUT.md)

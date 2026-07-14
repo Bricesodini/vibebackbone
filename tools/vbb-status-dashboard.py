@@ -305,6 +305,108 @@ def extract_verdict(repo: Path) -> str:
     return "UNKNOWN"
 
 
+def _git_value(repo: Path, *args: str) -> Tuple[bool, str]:
+    """Run a read-only git query and return (success, stripped stdout)."""
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(repo), *args],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+    except (subprocess.TimeoutExpired, OSError):
+        return False, ""
+    return result.returncode == 0, result.stdout.strip()
+
+
+def measure_repository_health(repo: Path, risks: List[Dict]) -> Dict:
+    """Measure local invariants without trusting the documentary verdict."""
+    reasons: List[str] = []
+    state: Dict[str, object] = {
+        "available": False,
+        "clean": None,
+        "head": None,
+        "branch": None,
+        "upstream": None,
+        "synchronized": None,
+    }
+
+    agents_content = read_file(repo / "AGENTS.md")
+    generated_markers = (
+        "<!-- vibebackbone:generated:start -->",
+        "<!-- vibebackbone:generated:end -->",
+    )
+    if any(marker in agents_content for marker in generated_markers):
+        reasons.append("canonical AGENTS.md contains generated runtime markers")
+        return {"verdict": "BLOCKED", "reasons": reasons, "git": state}
+
+    inside_ok, inside = _git_value(repo, "rev-parse", "--is-inside-work-tree")
+    if not inside_ok or inside != "true":
+        reasons.append("git repository state unavailable")
+        return {"verdict": "UNKNOWN", "reasons": reasons, "git": state}
+
+    state["available"] = True
+    status_ok, status = _git_value(
+        repo, "status", "--porcelain", "--untracked-files=all"
+    )
+    state["clean"] = status_ok and not status
+    if not status_ok:
+        reasons.append("git worktree status unavailable")
+    elif status:
+        reasons.append("git worktree is not clean")
+
+    head_ok, head = _git_value(repo, "rev-parse", "HEAD")
+    branch_ok, branch = _git_value(repo, "branch", "--show-current")
+    upstream_ok, upstream = _git_value(repo, "rev-parse", "@{upstream}")
+    state["head"] = head if head_ok else None
+    state["branch"] = branch if branch_ok else None
+    state["upstream"] = upstream if upstream_ok else None
+    if not head_ok:
+        reasons.append("git HEAD unavailable")
+    if not branch_ok or not branch:
+        reasons.append("git branch unavailable")
+    elif branch != "main":
+        reasons.append(f"git branch is {branch}, not main")
+    if not upstream_ok:
+        reasons.append("git upstream unavailable")
+    state["synchronized"] = head_ok and upstream_ok and head == upstream
+    if head_ok and upstream_ok and head != upstream:
+        reasons.append("git HEAD differs from upstream")
+
+    open_severities = {str(risk.get("severity", "")).upper() for risk in risks}
+    if any(re.search(r"\bP0\b|BLOCKER", severity) for severity in open_severities):
+        reasons.append("an open P0 or blocker is recorded")
+        return {"verdict": "BLOCKED", "reasons": reasons, "git": state}
+    if any(
+        re.search(r"\bP[12]\b|HIGH|MEDIUM", severity) for severity in open_severities
+    ):
+        reasons.append("an open P1/P2 risk is recorded")
+
+    if not status_ok or not head_ok or not branch_ok:
+        measured = "UNKNOWN"
+    elif reasons:
+        measured = "PARTIAL"
+    else:
+        measured = "READY"
+    return {"verdict": measured, "reasons": reasons, "git": state}
+
+
+def effective_verdict(documented: str, measured: str) -> str:
+    """Return the conservative combination while preserving closed vocabulary."""
+    severity = {
+        "READY": 0,
+        "PASS": 0,
+        "PARTIAL": 1,
+        "UNKNOWN": 2,
+        "FAIL": 3,
+        "BLOCKED": 3,
+    }
+    if severity.get(measured, 2) > severity.get(documented, 2):
+        return measured
+    return documented
+
+
 def extract_next_action(repo: Path) -> str:
     """Extract next action from CONTEXT.md."""
     content = read_file(repo / "docs" / "CONTEXT.md")
@@ -497,16 +599,22 @@ def gather_status(repo: Path) -> Dict:
     """Gather full repo status."""
     contracted, total, coverage = count_contracts(repo)
     indexed_contracts = count_indexed_contracts(repo)
-    verdict = extract_verdict(repo)
+    documented_verdict = extract_verdict(repo)
     next_action = extract_next_action(repo)
     latest_runs = get_latest_runs(repo)
     open_risks = get_open_risks(repo)
     test_count = count_tests(repo)
+    measured = measure_repository_health(repo, open_risks)
+    verdict = effective_verdict(documented_verdict, measured["verdict"])
 
     return {
         "repo": str(repo),
         "local_date": date.today().isoformat(),
         "verdict": verdict,
+        "documented_verdict": documented_verdict,
+        "measured_verdict": measured["verdict"],
+        "status_reasons": measured["reasons"],
+        "git_state": measured["git"],
         "skills": total,
         "contracts": contracted,
         "indexed_contracts": indexed_contracts,
@@ -538,7 +646,9 @@ def format_terminal(status: Dict, full: bool = False) -> str:
         "╔══════════════════════════════════════════════════╗",
         f"║  VBB STATUS — {Path(status['repo']).name:<33}║",
         "╠══════════════════════════════════════════════════╣",
-        f"║  Verdict global : {status['verdict']:<29}║",
+        f"║  Verdict effectif : {status['verdict']:<27}║",
+        f"║  Documenté        : {status['documented_verdict']:<27}║",
+        f"║  Mesuré           : {status['measured_verdict']:<27}║",
         f"║  Skills          : {status['skills']:<29}║",
         f"║  Contracts       : {cov}║",
         f"║  Indexed         : {idx}║",
@@ -575,6 +685,12 @@ def format_terminal(status: Dict, full: bool = False) -> str:
         lines.append(f"║  {label:<47}║")
         for note in status["temporal_notes"][:3]:
             lines.append(f"║    {note[:43]:<43} ║")
+
+    if status["status_reasons"]:
+        lines.append("╠══════════════════════════════════════════════════╣")
+        lines.append("║  Status reasons:                                 ║")
+        for reason in status["status_reasons"][:3]:
+            lines.append(f"║    {reason[:43]:<43} ║")
 
     # Next action
     if status["next_action"]:
@@ -624,6 +740,11 @@ def main() -> int:
         help="Compute and display the P0-4 review-tier advisory (opt-in, non-blocking)",
     )
     parser.add_argument("--tier", action="store_true", help="Alias for --review-tier")
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Exit non-zero unless the effective verdict is READY or PASS",
+    )
 
     args = parser.parse_args()
 
@@ -647,10 +768,10 @@ def main() -> int:
 
     if args.json:
         print(json.dumps(status, indent=2))
-        return 0
+        return 0 if not args.strict or status["verdict"] in ("READY", "PASS") else 2
 
     print(format_terminal(status, full=args.full))
-    return 0
+    return 0 if not args.strict or status["verdict"] in ("READY", "PASS") else 2
 
 
 if __name__ == "__main__":

@@ -22,14 +22,14 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 ## Active state
 
 - **Route**: STRUCTURED
-- **Release posture**: READY; bounded maintenance only
+- **Release posture**: PARTIAL; readiness integrity remediation in progress
 - **Active run**: none
 - **Latest completed run**:
-  [`2026-07-14_2245_dashboard-ready-parser`](runs/2026-07-14_2245_dashboard-ready-parser/07_CLOSEOUT.md)
+  [`2026-07-14_2124_readiness-integrity`](runs/2026-07-14_2124_readiness-integrity/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: preserve READY posture; reopen only on a documented trigger
+- **Next action**: finish P.R2 and independent revalidation for ADR 0046, then restore READY only on a clean synchronized main
   or regression
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
@@ -37,9 +37,9 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 ## Current priorities
 
-1. Preserve the accepted-risk owners and reopen triggers in `AUDIT_STATUS.md`.
+1. Close READY-INT-001/002/003 with exact regression evidence.
 2. Keep `main`, `origin/main`, CI and active governance truth aligned.
-3. Re-run independent READY validation after material Core changes.
+3. Re-run independent READY validation after merge.
 
 ## Stable decisions
 

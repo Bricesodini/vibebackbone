@@ -712,6 +712,24 @@ setup provider ou état runtime installé n'est modifié dans ce dépôt.
 
 **Author**: Brice (demande explicite), Codex (formalisation et intégration)
 
+### 2026-07-14 — Intégrité readiness promue dans Core, migration gardée dans Codex
+
+**Decision**: Conserver la mesure documentaire/locale du dashboard et la
+validation long-run dans le Contract Tooling Core. Garder la détection et la
+migration du symlink historique dans `distributions/codex/setup.sh`, avec
+l'uninstall provider appelé par le routeur racine.
+
+**Reason**: Le statut effectif et les contrats de clôture s'appliquent aux
+quatre runtimes. Le format compilé de `~/.codex/AGENTS.md` et sa migration sont
+du glue spécifique à Codex.
+
+**Impact**: Pi, OpenCode, Codex et Claude Code reçoivent le même verdict
+conservateur et le même gate long-run. Seul Codex modifie son état runtime :
+les anciens symlinks vers le Core deviennent des fichiers compilés réguliers,
+sans écriture dans la cible.
+
+**Author**: Brice (`go`), Codex — ADR 0046
+
 ## 9. References
 
 - `README.md` — entry point; "VBB Core vs Distributions" anchors the

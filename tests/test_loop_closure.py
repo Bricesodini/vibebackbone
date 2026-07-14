@@ -390,6 +390,111 @@ def test_strict_pass_returns_exit_0():
         )
 
 
+def test_strict_rejects_unrequested_long_run_extension():
+    """The recorded 840/180/no-extension contradiction must block closure."""
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2026-01-01_1000_long-run-invalid"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "04_PLAN", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "STRUCTUREE")
+        with (d / "07_CLOSEOUT.md").open("a") as handle:
+            handle.write(
+                textwrap.dedent(
+                    """
+                    ## LONG_RUN_SUMMARY
+
+                    ```yaml
+                    FINAL_STATUS:
+                      elapsed_seconds: 840
+                      budget_initial: 180
+                      progress_emitted: true
+                      progress_count: 1
+                      extension_requested: false
+                      timeout_closeout_emitted: false
+                      verdict: COMPLETE
+                    ```
+                    """
+                )
+            )
+        rc, out, err = _run(rid, Path(tmp), extra_args=["--strict"])
+        assert rc == 2, f"Expected strict block, got {rc}\n{out}\n{err}"
+        assert "extension_requested is false" in out
+
+
+def test_strict_accepts_traced_long_run_extension():
+    """A bounded extension with progress and a durable request remains valid."""
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2026-01-01_1000_long-run-valid"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "04_PLAN", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "STRUCTUREE")
+        with (d / "07_CLOSEOUT.md").open("a") as handle:
+            handle.write(
+                textwrap.dedent(
+                    """
+                    ```yaml
+                    EXTENSION_REQUEST:
+                      reason: "bounded verification"
+                      additional_time_seconds: 300
+                      scope_unchanged: true
+                      risk_changed: false
+                    ```
+
+                    ## LONG_RUN_SUMMARY
+
+                    ```yaml
+                    FINAL_STATUS:
+                      elapsed_seconds: 400
+                      budget_initial: 180
+                      progress_emitted: true
+                      progress_count: 1
+                      extension_requested: true
+                      timeout_closeout_emitted: false
+                      verdict: EXTENDED
+                    ```
+                    """
+                )
+            )
+        rc, out, err = _run(rid, Path(tmp), extra_args=["--strict"])
+        assert rc == 0, f"Expected strict pass, got {rc}\n{out}\n{err}"
+
+
+def test_strict_rejects_elapsed_beyond_granted_extensions():
+    """An extension flag alone cannot grant more than the durable requests."""
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2026-01-01_1000_long-run-undergranted"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "04_PLAN", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "STRUCTUREE")
+        with (d / "07_CLOSEOUT.md").open("a") as handle:
+            handle.write(
+                textwrap.dedent(
+                    """
+                    ```yaml
+                    EXTENSION_REQUEST:
+                      additional_time_seconds: 300
+                    ```
+                    ```yaml
+                    FINAL_STATUS:
+                      elapsed_seconds: 700
+                      budget_initial: 180
+                      progress_emitted: true
+                      progress_count: 1
+                      extension_requested: true
+                      timeout_closeout_emitted: false
+                      verdict: EXTENDED
+                    ```
+                    """
+                )
+            )
+        rc, out, _ = _run(rid, Path(tmp), extra_args=["--strict"])
+        assert rc == 2
+        assert "exceeds granted budget 480s" in out
+
+
 def test_default_mode_retrocompatible_exit_codes():
     """Default mode (no --strict) preserves original exit codes: 1 for FAIL, 0 for PASS."""
     with tempfile.TemporaryDirectory() as tmp:

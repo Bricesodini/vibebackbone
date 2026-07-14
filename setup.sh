@@ -493,36 +493,10 @@ PY
     done
   fi
 
-  # 6. Codex AGENTS.md — remove generated block only
-  if [ -f "$CODEX_AGENTS" ] && command -v python3 &>/dev/null; then
-    python3 - "$CODEX_AGENTS" <<'PY'
-import sys
-path = sys.argv[1]
-with open(path) as f:
-    content = f.read()
-start = "<!-- vibebackbone:generated:start -->"
-end = "<!-- vibebackbone:generated:end -->"
-first = content.find(start)
-last = content.rfind(end)
-if first != -1 and last != -1 and last >= first:
-    last += len(end)
-    while last < len(content) and content[last] in "\r\n":
-        last += 1
-    cleaned = content[:first] + content[last:]
-elif first != -1:
-    cleaned = content[:first]
-else:
-    cleaned = content
-with open(path, "w") as f:
-    f.write(cleaned)
-if not cleaned.strip():
-    import os
-    os.remove(path)
-    print("✓ Removed ~/.codex/AGENTS.md (empty after block removal)")
-else:
-    print("✓ Removed vibebackbone generated block from ~/.codex/AGENTS.md")
-PY
-  fi
+  # 6. Codex AGENTS.md — provider-owned, symlink-safe block removal
+  # shellcheck source=distributions/codex/setup.sh
+  source "$REPO_ROOT/distributions/codex/setup.sh"
+  codex_uninstall
 
   # 7. Pi symlinks — AGENTS + SYSTEM + prompts
   if _is_vbb_symlink "$PI_AGENTS" "$AGENTS_SRC"; then

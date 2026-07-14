@@ -144,14 +144,15 @@ risks:
 id: contract-tooling
 type: tooling
 status: active
-role: Local validation, security gates, dry-run runtime, route lookup and dashboard tooling.
+role: Local validation, security gates, dry-run runtime, route lookup, measured status and closure tooling.
 responsibilities:
   - Lint skill contracts
   - Prevent newly added credential-like content from entering commits and CI
   - Bootstrap project-owned governance once and refresh VBB-managed hook assets only with verified provenance
   - Execute contract dry-runs
   - Route queries to skills
-  - Report repository status
+  - Report documentary and measured repository status separately
+  - Enforce structured long-run declarations during strict closure
 depends_on:
   - skills-catalog
   - governance-core
@@ -183,6 +184,7 @@ tests:
   - tests/test_contract_lint.py
   - tests/test_executor.py
   - tests/test_status_dashboard.py
+  - tests/test_loop_closure.py
   - tests/test_run_resolution.py
   - tests/test_gate_check_adr_linkage.py
   - tests/test_credentials_gate.py
@@ -202,6 +204,9 @@ risks:
   - id: TOOL-004
     level: P2
     note: Consumer hook assets use a SHA-256 provenance manifest and full-bundle preflight (ADR-0034); project-owned documents remain generated-once and are never part of managed refresh.
+  - id: TOOL-005
+    level: P1
+    note: Effective readiness conservatively combines documentary truth with local Git, source-integrity and open-risk measurements; strict closure validates declared long-run timing fields (ADR-0046).
 ```
 
 ## Bloc: Architecture Source
@@ -257,6 +262,8 @@ responsibilities:
   - Deploy AGENTS.md and SYSTEM.md to supported providers
   - Support idempotent install and uninstall
   - Replace stale Codex generated governance blocks, including nested legacy markers
+  - Migrate legacy Codex governance symlinks without following writes into Core sources
+  - Reject compilation when a canonical governance source contains runtime markers
   - Source routeur `setup.sh` (no provider logic inline) into per-distribution `setup.sh`
   - Limit official provider support to Pi, OpenCode, Codex and Claude Code
 depends_on:
@@ -283,10 +290,14 @@ files:
 contracts: []
 tests:
   - tests/test_setup_smoke.sh
+  - tests/smoke-install.sh
 risks:
   - id: SETUP-001
     level: P1
     note: Adapter counts can diverge from canonical catalog counts.
+  - id: SETUP-002
+    level: P1
+    note: Runtime destinations must never be followed into Core sources; Codex migration and uninstall enforce this boundary under ADR-0046.
 ```
 
 ## Bloc: Quality Conventions

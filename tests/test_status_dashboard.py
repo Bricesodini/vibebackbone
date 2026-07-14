@@ -50,6 +50,42 @@ def _import_dashboard():
     return mod
 
 
+def _make_measured_repo(root: Path) -> Path:
+    """Create a clean repository whose HEAD matches a local bare upstream."""
+    repo = root / "repo"
+    remote = root / "remote.git"
+    subprocess.run(
+        ["git", "init", "--bare", str(remote)], check=True, capture_output=True
+    )
+    subprocess.run(["git", "init", str(repo)], check=True, capture_output=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.name", "VBB Test"], check=True
+    )
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.email", "vbb@example.invalid"],
+        check=True,
+    )
+    (repo / "docs").mkdir()
+    (repo / "AGENTS.md").write_text("# Canonical governance\n")
+    (repo / "docs" / "AUDIT_STATUS.md").write_text("## Global verdict\n\n**`READY`**\n")
+    subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "commit", "-m", "baseline"],
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(["git", "-C", str(repo), "branch", "-M", "main"], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "remote", "add", "origin", str(remote)], check=True
+    )
+    subprocess.run(
+        ["git", "-C", str(repo), "push", "-u", "origin", "main"],
+        check=True,
+        capture_output=True,
+    )
+    return repo
+
+
 def _make_run(
     repo: Path, name: str, mtime_offset: int = 0, closeout_name: str = "07_CLOSEOUT.md"
 ) -> Path:
@@ -94,6 +130,11 @@ def test_json_output():
     data = json.loads(out)
     for field in [
         "repo",
+        "verdict",
+        "documented_verdict",
+        "measured_verdict",
+        "status_reasons",
+        "git_state",
         "skills",
         "contracts",
         "contract_coverage",
@@ -106,6 +147,46 @@ def test_json_output():
     assert isinstance(data["skills"], int)
     assert isinstance(data["contracts"], int)
     assert isinstance(data["contract_coverage"], float)
+
+
+def test_measured_health_prevents_false_ready():
+    """Dirty state and canonical marker corruption must override documented READY."""
+    mod = _import_dashboard()
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = _make_measured_repo(Path(tmp))
+
+        clean = mod.gather_status(repo)
+        assert clean["documented_verdict"] == "READY"
+        assert clean["measured_verdict"] == "READY"
+        assert clean["verdict"] == "READY"
+        assert clean["git_state"]["branch"] == "main"
+
+        (repo / "AGENTS.md").write_text("# Locally edited governance\n")
+        dirty = mod.gather_status(repo)
+        assert dirty["documented_verdict"] == "READY"
+        assert dirty["measured_verdict"] == "PARTIAL"
+        assert dirty["verdict"] == "PARTIAL"
+        assert "git worktree is not clean" in dirty["status_reasons"]
+
+        (repo / "AGENTS.md").write_text(
+            "<!-- vibebackbone:generated:start -->\ncorrupt\n"
+        )
+        corrupt = mod.gather_status(repo)
+        assert corrupt["measured_verdict"] == "BLOCKED"
+        assert corrupt["verdict"] == "BLOCKED"
+
+
+def test_strict_dashboard_uses_effective_verdict():
+    """Strict mode succeeds only for a clean, synchronized effective READY."""
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = _make_measured_repo(Path(tmp))
+        rc, _, _ = _run_dashboard(["--repo", str(repo), "--json", "--strict"])
+        assert rc == 0
+
+        (repo / "AGENTS.md").write_text("# dirty\n")
+        rc, out, _ = _run_dashboard(["--repo", str(repo), "--json", "--strict"])
+        assert rc == 2
+        assert json.loads(out)["verdict"] == "PARTIAL"
 
 
 def test_extract_verdict_reads_canonical_next_line_ready():
