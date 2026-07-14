@@ -108,6 +108,53 @@ def test_json_output():
     assert isinstance(data["contract_coverage"], float)
 
 
+def test_extract_verdict_reads_canonical_next_line_ready():
+    """Canonical Global verdict section must expose READY to JSON consumers."""
+    mod = _import_dashboard()
+
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = Path(tmp)
+        docs = repo / "docs"
+        docs.mkdir()
+        (docs / "AUDIT_STATUS.md").write_text(
+            "# AUDIT_STATUS\n\n"
+            "## Global verdict\n\n"
+            "**`READY — all exit criteria evidenced`**\n"
+        )
+
+        assert mod.extract_verdict(repo) == "READY"
+
+
+def test_extract_verdict_preserves_legacy_same_line_format():
+    """Legacy French same-line headings remain supported."""
+    mod = _import_dashboard()
+
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = Path(tmp)
+        docs = repo / "docs"
+        docs.mkdir()
+        (docs / "AUDIT_STATUS.md").write_text(
+            "# Status\n\n## Verdict global: `PARTIAL`\n"
+        )
+
+        assert mod.extract_verdict(repo) == "PARTIAL"
+
+
+def test_extract_verdict_ignores_status_substrings():
+    """Words such as bypassable must not be parsed as PASS."""
+    mod = _import_dashboard()
+
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = Path(tmp)
+        docs = repo / "docs"
+        docs.mkdir()
+        (docs / "AUDIT_STATUS.md").write_text(
+            "# Status\n\nThe bypassable condition is documented.\n"
+        )
+
+        assert mod.extract_verdict(repo) == "UNKNOWN"
+
+
 def test_full_mode():
     """--full includes extra details (activity log)."""
     rc, out, err = _run_dashboard(["--full"])

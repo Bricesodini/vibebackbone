@@ -77,6 +77,9 @@ No active P0/P1/P2 risk remains.
 - Independent READY revalidation: [review report](runs/2026-07-14_2215_ready-independent-revalidation/02_AUDIT_REPORT.md),
   [decision](runs/2026-07-14_2215_ready-independent-revalidation/03_DECISION.md),
   and [run closeout](runs/2026-07-14_2215_ready-independent-revalidation/07_CLOSEOUT.md).
+- Dashboard READY parsing: [impact analysis](audits/impact-analysis-dashboard-ready-parser-20260714-2245.md),
+  [ADR 0045](adr/0045-section-aware-dashboard-verdict-parsing.md), and
+  [run closeout](runs/2026-07-14_2245_dashboard-ready-parser/07_CLOSEOUT.md).
 
 ## READY campaign exit criteria
 

@@ -175,6 +175,14 @@ that triggered the decision.
 
 <!-- Add entries below as decisions are made -->
 
+### 2026-07-14 — Section-aware dashboard verdict parsing (ADR-0045)
+**Decision**: keep canonical verdict parsing and its closed vocabulary in Core.
+**Trigger**: final READY reconciliation exposed generated `UNKNOWN`.
+**Reason**: dashboard truth is shared operational behavior, not provider glue.
+**Impact**: Pi, OpenCode, Codex and Claude Code inherit READY recognition and
+the same compatibility tests. No adapter, JSON shape or runtime state changes.
+**Author**: Codex (approval Brice)
+
 ### 2026-07-14 — Agent-facing skill English convention (ADR-0044)
 **Decision**: keep English active skill prose and its regression guard in Core.
 **Trigger**: final skill-language migration explicitly approved by Brice.

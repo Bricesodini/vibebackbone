@@ -270,19 +270,38 @@ def count_tests(repo: Path) -> int:
     )
 
 
+VERDICT_TOKENS = ("READY", "PARTIAL", "PASS", "FAIL", "BLOCKED", "UNKNOWN")
+VERDICT_RE = re.compile(
+    r"\b(" + "|".join(VERDICT_TOKENS) + r")\b",
+    re.IGNORECASE,
+)
+
+
 def extract_verdict(repo: Path) -> str:
     """Extract global verdict from AUDIT_STATUS.md."""
     content = read_file(repo / "docs" / "AUDIT_STATUS.md")
-    for line in content.split("\n"):
-        if "Verdict global" in line or "verdict global" in line.lower():
-            # Look for backtick content on next line or same line
-            if "`" in line:
-                return line.split("`")[1] if len(line.split("`")) > 1 else "UNKNOWN"
-    # Fallback: look for PARTIAL/PASS/FAIL keywords near top
-    for line in content.split("\n")[:30]:
-        for keyword in ["PARTIAL", "PASS", "FAIL", "BLOCKED"]:
-            if keyword in line.upper():
-                return keyword
+    lines = content.splitlines()
+
+    section_heading = re.compile(
+        r"^#{1,6}\s*(?:global verdict|verdict global)\b",
+        re.IGNORECASE,
+    )
+    for index, line in enumerate(lines):
+        if not section_heading.match(line.strip()):
+            continue
+        for offset, candidate in enumerate(lines[index : index + 6]):
+            if offset > 0 and candidate.lstrip().startswith("#"):
+                break
+            match = VERDICT_RE.search(candidate)
+            if match:
+                return match.group(1).upper()
+        break
+
+    # Legacy fallback for documents without a dedicated verdict section.
+    for line in lines[:30]:
+        match = VERDICT_RE.search(line)
+        if match:
+            return match.group(1).upper()
     return "UNKNOWN"
 
 
