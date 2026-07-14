@@ -19,6 +19,7 @@ import sys
 import json
 import argparse
 import importlib.util
+import re
 import subprocess
 from datetime import date
 from pathlib import Path
@@ -331,24 +332,45 @@ def get_latest_runs(repo: Path, limit: int = 5) -> List[Dict]:
 
 
 def get_open_risks(repo: Path) -> List[Dict]:
-    """Extract open risks from AUDIT_STATUS.md."""
+    """Extract open risks from recognized tables, ordered by severity."""
     content = read_file(repo / "docs" / "AUDIT_STATUS.md")
-    risks = []
-    in_risk_section = False
+    risks: List[Dict] = []
+    columns: Optional[Dict[str, int]] = None
+
+    def clean(cell: str) -> str:
+        return re.sub(r"(?<!\w)[*_`]+|[*_`]+(?!\w)", "", cell).strip()
+
     for line in content.split("\n"):
         stripped = line.strip()
-        if stripped.startswith("## "):
-            in_risk_section = stripped.lower().startswith("## risks identified")
+        if not stripped.startswith("|"):
+            columns = None
             continue
-        if not in_risk_section or "|" not in line:
+
+        cells = [cell.strip() for cell in stripped.strip("|").split("|")]
+        headers = [clean(cell).lower() for cell in cells]
+        aliases = {
+            "id": {"id"},
+            "severity": {"severity", "sévérité"},
+            "status": {"status", "statut"},
+            "description": {"description", "constat"},
+        }
+        detected = {
+            name: next((i for i, header in enumerate(headers) if header in names), -1)
+            for name, names in aliases.items()
+        }
+        if all(index >= 0 for index in detected.values()):
+            columns = detected
             continue
-        parts = [p.strip() for p in line.split("|")]
-        if len(parts) < 5 or parts[1] in ("ID", "---"):
+
+        if columns is None or all(re.fullmatch(r":?-{3,}:?", cell) for cell in cells):
             continue
-        rid = parts[1].strip("`")
-        severity = parts[2].strip("`")
-        desc = parts[3].strip()
-        status = parts[4].strip().strip("`")
+        if max(columns.values()) >= len(cells):
+            continue
+
+        rid = clean(cells[columns["id"]])
+        severity = clean(cells[columns["severity"]])
+        status = clean(cells[columns["status"]])
+        desc = clean(cells[columns["description"]])
         status_key = status.lower()
         if status_key.startswith("open") or status_key.startswith("mitigating"):
             risks.append({
@@ -357,7 +379,21 @@ def get_open_risks(repo: Path) -> List[Dict]:
                 "status": status,
                 "description": desc[:80],
             })
-    return risks
+
+    def severity_rank(risk: Dict) -> int:
+        severity = risk["severity"].upper()
+        match = re.search(r"\bP([0-3])\b", severity)
+        if match:
+            return int(match.group(1))
+        return {"BLOCKER": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3}.get(severity, 99)
+
+    unique: List[Dict] = []
+    seen = set()
+    for risk in sorted(risks, key=severity_rank):
+        if risk["id"] not in seen:
+            seen.add(risk["id"])
+            unique.append(risk)
+    return unique
 
 
 def index_present(repo: Path) -> bool:

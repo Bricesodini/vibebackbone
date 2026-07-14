@@ -362,6 +362,38 @@ def test_get_open_risks_reports_stale_p1():
         )
 
 
+def test_get_open_risks_parses_all_tables_and_prioritizes_severity():
+    """Bold/bilingual risks outside the legacy section stay visible and sorted."""
+    mod = _import_dashboard()
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = Path(tmp)
+        audit = repo / "docs" / "AUDIT_STATUS.md"
+        audit.parent.mkdir(parents=True)
+        audit.write_text(
+            "## Findings ouverts\n\n"
+            "| ID | Sévérité | Statut | Constat |\n"
+            "|----|----------|--------|---------|\n"
+            "| TER-001 | **P1** | **Open** | Consumer refresh absent |\n"
+            "| DUP-001 | P2 | Open | First occurrence |\n\n"
+            "## Risks identified & status\n\n"
+            "| ID | Severity | Description | Status |\n"
+            "|----|----------|-------------|--------|\n"
+            "| QOA-005 | P2 | Reconcile table | Open — pending |\n"
+            "| SYS-POST-002 | P1 | Audit artifact missing | **Open — verified** |\n"
+            "| GMA-003 | P1 | Executor cleanup | **MITIGATING 2026-07-14** |\n"
+            "| DUP-001 | P2 | Duplicate summary | Open |\n"
+            "| DONE-001 | P0 | Closed item | **RESOLVED** |\n"
+        )
+
+        risks = mod.get_open_risks(repo)
+
+        assert [r["id"] for r in risks] == [
+            "TER-001", "SYS-POST-002", "GMA-003", "DUP-001", "QOA-005"
+        ]
+        assert risks[0]["severity"] == "P1"
+        assert risks[1]["status"] == "Open — verified"
+
+
 # --- Direct execution fallback ---
 if __name__ == "__main__":
     try:

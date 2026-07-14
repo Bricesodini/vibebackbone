@@ -426,6 +426,12 @@ les distributions héritent du Core corrigé.
 Core. **Impact**: les quatre distributions héritent des contrats allégés ; aucun
 glue provider ni état runtime ne change. **Author**: Codex, après GO Brice.
 
+### 2026-07-14 — Priorité des risques du dashboard conservée dans Core
+
+**Decision**: Corriger le parseur et le tri dans l'outil Core partagé.
+**Impact**: les quatre distributions voient les mêmes P1 prioritaires ; aucun
+adaptateur ni format JSON ne change. **Author**: Codex, après GO Brice.
+
 ## 8. References
 
 - `README.md` — entry point; "VBB Core vs Distributions" anchors the

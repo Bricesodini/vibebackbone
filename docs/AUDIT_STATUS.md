@@ -23,6 +23,10 @@ drop from 73,766 to 26,084 characters while retaining gates, process order,
 outputs, verdicts, triggers, and support boundaries. Total skill weight drops
 from 362,069 to 314,387 characters; contract lint reports 0 errors/warnings.
 
+Dashboard follow-up: run `2026-07-14_0714_dashboard-risk-priority` now parses
+all recognized risk tables, normalizes emphasized cells, deduplicates IDs, and
+orders active risks by severity so P1 entries cannot be hidden by P2/P3 rows.
+
 ## Latest audit note — deep post-sanding verification (2026-07-13)
 
 Run : [2026-07-13_2351_deep-post-sanding-audit](runs/2026-07-13_2351_deep-post-sanding-audit/02_AUDIT_REPORT.md).
@@ -135,7 +139,7 @@ stabilized in the same pass.
 | QOA-001 | P1 | Core/Distribution boundary contradicted: docs say distributions live outside repo, but `distributions/hermes/` now contains runtime proxy code/tests/ADRs | **RESOLVED** — RUN 2 commit 89bbe3d patched README.md, docs/DISTRIBUTIONS.md, distributions/hermes/proxy/README.md |
 | QOA-002 | P1 | Hermes proxy migration incomplete: distribution tests fail on stale `tools.proxy` imports and docs still reference `tools/proxy` paths | **RESOLVED** — RUN 1 commit d1ca51f repaired 30+ imports in 8 test files; conftest.py adds sys.path; pytest 24/24 proxy tests green, 119 total |
 | QOA-003 | P1 | Default loop-closure/latest-run resolution uses lexicographic run-dir ordering and can validate the wrong run when formats are mixed | **RESOLVED 2026-07-13** — V2-R1 (`ca70f4a`) : résolution partagée par mtime `tools/vbb_run_resolution.py`, testée (`tests/test_run_resolution.py`) |
-| QOA-004 | P1 | Status dashboard reports no open risks while later `AUDIT_STATUS.md` tables contain active Open risks | **RESOLVED*** — RUN 4 commits 89bbe3d (L1) resolved 3 stale P1 entries; dashboard now correctly surfaces only the genuinely-open P1s; added regression test in tests/test_status_dashboard.py |
+| QOA-004 | P1 | Status dashboard reports no open risks while later `AUDIT_STATUS.md` tables contain active Open risks | **RESOLVED 2026-07-14** — header-driven parsing and severity sorting surface TER-001, GMA-003/004 and SYS-POST-002 before P2/P3 rows; regression coverage added |
 | QOA-005 | P2 | Quality-adoption note contains contradictory QA row states and stale prompt-count text | Open — reconcile `AUDIT_STATUS.md` QA table |
 | QOA-006 | P2 | Loose pending artifact `docs/runs/routing-fix-verification.md` sits outside a timestamped run directory | Open — move to proper run or archive |
 | QOA-007 | P2 | Optional quality tools fail (`ruff`, format check, `mypy`, `pyright`) and are not canonically gated | Open — confirmed 2026-07-13: Ruff 36, format 26 files, mypy 48 errors/8 files, pyright absent; keep non-gating until baseline |
