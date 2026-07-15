@@ -55,6 +55,13 @@ compact card; no provider mutation was observed.
 | Card and self-check have separable effects | Pi targeted causal POC: card-only 2/4, self-check-only 1/4, combined prior POC 3/4 | PARTIAL |
 | Infrastructure-derived safety signals explain all misses | No complete baseline replay with derived scoring yet | UNVALIDATED |
 
+### Post-correction live benchmark — 2026-07-15
+
+| Claim | Evidence | Status |
+|---|---|---|
+| Pi benefits from the canonical prompt correction | 10/10 exact, 33/33 required signals, zero forbidden signals, zero mutations | VALIDATED |
+| Codex benefits from the canonical prompt correction | 22/30 exact across three repetitions versus 20/30 before correction; zero mutations | PARTIAL |
+
 ## Consequences
 
 ### Positive
