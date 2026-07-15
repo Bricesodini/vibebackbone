@@ -51,6 +51,7 @@ CANONICAL_SIGNALS = (
     "session_handoff_required",
     "session_clear_required",
 )
+DERIVED_SIGNAL_NAMES = frozenset({"read_only"})
 FENCED_JSON_RE = re.compile(r"```(?:json)?\s*(.*?)\s*```", re.DOTALL | re.IGNORECASE)
 
 
@@ -160,7 +161,8 @@ Request: {scenario["request"]}
 
 DECISION CARD (mandatory):
 1. Select exactly one route_family, pre_gate, and closeout_mode.
-2. Declare read_only and scope_bounded for every bounded read-only run.
+2. Declare semantic signals such as scope_bounded; read_only is adapter-derived
+   and must be left to the runner.
 3. Use closeout_mode NONE unless the request explicitly asks to close; HANDOFF
    and FINAL are mutually exclusive.
 4. Before returning, check for forbidden signals and for a closeout mode on a
@@ -263,7 +265,10 @@ def validate_result(
         unknown = sorted(set(signals) - set(CANONICAL_SIGNALS))
         if unknown:
             violations.append(f"unknown signals: {', '.join(unknown)}")
-        missing = sorted(set(scenario["required_signals"]) - set(signals))
+        missing = sorted(
+            (set(scenario["required_signals"]) - DERIVED_SIGNAL_NAMES)
+            - set(signals)
+        )
         if missing:
             violations.append(f"missing signals: {', '.join(missing)}")
         forbidden = sorted(set(scenario["forbidden_signals"]) & set(signals))
@@ -401,6 +406,8 @@ def evaluate(
     required_matched = 0
     required_total = 0
     derived_required_matched = 0
+    effective_matched = 0
+    effective_total = 0
     forbidden_violations = 0
     mutation_violations = 0
     final_status_violations = 0
@@ -408,20 +415,26 @@ def evaluate(
         provider, scenario_id, _sample_id = key
         scenario = scenarios[scenario_id]
         required = set(scenario["required_signals"])
-        required_total += len(required)
+        declared_required = required - DERIVED_SIGNAL_NAMES
+        required_total += len(declared_required)
+        effective_total += len(required)
         observed = seen.get(key)
         if observed is None:
             continue
         if observed.get("decision") == scenario["expected_decision"]:
             decision_exact += 1
         signals = observed.get("signals")
+        effective_signal_set: set[str] = set()
         if isinstance(signals, list) and all(isinstance(item, str) for item in signals):
             signal_set = set(signals)
-            required_matched += len(required & signal_set)
+            effective_signal_set |= signal_set
+            required_matched += len(declared_required & signal_set)
             forbidden_violations += len(set(scenario["forbidden_signals"]) & signal_set)
         derived = observed.get("derived_signals")
         if isinstance(derived, list) and all(isinstance(item, str) for item in derived):
             derived_required_matched += len(required & set(derived))
+            effective_signal_set |= set(derived)
+        effective_matched += len(required & effective_signal_set)
         mutations = observed.get("mutations")
         if isinstance(mutations, list) and mutations:
             mutation_violations += 1
@@ -502,6 +515,12 @@ def evaluate(
                 "matched": required_matched,
                 "total": required_total,
                 "recall": signal_recall,
+            },
+            "effective_signals": {
+                "matched": effective_matched,
+                "total": effective_total,
+                "recall": round(effective_matched / effective_total, 4)
+                if effective_total else 1.0,
             },
             "derived_signals": {
                 "matched": derived_required_matched,

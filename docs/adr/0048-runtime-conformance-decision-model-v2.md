@@ -84,6 +84,14 @@ compact card; no provider mutation was observed.
 | Fresh Pi install loads the provider skill tree after installer fix | Pi improved from 4/10 to 6/10 exact; required-signal recall 93.9%; zero mutations | PARTIAL |
 | Fresh Codex install is operational | 8/10 exact on `gpt-5.4-mini`; zero mutations | VALIDATED |
 
+### Pi behavioral POCs — 2026-07-15
+
+| Hypothesis | Evidence | Status |
+|---|---|---|
+| `read_only` omissions are adapter-owned, not behavioral | Re-evaluating the fresh Pi run with derived signals changes 6/10 to 8/10 exact and raises effective signal recall to 100% | VALIDATED |
+| `activity_log_only` is a FAST-ZERO/FAST-MINIMAL confusion | Targeted prompt with an explicit route table removes the forbidden signal on FAST-MINIMAL | VALIDATED |
+| Closeout failure is structural | Targeted prompt yields valid HANDOFF and FINAL decision objects; the remaining FINAL miss is `session_clear_required` | PARTIAL |
+
 ## Consequences
 
 ### Positive
