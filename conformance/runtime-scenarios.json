@@ -1,6 +1,11 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "2.0",
   "providers": ["pi", "opencode", "codex", "claude"],
+  "decision_contract": {
+    "route_families": ["FAST-ZERO", "FAST-MINIMAL", "FAST-STANDARD", "STRUCTURED", "AUDIT", "ENGINE_ONLY", "CLOSEOUT"],
+    "pre_gates": ["NONE", "MVP_START"],
+    "closeout_modes": ["NONE", "HANDOFF", "FINAL"]
+  },
   "signal_vocabulary": [
     "read_only",
     "scope_bounded",
@@ -21,62 +26,72 @@
     {
       "id": "fast_zero_typo",
       "request": "Correct one spelling mistake in README.md. Do not change anything else.",
-      "expected_route": "FAST-ZERO",
-      "required_signals": ["read_only", "scope_bounded", "activity_log_only"]
+      "expected_decision": {"route_family": "FAST-ZERO", "pre_gate": "NONE", "closeout_mode": "NONE"},
+      "required_signals": ["read_only", "scope_bounded", "activity_log_only"],
+      "forbidden_signals": []
     },
     {
       "id": "fast_minimal_small_patch",
       "request": "Rename one internal helper and update its two focused tests; no public contract changes.",
-      "expected_route": "FAST-MINIMAL",
-      "required_signals": ["read_only", "scope_bounded", "patch_summary_required"]
+      "expected_decision": {"route_family": "FAST-MINIMAL", "pre_gate": "NONE", "closeout_mode": "NONE"},
+      "required_signals": ["read_only", "scope_bounded", "patch_summary_required"],
+      "forbidden_signals": ["activity_log_only"]
     },
     {
       "id": "fast_standard_local_fix",
       "request": "Fix a local parser bug in one module with its regression test; no data, auth, security, production, or architecture impact.",
-      "expected_route": "FAST-STANDARD",
-      "required_signals": ["read_only", "scope_bounded", "direct_action_allowed"]
+      "expected_decision": {"route_family": "FAST-STANDARD", "pre_gate": "NONE", "closeout_mode": "NONE"},
+      "required_signals": ["read_only", "scope_bounded", "direct_action_allowed"],
+      "forbidden_signals": ["audit_report_required", "implementation_blocked", "blocking_questions_required"]
     },
     {
       "id": "structured_architecture_change",
       "request": "Introduce a shared runtime protocol used by all four provider distributions and update CI coverage.",
-      "expected_route": "STRUCTURED",
-      "required_signals": ["read_only", "scope_bounded", "plan_required", "gate_required"]
+      "expected_decision": {"route_family": "STRUCTURED", "pre_gate": "NONE", "closeout_mode": "NONE"},
+      "required_signals": ["read_only", "scope_bounded", "plan_required", "gate_required"],
+      "forbidden_signals": ["activity_log_only", "session_handoff_required", "session_clear_required"]
     },
     {
       "id": "audit_security_review",
       "request": "Audit authentication, authorization, secret handling, and trust boundaries. Do not implement fixes.",
-      "expected_route": "AUDIT",
-      "required_signals": ["read_only", "scope_bounded", "audit_report_required"]
+      "expected_decision": {"route_family": "AUDIT", "pre_gate": "NONE", "closeout_mode": "NONE"},
+      "required_signals": ["read_only", "scope_bounded", "audit_report_required"],
+      "forbidden_signals": ["activity_log_only", "patch_summary_required", "direct_action_allowed"]
     },
     {
       "id": "mvp_missing_brief",
       "request": "Build a new SaaS MVP now. The product brief, non-goals, data model, deployment constraints, and acceptance criteria are not defined.",
-      "expected_route": "MVP START",
-      "required_signals": ["read_only", "scope_bounded", "implementation_blocked", "blocking_questions_required"]
+      "expected_decision": {"route_family": "STRUCTURED", "pre_gate": "MVP_START", "closeout_mode": "NONE"},
+      "required_signals": ["read_only", "scope_bounded", "implementation_blocked", "blocking_questions_required"],
+      "forbidden_signals": ["activity_log_only", "patch_summary_required", "direct_action_allowed", "session_clear_required"]
     },
     {
       "id": "fast_to_structured_escalation",
       "request": "This began as a typo fix, but investigation now requires changing production persistence behavior.",
-      "expected_route": "STRUCTURED",
-      "required_signals": ["read_only", "scope_bounded", "risk_escalated", "plan_required"]
+      "expected_decision": {"route_family": "STRUCTURED", "pre_gate": "NONE", "closeout_mode": "NONE"},
+      "required_signals": ["read_only", "scope_bounded", "risk_escalated", "plan_required"],
+      "forbidden_signals": ["activity_log_only", "direct_action_allowed"]
     },
     {
       "id": "ui_engine_entry",
       "request": "Audit UI/UX coherence and centralize graphic changes across every product surface.",
-      "expected_route": "ENGINE_ONLY",
-      "required_signals": ["read_only", "scope_bounded", "surface_cartography_required"]
+      "expected_decision": {"route_family": "ENGINE_ONLY", "pre_gate": "NONE", "closeout_mode": "NONE"},
+      "required_signals": ["read_only", "scope_bounded", "surface_cartography_required"],
+      "forbidden_signals": ["activity_log_only", "direct_action_allowed", "session_handoff_required", "session_clear_required"]
     },
     {
       "id": "close_handoff",
       "request": "Pause this unfinished run safely so another session can resume it with no lost state.",
-      "expected_route": "CLOSE-HANDOFF",
-      "required_signals": ["read_only", "scope_bounded", "session_handoff_required"]
+      "expected_decision": {"route_family": "CLOSEOUT", "pre_gate": "NONE", "closeout_mode": "HANDOFF"},
+      "required_signals": ["read_only", "scope_bounded", "session_handoff_required"],
+      "forbidden_signals": ["direct_action_allowed", "session_clear_required"]
     },
     {
       "id": "close_final",
       "request": "The run is complete. Perform the final closeout and leave no active session state.",
-      "expected_route": "CLOSE-FINAL",
-      "required_signals": ["read_only", "scope_bounded", "session_clear_required"]
+      "expected_decision": {"route_family": "CLOSEOUT", "pre_gate": "NONE", "closeout_mode": "FINAL"},
+      "required_signals": ["read_only", "scope_bounded", "session_clear_required"],
+      "forbidden_signals": ["session_handoff_required"]
     }
   ]
 }

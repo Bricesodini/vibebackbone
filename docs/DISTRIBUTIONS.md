@@ -763,6 +763,22 @@ ne change. La baseline Pi live est `FAIL`, 4/10, sans mutation.
 
 **Author**: Brice (demande de lancement), Codex — ADR 0047
 
+### 2026-07-15 — Benchmark de conformité v2 conservé dans Core
+
+**Decision**: Remplacer la route plate du benchmark par une décision composée
+(`route_family`, `pre_gate`, `closeout_mode`), ajouter les signaux interdits, le
+scoring multidimensionnel et les répétitions explicites dans le protocole Core.
+
+**Reason**: La distinction route/gate/mode et les seuils de sécurité sont
+génériques. Les implémenter dans un adaptateur Pi créerait une normalisation
+provider qui masquerait les divergences.
+
+**Impact**: Pi, OpenCode, Codex et Claude Code reçoivent le même prompt et le
+même schéma v2. Le JSON v1 devient explicitement incompatible ; aucune commande,
+installation ou configuration provider ne change.
+
+**Author**: Brice (demande explicite), Codex — ADR 0048
+
 ## 9. References
 
 - `README.md` — entry point; "VBB Core vs Distributions" anchors the

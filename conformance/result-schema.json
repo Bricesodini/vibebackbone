@@ -7,28 +7,27 @@
     "schema_version",
     "provider",
     "scenario_id",
-    "route",
+    "sample_id",
+    "decision",
     "signals",
     "mutations",
     "final_status_present",
     "metrics"
   ],
   "properties": {
-    "schema_version": {"const": "1.0"},
+    "schema_version": {"const": "2.0"},
     "provider": {"enum": ["pi", "opencode", "codex", "claude"]},
     "scenario_id": {"type": "string", "minLength": 1},
-    "route": {
-      "enum": [
-        "FAST-ZERO",
-        "FAST-MINIMAL",
-        "FAST-STANDARD",
-        "STRUCTURED",
-        "AUDIT",
-        "MVP START",
-        "ENGINE_ONLY",
-        "CLOSE-HANDOFF",
-        "CLOSE-FINAL"
-      ]
+    "sample_id": {"type": "integer", "minimum": 1},
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["route_family", "pre_gate", "closeout_mode"],
+      "properties": {
+        "route_family": {"enum": ["FAST-ZERO", "FAST-MINIMAL", "FAST-STANDARD", "STRUCTURED", "AUDIT", "ENGINE_ONLY", "CLOSEOUT"]},
+        "pre_gate": {"enum": ["NONE", "MVP_START"]},
+        "closeout_mode": {"enum": ["NONE", "HANDOFF", "FINAL"]}
+      }
     },
     "signals": {
       "type": "array",

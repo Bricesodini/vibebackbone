@@ -16,12 +16,13 @@ conformance = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(conformance)
 
 
-def _result(provider: str, scenario: dict) -> dict:
+def _result(provider: str, scenario: dict, sample_id: int = 1) -> dict:
     return {
-        "schema_version": "1.0",
+        "schema_version": "2.0",
         "provider": provider,
         "scenario_id": scenario["id"],
-        "route": scenario["expected_route"],
+        "sample_id": sample_id,
+        "decision": scenario["expected_decision"],
         "signals": scenario["required_signals"],
         "mutations": [],
         "final_status_present": True,
@@ -39,12 +40,20 @@ def test_manifest_has_ten_scenarios_and_four_providers() -> None:
     assert manifest["providers"] == ["pi", "opencode", "codex", "claude"]
     assert len(manifest["scenarios"]) == 10
     assert manifest["signal_vocabulary"] == list(conformance.CANONICAL_SIGNALS)
+    assert manifest["decision_contract"] == {
+        "route_families": list(conformance.ROUTE_FAMILIES),
+        "pre_gates": list(conformance.PRE_GATES),
+        "closeout_modes": list(conformance.CLOSEOUT_MODES),
+    }
     schema = json.loads(
         (REPO_ROOT / "conformance" / "result-schema.json").read_text(encoding="utf-8")
     )
     assert schema["properties"]["signals"]["items"]["enum"] == list(
         conformance.CANONICAL_SIGNALS
     )
+    assert schema["properties"]["decision"]["properties"]["route_family"][
+        "enum"
+    ] == list(conformance.ROUTE_FAMILIES)
 
 
 def test_synthetic_four_provider_matrix_passes() -> None:
@@ -59,12 +68,21 @@ def test_synthetic_four_provider_matrix_passes() -> None:
     assert report["passed"] == report["total"] == 40
     assert report["metrics_by_provider"]["codex"]["results"] == 10
     assert report["metrics_by_provider"]["codex"]["cost_usd_total"] is None
+    assert report["dimensions"]["required_signals"]["recall"] == 1.0
 
 
 @pytest.mark.parametrize(
     ("field", "value", "message"),
     [
-        ("route", "FAST-STANDARD", "route"),
+        (
+            "decision",
+            {
+                "route_family": "STRUCTURED",
+                "pre_gate": "NONE",
+                "closeout_mode": "NONE",
+            },
+            "decision route_family",
+        ),
         ("signals", ["read_only"], "missing signals"),
         ("mutations", ["README.md"], "mutations"),
         ("final_status_present", False, "final_status_present"),
@@ -94,6 +112,69 @@ def test_evaluator_rejects_missing_and_duplicate_results() -> None:
     assert any(
         any("missing" in violation for violation in item["violations"])
         for item in report["failures"]
+    )
+
+
+def test_evaluator_reports_partial_for_non_dangerous_decision_miss() -> None:
+    manifest = conformance.load_manifest()
+    scenario = manifest["scenarios"][0]
+    result = _result("pi", scenario)
+    result["decision"] = {
+        "route_family": "FAST-MINIMAL",
+        "pre_gate": "NONE",
+        "closeout_mode": "NONE",
+    }
+    report = conformance.evaluate(manifest, [result], ["pi"])
+    assert report["verdict"] == "FAIL"  # Other nine expected scenarios are missing.
+
+    complete = [_result("pi", item) for item in manifest["scenarios"]]
+    complete[0] = result
+    report = conformance.evaluate(manifest, complete, ["pi"])
+    assert report["verdict"] == "PARTIAL"
+    assert report["dimensions"]["decision"]["rate"] == 0.9
+    assert report["dimensions"]["required_signals"]["recall"] == 1.0
+
+
+def test_forbidden_signal_is_hard_failure() -> None:
+    manifest = conformance.load_manifest()
+    results = [_result("pi", item) for item in manifest["scenarios"]]
+    results[1]["signals"] = [
+        *results[1]["signals"],
+        "activity_log_only",
+    ]
+    report = conformance.evaluate(manifest, results, ["pi"])
+    assert report["verdict"] == "FAIL"
+    assert report["dimensions"]["forbidden_signals"]["violations"] == 1
+
+
+def test_repetitions_are_distinct_expected_samples() -> None:
+    manifest = conformance.load_manifest()
+    results = [
+        _result("pi", scenario, sample_id)
+        for scenario in manifest["scenarios"]
+        for sample_id in (1, 2, 3)
+    ]
+    report = conformance.evaluate(manifest, results, ["pi"], repetitions=3)
+    assert report["verdict"] == "PASS"
+    assert report["total"] == report["passed"] == 30
+    assert report["repetitions"] == 3
+
+
+def test_v1_result_is_rejected_instead_of_silently_upgraded() -> None:
+    manifest = conformance.load_manifest()
+    scenario = manifest["scenarios"][0]
+    result = _result("pi", scenario)
+    result["schema_version"] = "1.0"
+    report = conformance.evaluate(
+        manifest,
+        [result, *[_result("pi", item) for item in manifest["scenarios"][1:]]],
+        ["pi"],
+    )
+    assert report["verdict"] == "FAIL"
+    assert any(
+        "schema_version must be 2.0" in violation
+        for failure in report["failures"]
+        for violation in failure["violations"]
     )
 
 
@@ -131,6 +212,9 @@ def test_prompt_is_read_only_and_provider_bound() -> None:
     assert scenario["request"] in prompt
     assert "patch_summary_required" in prompt
     assert "Do not invent, qualify, or paraphrase" in prompt
+    assert "MVP_START is a" in prompt
+    assert "Do not spawn or delegate to subagents" in prompt
+    assert "CLOSEOUT" in prompt and "HANDOFF" in prompt and "FINAL" in prompt
 
 
 def test_adapter_manifest_covers_four_providers_with_safe_defaults() -> None:

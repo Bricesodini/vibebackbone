@@ -153,7 +153,8 @@ responsibilities:
   - Route queries to skills
   - Report documentary and measured repository status separately
   - Enforce structured long-run declarations during strict closure
-  - Evaluate provider-neutral runtime conformance without mandatory LLM calls
+  - Evaluate provider-neutral runtime conformance with decomposed decisions,
+    multidimensional safety scoring and no mandatory LLM calls
 depends_on:
   - skills-catalog
   - governance-core

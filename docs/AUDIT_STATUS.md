@@ -32,6 +32,12 @@ No active P0/P1/P2 risk remains.
 
 ## Latest evidence
 
+- Runtime conformance v2 impact analysis:
+  [report](audits/impact-analysis-conformance-v2-20260715-0642.md),
+  [ADR 0048](adr/0048-runtime-conformance-decision-model-v2.md), and
+  [run](runs/2026-07-15_0636_conformance-v2/01_INTAKE.md). Classification:
+  BREAKING but bounded to the benchmark JSON contract; deterministic v2
+  integration is READY, live provider adherence remains unsampled.
 - Pi live-conformance compatibility impact analysis:
   [report](audits/impact-analysis-pi-live-conformance-20260715-0618.md),
   [live baseline](audits/runtime-conformance-pi-20260715-0619.md), and

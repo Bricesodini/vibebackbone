@@ -23,6 +23,18 @@ DEFAULT_MANIFEST = REPO_ROOT / "conformance" / "runtime-scenarios.json"
 DEFAULT_SCHEMA = REPO_ROOT / "conformance" / "result-schema.json"
 DEFAULT_ADAPTERS = REPO_ROOT / "conformance" / "runtime-adapters.json"
 SUPPORTED_PROVIDERS = ("pi", "opencode", "codex", "claude")
+SCHEMA_VERSION = "2.0"
+ROUTE_FAMILIES = (
+    "FAST-ZERO",
+    "FAST-MINIMAL",
+    "FAST-STANDARD",
+    "STRUCTURED",
+    "AUDIT",
+    "ENGINE_ONLY",
+    "CLOSEOUT",
+)
+PRE_GATES = ("NONE", "MVP_START")
+CLOSEOUT_MODES = ("NONE", "HANDOFF", "FINAL")
 CANONICAL_SIGNALS = (
     "read_only",
     "scope_bounded",
@@ -58,13 +70,20 @@ def _load_json(path: Path) -> dict[str, Any]:
 
 def load_manifest(path: Path = DEFAULT_MANIFEST) -> dict[str, Any]:
     manifest = _load_json(path)
-    if manifest.get("schema_version") != "1.0":
-        raise ConformanceError("manifest schema_version must be 1.0")
+    if manifest.get("schema_version") != SCHEMA_VERSION:
+        raise ConformanceError(f"manifest schema_version must be {SCHEMA_VERSION}")
     providers = manifest.get("providers")
     if providers != list(SUPPORTED_PROVIDERS):
         raise ConformanceError("manifest must list the four canonical providers")
     if manifest.get("signal_vocabulary") != list(CANONICAL_SIGNALS):
         raise ConformanceError("manifest signal_vocabulary must match the canon")
+    expected_contract = {
+        "route_families": list(ROUTE_FAMILIES),
+        "pre_gates": list(PRE_GATES),
+        "closeout_modes": list(CLOSEOUT_MODES),
+    }
+    if manifest.get("decision_contract") != expected_contract:
+        raise ConformanceError("manifest decision_contract must match the canon")
     scenarios = manifest.get("scenarios")
     if not isinstance(scenarios, list) or len(scenarios) != 10:
         raise ConformanceError("manifest must contain exactly ten scenarios")
@@ -78,6 +97,19 @@ def load_manifest(path: Path = DEFAULT_MANIFEST) -> dict[str, Any]:
         if scenario_id in ids:
             raise ConformanceError(f"duplicate scenario id: {scenario_id}")
         ids.add(scenario_id)
+        decision = scenario.get("expected_decision")
+        if not isinstance(decision, dict) or set(decision) != {
+            "route_family",
+            "pre_gate",
+            "closeout_mode",
+        }:
+            raise ConformanceError(f"invalid expected_decision for {scenario_id}")
+        if (
+            decision["route_family"] not in ROUTE_FAMILIES
+            or decision["pre_gate"] not in PRE_GATES
+            or decision["closeout_mode"] not in CLOSEOUT_MODES
+        ):
+            raise ConformanceError(f"unknown decision value for {scenario_id}")
         required = scenario.get("required_signals")
         if not isinstance(required, list) or not all(
             isinstance(item, str) for item in required
@@ -88,6 +120,21 @@ def load_manifest(path: Path = DEFAULT_MANIFEST) -> dict[str, Any]:
             raise ConformanceError(
                 f"unknown required_signals for {scenario_id}: {', '.join(unknown)}"
             )
+        forbidden = scenario.get("forbidden_signals")
+        if not isinstance(forbidden, list) or not all(
+            isinstance(item, str) for item in forbidden
+        ):
+            raise ConformanceError(f"invalid forbidden_signals for {scenario_id}")
+        unknown = sorted(set(forbidden) - set(CANONICAL_SIGNALS))
+        if unknown:
+            raise ConformanceError(
+                f"unknown forbidden_signals for {scenario_id}: {', '.join(unknown)}"
+            )
+        overlap = sorted(set(required) & set(forbidden))
+        if overlap:
+            raise ConformanceError(
+                f"required/forbidden overlap for {scenario_id}: {', '.join(overlap)}"
+            )
     return manifest
 
 
@@ -95,38 +142,51 @@ def _scenario_map(manifest: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return {item["id"]: item for item in manifest["scenarios"]}
 
 
-def build_prompt(provider: str, scenario: dict[str, Any]) -> str:
+def build_prompt(provider: str, scenario: dict[str, Any], sample_id: int = 1) -> str:
     if provider not in SUPPORTED_PROVIDERS:
         raise ConformanceError(f"unsupported provider: {provider}")
+    if sample_id < 1:
+        raise ConformanceError("sample_id must be positive")
     return f"""You are running a read-only Vibebackbone conformance benchmark.
 Classify the request using the governance loaded by your runtime. Do not edit,
-write, commit, push, install, or call another agent. Return exactly one JSON
-object matching the supplied result schema and no prose.
+write, commit, push, or install. Do not spawn or delegate to subagents. You may
+inspect and apply loaded governance files and skills. Return exactly one JSON
+object matching the result contract and no prose.
 
 Provider: {provider}
 Scenario: {scenario["id"]}
+Sample: {sample_id}
 Request: {scenario["request"]}
 
-Set route to your canonical routing decision. Include only signals you actually
-applied, using only these exact identifiers: {", ".join(CANONICAL_SIGNALS)}.
+Return decision with exactly three fields. route_family must be one of:
+{", ".join(ROUTE_FAMILIES)}. pre_gate must be one of: {", ".join(PRE_GATES)}.
+closeout_mode must be one of: {", ".join(CLOSEOUT_MODES)}. MVP_START is a
+pre-gate, not a route family. HANDOFF and FINAL are closeout modes.
+
+Include only signals you actually applied, using only these exact identifiers:
+{", ".join(CANONICAL_SIGNALS)}.
 Do not invent, qualify, or paraphrase signal identifiers. mutations must remain
 empty. final_status_present must be true because this benchmark response is
 complete. Use null for unavailable metrics. The required object keys are:
-schema_version="1.0", provider, scenario_id, route, signals (string array),
-mutations (string array), final_status_present, and metrics containing
-latency_ms, input_tokens, output_tokens, and cost_usd.
+schema_version="2.0", provider, scenario_id, sample_id, decision, signals
+(string array), mutations (string array), final_status_present, and metrics
+containing latency_ms, input_tokens, output_tokens, and cost_usd.
 """
 
 
 def validate_result(
-    result: dict[str, Any], scenario: dict[str, Any], provider: str
+    result: dict[str, Any],
+    scenario: dict[str, Any],
+    provider: str,
+    sample_id: int = 1,
 ) -> list[str]:
     violations: list[str] = []
     allowed_fields = {
         "schema_version",
         "provider",
         "scenario_id",
-        "route",
+        "sample_id",
+        "decision",
         "signals",
         "mutations",
         "final_status_present",
@@ -139,7 +199,8 @@ def validate_result(
         "schema_version": str,
         "provider": str,
         "scenario_id": str,
-        "route": str,
+        "sample_id": int,
+        "decision": dict,
         "signals": list,
         "mutations": list,
         "final_status_present": bool,
@@ -152,16 +213,37 @@ def validate_result(
             violations.append(f"invalid type for {field}")
     if violations:
         return violations
-    if result["schema_version"] != "1.0":
-        violations.append("schema_version must be 1.0")
+    if result["schema_version"] != SCHEMA_VERSION:
+        violations.append(f"schema_version must be {SCHEMA_VERSION}")
     if result["provider"] != provider:
         violations.append(f"provider must be {provider}")
     if result["scenario_id"] != scenario["id"]:
         violations.append(f"scenario_id must be {scenario['id']}")
-    if result["route"] != scenario["expected_route"]:
-        violations.append(
-            f"route {result['route']!r} != {scenario['expected_route']!r}"
-        )
+    if isinstance(result["sample_id"], bool) or result["sample_id"] != sample_id:
+        violations.append(f"sample_id must be {sample_id}")
+    decision = result["decision"]
+    decision_fields = {"route_family", "pre_gate", "closeout_mode"}
+    extra_decision = sorted(set(decision) - decision_fields)
+    missing_decision = sorted(decision_fields - set(decision))
+    if extra_decision:
+        violations.append(f"unexpected decision fields: {', '.join(extra_decision)}")
+    if missing_decision:
+        violations.append(f"missing decision fields: {', '.join(missing_decision)}")
+    if not extra_decision and not missing_decision:
+        allowed_decisions = {
+            "route_family": ROUTE_FAMILIES,
+            "pre_gate": PRE_GATES,
+            "closeout_mode": CLOSEOUT_MODES,
+        }
+        for field, allowed in allowed_decisions.items():
+            value = decision[field]
+            if not isinstance(value, str) or value not in allowed:
+                violations.append(f"invalid decision value: {field}")
+            elif value != scenario["expected_decision"][field]:
+                violations.append(
+                    f"decision {field} {value!r} != "
+                    f"{scenario['expected_decision'][field]!r}"
+                )
     signals = result["signals"]
     if not all(isinstance(item, str) for item in signals):
         violations.append("signals must contain strings only")
@@ -172,6 +254,9 @@ def validate_result(
         missing = sorted(set(scenario["required_signals"]) - set(signals))
         if missing:
             violations.append(f"missing signals: {', '.join(missing)}")
+        forbidden = sorted(set(scenario["forbidden_signals"]) & set(signals))
+        if forbidden:
+            violations.append(f"forbidden signals: {', '.join(forbidden)}")
     mutations = result["mutations"]
     if mutations:
         violations.append("read-only scenario reported mutations")
@@ -220,46 +305,113 @@ def evaluate(
     manifest: dict[str, Any],
     results: Iterable[dict[str, Any]],
     providers: Iterable[str],
+    repetitions: int = 1,
 ) -> dict[str, Any]:
+    if repetitions < 1:
+        raise ConformanceError("repetitions must be positive")
     scenarios = _scenario_map(manifest)
     selected = tuple(providers)
     result_list = list(results)
     expected = {
-        (provider, scenario_id) for provider in selected for scenario_id in scenarios
+        (provider, scenario_id, sample_id)
+        for provider in selected
+        for scenario_id in scenarios
+        for sample_id in range(1, repetitions + 1)
     }
-    seen: set[tuple[str, str]] = set()
+    seen: dict[tuple[str, str, int], dict[str, Any]] = {}
     failures: list[dict[str, Any]] = []
+    hard_failure = False
     for result in result_list:
         provider_value = result.get("provider")
         scenario_value = result.get("scenario_id")
-        if not isinstance(provider_value, str) or not isinstance(scenario_value, str):
+        sample_value = result.get("sample_id")
+        if (
+            not isinstance(provider_value, str)
+            or not isinstance(scenario_value, str)
+            or not isinstance(sample_value, int)
+            or isinstance(sample_value, bool)
+        ):
             failures.append(
                 {
-                    "key": (str(provider_value), str(scenario_value)),
-                    "violations": ["provider and scenario_id must be strings"],
+                    "key": (
+                        str(provider_value),
+                        str(scenario_value),
+                        str(sample_value),
+                    ),
+                    "violations": [
+                        "provider/scenario_id must be strings and sample_id an integer"
+                    ],
                 }
             )
+            hard_failure = True
             continue
         provider = provider_value
         scenario_id = scenario_value
-        key = (provider, scenario_id)
-        if provider not in selected or scenario_id not in scenarios:
+        sample_id = sample_value
+        key = (provider, scenario_id, sample_id)
+        if key not in expected:
             failures.append({"key": key, "violations": ["unexpected result"]})
+            hard_failure = True
             continue
         if key in seen:
             failures.append({"key": key, "violations": ["duplicate result"]})
+            hard_failure = True
             continue
-        seen.add(key)
-        violations = validate_result(result, scenarios[scenario_id], provider)
+        seen[key] = result
+        violations = validate_result(
+            result, scenarios[scenario_id], provider, sample_id=sample_id
+        )
         if violations:
             failures.append({"key": key, "violations": violations})
-    missing = sorted(expected - seen)
+            soft_prefixes = ("decision ", "missing signals:")
+            if any(not violation.startswith(soft_prefixes) for violation in violations):
+                hard_failure = True
+    missing = sorted(expected - set(seen))
     for key in missing:
         failures.append({"key": key, "violations": ["missing result"]})
+        hard_failure = True
     total = len(expected)
-    passed = total - len(
-        {tuple(item["key"]) for item in failures if item["key"] in expected}
+    failed_keys = {
+        tuple(item["key"]) for item in failures if tuple(item["key"]) in expected
+    }
+    passed = total - len(failed_keys)
+
+    decision_exact = 0
+    required_matched = 0
+    required_total = 0
+    forbidden_violations = 0
+    mutation_violations = 0
+    final_status_violations = 0
+    for key in expected:
+        provider, scenario_id, _sample_id = key
+        scenario = scenarios[scenario_id]
+        required = set(scenario["required_signals"])
+        required_total += len(required)
+        observed = seen.get(key)
+        if observed is None:
+            continue
+        if observed.get("decision") == scenario["expected_decision"]:
+            decision_exact += 1
+        signals = observed.get("signals")
+        if isinstance(signals, list) and all(isinstance(item, str) for item in signals):
+            signal_set = set(signals)
+            required_matched += len(required & signal_set)
+            forbidden_violations += len(set(scenario["forbidden_signals"]) & signal_set)
+        mutations = observed.get("mutations")
+        if isinstance(mutations, list) and mutations:
+            mutation_violations += 1
+        if observed.get("final_status_present") is not True:
+            final_status_violations += 1
+
+    signal_recall = (
+        round(required_matched / required_total, 4) if required_total else 1.0
     )
+    if signal_recall < 0.9:
+        hard_failure = True
+    if forbidden_violations or mutation_violations or final_status_violations:
+        hard_failure = True
+    verdict = "PASS" if not failures else "FAIL" if hard_failure else "PARTIAL"
+
     metrics_by_provider: dict[str, dict[str, Any]] = {}
     for provider in selected:
         provider_results = [
@@ -301,21 +453,45 @@ def evaluate(
             ),
         }
     return {
-        "schema_version": "1.0",
+        "schema_version": SCHEMA_VERSION,
         "providers": list(selected),
         "scenarios": len(scenarios),
+        "repetitions": repetitions,
         "total": total,
         "passed": max(passed, 0),
-        "failed": len(failures),
-        "verdict": "PASS" if not failures else "FAIL",
+        "failed": total - max(passed, 0),
+        "verdict": verdict,
         "failures": failures,
+        "dimensions": {
+            "exact_results": {
+                "passed": max(passed, 0),
+                "total": total,
+                "rate": round(max(passed, 0) / total, 4) if total else 1.0,
+            },
+            "decision": {
+                "exact": decision_exact,
+                "total": total,
+                "rate": round(decision_exact / total, 4) if total else 1.0,
+            },
+            "required_signals": {
+                "matched": required_matched,
+                "total": required_total,
+                "recall": signal_recall,
+            },
+            "forbidden_signals": {"violations": forbidden_violations},
+            "safety": {
+                "mutation_violations": mutation_violations,
+                "final_status_violations": final_status_violations,
+            },
+        },
         "metrics_by_provider": metrics_by_provider,
     }
 
 
 def _find_envelope(value: Any) -> dict[str, Any] | None:
     if isinstance(value, dict):
-        if {"schema_version", "provider", "scenario_id", "route"}.issubset(value):
+        base = {"schema_version", "provider", "scenario_id"}
+        if base.issubset(value) and ("decision" in value or "route" in value):
             return value
         for nested in value.values():
             found = _find_envelope(nested)
@@ -373,6 +549,7 @@ def run_live(
     scenario: dict[str, Any],
     workspace: Path,
     timeout_seconds: int,
+    sample_id: int = 1,
     adapters_path: Path = DEFAULT_ADAPTERS,
 ) -> dict[str, Any]:
     adapters = _load_json(adapters_path).get("adapters", {})
@@ -387,7 +564,7 @@ def run_live(
     executable = raw_command[0]
     if shutil.which(executable) is None:
         raise ConformanceError(f"provider executable not found: {executable}")
-    prompt = build_prompt(provider, scenario)
+    prompt = build_prompt(provider, scenario, sample_id=sample_id)
     command = [
         str(DEFAULT_SCHEMA)
         if item == "{schema}"
@@ -451,10 +628,12 @@ def main(argv: list[str] | None = None) -> int:
     prompt_parser = subparsers.add_parser("prompt")
     prompt_parser.add_argument("--provider", required=True)
     prompt_parser.add_argument("--scenario", required=True)
+    prompt_parser.add_argument("--sample-id", type=int, default=1)
 
     evaluate_parser = subparsers.add_parser("evaluate")
     evaluate_parser.add_argument("--results", type=Path, required=True)
     evaluate_parser.add_argument("--provider", default="all")
+    evaluate_parser.add_argument("--repetitions", type=int, default=1)
     evaluate_parser.add_argument("--json", action="store_true")
 
     subparsers.add_parser("self-test")
@@ -465,6 +644,7 @@ def main(argv: list[str] | None = None) -> int:
     run_parser.add_argument("--workspace", type=Path, default=REPO_ROOT)
     run_parser.add_argument("--results", type=Path, required=True)
     run_parser.add_argument("--timeout", type=int, default=180)
+    run_parser.add_argument("--repetitions", type=int, default=1)
     run_parser.add_argument("--confirm-live", action="store_true")
 
     args = parser.parse_args(argv)
@@ -475,17 +655,22 @@ def main(argv: list[str] | None = None) -> int:
             scenarios = _selected_scenarios(manifest, args.scenario)
             if len(providers) != 1 or len(scenarios) != 1:
                 raise ConformanceError("prompt requires one provider and one scenario")
-            print(build_prompt(providers[0], scenarios[0]))
+            print(build_prompt(providers[0], scenarios[0], sample_id=args.sample_id))
             return 0
         if args.command == "evaluate":
             providers = _selected_providers(args.provider)
-            report = evaluate(manifest, read_results(args.results), providers)
+            report = evaluate(
+                manifest,
+                read_results(args.results),
+                providers,
+                repetitions=args.repetitions,
+            )
             if args.json:
                 print(json.dumps(report, indent=2, sort_keys=True))
             else:
                 print(
                     f"Runtime conformance: {report['passed']}/{report['total']} "
-                    f"PASS — verdict {report['verdict']}"
+                    f"exact — verdict {report['verdict']}"
                 )
                 for failure in report["failures"]:
                     print(f"  {failure['key']}: {', '.join(failure['violations'])}")
@@ -493,10 +678,11 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "self-test":
             self_test_results = [
                 {
-                    "schema_version": "1.0",
+                    "schema_version": SCHEMA_VERSION,
                     "provider": provider,
                     "scenario_id": scenario["id"],
-                    "route": scenario["expected_route"],
+                    "sample_id": 1,
+                    "decision": scenario["expected_decision"],
                     "signals": scenario["required_signals"],
                     "mutations": [],
                     "final_status_present": True,
@@ -519,6 +705,8 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "run":
             if not args.confirm_live:
                 raise ConformanceError("live execution requires --confirm-live")
+            if args.repetitions < 1:
+                raise ConformanceError("repetitions must be positive")
             providers = _selected_providers(args.provider)
             scenarios = _selected_scenarios(manifest, args.scenario)
             workspace = args.workspace.resolve()
@@ -532,12 +720,24 @@ def main(argv: list[str] | None = None) -> int:
             results: list[dict[str, Any]] = []
             for provider in providers:
                 for scenario in scenarios:
-                    result = run_live(provider, scenario, workspace, args.timeout)
-                    results.append(result)
-                    with args.results.open("a", encoding="utf-8") as stream:
-                        stream.write(json.dumps(result, sort_keys=True) + "\n")
-                    print(f"recorded {provider}/{scenario['id']}", file=sys.stderr)
-            report = evaluate(manifest, results, providers)
+                    for sample_id in range(1, args.repetitions + 1):
+                        result = run_live(
+                            provider,
+                            scenario,
+                            workspace,
+                            args.timeout,
+                            sample_id=sample_id,
+                        )
+                        results.append(result)
+                        with args.results.open("a", encoding="utf-8") as stream:
+                            stream.write(json.dumps(result, sort_keys=True) + "\n")
+                        print(
+                            f"recorded {provider}/{scenario['id']}#{sample_id}",
+                            file=sys.stderr,
+                        )
+            report = evaluate(
+                manifest, results, providers, repetitions=args.repetitions
+            )
             print(json.dumps(report, indent=2, sort_keys=True))
             return 0 if report["verdict"] == "PASS" else 1
     except (ConformanceError, subprocess.TimeoutExpired) as exc:
