@@ -10,7 +10,7 @@
 # Globals expected from the caller (setup.sh):
 #   REPO_ROOT, HOME
 #   AGENTS_SRC, SYSTEM_SRC, PROMPTS_SRC
-#   PI_AGENTS, PI_SYSTEM, PI_PROMPTS
+#   PI_AGENTS, PI_SYSTEM, PI_SKILLS_LINK, PI_PROMPTS
 #   FORCE_GOVERNANCE, SYSTEM_AVAILABLE, PROMPTS_AVAILABLE
 #
 # Side effects (consumed by setup.sh summary):
@@ -21,9 +21,17 @@
 
 # ── Pi entry point ──────────────────────────────────────────────────────────
 pi_install() {
+  pi_install_skills_symlink
   pi_install_agents_symlink
   pi_install_system_symlink
   pi_install_prompts_symlinks
+}
+
+# Pi resolves user skills from ~/.pi/agent/skills. Keep a provider-local link
+# to the Core skills tree so a fresh HOME behaves like an existing install.
+pi_install_skills_symlink() {
+  mkdir -p "$(dirname "$PI_SKILLS_LINK")"
+  symlink_if_absent "$SKILLS_SRC" "$PI_SKILLS_LINK" "Pi: skills"
 }
 
 # 1. ~/.pi/agent/AGENTS.md — symlink to repo's AGENTS.md

@@ -103,6 +103,8 @@ assert_dir_has_files() {
 test -L "$TMP_HOME/.agents/prompts/vibebackbone"
 test -e "$TMP_HOME/.agents/prompts/vibebackbone"
 test -d "$TMP_HOME/.pi/agent/prompts"
+test -L "$TMP_HOME/.pi/agent/skills/vibebackbone"
+test -e "$TMP_HOME/.pi/agent/skills/vibebackbone"
 assert_dir_has_files "$TMP_HOME/.pi/agent/prompts" -type l -name '*.md'
 assert_dir_has_files "$TMP_HOME/.claude/commands" -name 'vbb-*.md'
 assert_dir_has_files "$TMP_HOME/.config/opencode/commands" -name 'vbb-*.md'
@@ -152,6 +154,7 @@ fi
 # Verify clean removal of governance
 test ! -L "$TMP_HOME/.pi/agent/AGENTS.md"
 test ! -L "$TMP_HOME/.pi/agent/SYSTEM.md"
+test ! -e "$TMP_HOME/.pi/agent/skills/vibebackbone"
 
 # Relative HOME paths under /tmp must still produce resolvable global links
 # on macOS, where /tmp is a symlink to /private/tmp.

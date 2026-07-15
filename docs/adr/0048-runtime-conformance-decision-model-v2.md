@@ -77,6 +77,13 @@ compact card; no provider mutation was observed.
 | Fresh Codex runtime is executable | Isolated HOME with fresh generated AGENTS.md plus `gpt-5.4-mini`; FAST-ZERO classified successfully | VALIDATED |
 | Adapter-owned invariants are separated | `derived_signals` is injected by the runner and reported independently from model `signals`; 231 tests pass | VALIDATED |
 
+### Fresh-install full benchmark — 2026-07-15
+
+| Claim | Evidence | Status |
+|---|---|---|
+| Fresh Pi install loads the provider skill tree after installer fix | Pi improved from 4/10 to 6/10 exact; required-signal recall 93.9%; zero mutations | PARTIAL |
+| Fresh Codex install is operational | 8/10 exact on `gpt-5.4-mini`; zero mutations | VALIDATED |
+
 ## Consequences
 
 ### Positive

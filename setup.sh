@@ -53,6 +53,7 @@ CODEX_AGENTS="$HOME/.codex/AGENTS.md"
 
 PI_AGENTS="$HOME/.pi/agent/AGENTS.md"
 PI_SYSTEM="$HOME/.pi/agent/SYSTEM.md"
+PI_SKILLS_LINK="$HOME/.pi/agent/skills/vibebackbone"
 PI_PROMPTS="$HOME/.pi/agent/prompts"
 
 OPENCODE_JSON="$HOME/.config/opencode/opencode.json"
@@ -502,6 +503,11 @@ PY
   if _is_vbb_symlink "$PI_AGENTS" "$AGENTS_SRC"; then
     rm "$PI_AGENTS"
     echo "✓ Removed $PI_AGENTS"
+  fi
+
+  if _is_vbb_symlink "$PI_SKILLS_LINK" "$SKILLS_SRC"; then
+    rm "$PI_SKILLS_LINK"
+    echo "✓ Removed $PI_SKILLS_LINK"
   fi
   if _is_vbb_symlink "$PI_SYSTEM" "$SYSTEM_SRC"; then
     rm "$PI_SYSTEM"
