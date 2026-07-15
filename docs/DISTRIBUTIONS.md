@@ -746,6 +746,23 @@ et hors release gate jusqu'à promotion humaine d'une baseline enregistrée.
 
 **Author**: Brice (demande explicite), Codex — ADR 0047
 
+### 2026-07-15 — Compatibilité des sorties live conservée dans Core
+
+**Decision**: Étendre le parser partagé aux blocs JSON clôturés dans les flux
+d'événements et rendre le vocabulaire canonique des signaux explicite dans le
+manifest, le schéma et le prompt. Ne pas ajouter d'alias spécifique à Pi pour
+les routes divergentes.
+
+**Reason**: Le format d'enveloppe et les identifiants de signaux constituent le
+contrat générique du benchmark. Normaliser `FAST_MINIMAL` ou `CLOSEOUT` dans un
+adaptateur masquerait une non-conformité réelle au lieu de la mesurer.
+
+**Impact**: Pi, OpenCode, Codex et Claude Code héritent de l'extraction additive
+et du même vocabulaire strict. Aucun setup, chemin runtime ou commande provider
+ne change. La baseline Pi live est `FAIL`, 4/10, sans mutation.
+
+**Author**: Brice (demande de lancement), Codex — ADR 0047
+
 ## 9. References
 
 - `README.md` — entry point; "VBB Core vs Distributions" anchors the

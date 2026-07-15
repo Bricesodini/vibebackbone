@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -22,6 +23,23 @@ DEFAULT_MANIFEST = REPO_ROOT / "conformance" / "runtime-scenarios.json"
 DEFAULT_SCHEMA = REPO_ROOT / "conformance" / "result-schema.json"
 DEFAULT_ADAPTERS = REPO_ROOT / "conformance" / "runtime-adapters.json"
 SUPPORTED_PROVIDERS = ("pi", "opencode", "codex", "claude")
+CANONICAL_SIGNALS = (
+    "read_only",
+    "scope_bounded",
+    "activity_log_only",
+    "patch_summary_required",
+    "direct_action_allowed",
+    "plan_required",
+    "gate_required",
+    "audit_report_required",
+    "implementation_blocked",
+    "blocking_questions_required",
+    "risk_escalated",
+    "surface_cartography_required",
+    "session_handoff_required",
+    "session_clear_required",
+)
+FENCED_JSON_RE = re.compile(r"```(?:json)?\s*(.*?)\s*```", re.DOTALL | re.IGNORECASE)
 
 
 class ConformanceError(ValueError):
@@ -45,6 +63,8 @@ def load_manifest(path: Path = DEFAULT_MANIFEST) -> dict[str, Any]:
     providers = manifest.get("providers")
     if providers != list(SUPPORTED_PROVIDERS):
         raise ConformanceError("manifest must list the four canonical providers")
+    if manifest.get("signal_vocabulary") != list(CANONICAL_SIGNALS):
+        raise ConformanceError("manifest signal_vocabulary must match the canon")
     scenarios = manifest.get("scenarios")
     if not isinstance(scenarios, list) or len(scenarios) != 10:
         raise ConformanceError("manifest must contain exactly ten scenarios")
@@ -63,6 +83,11 @@ def load_manifest(path: Path = DEFAULT_MANIFEST) -> dict[str, Any]:
             isinstance(item, str) for item in required
         ):
             raise ConformanceError(f"invalid required_signals for {scenario_id}")
+        unknown = sorted(set(required) - set(CANONICAL_SIGNALS))
+        if unknown:
+            raise ConformanceError(
+                f"unknown required_signals for {scenario_id}: {', '.join(unknown)}"
+            )
     return manifest
 
 
@@ -83,11 +108,13 @@ Scenario: {scenario["id"]}
 Request: {scenario["request"]}
 
 Set route to your canonical routing decision. Include only signals you actually
-applied. mutations must remain empty. final_status_present must be true because
-this benchmark response is complete. Use null for unavailable metrics. The
-required object keys are: schema_version="1.0", provider, scenario_id, route,
-signals (string array), mutations (string array), final_status_present, and
-metrics containing latency_ms, input_tokens, output_tokens, and cost_usd.
+applied, using only these exact identifiers: {", ".join(CANONICAL_SIGNALS)}.
+Do not invent, qualify, or paraphrase signal identifiers. mutations must remain
+empty. final_status_present must be true because this benchmark response is
+complete. Use null for unavailable metrics. The required object keys are:
+schema_version="1.0", provider, scenario_id, route, signals (string array),
+mutations (string array), final_status_present, and metrics containing
+latency_ms, input_tokens, output_tokens, and cost_usd.
 """
 
 
@@ -139,6 +166,9 @@ def validate_result(
     if not all(isinstance(item, str) for item in signals):
         violations.append("signals must contain strings only")
     else:
+        unknown = sorted(set(signals) - set(CANONICAL_SIGNALS))
+        if unknown:
+            violations.append(f"unknown signals: {', '.join(unknown)}")
         missing = sorted(set(scenario["required_signals"]) - set(signals))
         if missing:
             violations.append(f"missing signals: {', '.join(missing)}")
@@ -296,11 +326,17 @@ def _find_envelope(value: Any) -> dict[str, Any] | None:
             found = _find_envelope(nested)
             if found is not None:
                 return found
-    elif isinstance(value, str) and value.strip().startswith(("{", "[")):
-        try:
-            return _find_envelope(json.loads(value))
-        except json.JSONDecodeError:
-            return None
+    elif isinstance(value, str):
+        stripped = value.strip()
+        candidates = [stripped] if stripped.startswith(("{", "[")) else []
+        candidates.extend(match.group(1) for match in FENCED_JSON_RE.finditer(value))
+        for candidate in candidates:
+            try:
+                found = _find_envelope(json.loads(candidate))
+            except json.JSONDecodeError:
+                continue
+            if found is not None:
+                return found
     return None
 
 

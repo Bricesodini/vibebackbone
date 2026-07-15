@@ -12,7 +12,7 @@ pytest tests/test_runtime_conformance.py -q
 ```
 
 This path performs no network request and no LLM call. It validates the 4 × 10
-matrix, route vocabulary, required behavioral signals, read-only policy, result
+matrix, route vocabulary, canonical behavioral-signal vocabulary, read-only policy, result
 schema, duplicate/missing detection, and the live mutation guard.
 
 ## Inspect one benchmark prompt

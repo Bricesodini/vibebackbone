@@ -30,7 +30,28 @@
         "CLOSE-FINAL"
       ]
     },
-    "signals": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "signals": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "read_only",
+          "scope_bounded",
+          "activity_log_only",
+          "patch_summary_required",
+          "direct_action_allowed",
+          "plan_required",
+          "gate_required",
+          "audit_report_required",
+          "implementation_blocked",
+          "blocking_questions_required",
+          "risk_escalated",
+          "surface_cartography_required",
+          "session_handoff_required",
+          "session_clear_required"
+        ]
+      },
+      "uniqueItems": true
+    },
     "mutations": {"type": "array", "items": {"type": "string"}},
     "final_status_present": {"type": "boolean"},
     "metrics": {

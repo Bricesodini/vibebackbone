@@ -38,6 +38,13 @@ def test_manifest_has_ten_scenarios_and_four_providers() -> None:
     manifest = conformance.load_manifest()
     assert manifest["providers"] == ["pi", "opencode", "codex", "claude"]
     assert len(manifest["scenarios"]) == 10
+    assert manifest["signal_vocabulary"] == list(conformance.CANONICAL_SIGNALS)
+    schema = json.loads(
+        (REPO_ROOT / "conformance" / "result-schema.json").read_text(encoding="utf-8")
+    )
+    assert schema["properties"]["signals"]["items"]["enum"] == list(
+        conformance.CANONICAL_SIGNALS
+    )
 
 
 def test_synthetic_four_provider_matrix_passes() -> None:
@@ -99,12 +106,31 @@ def test_extract_envelope_supports_json_wrappers_and_jsonl() -> None:
     assert conformance.extract_envelope(event_stream) == result
 
 
+def test_extract_envelope_supports_pi_fenced_json_event() -> None:
+    manifest = conformance.load_manifest()
+    result = _result("pi", manifest["scenarios"][1])
+    event = {
+        "type": "message_end",
+        "message": {
+            "content": [
+                {
+                    "type": "text",
+                    "text": f"```json\n{json.dumps(result)}\n```",
+                }
+            ]
+        },
+    }
+    assert conformance.extract_envelope(json.dumps(event)) == result
+
+
 def test_prompt_is_read_only_and_provider_bound() -> None:
     scenario = conformance.load_manifest()["scenarios"][0]
     prompt = conformance.build_prompt("opencode", scenario)
     assert "Do not edit" in prompt
     assert "Provider: opencode" in prompt
     assert scenario["request"] in prompt
+    assert "patch_summary_required" in prompt
+    assert "Do not invent, qualify, or paraphrase" in prompt
 
 
 def test_adapter_manifest_covers_four_providers_with_safe_defaults() -> None:

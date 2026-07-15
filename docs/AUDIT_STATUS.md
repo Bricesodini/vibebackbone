@@ -32,6 +32,11 @@ No active P0/P1/P2 risk remains.
 
 ## Latest evidence
 
+- Pi live-conformance compatibility impact analysis:
+  [report](audits/impact-analysis-pi-live-conformance-20260715-0618.md),
+  [live baseline](audits/runtime-conformance-pi-20260715-0619.md), and
+  [run](runs/2026-07-15_0612_pi-live-conformance/01_INTAKE.md). Patch impact:
+  NON_BREAKING; measured Pi semantic conformance: FAIL, 4/10, zero mutations.
 - Runtime conformance benchmark impact analysis:
   [report](audits/impact-analysis-runtime-conformance-20260714-2319.md),
   [test coverage](audits/test-coverage-runtime-conformance-20260714-2329.md),

@@ -25,12 +25,12 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Release posture**: READY; bounded maintenance only
 - **Active run**: none
 - **Latest completed run**:
-  [`2026-07-14_2316_runtime-conformance`](runs/2026-07-14_2316_runtime-conformance/07_CLOSEOUT.md)
+  [`2026-07-15_0612_pi-live-conformance`](runs/2026-07-15_0612_pi-live-conformance/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: preserve READY posture; reopen only on a documented
-  regression
+- **Next action**: remediate Pi's framework-specific route divergence before
+  claiming provider parity; Core remains READY
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
 - **Quality**: [CONVENTIONS.md](CONVENTIONS.md), pillars P1–P5 and P.R1–P.R8
