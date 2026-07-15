@@ -167,6 +167,10 @@ DECISION CARD (mandatory):
    and FINAL are mutually exclusive.
 4. Before returning, check for forbidden signals and for a closeout mode on a
    non-closeout request.
+5. For CLOSEOUT, HANDOFF requires session_handoff_required and forbids
+   session_clear_required; FINAL requires session_clear_required and forbids
+   session_handoff_required. The decision object must contain only its three
+   declared fields.
 
 Return decision with exactly three fields. route_family must be one of:
 {", ".join(ROUTE_FAMILIES)}. pre_gate must be one of: {", ".join(PRE_GATES)}.
@@ -797,8 +801,10 @@ def main(argv: list[str] | None = None) -> int:
                             f"recorded {provider}/{scenario['id']}#{sample_id}",
                             file=sys.stderr,
                         )
+            evaluation_manifest = dict(manifest)
+            evaluation_manifest["scenarios"] = scenarios
             report = evaluate(
-                manifest, results, providers, repetitions=args.repetitions
+                evaluation_manifest, results, providers, repetitions=args.repetitions
             )
             print(json.dumps(report, indent=2, sort_keys=True))
             return 0 if report["verdict"] == "PASS" else 1

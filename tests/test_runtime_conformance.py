@@ -168,6 +168,16 @@ def test_repetitions_are_distinct_expected_samples() -> None:
     assert report["repetitions"] == 3
 
 
+def test_evaluator_supports_scenario_subset() -> None:
+    manifest = conformance.load_manifest()
+    subset = dict(manifest)
+    subset["scenarios"] = [manifest["scenarios"][-1]]
+    result = _result("pi", subset["scenarios"][0])
+    report = conformance.evaluate(subset, [result], ["pi"])
+    assert report["total"] == report["passed"] == 1
+    assert report["verdict"] == "PASS"
+
+
 def test_v1_result_is_rejected_instead_of_silently_upgraded() -> None:
     manifest = conformance.load_manifest()
     scenario = manifest["scenarios"][0]
@@ -226,6 +236,8 @@ def test_prompt_is_read_only_and_provider_bound() -> None:
     assert "DECISION CARD (mandatory)" in prompt
     assert "mutually exclusive" in prompt
     assert "forbidden signals" in prompt
+    assert "session_handoff_required" in prompt
+    assert "session_clear_required" in prompt
 
 
 def test_adapter_manifest_covers_four_providers_with_safe_defaults() -> None:

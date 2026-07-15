@@ -92,6 +92,11 @@ compact card; no provider mutation was observed.
 | `activity_log_only` is a FAST-ZERO/FAST-MINIMAL confusion | Targeted prompt with an explicit route table removes the forbidden signal on FAST-MINIMAL | VALIDATED |
 | Closeout failure is structural | Targeted prompt yields valid HANDOFF and FINAL decision objects; the remaining FINAL miss is `session_clear_required` | PARTIAL |
 
+The targeted POC also exposed and fixed a runner defect: `run --scenario X`
+previously executed only X but evaluated against all ten scenarios. Scenario
+subsets now evaluate against the matching subset; both fresh Pi closeout
+scenarios pass independently.
+
 ## Consequences
 
 ### Positive
