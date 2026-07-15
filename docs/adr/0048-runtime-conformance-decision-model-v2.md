@@ -97,6 +97,11 @@ previously executed only X but evaluated against all ten scenarios. Scenario
 subsets now evaluate against the matching subset; both fresh Pi closeout
 scenarios pass independently.
 
+The first Codex-specific route matrix POC was rejected: it reduced fresh Codex
+conformance from 8/10 to 6/10 and increased omissions. The matrix is therefore
+not promoted to the canonical prompt; Codex remediation remains limited to
+smaller, scenario-scoped interventions.
+
 ## Consequences
 
 ### Positive
