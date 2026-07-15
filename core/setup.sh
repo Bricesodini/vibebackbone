@@ -77,8 +77,9 @@ core_install_skills_symlink() {
 
   mkdir -p "$GLOBAL_SKILLS"
   [ -L "$LINK_NAME" ] && rm "$LINK_NAME"
-  SKILLS_REL="$(relpath "$GLOBAL_SKILLS" "$SKILLS_SRC")"
-  ln -sfn "$SKILLS_REL" "$LINK_NAME"
+  # Use an absolute target: relative links break on macOS when HOME is under
+  # /tmp because /tmp resolves through /private/tmp.
+  ln -sfn "$SKILLS_SRC" "$LINK_NAME"
   echo "✓ ~/.agents/skills/vibebackbone → skills symlink (Pi, OpenCode, Codex)"
 }
 
@@ -92,24 +93,21 @@ core_install_prompts_symlink() {
       else
         # Symlink exists but points to a different source → replace
         rm "$PROMPTS_LINK"
-        PROMPTS_REL="$(relpath "$GLOBAL_PROMPTS" "$PROMPTS_SRC")"
-        ln -sfn "$PROMPTS_REL" "$PROMPTS_LINK"
+        ln -sfn "$PROMPTS_SRC" "$PROMPTS_LINK"
         echo "✓ Prompts: ~/.agents/prompts/vibebackbone symlink updated (was pointing elsewhere)"
       fi
     elif [ -e "$PROMPTS_LINK" ] && [ ! -L "$PROMPTS_LINK" ]; then
       if [ "$FORCE_GOVERNANCE" = true ]; then
         backup_file "$PROMPTS_LINK"
         rm -rf "$PROMPTS_LINK"
-        PROMPTS_REL="$(relpath "$GLOBAL_PROMPTS" "$PROMPTS_SRC")"
-        ln -sfn "$PROMPTS_REL" "$PROMPTS_LINK"
+        ln -sfn "$PROMPTS_SRC" "$PROMPTS_LINK"
         echo "✓ Prompts: ~/.agents/prompts/vibebackbone backed up and symlinked"
       else
         echo "⚠ Prompts: existing custom ~/.agents/prompts/vibebackbone skipped"
       fi
     else
       [ -L "$PROMPTS_LINK" ] && rm "$PROMPTS_LINK"
-      PROMPTS_REL="$(relpath "$GLOBAL_PROMPTS" "$PROMPTS_SRC")"
-      ln -sfn "$PROMPTS_REL" "$PROMPTS_LINK"
+      ln -sfn "$PROMPTS_SRC" "$PROMPTS_LINK"
       echo "✓ Prompts: ~/.agents/prompts/vibebackbone symlinked"
     fi
   fi

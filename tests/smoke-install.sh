@@ -101,6 +101,7 @@ assert_dir_has_files() {
 }
 
 test -L "$TMP_HOME/.agents/prompts/vibebackbone"
+test -e "$TMP_HOME/.agents/prompts/vibebackbone"
 test -d "$TMP_HOME/.pi/agent/prompts"
 assert_dir_has_files "$TMP_HOME/.pi/agent/prompts" -type l -name '*.md'
 assert_dir_has_files "$TMP_HOME/.claude/commands" -name 'vbb-*.md'
@@ -116,6 +117,7 @@ grep -n "structured-task.*1-p-vbb-structured-task.md" "$TMP_HOME/.codex/AGENTS.m
 
 # Check skills + governance still deployed
 test -L "$TMP_HOME/.agents/skills/vibebackbone"
+test -e "$TMP_HOME/.agents/skills/vibebackbone"
 grep -n "vibebackbone/AGENTS.md" "$TMP_HOME/.claude/CLAUDE.md" >/dev/null
 grep -n "vibebackbone/SYSTEM.md" "$TMP_HOME/.claude/CLAUDE.md" >/dev/null
 grep -n "vibebackbone:generated:start" "$TMP_HOME/.codex/AGENTS.md" >/dev/null
@@ -150,5 +152,13 @@ fi
 # Verify clean removal of governance
 test ! -L "$TMP_HOME/.pi/agent/AGENTS.md"
 test ! -L "$TMP_HOME/.pi/agent/SYSTEM.md"
+
+# Relative HOME paths under /tmp must still produce resolvable global links
+# on macOS, where /tmp is a symlink to /private/tmp.
+TMP_HOME_UNDER_TMP="$(mktemp -d /tmp/vbb-smoke-home.XXXXXX)"
+HOME="$TMP_HOME_UNDER_TMP" bash "$ROOT/setup.sh" --provider pi --no-interactive >/dev/null
+test -e "$TMP_HOME_UNDER_TMP/.agents/skills/vibebackbone"
+test -e "$TMP_HOME_UNDER_TMP/.agents/prompts/vibebackbone"
+rm -rf "$TMP_HOME_UNDER_TMP"
 
 echo "✓ smoke install passed"

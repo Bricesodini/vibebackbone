@@ -62,6 +62,13 @@ compact card; no provider mutation was observed.
 | Pi benefits from the canonical prompt correction | 10/10 exact, 33/33 required signals, zero forbidden signals, zero mutations | VALIDATED |
 | Codex benefits from the canonical prompt correction | 22/30 exact across three repetitions versus 20/30 before correction; zero mutations | PARTIAL |
 
+### Installer correction — 2026-07-15
+
+| Claim | Evidence | Status |
+|---|---|---|
+| Global skill and prompt links resolve on fresh installs | Absolute symlinks verified under `/Users` and `/tmp`; smoke test now asserts `-e` | VALIDATED |
+| Installer lifecycle remains safe | Fresh install, reinstall, migration and uninstall smoke test pass | VALIDATED |
+
 ## Consequences
 
 ### Positive
