@@ -15,8 +15,8 @@
     "metrics"
   ],
   "properties": {
-    "schema_version": {"const": "2.0"},
-    "provider": {"enum": ["pi", "opencode", "codex", "claude"]},
+    "schema_version": {"type": "string", "const": "2.0"},
+    "provider": {"type": "string", "enum": ["pi", "opencode", "codex", "claude"]},
     "scenario_id": {"type": "string", "minLength": 1},
     "sample_id": {"type": "integer", "minimum": 1},
     "decision": {
@@ -24,9 +24,9 @@
       "additionalProperties": false,
       "required": ["route_family", "pre_gate", "closeout_mode"],
       "properties": {
-        "route_family": {"enum": ["FAST-ZERO", "FAST-MINIMAL", "FAST-STANDARD", "STRUCTURED", "AUDIT", "ENGINE_ONLY", "CLOSEOUT"]},
-        "pre_gate": {"enum": ["NONE", "MVP_START"]},
-        "closeout_mode": {"enum": ["NONE", "HANDOFF", "FINAL"]}
+        "route_family": {"type": "string", "enum": ["FAST-ZERO", "FAST-MINIMAL", "FAST-STANDARD", "STRUCTURED", "AUDIT", "ENGINE_ONLY", "CLOSEOUT"]},
+        "pre_gate": {"type": "string", "enum": ["NONE", "MVP_START"]},
+        "closeout_mode": {"type": "string", "enum": ["NONE", "HANDOFF", "FINAL"]}
       }
     },
     "signals": {
@@ -48,8 +48,7 @@
           "session_handoff_required",
           "session_clear_required"
         ]
-      },
-      "uniqueItems": true
+      }
     },
     "mutations": {"type": "array", "items": {"type": "string"}},
     "final_status_present": {"type": "boolean"},

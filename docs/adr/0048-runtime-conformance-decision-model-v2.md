@@ -26,6 +26,23 @@ explicit repeated samples through a one-based `sample_id`.
 The v2 evaluator stays strict. It does not silently upgrade v1 provider output;
 historical v1 evidence remains reproducible from Git history.
 
+### POC validation — 2026-07-15
+
+The live A/B POC confirmed that a compact decision card and contradiction
+self-check materially improve Pi exact conformance (27/30 versus 12/30 on the
+same three repetitions). Codex `gpt-5.4-mini` was initially blocked by schema
+features outside its structured-output subset; the result schema was made
+portable by adding explicit primitive types and removing `uniqueItems`, which
+does not change the evaluator's semantic checks. Codex then completed 10/10
+calls with seven exact results under the baseline prompt and seven under the
+compact card; no provider mutation was observed.
+
+| Claim | Evidence | Status |
+|---|---|---|
+| Pi compact card improves exact conformance | 27/30 versus 12/30 on identical scenarios and repetitions | VALIDATED |
+| Codex `gpt-5.4-mini` is runnable | 10/10 calls completed after schema portability fix | VALIDATED |
+| Schema portability fix preserves semantic checks | 230 tests passed; architecture lint passed; zero mutations | VALIDATED |
+
 ## Consequences
 
 ### Positive
