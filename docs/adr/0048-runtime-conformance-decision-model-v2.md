@@ -43,6 +43,14 @@ compact card; no provider mutation was observed.
 | Codex `gpt-5.4-mini` is runnable | 10/10 calls completed after schema portability fix | VALIDATED |
 | Schema portability fix preserves semantic checks | 230 tests passed; architecture lint passed; zero mutations | VALIDATED |
 
+### Follow-up POCs — 2026-07-15
+
+| Claim | Evidence | Status |
+|---|---|---|
+| Codex result is repeatable | `gpt-5.4-mini`, compact card, 20/30 exact across three repetitions; zero mutations | PARTIAL |
+| Card and self-check have separable effects | Pi targeted causal POC: card-only 2/4, self-check-only 1/4, combined prior POC 3/4 | PARTIAL |
+| Infrastructure-derived safety signals explain all misses | No complete baseline replay with derived scoring yet | UNVALIDATED |
+
 ## Consequences
 
 ### Positive
