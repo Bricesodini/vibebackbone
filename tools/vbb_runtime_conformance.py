@@ -158,6 +158,14 @@ Scenario: {scenario["id"]}
 Sample: {sample_id}
 Request: {scenario["request"]}
 
+DECISION CARD (mandatory):
+1. Select exactly one route_family, pre_gate, and closeout_mode.
+2. Declare read_only and scope_bounded for every bounded read-only run.
+3. Use closeout_mode NONE unless the request explicitly asks to close; HANDOFF
+   and FINAL are mutually exclusive.
+4. Before returning, check for forbidden signals and for a closeout mode on a
+   non-closeout request.
+
 Return decision with exactly three fields. route_family must be one of:
 {", ".join(ROUTE_FAMILIES)}. pre_gate must be one of: {", ".join(PRE_GATES)}.
 closeout_mode must be one of: {", ".join(CLOSEOUT_MODES)}. MVP_START is a

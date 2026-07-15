@@ -215,6 +215,9 @@ def test_prompt_is_read_only_and_provider_bound() -> None:
     assert "MVP_START is a" in prompt
     assert "Do not spawn or delegate to subagents" in prompt
     assert "CLOSEOUT" in prompt and "HANDOFF" in prompt and "FINAL" in prompt
+    assert "DECISION CARD (mandatory)" in prompt
+    assert "mutually exclusive" in prompt
+    assert "forbidden signals" in prompt
 
 
 def test_adapter_manifest_covers_four_providers_with_safe_defaults() -> None:

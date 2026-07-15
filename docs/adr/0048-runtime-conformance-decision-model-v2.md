@@ -26,6 +26,10 @@ explicit repeated samples through a one-based `sample_id`.
 The v2 evaluator stays strict. It does not silently upgrade v1 provider output;
 historical v1 evidence remains reproducible from Git history.
 
+The canonical benchmark prompt now includes the validated decision card and
+contradiction self-check. This changes prompt salience only; it does not alter
+the route vocabulary, signal taxonomy, or evaluator semantics.
+
 ### POC validation — 2026-07-15
 
 The live A/B POC confirmed that a compact decision card and contradiction
