@@ -10,6 +10,7 @@
     "sample_id",
     "decision",
     "signals",
+    "derived_signals",
     "mutations",
     "final_status_present",
     "metrics"
@@ -49,6 +50,10 @@
           "session_clear_required"
         ]
       }
+    },
+    "derived_signals": {
+      "type": "array",
+      "items": {"type": "string"}
     },
     "mutations": {"type": "array", "items": {"type": "string"}},
     "final_status_present": {"type": "boolean"},

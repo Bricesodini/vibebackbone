@@ -17,8 +17,9 @@ matrix, decision vocabulary, canonical behavioral-signal vocabulary, required
 and forbidden signals, read-only policy, result schema, duplicate/missing sample
 detection, and the live mutation guard.
 
-Reports expose four dimensions: exact results, decision fidelity, required
-signal recall, and safety/contradiction violations. `PASS` means exact
+Reports expose separate declared-signal and adapter-derived-signal dimensions,
+alongside exact results, decision fidelity, and safety/contradiction
+violations. `PASS` means exact
 conformance. `PARTIAL` is limited to non-dangerous decision or small signal
 misses. Invalid envelopes, missing samples, mutation, contradictory signals,
 or required-signal recall below 90% produce `FAIL`.

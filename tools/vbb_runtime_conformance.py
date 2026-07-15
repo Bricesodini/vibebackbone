@@ -177,7 +177,9 @@ Do not invent, qualify, or paraphrase signal identifiers. mutations must remain
 empty. final_status_present must be true because this benchmark response is
 complete. Use null for unavailable metrics. The required object keys are:
 schema_version="2.0", provider, scenario_id, sample_id, decision, signals
-(string array), mutations (string array), final_status_present, and metrics
+(string array), derived_signals (string array; return [] because the runner
+supplies the authoritative value),
+mutations (string array), final_status_present, and metrics
 containing latency_ms, input_tokens, output_tokens, and cost_usd.
 """
 
@@ -196,6 +198,7 @@ def validate_result(
         "sample_id",
         "decision",
         "signals",
+        "derived_signals",
         "mutations",
         "final_status_present",
         "metrics",
@@ -210,6 +213,7 @@ def validate_result(
         "sample_id": int,
         "decision": dict,
         "signals": list,
+        "derived_signals": list,
         "mutations": list,
         "final_status_present": bool,
         "metrics": dict,
@@ -265,6 +269,15 @@ def validate_result(
         forbidden = sorted(set(scenario["forbidden_signals"]) & set(signals))
         if forbidden:
             violations.append(f"forbidden signals: {', '.join(forbidden)}")
+    derived_signals = result.get("derived_signals", [])
+    if not all(isinstance(item, str) for item in derived_signals):
+        violations.append("derived_signals must contain strings only")
+    else:
+        unknown_derived = sorted(set(derived_signals) - set(CANONICAL_SIGNALS))
+        if unknown_derived:
+            violations.append(
+                f"unknown derived signals: {', '.join(unknown_derived)}"
+            )
     mutations = result["mutations"]
     if mutations:
         violations.append("read-only scenario reported mutations")
@@ -387,6 +400,7 @@ def evaluate(
     decision_exact = 0
     required_matched = 0
     required_total = 0
+    derived_required_matched = 0
     forbidden_violations = 0
     mutation_violations = 0
     final_status_violations = 0
@@ -405,6 +419,9 @@ def evaluate(
             signal_set = set(signals)
             required_matched += len(required & signal_set)
             forbidden_violations += len(set(scenario["forbidden_signals"]) & signal_set)
+        derived = observed.get("derived_signals")
+        if isinstance(derived, list) and all(isinstance(item, str) for item in derived):
+            derived_required_matched += len(required & set(derived))
         mutations = observed.get("mutations")
         if isinstance(mutations, list) and mutations:
             mutation_violations += 1
@@ -486,6 +503,13 @@ def evaluate(
                 "total": required_total,
                 "recall": signal_recall,
             },
+            "derived_signals": {
+                "matched": derived_required_matched,
+                "total": required_total,
+                "recall": round(
+                    derived_required_matched / required_total, 4
+                ) if required_total else 1.0,
+            },
             "forbidden_signals": {"violations": forbidden_violations},
             "safety": {
                 "mutation_violations": mutation_violations,
@@ -552,6 +576,15 @@ def _git_snapshot(workspace: Path) -> str:
     return process.stdout
 
 
+def derive_runtime_signals(provider: str, result: dict[str, Any]) -> list[str]:
+    """Return invariants established by the adapter, not by the model."""
+    mutations = result.get("mutations")
+    read_only_adapters = {"pi", "codex", "claude"}
+    if provider in read_only_adapters and isinstance(mutations, list) and not mutations:
+        return ["read_only"]
+    return []
+
+
 def run_live(
     provider: str,
     scenario: dict[str, Any],
@@ -604,6 +637,7 @@ def run_live(
         detail = process.stderr.strip().splitlines()[-1:] or ["no stderr"]
         raise ConformanceError(f"{provider} exited {process.returncode}: {detail[0]}")
     result = extract_envelope(process.stdout)
+    result["derived_signals"] = derive_runtime_signals(provider, result)
     metrics = result.get("metrics")
     if isinstance(metrics, dict) and metrics.get("latency_ms") is None:
         metrics["latency_ms"] = latency_ms
@@ -692,6 +726,7 @@ def main(argv: list[str] | None = None) -> int:
                     "sample_id": 1,
                     "decision": scenario["expected_decision"],
                     "signals": scenario["required_signals"],
+                    "derived_signals": [],
                     "mutations": [],
                     "final_status_present": True,
                     "metrics": {

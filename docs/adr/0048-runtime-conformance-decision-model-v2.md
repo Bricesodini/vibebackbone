@@ -69,6 +69,14 @@ compact card; no provider mutation was observed.
 | Global skill and prompt links resolve on fresh installs | Absolute symlinks verified under `/Users` and `/tmp`; smoke test now asserts `-e` | VALIDATED |
 | Installer lifecycle remains safe | Fresh install, reinstall, migration and uninstall smoke test pass | VALIDATED |
 
+### Signal separation and fresh authenticated runtimes — 2026-07-15
+
+| Claim | Evidence | Status |
+|---|---|---|
+| Fresh Pi runtime is executable | Isolated HOME with fresh governance plus temporary model configuration; FAST-ZERO classified successfully | VALIDATED |
+| Fresh Codex runtime is executable | Isolated HOME with fresh generated AGENTS.md plus `gpt-5.4-mini`; FAST-ZERO classified successfully | VALIDATED |
+| Adapter-owned invariants are separated | `derived_signals` is injected by the runner and reported independently from model `signals`; 231 tests pass | VALIDATED |
+
 ## Consequences
 
 ### Positive

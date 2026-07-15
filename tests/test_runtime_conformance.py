@@ -24,6 +24,7 @@ def _result(provider: str, scenario: dict, sample_id: int = 1) -> dict:
         "sample_id": sample_id,
         "decision": scenario["expected_decision"],
         "signals": scenario["required_signals"],
+        "derived_signals": [],
         "mutations": [],
         "final_status_present": True,
         "metrics": {
@@ -69,6 +70,13 @@ def test_synthetic_four_provider_matrix_passes() -> None:
     assert report["metrics_by_provider"]["codex"]["results"] == 10
     assert report["metrics_by_provider"]["codex"]["cost_usd_total"] is None
     assert report["dimensions"]["required_signals"]["recall"] == 1.0
+    assert report["dimensions"]["derived_signals"]["recall"] == 0.0
+
+
+def test_runtime_derived_signal_is_adapter_owned() -> None:
+    result = _result("codex", conformance.load_manifest()["scenarios"][0])
+    assert conformance.derive_runtime_signals("codex", result) == ["read_only"]
+    assert conformance.derive_runtime_signals("opencode", result) == []
 
 
 @pytest.mark.parametrize(
