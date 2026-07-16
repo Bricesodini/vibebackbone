@@ -3,7 +3,7 @@ context_role: moc-central
 phase: transverse
 status: active
 run_id: permanent
-updated: 2026-07-14
+updated: 2026-07-16
 temporal_provenance: TEMPORAL_PROVENANCE.md
 ---
 
@@ -25,12 +25,12 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 - **Release posture**: READY; bounded maintenance only
 - **Active run**: none
 - **Latest completed run**:
-  [`2026-07-15_0636_conformance-v2`](runs/2026-07-15_0636_conformance-v2/07_CLOSEOUT.md)
+  [`2026-07-15_1100_real-pocs`](runs/2026-07-15_1100_real-pocs/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: sample Pi against benchmark v2 before claiming provider
-  parity; Core remains READY
+- **Next action**: keep Core unchanged; reopen hypothesis POCs only when their
+  documented environment/corpus triggers are available
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
 - **Quality**: [CONVENTIONS.md](CONVENTIONS.md), pillars P1–P5 and P.R1–P.R8

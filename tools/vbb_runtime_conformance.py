@@ -270,8 +270,7 @@ def validate_result(
         if unknown:
             violations.append(f"unknown signals: {', '.join(unknown)}")
         missing = sorted(
-            (set(scenario["required_signals"]) - DERIVED_SIGNAL_NAMES)
-            - set(signals)
+            (set(scenario["required_signals"]) - DERIVED_SIGNAL_NAMES) - set(signals)
         )
         if missing:
             violations.append(f"missing signals: {', '.join(missing)}")
@@ -284,9 +283,7 @@ def validate_result(
     else:
         unknown_derived = sorted(set(derived_signals) - set(CANONICAL_SIGNALS))
         if unknown_derived:
-            violations.append(
-                f"unknown derived signals: {', '.join(unknown_derived)}"
-            )
+            violations.append(f"unknown derived signals: {', '.join(unknown_derived)}")
     mutations = result["mutations"]
     if mutations:
         violations.append("read-only scenario reported mutations")
@@ -524,14 +521,15 @@ def evaluate(
                 "matched": effective_matched,
                 "total": effective_total,
                 "recall": round(effective_matched / effective_total, 4)
-                if effective_total else 1.0,
+                if effective_total
+                else 1.0,
             },
             "derived_signals": {
                 "matched": derived_required_matched,
                 "total": required_total,
-                "recall": round(
-                    derived_required_matched / required_total, 4
-                ) if required_total else 1.0,
+                "recall": round(derived_required_matched / required_total, 4)
+                if required_total
+                else 1.0,
             },
             "forbidden_signals": {"violations": forbidden_violations},
             "safety": {

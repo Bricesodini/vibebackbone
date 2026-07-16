@@ -2,7 +2,7 @@
 context_role: audit-dashboard
 phase: transverse
 status: active
-updated: 2026-07-14
+updated: 2026-07-16
 temporal_provenance: TEMPORAL_PROVENANCE.md
 ---
 
@@ -31,6 +31,14 @@ remains the review reference for this solo-maintained repository.
 No active P0/P1/P2 risk remains.
 
 ## Latest evidence
+
+- Real hypothesis POCs:
+  [report](audits/real-hypothesis-pocs-20260715-1118.md) and
+  [run closeout](runs/2026-07-15_1100_real-pocs/07_CLOSEOUT.md). H-003,
+  H-005, H-006 and H-007 remain PIVOT; no Core integration authorized.
+- Initial hypothesis POC campaign:
+  [report](audits/hypothesis-poc-20260715-1042.md) and
+  [run](runs/2026-07-15_1015_hypothesis-poc/02_AUDIT_REPORT.md).
 
 - Runtime conformance v2 impact analysis:
   [report](audits/impact-analysis-conformance-v2-20260715-0642.md),
