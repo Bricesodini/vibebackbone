@@ -63,6 +63,11 @@ by every agent profile. Reference-only content is cited by path, not duplicated.
     detection is defense in depth, not proof of absence: humans and agents must
     still verify manually before each commit, and every justified example
     exception must remain visible in review.
+14. **Governed capitalization:** every qualified implementation is examined at
+    closeout for reusable learning. Promotion requires evidence appropriate to
+    the claimed scope, knowledge audit, independent review, human approval and
+    migration to one final authority. Canonical knowledge changes only through
+    a new governed version; see `docs/ENGINEERING_KNOWLEDGE_GOVERNANCE.md`.
 
 ## Runtime Behavior
 
@@ -116,4 +121,6 @@ only as best-effort.
 - `docs/SESSION_RULES.md` — session transitions and escalation procedure
 - `docs/CONVENTIONS.md` — quality pillars and P.R1-P.R8
 - `docs/ARCHITECTURE.md` — canonical structured architecture source
+- `docs/ENGINEERING_KNOWLEDGE_GOVERNANCE.md` — learning maturity, evidence,
+  promotion and supersession
 - `PROMPTS_ARCHITECTURE.md` — prompt layers and prompt short-name mapping

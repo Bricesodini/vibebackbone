@@ -294,6 +294,36 @@ gouvernance, les adaptateurs provider, la CI ou l'outillage sensible doit être
 référencée dans `docs/ARCHITECTURE.md`. Le lint bloque si un fichier sensible
 n'est pas couvert par un bloc `files:`.
 
+### 3.7 La boucle d'apprentissage gouvernée
+
+Un `PASS` répond à la question « le développement est-il correctement
+qualifié ? ». Il ne répond pas à la question « ce travail a-t-il produit une
+connaissance réutilisable ? ».
+
+Chaque closeout examine donc cette seconde question :
+
+```text
+Livraison qualifiée → Knowledge Harvest
+→ Observation éventuelle
+→ Audit de connaissance
+→ Revue indépendante
+→ Décision humaine
+→ Intégration dans une autorité unique
+```
+
+Il n'existe pas de phase 08. Une observation retenue ouvre un nouveau run qui
+réutilise les sept phases. La fiche de connaissance, le playbook, le run, la
+review et le closeout documentent le chemin ; ils ne deviennent jamais
+l'autorité.
+
+Les preuves sont jugées selon leur indépendance dans le périmètre revendiqué,
+pas selon un simple nombre de projets. Une connaissance canonique ne se corrige
+pas directement : une nouvelle version repasse par la boucle et supersède
+l'ancienne.
+
+Référence canonique :
+[`docs/ENGINEERING_KNOWLEDGE_GOVERNANCE.md`](docs/ENGINEERING_KNOWLEDGE_GOVERNANCE.md).
+
 ---
 
 ## 4. Installation et configuration
@@ -1158,10 +1188,11 @@ REVIEW → EXECUTION      ✅ Obligatoire (si modifs)
 | `docs/AUDIT_STATUS.md` | Tableau de bord audits |
 | `docs/PILOTAGE.md` | Référence triage |
 | `docs/AGENTIC_RUN_PROTOCOL.md` | Référence 7 phases |
+| `docs/ENGINEERING_KNOWLEDGE_GOVERNANCE.md` | Boucle de capitalisation gouvernée |
 | `prompts/t-p-vbb-phase-router.md` | Quel prompt utiliser ? |
 | `PROMPTS_ARCHITECTURE.md` | Architecture des prompts |
 
-### Les 6 principes irréductibles
+### Les 7 principes irréductibles
 
 ```
 1. 1 session = 1 rôle = 1 intention = 1 sortie exploitable
@@ -1170,6 +1201,8 @@ REVIEW → EXECUTION      ✅ Obligatoire (si modifs)
 4. Artefact nommé à chaque phase importante
 5. Handoff explicite à la fin de chaque phase
 6. Escalade immédiate si le risque change de classe
+7. Tout PASS déclenche un Knowledge Harvest ; aucune promotion sans audit,
+   revue indépendante et décision humaine
 ```
 
 ---

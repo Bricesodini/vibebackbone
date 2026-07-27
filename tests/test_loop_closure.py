@@ -59,6 +59,11 @@ def _make_artifact(path: Path, run_id: str, phase: str, voie: str) -> None:
     path.write_text(_VALID_FM.format(run_id=run_id, phase=phase, voie=voie))
 
 
+def _add_frontmatter_fields(path: Path, fields: str) -> None:
+    content = path.read_text()
+    path.write_text(content.replace("---\n", f"---\n{fields}", 1))
+
+
 def _run(run_id: str, runs_dir: Path, extra_args=None):
     """Invoke vbb-loop-closure-check.py and return (returncode, stdout, stderr)."""
     cmd = [sys.executable, str(TOOL)]
@@ -112,6 +117,162 @@ def test_audit_complete():
         rc, out, _ = _run(rid, Path(tmp))
         assert rc == 0, f"Expected exit 0, got {rc}\n{out}"
         assert "PASS" in out
+
+
+def test_historical_run_without_knowledge_version_remains_valid():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2026-01-01_1000_historical"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "RAPIDE")
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 0, out
+
+
+def test_governance_v1_accepts_valid_harvest():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2026-01-01_1000_knowledge-valid"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "RAPIDE")
+        _add_frontmatter_fields(
+            d / "01_INTAKE.md", 'knowledge_governance_version: "1.0"\n'
+        )
+        _add_frontmatter_fields(
+            d / "07_CLOSEOUT.md",
+            'knowledge_governance_version: "1.0"\nknowledge_harvest: "NONE"\n',
+        )
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 0, out
+        assert "Knowledge Harvest disposition" in out
+
+
+def test_post_cutover_run_cannot_omit_knowledge_governance():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2099-01-01_1000_knowledge-omitted"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "RAPIDE")
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 1, out
+        assert "knowledge_governance_version is required" in out
+        assert "knowledge_harvest" in out
+
+
+def test_governance_v1_accepts_observation_recorded():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2099-01-01_1000_knowledge-observation"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "RAPIDE")
+        _add_frontmatter_fields(
+            d / "01_INTAKE.md", 'knowledge_governance_version: "1.0"\n'
+        )
+        _add_frontmatter_fields(
+            d / "07_CLOSEOUT.md",
+            'knowledge_governance_version: "1.0"\n'
+            'knowledge_harvest: "OBSERVATION_RECORDED"\n',
+        )
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 0, out
+
+
+def test_governance_v1_accepts_evidence_linked():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2099-01-01_1000_knowledge-evidence"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "RAPIDE")
+        _add_frontmatter_fields(
+            d / "01_INTAKE.md", 'knowledge_governance_version: "1.0"\n'
+        )
+        _add_frontmatter_fields(
+            d / "07_CLOSEOUT.md",
+            'knowledge_governance_version: "1.0"\n'
+            'knowledge_harvest: "EVIDENCE_LINKED"\n',
+        )
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 0, out
+
+
+def test_governance_v1_rejects_version_mismatch():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2099-01-01_1000_knowledge-mismatch"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "RAPIDE")
+        _add_frontmatter_fields(
+            d / "01_INTAKE.md", 'knowledge_governance_version: "1.0"\n'
+        )
+        _add_frontmatter_fields(
+            d / "07_CLOSEOUT.md",
+            'knowledge_governance_version: "2.0"\nknowledge_harvest: "NONE"\n',
+        )
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 1, out
+        assert "must match 01_INTAKE.md" in out
+
+
+def test_governance_rejects_unsupported_version():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2099-01-01_1000_knowledge-unsupported"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "RAPIDE")
+        _add_frontmatter_fields(
+            d / "01_INTAKE.md", 'knowledge_governance_version: "2.0"\n'
+        )
+        _add_frontmatter_fields(
+            d / "07_CLOSEOUT.md",
+            'knowledge_governance_version: "2.0"\nknowledge_harvest: "NONE"\n',
+        )
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 1, out
+        assert "unsupported '2.0'" in out
+
+
+def test_governance_v1_rejects_missing_harvest():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2026-01-01_1000_knowledge-missing"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "RAPIDE")
+        _add_frontmatter_fields(
+            d / "01_INTAKE.md", 'knowledge_governance_version: "1.0"\n'
+        )
+        _add_frontmatter_fields(
+            d / "07_CLOSEOUT.md", 'knowledge_governance_version: "1.0"\n'
+        )
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 1, out
+        assert "knowledge_harvest" in out
+
+
+def test_governance_v1_rejects_invalid_harvest():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2026-01-01_1000_knowledge-invalid"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "RAPIDE")
+        _add_frontmatter_fields(
+            d / "01_INTAKE.md", 'knowledge_governance_version: "1.0"\n'
+        )
+        _add_frontmatter_fields(
+            d / "07_CLOSEOUT.md",
+            'knowledge_governance_version: "1.0"\nknowledge_harvest: "PROMOTED"\n',
+        )
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 1, out
+        assert "PROMOTED" in out
 
 
 def test_cloture_complete():

@@ -91,20 +91,27 @@ It does NOT:
    - HANDOFF
 3. Apply escalation rule:
    if risk increases, upgrade path immediately.
-4. **Check UI/UX trigger** (before any skill selection):
+4. **Check engineering-knowledge trigger**:
+   If the request asks to qualify, promote, canonicalize, correct or supersede
+   a reusable engineering learning, pattern, anti-pattern, test strategy or
+   practice → route to `AUDIT` minimum under
+   `docs/ENGINEERING_KNOWLEDGE_GOVERNANCE.md`.
+   Require a distinct independent review and human decision before promotion.
+   Route approved canonical integration to a separate `STRUCTURED` run.
+5. **Check UI/UX trigger** (before any skill selection):
    If the request contains UI/UX coherence, visual architecture,
    graphic centralization, or surface mapping intent → set mode to
    `ENGINE_ONLY` and route to `4-vbb-user-experience-engine` (pass 1).
    Do NOT route directly to any VISUAL pass (pass 4 or later).
    Do NOT treat as a single-skill task.
-5. Identify required context files:
+6. Identify required context files:
    - `SESSION.md`
    - `CONTEXT.md`
    - `AUDIT_STATUS.md`
    - `PROJECT_MODE.md`
-6. Select next skill(s).
-7. If multiple steps are required, propose an ordered execution sequence.
-8. For UI/UX ENGINE_ONLY mode: emit the full pipeline sequence,
+7. Select next skill(s).
+8. If multiple steps are required, propose an ordered execution sequence.
+9. For UI/UX ENGINE_ONLY mode: emit the full pipeline sequence,
    not just the next step.
 
 ## UI/UX ENGINE_ONLY RULE
@@ -143,6 +150,9 @@ Output must contain:
 FAST | STRUCTURED | AUDIT | HANDOFF
 
 **Special:** ENGINE_ONLY (front pipeline, passes 1–7) — see UI/UX ENGINE_ONLY RULE
+
+For engineering-knowledge promotion, output the two-step route:
+`AUDIT` qualification → human decision → `STRUCTURED` canonical integration.
 
 ### Justification
 

@@ -2,7 +2,7 @@
 context_role: audit-dashboard
 phase: transverse
 status: active
-updated: 2026-07-16
+updated: 2026-07-27
 temporal_provenance: TEMPORAL_PROVENANCE.md
 ---
 
@@ -23,6 +23,19 @@ dashboard verdict, and an unenforced long-run declaration. ADR 0046 remediation
 is merged on `main`; local P.R2, exact-SHA remote CI, clean-main checks and a
 fresh read-only revalidation now pass. The existing independent READY baseline
 remains the review reference for this solo-maintained repository.
+
+## Latest governance integration
+
+- `KNO-GOV-001` — engineering-knowledge governance is `INTEGRATED`. The audit,
+  impact analysis, GO POC, final human decision and two-stage independent
+  integration review are complete. ADR 0049 is `ACCEPTED`; the Core contract,
+  Knowledge Harvest gate, tests and four-distribution propagation are active.
+- Evidence:
+  [`integration closeout`](runs/2026-07-27_1712_engineering-knowledge-core-integration/07_CLOSEOUT.md),
+  [`independent review`](runs/2026-07-27_1712_engineering-knowledge-core-integration/06_REVIEW_RUN_02.md),
+  [`test coverage`](audits/test-coverage-engineering-knowledge-governance-20260727-1750.md),
+  [`impact analysis`](audits/impact-analysis-engineering-knowledge-governance-20260727-1612.md),
+  [`ADR 0049`](adr/0049-engineering-knowledge-governance.md).
 
 ## Active risks
 

@@ -1,0 +1,129 @@
+---
+knowledge_id: "KNO-<NNNN>"
+version: "1"
+maturity: "<OBSERVATION|CANDIDATE|VALIDATED|CANONICAL>"
+candidate_type: "<PATTERN|ANTI_PATTERN|QUALIFICATION_METHOD|TEST_STRATEGY|ENGINEERING_PRACTICE>"
+claimed_scope: ""
+owner: ""
+status: "<ACTIVE|REJECTED|SUPERSEDED>"
+source_observations: []
+independent_validations: []
+knowledge_audit: null
+independent_review: null
+human_decision: null
+final_authority: null
+supersedes: null
+---
+
+# Knowledge record — <KNO-NNNN title>
+
+> This record is an evidence dossier, never a normative authority. After
+> promotion it keeps history and links to the final authority without
+> duplicating the canonical rule.
+
+## Claim
+
+### Reusable hypothesis
+
+<What may be reusable?>
+
+### Mechanism
+
+<Why should the claimed outcome occur?>
+
+### Expected outcome
+
+<Observable result>
+
+## Scope
+
+### Claimed scope
+
+<Where the claim is intended to apply>
+
+### Explicit non-scope
+
+<Where it does not apply>
+
+### Applicability conditions
+
+- <condition>
+
+### Disconfirmation conditions
+
+- <condition that would weaken or reject the claim>
+
+## Evidence
+
+### Source observations
+
+| Source | Context | Outcome | Provenance |
+|---|---|---|---|
+| | | | |
+
+### Independent validations
+
+| Validation | Occurrence | Context | Actor | Method | Assumptions | Result |
+|---|---|---|---|---|---|---|
+| A | | | | | | |
+| B | | | | | | |
+
+### Counter-evidence and failed validations
+
+| Source | Result | Effect on claim |
+|---|---|---|
+| | | |
+
+## Independence assessment
+
+- **Occurrence independence**: <demonstrated|not demonstrated + evidence>
+- **Context independence**: <demonstrated|not demonstrated + evidence>
+- **Actor independence**: <demonstrated|not demonstrated + evidence>
+- **Method independence**: <demonstrated|not demonstrated + evidence>
+- **Shared assumptions**: <list>
+- **Sufficiency for claimed scope**: <yes|no + rationale>
+
+## Qualification
+
+### Reproducible method
+
+<Exact method, test or validation procedure>
+
+### Knowledge audit
+
+- **Artifact**: <path>
+- **Verdict**: <READY|PARTIAL|BLOCKED|UNKNOWN>
+
+### Independent review
+
+- **Artifact**: <path>
+- **Reviewer distinct from auditor**: <yes|no>
+- **Verdict**: <APPROVED|APPROVED_WITH_RESERVATIONS|CHANGES_REQUIRED|REJECTED>
+
+### Human decision
+
+- **Decision maker**: <human>
+- **Decision**: <APPROVED|REJECTED|NARROWED|DEFERRED>
+- **Date**: <YYYY-MM-DD>
+- **Approved scope**: <scope or null>
+
+## Canonical integration
+
+- **Final authority type**: <GOVERNANCE|ENGINEERING_STANDARD|CONTRACT|ADR>
+- **Final authority path**: <path or null>
+- **Competing normative copies removed**: <yes|no|not applicable>
+- **Integration review**: <path or null>
+- **Regression control**: <test/check>
+
+## Version and supersession
+
+- **Prior canonical version**: <id/version or null>
+- **Supersedes**: <id/version or null>
+- **Prior version remains traceable**: <yes|no>
+- **Semantic direct edit performed**: `no`
+
+## History
+
+| Date | Maturity | Decision | Evidence |
+|---|---|---|---|
+| | | | |

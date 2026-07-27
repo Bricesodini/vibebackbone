@@ -4,6 +4,8 @@ phase: "07_CLOSEOUT"
 voie: "<RAPIDE|STRUCTUREE|AUDIT|CLOTURE>"
 status: "<READY|PARTIAL|BLOCKED|UNKNOWN>"
 kind: "<HANDOFF|CLOSEOUT>"   # HANDOFF if status != READY or next_action != null; CLOSEOUT otherwise
+knowledge_governance_version: "1.0"
+knowledge_harvest: "<NONE|OBSERVATION_RECORDED|EVIDENCE_LINKED>"
 agent: "<claude-code|codex|pi|opencode>"
 started_at: "<YYYY-MM-DDTHH:MM:SSZ>"
 ended_at: "<YYYY-MM-DDTHH:MM:SSZ>"
@@ -44,6 +46,15 @@ artifacts_produced:
 ## Points ouverts
 
 - <ce qui reste à faire, à arbitrer, à surveiller>
+
+## Knowledge Harvest
+
+- **Disposition**: `NONE` | `OBSERVATION_RECORDED` | `EVIDENCE_LINKED`
+- **Question**: What reusable engineering learning did this work produce?
+- **Observation or candidate**: <knowledge record path or "none">
+- **Evidence linked**: <run/review/test paths or "none">
+- **Promotion performed here**: `no` — closeout may record or link evidence,
+  never promote knowledge
 
 ## Passe qualité scopée (ADR-0029)
 

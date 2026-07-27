@@ -62,6 +62,19 @@ Do not read only the patch summary. Examine the actual files.
 
 ## Expected work
 
+### Independent knowledge-review mode
+
+When reviewing a knowledge candidate, strict separation is mandatory:
+
+- reviewer ≠ candidate author;
+- reviewer ≠ knowledge auditor;
+- self-review is not accepted.
+
+The review must challenge evidence provenance, independence in the claimed
+scope, counter-evidence, scope inflation, final-authority uniqueness and
+supersession/regression controls. It recommends; it does not promote or modify
+the dossier.
+
 ### Step 1 — Verify the scope
 
 Compare:

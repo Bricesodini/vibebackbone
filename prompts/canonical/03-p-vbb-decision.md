@@ -55,6 +55,17 @@ If earlier decisions exist in the session, review them first.
 
 ## Expected work
 
+### Knowledge-promotion boundary
+
+When the decision concerns reusable engineering knowledge:
+
+- consume the completed knowledge audit and distinct independent review;
+- treat the agent output as a recommendation until a human explicitly decides;
+- allow `APPROVED`, `REJECTED`, `NARROWED` or `DEFERRED`;
+- record the approved scope and final authority;
+- never infer approval from a delivery `PASS`, audit verdict or review verdict;
+- hand approved integration to a separately gated `STRUCTURED` run.
+
 ### Step 1 — Restate the decision question
 
 Identify the central question the decision must answer.
@@ -169,6 +180,10 @@ Create `03_DECISION_RECORD.md` in `docs/runs/`.
 **Provide**: this decision record + imposed constraints
 **Watch points**: [accepted risks to monitor during execution]
 ```
+
+For a knowledge promotion, the decision maker recorded in the artifact must be
+human; the decision maker must be human. Automation may validate completeness
+but may not decide promotion.
 
 ---
 

@@ -15,6 +15,7 @@ source: ARCHITECTURE.md
 ```mermaid
 graph TD
   governance-core["Governance Core<br/>governance · active"]
+  engineering-knowledge-governance["Engineering Knowledge Governance<br/>governance · active"]
   skills-catalog["Skills Catalog<br/>distribution · active"]
   prompt-library["Prompt Library<br/>distribution · active"]
   contract-tooling["Contract Tooling<br/>tooling · active"]
@@ -23,9 +24,11 @@ graph TD
   quality-conventions["Quality Conventions<br/>governance · active"]
   audit-memory["Audit Memory<br/>data · active"]
   external-dependencies["External Dependencies<br/>external · active"]
+  engineering-knowledge-governance --> governance-core
   skills-catalog --> governance-core
   prompt-library --> governance-core
   prompt-library --> skills-catalog
+  prompt-library --> engineering-knowledge-governance
   contract-tooling --> skills-catalog
   contract-tooling --> governance-core
   architecture-source --> governance-core
@@ -35,8 +38,10 @@ graph TD
   distribution-setup --> prompt-library
   quality-conventions --> governance-core
   quality-conventions --> architecture-source
+  quality-conventions --> engineering-knowledge-governance
   audit-memory --> governance-core
   audit-memory --> architecture-source
+  audit-memory --> engineering-knowledge-governance
   external-dependencies --> governance-core
   external-dependencies --> architecture-source
 ```
@@ -45,6 +50,7 @@ graph TD
 
 | Block | Risks |
 |-------|-------|
+| `engineering-knowledge-governance` | KNO-001: A candidate, playbook or run can create parallel truth if treated as authority.; KNO-002: Scope inflation can promote evidence beyond the independence it demonstrates. |
 | `skills-catalog` | SKILL-001: Contract index drift reduces route and runtime coverage. |
 | `contract-tooling` | TOOL-003: Credentials enforcement is shared by the staged hook and commit-range CI through tools/vbb-credentials-gate.py (ADR-0033); detection is differential and intentionally not exhaustive.; TOOL-005: Effective readiness conservatively combines documentary truth with local Git, source-integrity and open-risk measurements; strict closure validates declared long-run timing fields (ADR-0046). |
 | `architecture-source` | ARCH-001: The projection must never become a competing source of truth. |
@@ -54,12 +60,13 @@ graph TD
 
 | Block | Depends on | Impacts | Files |
 |-------|------------|---------|-------|
-| `governance-core` | - | task triage, audit routing, session startup, session closeout | `AGENTS.md`, `SYSTEM.md`, `docs/CONTEXT.md`, `docs/PILOTAGE.md`, `docs/PROJECT_MODE.md`, `docs/SESSION_RULES.md`, `docs/CONVENTIONS.md`, `skills/vibebackbone/**` |
+| `governance-core` | - | task triage, audit routing, session startup, session closeout, engineering knowledge promotion | `AGENTS.md`, `SYSTEM.md`, `docs/CONTEXT.md`, `docs/PILOTAGE.md`, `docs/PROJECT_MODE.md`, `docs/SESSION_RULES.md`, `docs/CONVENTIONS.md`, `skills/vibebackbone/**` |
+| `engineering-knowledge-governance` | `governance-core` | audit routing, decision authority, independent review, session closeout, canonical change integration, knowledge record lifecycle | `docs/ENGINEERING_KNOWLEDGE_GOVERNANCE.md`, `docs/templates/KNOWLEDGE_RECORD.md.template` |
 | `skills-catalog` | `governance-core` | route execution, audit skills, structured task support | `skills/*/SKILL.md`, `skills/*/CONTRACT.yaml`, `skills/INDEX.yaml`, `docs/REFERENCE/scoped-audit-protocol.md` |
-| `prompt-library` | `governance-core`, `skills-catalog` | session entry, user-facing workflow selection, provider command generation | `prompts/*.md`, `prompts/canonical/*.md`, `PROMPTS_ARCHITECTURE.md` |
+| `prompt-library` | `governance-core`, `skills-catalog`, `engineering-knowledge-governance` | session entry, user-facing workflow selection, provider command generation | `prompts/*.md`, `prompts/canonical/*.md`, `PROMPTS_ARCHITECTURE.md` |
 | `contract-tooling` | `skills-catalog`, `governance-core` | CI confidence, release readiness, implementation-readiness audits | `pyproject.toml`, `requirements-dev.txt`, `tools/vbb-contract-lint.py`, `tools/vbb-contract-runtime.py`, `tools/vbb-executor.py`, `tools/vbb-phase-router.py`, `tools/vbb-project-init.py`, `tools/vbb-status-dashboard.py`, `tools/vbb-loop-closure-check.py`, `tools/vbb-gate-check.py`, `tools/vbb-credentials-gate.py`, `tools/vbb_run_resolution.py`, `tools/vbb_runtime_conformance.py`, `conformance/**`, `scripts/hooks/pre-commit-framework-gate`, `scripts/install-vbb-hooks.sh` |
 | `architecture-source` | `governance-core`, `contract-tooling` | dependency mapping, refactoring impact analysis, sensitive zone visualization, agentic coding framing | `docs/ARCHITECTURE.md`, `docs/RELATIONS.md`, `docs/adr/*.md`, `docs/PILOTAGE.md`, `tools/vbb-architecture.py`, `tests/test_vbb_architecture.py`, `scripts/vbb-ci-local.sh`, `.github/workflows/vbb-contracts.yml`, `skills/t-vbb-dependency-mapper/SKILL.md`, `skills/t-vbb-impact-analyzer/SKILL.md` |
 | `distribution-setup` | `governance-core`, `skills-catalog`, `prompt-library` | Claude Code integration, Codex integration, Pi integration, OpenCode integration | `setup.sh`, `setup-lib.sh`, `core/setup.sh`, `distributions/claude/setup.sh`, `distributions/codex/setup.sh`, `distributions/pi/setup.sh`, `distributions/opencode/setup.sh`, `conformance/**`, `tools/vbb_runtime_conformance.py`, `tests/test_setup_smoke.sh`, `scripts/vbb-ci-local.sh`, `.github/workflows/vbb-contracts.yml`, `docs/DEPLOYMENT.md` |
-| `quality-conventions` | `governance-core`, `architecture-source` | code readability standards, module organization, canonical change discipline, test quality, documentation standards, error handling consistency, invariant protection, regression prevention | `docs/CONVENTIONS.md`, `docs/templates/CANON_CHANGE_PROPOSAL.md.template`, `docs/runs/2026-05-29_1000_robustness-audit/ROBUSTNESS_AUDIT.md`, `docs/runs/2026-05-29_1000_robustness-audit/PILLAR_5_PROPOSAL.md` |
-| `audit-memory` | `governance-core`, `architecture-source` | session resume, release readiness, implementation risk register | `docs/AUDIT_STATUS.md`, `docs/audits/*.md`, `docs/archive/**/*.md`, `docs/runs/**/*.md`, `docs/TEMPORAL_PROVENANCE.md`, `docs/TECH_DEBT.md`, `docs/templates/CANON_CHANGE_PROPOSAL.md.template` |
+| `quality-conventions` | `governance-core`, `architecture-source`, `engineering-knowledge-governance` | code readability standards, module organization, canonical change discipline, test quality, documentation standards, error handling consistency, invariant protection, regression prevention | `docs/CONVENTIONS.md`, `docs/templates/CANON_CHANGE_PROPOSAL.md.template`, `docs/runs/2026-05-29_1000_robustness-audit/ROBUSTNESS_AUDIT.md`, `docs/runs/2026-05-29_1000_robustness-audit/PILLAR_5_PROPOSAL.md` |
+| `audit-memory` | `governance-core`, `architecture-source`, `engineering-knowledge-governance` | session resume, release readiness, implementation risk register | `docs/AUDIT_STATUS.md`, `docs/audits/*.md`, `docs/archive/**/*.md`, `docs/runs/**/*.md`, `docs/TEMPORAL_PROVENANCE.md`, `docs/TECH_DEBT.md`, `docs/templates/CANON_CHANGE_PROPOSAL.md.template` |
 | `external-dependencies` | `governance-core`, `architecture-source` | impact analysis, cross-service coordination, install posture, supported-provider runtime posture | `docs/ARCHITECTURE.md`, `docs/DISTRIBUTIONS.md` |

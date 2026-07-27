@@ -29,6 +29,28 @@ No parallel truth. No competing canonical logic. No silent divergence.
 
 ---
 
+## Foundational principle — Governed capitalization
+
+Every qualified implementation is examined for reusable engineering learning.
+Learning is not promoted by plausibility or by a delivery `PASS`.
+
+Promotion requires:
+
+1. evidence independent enough for the claimed scope;
+2. a knowledge audit;
+3. a distinct independent review;
+4. an explicit human decision;
+5. integration into one final authority.
+
+Knowledge records, playbooks, guides, runs, reviews and closeouts document the
+path; they are not the final authority. Canonical knowledge is immutable and
+evolves only through a new governed version that supersedes the prior one.
+
+The complete lifecycle and documentary boundaries are canonical in
+[`ENGINEERING_KNOWLEDGE_GOVERNANCE.md`](ENGINEERING_KNOWLEDGE_GOVERNANCE.md).
+
+---
+
 ## P.R1–P.R8 — Operational Principles
 
 Ces 8 principes opérationnels s'appliquent à TOUT run VBB (toutes routes, tous workers). Chaque SOUL.md y fait référence.

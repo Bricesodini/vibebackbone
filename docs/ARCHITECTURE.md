@@ -43,6 +43,7 @@ responsibilities:
   - Define route families and escalation rules
   - Preserve document hierarchy
   - Prevent parallel truth between governance, sessions and code
+  - Require governed capitalization after qualified implementation
   - Keep AGENTS.md as a compact source file, not a recursively generated artifact
 depends_on: []
 impacts:
@@ -50,6 +51,7 @@ impacts:
   - audit routing
   - session startup
   - session closeout
+  - engineering knowledge promotion
 files:
   - AGENTS.md
   - SYSTEM.md
@@ -70,6 +72,47 @@ risks:
   - id: GOV-001
     level: P2
     note: Governance duplication can create conflicting operational truth.
+```
+
+## Bloc: Engineering Knowledge Governance
+
+```yaml
+id: engineering-knowledge-governance
+type: governance
+status: active
+role: Single authority for reusable engineering-learning maturity, evidence,
+  independent review, human promotion and governed supersession.
+responsibilities:
+  - Require Knowledge Harvest at formal closeout
+  - Separate delivery PASS from knowledge promotion
+  - Define OBSERVATION, CANDIDATE, VALIDATED and CANONICAL maturity
+  - Qualify evidence independence against the claimed scope
+  - Require knowledge audit, distinct independent review and human decision
+  - Move promoted rules to one final authority
+  - Prevent direct semantic edits to canonical knowledge versions
+depends_on:
+  - governance-core
+impacts:
+  - audit routing
+  - decision authority
+  - independent review
+  - session closeout
+  - canonical change integration
+  - knowledge record lifecycle
+files:
+  - docs/ENGINEERING_KNOWLEDGE_GOVERNANCE.md
+  - docs/templates/KNOWLEDGE_RECORD.md.template
+contracts: []
+tests:
+  - tests/test_loop_closure.py
+  - tests/test_engineering_knowledge_governance.py
+risks:
+  - id: KNO-001
+    level: P1
+    note: A candidate, playbook or run can create parallel truth if treated as authority.
+  - id: KNO-002
+    level: P1
+    note: Scope inflation can promote evidence beyond the independence it demonstrates.
 ```
 
 ## Bloc: Skills Catalog
@@ -121,6 +164,7 @@ responsibilities:
 depends_on:
   - governance-core
   - skills-catalog
+  - engineering-knowledge-governance
 impacts:
   - session entry
   - user-facing workflow selection
@@ -336,6 +380,7 @@ responsibilities:
 depends_on:
   - governance-core
   - architecture-source
+  - engineering-knowledge-governance
 impacts:
   - code readability standards
   - module organization
@@ -381,6 +426,7 @@ responsibilities:
 depends_on:
   - governance-core
   - architecture-source
+  - engineering-knowledge-governance
 impacts:
   - session resume
   - release readiness

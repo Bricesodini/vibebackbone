@@ -92,6 +92,19 @@ For a specialized audit type (security, integrity, operations, CI, legal, etc.),
 - Legal/Compliance: `skills/2-vbb-legal/SKILL.md`
 - Systemic risks: `skills/2-vbb-systemic-risk/SKILL.md`
 
+For a knowledge audit, also read
+`docs/ENGINEERING_KNOWLEDGE_GOVERNANCE.md` and the candidate record. Verify:
+
+- at least two validations independent in the claimed scope;
+- occurrence, context, actor, method and assumption independence;
+- reproducible qualification;
+- counter-evidence and failed validations;
+- claimed scope versus demonstrated scope;
+- proposed final authority and competing normative copies.
+
+A knowledge audit never promotes. It hands off to a distinct independent
+knowledge review.
+
 ---
 
 ## Evidence discipline
@@ -228,6 +241,10 @@ Update `docs/AUDIT_STATUS.md` with the verdict.
 **Provide**: this report + list of priority findings
 **Watch points**: [risks to address first]
 ```
+
+For knowledge candidates, the next phase is `06_REVIEW` in a distinct session
+before any human promotion decision. The reviewer consumes the audit and the
+candidate dossier; the audit author cannot fill that role.
 
 ---
 

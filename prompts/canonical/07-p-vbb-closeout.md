@@ -38,6 +38,7 @@ The CLOSEOUT must answer:
 4. Which risks remain open?
 5. Which items remain unresolved?
 6. What session is recommended next?
+7. What reusable engineering learning, if any, should be recorded or linked?
 
 ---
 
@@ -140,6 +141,23 @@ Decide—and **record** the decision in the closeout (never skip silently):
 
 **Trace (mandatory in 07_CLOSEOUT.md §Scoped quality pass):**
 `EXECUTED` (+ linked report) | `SKIPPED (low risk)` | `N/A (docs-only)`.
+
+### Step 4ter — Knowledge Harvest
+
+Every formal closeout must answer:
+
+> What reusable engineering learning did this work produce?
+
+Record exactly one disposition:
+
+- `NONE`;
+- `OBSERVATION_RECORDED` with a knowledge-record path;
+- `EVIDENCE_LINKED` with a candidate path and evidence links.
+
+The closeout may record an observation or link evidence. It must never promote
+knowledge, generalize beyond the evidence or copy a normative rule. Promotion
+uses the separate lifecycle in
+`docs/ENGINEERING_KNOWLEDGE_GOVERNANCE.md`.
 
 ### Step 5 — Recommend the next session
 
@@ -245,6 +263,13 @@ Create `07_CLOSEOUT.md` in `docs/runs/`.
 - [ ] [Open item 1 — priority: high/medium/low]
 - [ ] [Open item 2]
 
+## Knowledge Harvest
+
+- **Disposition**: NONE | OBSERVATION_RECORDED | EVIDENCE_LINKED
+- **Observation or candidate**: [path or none]
+- **Evidence linked**: [paths or none]
+- **Promotion performed here**: no
+
 ## Official memory updated
 
 - `docs/SESSION.md`: ✅ cleared / updated
@@ -308,6 +333,7 @@ The CLOSEOUT is complete when:
 - ✅ Decisions are consolidated
 - ✅ Remaining risks are listed with their status
 - ✅ Open items are listed
+- ✅ Knowledge Harvest disposition is explicit
 - ✅ The next session is identified (when required)
 - ✅ `docs/SESSION.md` is updated
 - ✅ `docs/CONTEXT.md` is updated (status, link, decisions, open items, next action)

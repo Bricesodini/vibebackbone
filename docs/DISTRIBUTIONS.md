@@ -175,6 +175,25 @@ that triggered the decision.
 
 <!-- Add entries below as decisions are made -->
 
+### 2026-07-27 — Engineering knowledge governance promoted to Core (ADR-0049)
+
+**Decision**: keep Knowledge Harvest, maturity, evidence independence,
+independent knowledge review, human promotion, unique final authority and
+governed supersession in Core.
+
+**Trigger**: a qualified implementation produced reusable learning that the
+existing delivery governance could not mature or promote safely.
+
+**Reason**: the lifecycle is technology-, project- and provider-neutral.
+Implementing it in an adapter would create divergent promotion authority.
+
+**Impact**: Pi, OpenCode, Codex and Claude Code inherit the same closeout
+question, routing and promotion gates. Adapter paths, secrets and runtime
+configuration do not change. Each distribution must pass its existing setup
+smoke test after Core integration.
+
+**Author**: Brice (explicit final approval), Codex — ADR 0049
+
 ### 2026-07-14 — Section-aware dashboard verdict parsing (ADR-0045)
 **Decision**: keep canonical verdict parsing and its closed vocabulary in Core.
 **Trigger**: final READY reconciliation exposed generated `UNKNOWN`.

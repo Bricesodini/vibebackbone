@@ -31,13 +31,16 @@ updated: 2026-07-14
 | Sujet | Fichier |
 |-------|--------|
 | Conventions qualité | [`CONVENTIONS.md`](CONVENTIONS.md) |
+| Gouvernance de la connaissance d'ingénierie | [`ENGINEERING_KNOWLEDGE_GOVERNANCE.md`](ENGINEERING_KNOWLEDGE_GOVERNANCE.md) |
 | Template de changement de canon | [`templates/CANON_CHANGE_PROPOSAL.md.template`](templates/CANON_CHANGE_PROPOSAL.md.template) |
+| Template de dossier de connaissance | [`templates/KNOWLEDGE_RECORD.md.template`](templates/KNOWLEDGE_RECORD.md.template) |
 
 ## Protocole agentique
 
 | Sujet | Fichier |
 |-------|---------|
 | Les 7 phases | [`AGENTIC_RUN_PROTOCOL.md`](AGENTIC_RUN_PROTOCOL.md) |
+| Boucle d'apprentissage gouvernée | [`ENGINEERING_KNOWLEDGE_GOVERNANCE.md`](ENGINEERING_KNOWLEDGE_GOVERNANCE.md) |
 | Readiness avant implementation MVP | [`MVP_START_PROTOCOL.md`](MVP_START_PROTOCOL.md) |
 | Règles de session (rester / changer) | [`SESSION_RULES.md`](SESSION_RULES.md) |
 | Mémoire officielle vs conversation | [`MEMORY_AND_HANDOFF.md`](MEMORY_AND_HANDOFF.md) |

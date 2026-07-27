@@ -55,6 +55,7 @@ Exemple : `0001-choix-framework-api.md`
 | [0043](0043-domain-verdict-runtime-status-orthogonality.md) | Domain verdict and runtime status orthogonality | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_2115_verdict-status-boundary/) |
 | [0044](0044-agent-facing-skill-english-convention.md) | Agent-facing skill English convention | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_2145_skill-english-migration/) |
 | [0045](0045-section-aware-dashboard-verdict-parsing.md) | Section-aware dashboard verdict parsing | ACCEPTED | 2026-07-14 | [Run](../runs/2026-07-14_2245_dashboard-ready-parser/) |
+| [0049](0049-engineering-knowledge-governance.md) | Engineering knowledge governance | ACCEPTED | 2026-07-27 | [Run](../runs/2026-07-27_1612_engineering-knowledge-governance/) |
 | [0013-arch](0013-repo-organization-core-vs-distributions.md) | Repo organization Core vs Distributions | — | — | — |
 
 ## Conventions

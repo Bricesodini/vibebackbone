@@ -51,6 +51,7 @@ import argparse
 import importlib.util as _importlib_util
 import time
 import yaml
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -120,6 +121,13 @@ LONG_RUN_EXTENSIONS: Dict[str, Tuple[int, ...]] = {
     "CLOTURE": (180,),
 }
 
+KNOWLEDGE_GOVERNANCE_VERSION = "1.0"
+KNOWLEDGE_GOVERNANCE_CUTOVER_KEY = "2026-07-27_1712"
+KNOWLEDGE_GOVERNANCE_CUTOVER_AT = datetime(2026, 7, 27, 15, 12, 21, tzinfo=timezone.utc)
+KNOWLEDGE_HARVEST_DISPOSITIONS = frozenset(
+    {"NONE", "OBSERVATION_RECORDED", "EVIDENCE_LINKED"}
+)
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -152,6 +160,110 @@ def read_frontmatter(path: Path) -> Tuple[Optional[Dict], Optional[str]]:
         return None, f"YAML error in frontmatter: {exc}"
 
     return fm, None
+
+
+def _knowledge_governance_required(
+    run_dir: Path, intake_fm: Dict, closeout_fm: Dict
+) -> bool:
+    """Return whether the non-retroactive knowledge contract applies."""
+    if intake_fm.get("knowledge_governance_version") or closeout_fm.get(
+        "knowledge_governance_version"
+    ):
+        return True
+
+    run_key_match = re.match(r"^(\d{4}-\d{2}-\d{2}_\d{4})", run_dir.name)
+    after_named_cutover = bool(
+        run_key_match and run_key_match.group(1) >= KNOWLEDGE_GOVERNANCE_CUTOVER_KEY
+    )
+
+    after_timestamp_cutover = False
+    for frontmatter in (intake_fm, closeout_fm):
+        started_at = frontmatter.get("started_at")
+        if isinstance(started_at, datetime):
+            parsed = started_at
+        elif started_at:
+            try:
+                parsed = datetime.fromisoformat(str(started_at).replace("Z", "+00:00"))
+            except ValueError:
+                continue
+        else:
+            continue
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        if parsed.astimezone(timezone.utc) >= KNOWLEDGE_GOVERNANCE_CUTOVER_AT:
+            after_timestamp_cutover = True
+            break
+
+    # FAST-MINIMAL runs have neither intake nor closeout and are outside this
+    # closeout-level contract. Every run using either governed artifact is in.
+    return bool(intake_fm or closeout_fm) and (
+        after_named_cutover or after_timestamp_cutover
+    )
+
+
+def validate_knowledge_harvest(run_dir: Path) -> List[str]:
+    """Validate Knowledge Harvest for all runs governed since the v1 cutover.
+
+    The cutover is derived from immutable run identity or ``started_at``;
+    declaring the version is not an opt-in. Earlier runs remain valid.
+    """
+    intake_path = run_dir / "01_INTAKE.md"
+    closeout_path = run_dir / "07_CLOSEOUT.md"
+    intake_fm, intake_error = (
+        read_frontmatter(intake_path) if intake_path.exists() else ({}, None)
+    )
+    closeout_fm, closeout_error = (
+        read_frontmatter(closeout_path) if closeout_path.exists() else ({}, None)
+    )
+
+    errors: List[str] = []
+    if intake_error:
+        return [f"01_INTAKE.md: {intake_error}"]
+    if closeout_error:
+        return [f"07_CLOSEOUT.md: {closeout_error}"]
+
+    intake_fm = intake_fm or {}
+    closeout_fm = closeout_fm or {}
+    if not _knowledge_governance_required(run_dir, intake_fm, closeout_fm):
+        return errors
+
+    intake_version = str(intake_fm.get("knowledge_governance_version", ""))
+    closeout_version = str(closeout_fm.get("knowledge_governance_version", ""))
+    if intake_path.exists() and not intake_version:
+        errors.append(
+            "01_INTAKE.md: knowledge_governance_version is required "
+            f"since cutover {KNOWLEDGE_GOVERNANCE_CUTOVER_KEY}"
+        )
+    if not closeout_path.exists():
+        errors.append("07_CLOSEOUT.md: missing Knowledge Harvest for governance v1")
+        return errors
+    if not closeout_version:
+        errors.append(
+            "07_CLOSEOUT.md: knowledge_governance_version is required "
+            f"since cutover {KNOWLEDGE_GOVERNANCE_CUTOVER_KEY}"
+        )
+    for artifact, version in (
+        ("01_INTAKE.md", intake_version),
+        ("07_CLOSEOUT.md", closeout_version),
+    ):
+        if version and version != KNOWLEDGE_GOVERNANCE_VERSION:
+            errors.append(
+                f"{artifact}: knowledge_governance_version unsupported "
+                f"'{version}' (expected '{KNOWLEDGE_GOVERNANCE_VERSION}')"
+            )
+    if intake_version and closeout_version and closeout_version != intake_version:
+        errors.append(
+            "07_CLOSEOUT.md: knowledge_governance_version must match 01_INTAKE.md"
+        )
+
+    disposition = str((closeout_fm or {}).get("knowledge_harvest", "")).strip()
+    if disposition not in KNOWLEDGE_HARVEST_DISPOSITIONS:
+        allowed = ", ".join(sorted(KNOWLEDGE_HARVEST_DISPOSITIONS))
+        errors.append(
+            "07_CLOSEOUT.md: knowledge_harvest must be one of "
+            f"{allowed}; observed '{disposition or 'missing'}'"
+        )
+    return errors
 
 
 # ---------------------------------------------------------------------------
@@ -823,6 +935,17 @@ def check_run(
             errors.extend(long_run_errors)
         else:
             report.append("  ✓ long-run declarations")
+
+    knowledge_errors = validate_knowledge_harvest(run_dir)
+    if knowledge_errors:
+        errors.extend(knowledge_errors)
+    elif intake_path.exists() and closeout_path.exists():
+        intake_fm, _ = read_frontmatter(intake_path)
+        closeout_fm, _ = read_frontmatter(closeout_path)
+        if (intake_fm or {}).get("knowledge_governance_version") or (
+            closeout_fm or {}
+        ).get("knowledge_governance_version"):
+            report.append("  ✓ Knowledge Harvest disposition")
 
     # P0-3 — test audit on STRUCTUREE/AUDIT/CLOSEOUT
     if validate_test_audit_for_voies and voie in validate_test_audit_for_voies:

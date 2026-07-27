@@ -61,11 +61,25 @@ Full details (sequences, alternatives, artifact conventions): [ROUTER_MATRIX.md]
 
 ```
 0. New MVP/from-zero or incomplete RICO ? → MVP START gate
-1. Touches data/auth/prod ? → STRUCTURED minimum
-2. Touches security/integrity/compliance ? → AUDIT
-3. Neither ? → FAST
-4. End of session ? → CLOSE-HANDOFF (paused, reprise attendue) or CLOSE-FINAL (terminated): t-vbb-commit-ready → git commit → git push → update SESSION.md (archive if HANDOFF, empty if FINAL) → update CONTEXT.md
+1. Promotes or changes reusable engineering knowledge ? → AUDIT minimum
+2. Touches data/auth/prod ? → STRUCTURED minimum
+3. Touches security/integrity/compliance ? → AUDIT
+4. Neither ? → FAST
+5. End of session ? → CLOSE-HANDOFF (paused, reprise attendue) or CLOSE-FINAL (terminated): t-vbb-commit-ready → git commit → git push → update SESSION.md (archive if HANDOFF, empty if FINAL) → update CONTEXT.md
 ```
+
+### Engineering knowledge gate
+
+Every formal closeout performs the Knowledge Harvest defined in
+[`ENGINEERING_KNOWLEDGE_GOVERNANCE.md`](ENGINEERING_KNOWLEDGE_GOVERNANCE.md).
+
+- Recording an observation or linking evidence does not change the delivery
+  verdict.
+- Qualifying or promoting a candidate enters `AUDIT` minimum.
+- Promotion requires a knowledge audit, a distinct independent review and an
+  explicit human decision.
+- Canonical integration then uses a separately gated `STRUCTURED` run.
+- No FAST route may promote, edit or supersede canonical knowledge.
 
 ### Pre-execution gate
 
@@ -261,6 +275,8 @@ Principle: "Fail open = fail dangerous."
 4. `docs/AUDIT_STATUS.md` → audit dashboard
 5. `docs/audits/` · `docs/runs/` → on demand
 6. `docs/CONVENTIONS.md` → quality conventions (5 pillars: Readability, Modularity, Coherence, Traçabilité, Robustness P.R1-P.R8)
+7. `docs/ENGINEERING_KNOWLEDGE_GOVERNANCE.md` → reusable-learning maturity,
+   evidence, review, promotion and supersession
 
 ## Quality standards
 

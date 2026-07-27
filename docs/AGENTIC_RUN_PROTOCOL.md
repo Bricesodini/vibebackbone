@@ -89,6 +89,24 @@ Hard escalations:
 07 CLOSEOUT →  consolide (toutes voies)
 ```
 
+## Governed learning after delivery
+
+The delivery cycle does not promote reusable knowledge. Its closeout performs a
+Knowledge Harvest and records `NONE`, `OBSERVATION_RECORDED` or
+`EVIDENCE_LINKED`.
+
+If an observation merits qualification, it opens a separate run:
+
+```text
+Observation → Candidate → Knowledge audit → Independent review
+→ Human decision → Structured integration → Canonical
+```
+
+That run reuses phases 01–07. There is no phase 08, and the knowledge record,
+run, review and closeout remain evidence rather than authority. The canonical
+lifecycle lives in
+[`ENGINEERING_KNOWLEDGE_GOVERNANCE.md`](ENGINEERING_KNOWLEDGE_GOVERNANCE.md).
+
 ## Règles dures
 
 - Une phase ne commence qu'après la production de l'artefact de la phase
@@ -109,6 +127,7 @@ run_id: "YYYY-MM-DD_HHmm_slug"
 phase: "0X_NAME"
 voie: "RAPIDE-ZERO|RAPIDE-MINIMAL|RAPIDE|STRUCTUREE|AUDIT|CLOTURE"
 status: "READY|PARTIAL|BLOCKED|UNKNOWN"
+knowledge_governance_version: "1.0"
 agent: "claude-code|codex|pi|opencode"
 started_at: "ISO8601 UTC"
 ended_at: "ISO8601 UTC"
@@ -116,6 +135,13 @@ next_phase: "0X_NAME | null"
 artifacts_consumed: [...]
 artifacts_produced: [...]
 ---
+```
+
+For `07_CLOSEOUT.md`, runs declaring `knowledge_governance_version: "1.0"`
+also declare:
+
+```yaml
+knowledge_harvest: "NONE|OBSERVATION_RECORDED|EVIDENCE_LINKED"
 ```
 
 ## Liens
