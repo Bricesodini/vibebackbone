@@ -64,6 +64,8 @@ run_id: "YYYY-MM-DD_HHmm_slug"
 phase: "0X_NAME"
 voie: "RAPIDE-ZERO|RAPIDE-MINIMAL|RAPIDE|STRUCTUREE|AUDIT|CLOTURE"
 status: "READY|PARTIAL|BLOCKED|UNKNOWN"
+knowledge_governance_version: "1.0"
+assurance_governance_version: "1.0"
 agent: "claude-code|codex|pi|opencode"
 started_at: "ISO8601 UTC"
 ended_at: "ISO8601 UTC"
@@ -72,6 +74,12 @@ artifacts_consumed: [...]
 artifacts_produced: [...]
 ---
 ```
+
+At or after the assurance v1 cutoff, `07_CLOSEOUT.md` also declares the same
+`assurance_governance_version` and contains the sibling `ASSURANCE_STATUS`
+block defined by
+[`GATE_ASSURANCE_GOVERNANCE.md`](../GATE_ASSURANCE_GOVERNANCE.md). Earlier
+runs remain valid without it.
 
 ## Cycle de vie
 

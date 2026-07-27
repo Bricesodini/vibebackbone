@@ -127,6 +127,14 @@ KNOWLEDGE_GOVERNANCE_CUTOVER_AT = datetime(2026, 7, 27, 15, 12, 21, tzinfo=timez
 KNOWLEDGE_HARVEST_DISPOSITIONS = frozenset(
     {"NONE", "OBSERVATION_RECORDED", "EVIDENCE_LINKED"}
 )
+ASSURANCE_GOVERNANCE_VERSION = "1.0"
+ASSURANCE_GOVERNANCE_CUTOVER_KEY = "2026-07-27_2145"
+ASSURANCE_GOVERNANCE_CUTOVER_AT = datetime(2026, 7, 27, 19, 45, 52, tzinfo=timezone.utc)
+ASSURANCE_GATE_FAMILIES = frozenset({"DESIGN", "CERTIFICATION", "OTHER"})
+ASSURANCE_CHECKPOINTS = frozenset(
+    {"PRE_IMPLEMENTATION", "POST_IMPLEMENTATION", "CLOSEOUT"}
+)
+ASSURANCE_VERDICTS = frozenset({"PASS", "FAIL", "NOT_ASSESSED", "NOT_APPLICABLE"})
 
 
 # ---------------------------------------------------------------------------
@@ -263,6 +271,278 @@ def validate_knowledge_harvest(run_dir: Path) -> List[str]:
             "07_CLOSEOUT.md: knowledge_harvest must be one of "
             f"{allowed}; observed '{disposition or 'missing'}'"
         )
+    return errors
+
+
+def _assurance_governance_required(
+    run_dir: Path, intake_fm: Dict, closeout_fm: Dict
+) -> bool:
+    """Return whether the additive assurance v1 contract applies."""
+    if intake_fm.get("assurance_governance_version") or closeout_fm.get(
+        "assurance_governance_version"
+    ):
+        return True
+
+    run_key_match = re.match(r"^(\d{4}-\d{2}-\d{2}_\d{4})", run_dir.name)
+    after_named_cutover = bool(
+        run_key_match and run_key_match.group(1) >= ASSURANCE_GOVERNANCE_CUTOVER_KEY
+    )
+    after_timestamp_cutover = False
+    for frontmatter in (intake_fm, closeout_fm):
+        started_at = frontmatter.get("started_at")
+        if isinstance(started_at, datetime):
+            parsed = started_at
+        elif started_at:
+            try:
+                parsed = datetime.fromisoformat(str(started_at).replace("Z", "+00:00"))
+            except ValueError:
+                continue
+        else:
+            continue
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        if parsed.astimezone(timezone.utc) >= ASSURANCE_GOVERNANCE_CUTOVER_AT:
+            after_timestamp_cutover = True
+            break
+    return bool(intake_fm or closeout_fm) and (
+        after_named_cutover or after_timestamp_cutover
+    )
+
+
+def _extract_assurance_status(path: Path) -> Tuple[Optional[Dict], Optional[str]]:
+    """Read the unique sibling ASSURANCE_STATUS block from fenced YAML."""
+    try:
+        content = path.read_text(encoding="utf-8")
+    except OSError as exc:
+        return None, str(exc)
+
+    statuses: List[Dict] = []
+    for match in re.finditer(r"```ya?ml\s*\n(.*?)```", content, re.DOTALL):
+        try:
+            parsed = yaml.safe_load(match.group(1))
+        except yaml.YAMLError as exc:
+            if "ASSURANCE_STATUS:" in match.group(1):
+                return None, f"invalid ASSURANCE_STATUS YAML: {exc}"
+            continue
+        if isinstance(parsed, dict) and "ASSURANCE_STATUS" in parsed:
+            status = parsed.get("ASSURANCE_STATUS")
+            if not isinstance(status, dict):
+                return None, "ASSURANCE_STATUS must be a mapping"
+            statuses.append(status)
+    if not statuses:
+        return None, "missing sibling ASSURANCE_STATUS YAML block"
+    if len(statuses) > 1:
+        return None, "multiple ASSURANCE_STATUS blocks are not allowed"
+    return statuses[0], None
+
+
+def validate_assurance_status(run_dir: Path) -> List[str]:
+    """Validate additive gate assurance without rewriting historical runs."""
+    intake_path = run_dir / "01_INTAKE.md"
+    closeout_path = run_dir / "07_CLOSEOUT.md"
+    intake_fm, intake_error = (
+        read_frontmatter(intake_path) if intake_path.exists() else ({}, None)
+    )
+    closeout_fm, closeout_error = (
+        read_frontmatter(closeout_path) if closeout_path.exists() else ({}, None)
+    )
+    errors: List[str] = []
+    if intake_error:
+        return [f"01_INTAKE.md: {intake_error}"]
+    if closeout_error:
+        return [f"07_CLOSEOUT.md: {closeout_error}"]
+    intake_fm = intake_fm or {}
+    closeout_fm = closeout_fm or {}
+    if not _assurance_governance_required(run_dir, intake_fm, closeout_fm):
+        return errors
+
+    intake_version = str(intake_fm.get("assurance_governance_version", ""))
+    closeout_version = str(closeout_fm.get("assurance_governance_version", ""))
+    if intake_path.exists() and not intake_version:
+        errors.append(
+            "01_INTAKE.md: assurance_governance_version is required "
+            f"since cutover {ASSURANCE_GOVERNANCE_CUTOVER_KEY}"
+        )
+    if not closeout_path.exists():
+        errors.append("07_CLOSEOUT.md: missing assurance closeout for governance v1")
+        return errors
+    if not closeout_version:
+        errors.append(
+            "07_CLOSEOUT.md: assurance_governance_version is required "
+            f"since cutover {ASSURANCE_GOVERNANCE_CUTOVER_KEY}"
+        )
+    for artifact, version in (
+        ("01_INTAKE.md", intake_version),
+        ("07_CLOSEOUT.md", closeout_version),
+    ):
+        if version and version != ASSURANCE_GOVERNANCE_VERSION:
+            errors.append(
+                f"{artifact}: assurance_governance_version unsupported "
+                f"'{version}' (expected '{ASSURANCE_GOVERNANCE_VERSION}')"
+            )
+    if intake_version and closeout_version and closeout_version != intake_version:
+        errors.append(
+            "07_CLOSEOUT.md: assurance_governance_version must match 01_INTAKE.md"
+        )
+
+    assurance, assurance_error = _extract_assurance_status(closeout_path)
+    if assurance_error:
+        errors.append(f"07_CLOSEOUT.md: {assurance_error}")
+        return errors
+    assert assurance is not None
+    if str(assurance.get("schema_version", "")) != ASSURANCE_GOVERNANCE_VERSION:
+        errors.append("ASSURANCE_STATUS.schema_version must be '1.0'")
+    if not str(assurance.get("subject", "")).strip():
+        errors.append("ASSURANCE_STATUS.subject must be non-empty")
+
+    gate_results = assurance.get("gate_results")
+    if not isinstance(gate_results, list):
+        errors.append("ASSURANCE_STATUS.gate_results must be a list")
+        gate_results = []
+    gates_by_id: Dict[str, Dict] = {}
+
+    def non_empty_strings(value: object) -> bool:
+        return (
+            isinstance(value, list)
+            and bool(value)
+            and all(isinstance(item, str) and bool(item.strip()) for item in value)
+        )
+
+    for index, result in enumerate(gate_results):
+        prefix = f"ASSURANCE_STATUS.gate_results[{index}]"
+        if not isinstance(result, dict):
+            errors.append(f"{prefix} must be a mapping")
+            continue
+        gate_id = str(result.get("gate_id", "")).strip()
+        if not gate_id:
+            errors.append(f"{prefix}.gate_id must be non-empty")
+        elif gate_id in gates_by_id:
+            errors.append(f"{prefix}.gate_id duplicates '{gate_id}'")
+        else:
+            gates_by_id[gate_id] = result
+        family = str(result.get("gate_family", "")).strip()
+        if family not in ASSURANCE_GATE_FAMILIES:
+            errors.append(f"{prefix}.gate_family invalid '{family or 'missing'}'")
+        checkpoint = str(result.get("checkpoint", "")).strip()
+        if checkpoint not in ASSURANCE_CHECKPOINTS:
+            errors.append(f"{prefix}.checkpoint invalid '{checkpoint or 'missing'}'")
+        verdict = str(result.get("verdict", "")).strip()
+        if verdict not in ASSURANCE_VERDICTS:
+            errors.append(f"{prefix}.verdict invalid '{verdict or 'missing'}'")
+        if not str(result.get("subject", "")).strip():
+            errors.append(f"{prefix}.subject must be non-empty")
+        for field in ("evidence", "reasons"):
+            value = result.get(field)
+            if not non_empty_strings(value):
+                errors.append(f"{prefix}.{field} must contain non-empty strings")
+        if verdict == "NOT_APPLICABLE":
+            applicability = result.get("applicability")
+            if not isinstance(applicability, dict):
+                errors.append(f"{prefix}.applicability is required for NOT_APPLICABLE")
+            else:
+                if str(applicability.get("status", "")).strip() != "NOT_APPLICABLE":
+                    errors.append(
+                        f"{prefix}.applicability.status must be NOT_APPLICABLE"
+                    )
+                if not str(applicability.get("profile_id", "")).strip():
+                    errors.append(
+                        f"{prefix}.applicability.profile_id must be non-empty"
+                    )
+                if not non_empty_strings(applicability.get("evidence")):
+                    errors.append(
+                        f"{prefix}.applicability.evidence must contain "
+                        "non-empty strings"
+                    )
+
+    authorization = assurance.get("implementation_authorization")
+    if not isinstance(authorization, dict):
+        errors.append(
+            "ASSURANCE_STATUS.implementation_authorization must be a mapping "
+            "(missing means NOT_AUTHORIZED)"
+        )
+        return errors
+    auth_status = str(authorization.get("status", "")).strip()
+    if auth_status not in {"AUTHORIZED", "NOT_AUTHORIZED"}:
+        errors.append(
+            "ASSURANCE_STATUS.implementation_authorization.status must be "
+            "AUTHORIZED or NOT_AUTHORIZED"
+        )
+    reasons = authorization.get("reasons")
+    if not non_empty_strings(reasons):
+        errors.append(
+            "ASSURANCE_STATUS.implementation_authorization.reasons must "
+            "contain non-empty strings"
+        )
+    required_ids = authorization.get("required_gate_ids")
+    if not isinstance(required_ids, list):
+        errors.append(
+            "ASSURANCE_STATUS.implementation_authorization.required_gate_ids "
+            "must be a list"
+        )
+        required_ids = []
+    elif any(
+        not isinstance(gate_id, str) or not gate_id.strip() for gate_id in required_ids
+    ):
+        errors.append(
+            "ASSURANCE_STATUS.implementation_authorization.required_gate_ids "
+            "must contain non-empty strings"
+        )
+    if auth_status == "AUTHORIZED":
+        if not required_ids:
+            errors.append("AUTHORIZED requires at least one required_gate_id")
+        for gate_id in required_ids:
+            result = gates_by_id.get(str(gate_id))
+            if not result:
+                errors.append(f"AUTHORIZED required gate '{gate_id}' is missing")
+                continue
+            if result.get("checkpoint") != "PRE_IMPLEMENTATION":
+                errors.append(
+                    f"AUTHORIZED required gate '{gate_id}' is not PRE_IMPLEMENTATION"
+                )
+            if result.get("verdict") != "PASS":
+                errors.append(f"AUTHORIZED required gate '{gate_id}' is not PASS")
+
+    kind = str(closeout_fm.get("kind", "")).strip()
+    if (
+        (run_dir / "05_EXECUTION.md").exists()
+        and kind == "CLOSEOUT"
+        and auth_status != "AUTHORIZED"
+    ):
+        errors.append(
+            "07_CLOSEOUT.md: a run with 05_EXECUTION.md requires explicit "
+            "AUTHORIZED status before kind CLOSEOUT"
+        )
+    for result in gate_results:
+        if not isinstance(result, dict):
+            continue
+        if (
+            result.get("gate_family") == "CERTIFICATION"
+            and result.get("checkpoint")
+            in {"PRE_IMPLEMENTATION", "POST_IMPLEMENTATION"}
+            and result.get("verdict") in {"FAIL", "NOT_ASSESSED"}
+            and kind != "HANDOFF"
+        ):
+            errors.append(
+                "07_CLOSEOUT.md: Certification FAIL or NOT_ASSESSED "
+                "requires kind HANDOFF"
+            )
+        if (
+            kind == "CLOSEOUT"
+            and result.get("gate_family") == "DESIGN"
+            and result.get("verdict") in {"FAIL", "NOT_ASSESSED"}
+        ):
+            errors.append(
+                "07_CLOSEOUT.md: Design FAIL or NOT_ASSESSED requires kind HANDOFF"
+            )
+        if (
+            kind == "CLOSEOUT"
+            and result.get("checkpoint") == "CLOSEOUT"
+            and result.get("verdict") in {"FAIL", "NOT_ASSESSED"}
+        ):
+            errors.append(
+                "07_CLOSEOUT.md: CLOSEOUT cannot contain a required closeout "
+                f"gate verdict {result.get('verdict')}"
+            )
     return errors
 
 
@@ -946,6 +1226,17 @@ def check_run(
             closeout_fm or {}
         ).get("knowledge_governance_version"):
             report.append("  ✓ Knowledge Harvest disposition")
+
+    assurance_errors = validate_assurance_status(run_dir)
+    if assurance_errors:
+        errors.extend(assurance_errors)
+    elif intake_path.exists() and closeout_path.exists():
+        intake_fm, _ = read_frontmatter(intake_path)
+        closeout_fm, _ = read_frontmatter(closeout_path)
+        if (intake_fm or {}).get("assurance_governance_version") or (
+            closeout_fm or {}
+        ).get("assurance_governance_version"):
+            report.append("  ✓ gate assurance status")
 
     # P0-3 — test audit on STRUCTUREE/AUDIT/CLOSEOUT
     if validate_test_audit_for_voies and voie in validate_test_audit_for_voies:

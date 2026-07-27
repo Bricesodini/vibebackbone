@@ -22,18 +22,18 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 ## Active state
 
 - **Route**: CLOSEOUT after STRUCTURED integration
-- **Release posture**: READY; engineering-knowledge governance independently
+- **Release posture**: READY; Design/Certification assurance v1 independently
   approved and integrated
 - **Active run**:
-  [`2026-07-27_1712_engineering-knowledge-core-integration`](runs/2026-07-27_1712_engineering-knowledge-core-integration/07_CLOSEOUT.md)
-  — CLOSEOUT, ADR 0049 ACCEPTED, Review Run 02 APPROUVÉ
+  [`2026-07-27_2145_design-certification-gates-core-integration`](runs/2026-07-27_2145_design-certification-gates-core-integration/07_CLOSEOUT.md)
+  — CLOSEOUT, ADR 0050 ACCEPTED, Review Run 03 PASS
 - **Latest completed run**:
-  [`2026-07-27_1712_engineering-knowledge-core-integration`](runs/2026-07-27_1712_engineering-knowledge-core-integration/07_CLOSEOUT.md)
+  [`2026-07-27_2145_design-certification-gates-core-integration`](runs/2026-07-27_2145_design-certification-gates-core-integration/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: observe first-use friction in real knowledge records and
-  route any evidenced learning through the new governed lifecycle
+- **Next action**: observe first-use friction in new assurance records; any
+  consumer adoption requires its own governed run
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
 - **Quality**: [CONVENTIONS.md](CONVENTIONS.md), pillars P1–P5 and P.R1–P.R8

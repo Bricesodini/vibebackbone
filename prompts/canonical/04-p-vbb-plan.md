@@ -124,6 +124,19 @@ Create `04_FIX_PLAN.md` in `docs/runs/`.
 
 [What must be accomplished by the end of execution]
 
+## Implementation authorization
+
+```yaml
+implementation_authorization:
+  status: "AUTHORIZED|NOT_AUTHORIZED"
+  required_gate_ids: ["gate-id"]
+  reasons: ["explicit reason"]
+```
+
+Authorization is fail-closed. Every required identifier must resolve to a
+`PRE_IMPLEMENTATION: PASS` result; Design and Certification PASS never imply
+authorization by themselves.
+
 ## Scope
 
 ### Affected files

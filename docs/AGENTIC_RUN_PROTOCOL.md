@@ -89,6 +89,18 @@ Hard escalations:
 07 CLOSEOUT →  consolide (toutes voies)
 ```
 
+## Assurance across the seven phases
+
+Design and Certification are gate families, not new phases. A Design gate may
+close before implementation; Certification can run at pre-implementation,
+post-implementation or closeout checkpoints. Phase 06 exposes distinct
+`DESIGN_REVIEW` and `CERTIFICATION_REVIEW` profiles.
+
+Governed runs record subject assurance in sibling `ASSURANCE_STATUS`. Runtime
+`FINAL_STATUS` remains unchanged. Implementation proceeds only on an explicit
+fail-closed authorization record; two PASS verdicts never imply it. See
+[`GATE_ASSURANCE_GOVERNANCE.md`](GATE_ASSURANCE_GOVERNANCE.md).
+
 ## Governed learning after delivery
 
 The delivery cycle does not promote reusable knowledge. Its closeout performs a
@@ -128,6 +140,7 @@ phase: "0X_NAME"
 voie: "RAPIDE-ZERO|RAPIDE-MINIMAL|RAPIDE|STRUCTUREE|AUDIT|CLOTURE"
 status: "READY|PARTIAL|BLOCKED|UNKNOWN"
 knowledge_governance_version: "1.0"
+assurance_governance_version: "1.0"
 agent: "claude-code|codex|pi|opencode"
 started_at: "ISO8601 UTC"
 ended_at: "ISO8601 UTC"
@@ -143,6 +156,9 @@ also declare:
 ```yaml
 knowledge_harvest: "NONE|OBSERVATION_RECORDED|EVIDENCE_LINKED"
 ```
+
+The closeout also contains the sibling `ASSURANCE_STATUS` v1 block defined in
+[`GATE_ASSURANCE_GOVERNANCE.md`](GATE_ASSURANCE_GOVERNANCE.md).
 
 ## Liens
 

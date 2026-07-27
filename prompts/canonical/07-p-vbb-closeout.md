@@ -159,6 +159,19 @@ knowledge, generalize beyond the evidence or copy a normative rule. Promotion
 uses the separate lifecycle in
 `docs/ENGINEERING_KNOWLEDGE_GOVERNANCE.md`.
 
+### Step 4quater — Assurance status
+
+For governed v1 runs, write the sibling `ASSURANCE_STATUS` block defined in
+`docs/GATE_ASSURANCE_GOVERNANCE.md`.
+
+- keep runtime `FINAL_STATUS` unchanged;
+- qualify every gate result by family, checkpoint, subject and stable id;
+- record implementation authorization explicitly;
+- treat missing or malformed authorization as `NOT_AUTHORIZED`;
+- use `HANDOFF` for required pre-implementation Certification FAIL,
+  post-implementation Certification FAIL, or missing Knowledge Harvest;
+- preserve Design PASS unless a substantive finding reopens Design.
+
 ### Step 5 — Recommend the next session
 
 If open items or risks remain:
@@ -269,6 +282,19 @@ Create `07_CLOSEOUT.md` in `docs/runs/`.
 - **Observation or candidate**: [path or none]
 - **Evidence linked**: [paths or none]
 - **Promotion performed here**: no
+
+## Assurance
+
+```yaml
+ASSURANCE_STATUS:
+  schema_version: "1.0"
+  subject: "..."
+  gate_results: [...]
+  implementation_authorization:
+    status: "AUTHORIZED|NOT_AUTHORIZED"
+    required_gate_ids: [...]
+    reasons: [...]
+```
 
 ## Official memory updated
 

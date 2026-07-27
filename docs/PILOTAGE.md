@@ -94,6 +94,23 @@ The gate is clause-aware (ADR + POC + Integration) and refuses to start a run
 that does not conform. Pi, OpenCode, Codex and Claude Code invoke the same Core
 tool directly. Exit 0 = proceed, non-zero = STOP and report the failure.
 
+### Design and Certification assurance
+
+Gate results keep their local `PASS/FAIL` verdict and declare a family:
+`DESIGN`, `CERTIFICATION` or `OTHER`. Design closes observable behavior;
+Certification validates coherence, traceability and proof. A documentary
+finding that changes observable behavior reopens Design.
+
+`ASSURANCE_STATUS` is a sibling of runtime `FINAL_STATUS`; neither implies the
+other. Implementation requires an explicit `AUTHORIZED` record whose required
+pre-implementation gates all pass. Missing or malformed authorization is
+fail-closed (`NOT_AUTHORIZED`).
+
+Phase 06 uses separate Design and Certification review profiles. Knowledge
+Harvest remains a phase-07 closeout control. Canonical schema, cutoff and
+closeout rules:
+[`GATE_ASSURANCE_GOVERNANCE.md`](GATE_ASSURANCE_GOVERNANCE.md).
+
 ---
 
 ## Escalation rule

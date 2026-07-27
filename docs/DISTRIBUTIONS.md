@@ -175,6 +175,22 @@ that triggered the decision.
 
 <!-- Add entries below as decisions are made -->
 
+### 2026-07-27 — Design/Certification assurance promoted to Core (ADR-0050)
+
+**Decision**: keep gate-family semantics, `ASSURANCE_STATUS`, explicit
+fail-closed implementation authorization, review profiles and closeout policy
+in Core. Do not create provider-specific copies.
+
+**Reason**: the distinction between behavioral design and documentary
+certification is generic to Pi, OpenCode, Codex and Claude Code. The four
+distributions consume the same Core prompts, templates and tools.
+
+**Impact**: all supported runtimes inherit the additive v1 contract and
+historical fallback. No setup script or runtime-specific path changes, and no
+consumer project is modified.
+
+**Author**: Brice (explicit approval), Codex — ADR 0050
+
 ### 2026-07-27 — Engineering knowledge governance promoted to Core (ADR-0049)
 
 **Decision**: keep Knowledge Harvest, maturity, evidence independence,

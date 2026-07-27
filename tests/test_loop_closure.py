@@ -64,6 +64,46 @@ def _add_frontmatter_fields(path: Path, fields: str) -> None:
     path.write_text(content.replace("---\n", f"---\n{fields}", 1))
 
 
+def _add_valid_assurance(
+    intake_path: Path,
+    closeout_path: Path,
+    *,
+    authorization_status: str = "AUTHORIZED",
+) -> None:
+    _add_frontmatter_fields(intake_path, 'assurance_governance_version: "1.0"\n')
+    _add_frontmatter_fields(
+        closeout_path, 'assurance_governance_version: "1.0"\nkind: "CLOSEOUT"\n'
+    )
+    required_ids = '["design-pre"]' if authorization_status == "AUTHORIZED" else "[]"
+    closeout_path.write_text(
+        closeout_path.read_text()
+        + textwrap.dedent(
+            f"""
+
+            ## Assurance
+
+            ```yaml
+            ASSURANCE_STATUS:
+              schema_version: "1.0"
+              subject: "test delivery"
+              gate_results:
+                - gate_id: "design-pre"
+                  gate_family: "DESIGN"
+                  checkpoint: "PRE_IMPLEMENTATION"
+                  subject: "observable behavior"
+                  verdict: "PASS"
+                  evidence: ["test fixture"]
+                  reasons: ["contract is complete"]
+              implementation_authorization:
+                status: "{authorization_status}"
+                required_gate_ids: {required_ids}
+                reasons: ["explicit fixture decision"]
+            ```
+            """
+        )
+    )
+
+
 def _run(run_id: str, runs_dir: Path, extra_args=None):
     """Invoke vbb-loop-closure-check.py and return (returncode, stdout, stderr)."""
     cmd = [sys.executable, str(TOOL)]
@@ -177,6 +217,7 @@ def test_governance_v1_accepts_observation_recorded():
             'knowledge_governance_version: "1.0"\n'
             'knowledge_harvest: "OBSERVATION_RECORDED"\n',
         )
+        _add_valid_assurance(d / "01_INTAKE.md", d / "07_CLOSEOUT.md")
         rc, out, _ = _run(rid, Path(tmp))
         assert rc == 0, out
 
@@ -196,6 +237,413 @@ def test_governance_v1_accepts_evidence_linked():
             'knowledge_governance_version: "1.0"\n'
             'knowledge_harvest: "EVIDENCE_LINKED"\n',
         )
+        _add_valid_assurance(d / "01_INTAKE.md", d / "07_CLOSEOUT.md")
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 0, out
+
+
+def test_historical_run_without_assurance_remains_valid():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2026-07-27_2117_historical-assurance"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "RAPIDE")
+        _add_frontmatter_fields(
+            d / "01_INTAKE.md", 'knowledge_governance_version: "1.0"\n'
+        )
+        _add_frontmatter_fields(
+            d / "07_CLOSEOUT.md",
+            'knowledge_governance_version: "1.0"\nknowledge_harvest: "NONE"\n',
+        )
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 0, out
+
+
+def test_assurance_v1_accepts_explicit_authorization():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2099-01-01_1000_assurance-valid"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "RAPIDE")
+        _add_frontmatter_fields(
+            d / "01_INTAKE.md", 'knowledge_governance_version: "1.0"\n'
+        )
+        _add_frontmatter_fields(
+            d / "07_CLOSEOUT.md",
+            'knowledge_governance_version: "1.0"\nknowledge_harvest: "NONE"\n',
+        )
+        _add_valid_assurance(d / "01_INTAKE.md", d / "07_CLOSEOUT.md")
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 0, out
+        assert "gate assurance status" in out
+
+
+def test_assurance_v1_is_fail_closed_without_authorization_record():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2099-01-01_1000_assurance-no-authorization"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "RAPIDE")
+        _add_frontmatter_fields(
+            d / "01_INTAKE.md",
+            'knowledge_governance_version: "1.0"\n'
+            'assurance_governance_version: "1.0"\n',
+        )
+        _add_frontmatter_fields(
+            d / "07_CLOSEOUT.md",
+            'knowledge_governance_version: "1.0"\n'
+            'knowledge_harvest: "NONE"\n'
+            'assurance_governance_version: "1.0"\n'
+            'kind: "CLOSEOUT"\n',
+        )
+        with (d / "07_CLOSEOUT.md").open("a") as handle:
+            handle.write(
+                textwrap.dedent(
+                    """
+                    ```yaml
+                    ASSURANCE_STATUS:
+                      schema_version: "1.0"
+                      subject: "test delivery"
+                      gate_results: []
+                    ```
+                    """
+                )
+            )
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 1, out
+        assert "implementation_authorization must be a mapping" in out
+
+
+def test_not_authorized_does_not_allow_executed_closeout():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2099-01-01_1000_assurance-inferred"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "RAPIDE")
+        _add_frontmatter_fields(
+            d / "01_INTAKE.md", 'knowledge_governance_version: "1.0"\n'
+        )
+        _add_frontmatter_fields(
+            d / "07_CLOSEOUT.md",
+            'knowledge_governance_version: "1.0"\nknowledge_harvest: "NONE"\n',
+        )
+        _add_valid_assurance(
+            d / "01_INTAKE.md",
+            d / "07_CLOSEOUT.md",
+            authorization_status="NOT_AUTHORIZED",
+        )
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 1, out
+        assert "requires explicit AUTHORIZED status" in out
+
+
+def test_certification_fail_requires_handoff_and_preserves_design_result():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2099-01-01_1000_certification-fail"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "RAPIDE")
+        _add_frontmatter_fields(
+            d / "01_INTAKE.md",
+            'knowledge_governance_version: "1.0"\n'
+            'assurance_governance_version: "1.0"\n',
+        )
+        _add_frontmatter_fields(
+            d / "07_CLOSEOUT.md",
+            'knowledge_governance_version: "1.0"\n'
+            'knowledge_harvest: "NONE"\n'
+            'assurance_governance_version: "1.0"\n'
+            'kind: "CLOSEOUT"\n',
+        )
+        with (d / "07_CLOSEOUT.md").open("a") as handle:
+            handle.write(
+                textwrap.dedent(
+                    """
+                    ```yaml
+                    ASSURANCE_STATUS:
+                      schema_version: "1.0"
+                      subject: "test delivery"
+                      gate_results:
+                        - gate_id: "design-pre"
+                          gate_family: "DESIGN"
+                          checkpoint: "PRE_IMPLEMENTATION"
+                          subject: "observable behavior"
+                          verdict: "PASS"
+                          evidence: ["fixture"]
+                          reasons: ["design closed"]
+                        - gate_id: "cert-post"
+                          gate_family: "CERTIFICATION"
+                          checkpoint: "POST_IMPLEMENTATION"
+                          subject: "documentary evidence"
+                          verdict: "FAIL"
+                          evidence: ["fixture"]
+                          reasons: ["proof missing"]
+                      implementation_authorization:
+                        status: "AUTHORIZED"
+                        required_gate_ids: ["design-pre"]
+                        reasons: ["explicit pre-implementation decision"]
+                    ```
+                    """
+                )
+            )
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 1, out
+        assert "Certification FAIL or NOT_ASSESSED requires kind HANDOFF" in out
+
+
+def test_design_fail_requires_handoff():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2099-01-01_1000_design-fail"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "RAPIDE")
+        _add_frontmatter_fields(
+            d / "01_INTAKE.md",
+            'knowledge_governance_version: "1.0"\n'
+            'assurance_governance_version: "1.0"\n',
+        )
+        _add_frontmatter_fields(
+            d / "07_CLOSEOUT.md",
+            'knowledge_governance_version: "1.0"\n'
+            'knowledge_harvest: "NONE"\n'
+            'assurance_governance_version: "1.0"\n'
+            'kind: "CLOSEOUT"\n',
+        )
+        with (d / "07_CLOSEOUT.md").open("a") as handle:
+            handle.write(
+                textwrap.dedent(
+                    """
+                    ```yaml
+                    ASSURANCE_STATUS:
+                      schema_version: "1.0"
+                      subject: "test delivery"
+                      gate_results:
+                        - gate_id: "design-pre"
+                          gate_family: "DESIGN"
+                          checkpoint: "PRE_IMPLEMENTATION"
+                          subject: "initial behavior"
+                          verdict: "PASS"
+                          evidence: ["fixture"]
+                          reasons: ["initial design closed"]
+                        - gate_id: "design-post"
+                          gate_family: "DESIGN"
+                          checkpoint: "POST_IMPLEMENTATION"
+                          subject: "reopened behavior"
+                          verdict: "FAIL"
+                          evidence: ["fixture"]
+                          reasons: ["substantive contradiction"]
+                      implementation_authorization:
+                        status: "AUTHORIZED"
+                        required_gate_ids: ["design-pre"]
+                        reasons: ["explicit pre-implementation decision"]
+                    ```
+                    """
+                )
+            )
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 1, out
+        assert "Design FAIL or NOT_ASSESSED requires kind HANDOFF" in out
+
+
+def test_authorized_rejects_blank_reason_and_evidence():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2099-01-01_1000_blank-assurance"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "RAPIDE")
+        _add_frontmatter_fields(
+            d / "01_INTAKE.md",
+            'knowledge_governance_version: "1.0"\n'
+            'assurance_governance_version: "1.0"\n',
+        )
+        _add_frontmatter_fields(
+            d / "07_CLOSEOUT.md",
+            'knowledge_governance_version: "1.0"\n'
+            'knowledge_harvest: "NONE"\n'
+            'assurance_governance_version: "1.0"\n'
+            'kind: "CLOSEOUT"\n',
+        )
+        with (d / "07_CLOSEOUT.md").open("a") as handle:
+            handle.write(
+                textwrap.dedent(
+                    """
+                    ```yaml
+                    ASSURANCE_STATUS:
+                      schema_version: "1.0"
+                      subject: "test delivery"
+                      gate_results:
+                        - gate_id: "design-pre"
+                          gate_family: "DESIGN"
+                          checkpoint: "PRE_IMPLEMENTATION"
+                          subject: "observable behavior"
+                          verdict: "PASS"
+                          evidence: [""]
+                          reasons: ["design closed"]
+                      implementation_authorization:
+                        status: "AUTHORIZED"
+                        required_gate_ids: ["design-pre"]
+                        reasons: [""]
+                    ```
+                    """
+                )
+            )
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 1, out
+        assert "evidence must contain non-empty strings" in out
+        assert "reasons must contain non-empty strings" in out
+
+
+def test_certification_not_assessed_requires_handoff():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2099-01-01_1000_cert-not-assessed"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "RAPIDE")
+        _add_frontmatter_fields(
+            d / "01_INTAKE.md",
+            'knowledge_governance_version: "1.0"\n'
+            'assurance_governance_version: "1.0"\n',
+        )
+        _add_frontmatter_fields(
+            d / "07_CLOSEOUT.md",
+            'knowledge_governance_version: "1.0"\n'
+            'knowledge_harvest: "NONE"\n'
+            'assurance_governance_version: "1.0"\n'
+            'kind: "CLOSEOUT"\n',
+        )
+        with (d / "07_CLOSEOUT.md").open("a") as handle:
+            handle.write(
+                textwrap.dedent(
+                    """
+                    ```yaml
+                    ASSURANCE_STATUS:
+                      schema_version: "1.0"
+                      subject: "test delivery"
+                      gate_results:
+                        - gate_id: "design-pre"
+                          gate_family: "DESIGN"
+                          checkpoint: "PRE_IMPLEMENTATION"
+                          subject: "observable behavior"
+                          verdict: "PASS"
+                          evidence: ["fixture"]
+                          reasons: ["design closed"]
+                        - gate_id: "cert-post"
+                          gate_family: "CERTIFICATION"
+                          checkpoint: "POST_IMPLEMENTATION"
+                          subject: "documentary proof"
+                          verdict: "NOT_ASSESSED"
+                          evidence: ["fixture"]
+                          reasons: ["review not performed"]
+                      implementation_authorization:
+                        status: "AUTHORIZED"
+                        required_gate_ids: ["design-pre"]
+                        reasons: ["explicit decision"]
+                    ```
+                    """
+                )
+            )
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 1, out
+        assert "Certification FAIL or NOT_ASSESSED requires kind HANDOFF" in out
+
+
+def _add_not_applicable_assurance(closeout_path: Path, *, declared: bool) -> None:
+    body_lines = [
+        "```yaml",
+        "ASSURANCE_STATUS:",
+        '  schema_version: "1.0"',
+        '  subject: "test delivery"',
+        "  gate_results:",
+        '    - gate_id: "design-pre"',
+        '      gate_family: "DESIGN"',
+        '      checkpoint: "PRE_IMPLEMENTATION"',
+        '      subject: "observable behavior"',
+        '      verdict: "PASS"',
+        '      evidence: ["fixture"]',
+        '      reasons: ["design closed"]',
+        '    - gate_id: "cert-na"',
+        '      gate_family: "CERTIFICATION"',
+        '      checkpoint: "POST_IMPLEMENTATION"',
+        '      subject: "non-applicable proof"',
+        '      verdict: "NOT_APPLICABLE"',
+        '      evidence: ["fixture"]',
+        '      reasons: ["profile excludes this proof"]',
+    ]
+    if declared:
+        body_lines.extend(
+            [
+                "      applicability:",
+                '        profile_id: "docs-only-profile-v1"',
+                '        status: "NOT_APPLICABLE"',
+                '        evidence: ["profile declaration fixture"]',
+            ]
+        )
+    body_lines.extend(
+        [
+            "  implementation_authorization:",
+            '    status: "AUTHORIZED"',
+            '    required_gate_ids: ["design-pre"]',
+            '    reasons: ["explicit decision"]',
+            "```",
+        ]
+    )
+    with closeout_path.open("a") as handle:
+        handle.write("\n" + "\n".join(body_lines) + "\n")
+
+
+def test_not_applicable_requires_profile_declaration():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2099-01-01_1000-not-applicable-missing-profile"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "RAPIDE")
+        _add_frontmatter_fields(
+            d / "01_INTAKE.md",
+            'knowledge_governance_version: "1.0"\n'
+            'assurance_governance_version: "1.0"\n',
+        )
+        _add_frontmatter_fields(
+            d / "07_CLOSEOUT.md",
+            'knowledge_governance_version: "1.0"\n'
+            'knowledge_harvest: "NONE"\n'
+            'assurance_governance_version: "1.0"\n'
+            'kind: "CLOSEOUT"\n',
+        )
+        _add_not_applicable_assurance(d / "07_CLOSEOUT.md", declared=False)
+        rc, out, _ = _run(rid, Path(tmp))
+        assert rc == 1, out
+        assert "applicability is required for NOT_APPLICABLE" in out
+
+
+def test_not_applicable_accepts_declared_profile():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "2099-01-01_1000-not-applicable-declared"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "RAPIDE")
+        _add_frontmatter_fields(
+            d / "01_INTAKE.md",
+            'knowledge_governance_version: "1.0"\n'
+            'assurance_governance_version: "1.0"\n',
+        )
+        _add_frontmatter_fields(
+            d / "07_CLOSEOUT.md",
+            'knowledge_governance_version: "1.0"\n'
+            'knowledge_harvest: "NONE"\n'
+            'assurance_governance_version: "1.0"\n'
+            'kind: "CLOSEOUT"\n',
+        )
+        _add_not_applicable_assurance(d / "07_CLOSEOUT.md", declared=True)
         rc, out, _ = _run(rid, Path(tmp))
         assert rc == 0, out
 

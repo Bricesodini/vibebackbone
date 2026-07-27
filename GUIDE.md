@@ -1189,6 +1189,7 @@ REVIEW → EXECUTION      ✅ Obligatoire (si modifs)
 | `docs/PILOTAGE.md` | Référence triage |
 | `docs/AGENTIC_RUN_PROTOCOL.md` | Référence 7 phases |
 | `docs/ENGINEERING_KNOWLEDGE_GOVERNANCE.md` | Boucle de capitalisation gouvernée |
+| `docs/GATE_ASSURANCE_GOVERNANCE.md` | Gates Design/Certification, assurance et autorisation explicite |
 | `prompts/t-p-vbb-phase-router.md` | Quel prompt utiliser ? |
 | `PROMPTS_ARCHITECTURE.md` | Architecture des prompts |
 

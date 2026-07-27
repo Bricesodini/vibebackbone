@@ -16,6 +16,7 @@ source: ARCHITECTURE.md
 graph TD
   governance-core["Governance Core<br/>governance · active"]
   engineering-knowledge-governance["Engineering Knowledge Governance<br/>governance · active"]
+  gate-assurance-governance["Gate Assurance Governance<br/>governance · active"]
   skills-catalog["Skills Catalog<br/>distribution · active"]
   prompt-library["Prompt Library<br/>distribution · active"]
   contract-tooling["Contract Tooling<br/>tooling · active"]
@@ -25,6 +26,8 @@ graph TD
   audit-memory["Audit Memory<br/>data · active"]
   external-dependencies["External Dependencies<br/>external · active"]
   engineering-knowledge-governance --> governance-core
+  gate-assurance-governance --> governance-core
+  gate-assurance-governance --> engineering-knowledge-governance
   skills-catalog --> governance-core
   prompt-library --> governance-core
   prompt-library --> skills-catalog
@@ -51,6 +54,7 @@ graph TD
 | Block | Risks |
 |-------|-------|
 | `engineering-knowledge-governance` | KNO-001: A candidate, playbook or run can create parallel truth if treated as authority.; KNO-002: Scope inflation can promote evidence beyond the independence it demonstrates. |
+| `gate-assurance-governance` | ASR-001: Misclassifying a behavioral contradiction as Certification can preserve a false Design PASS.; ASR-002: Inferring authorization from PASS verdicts can bypass required gates. |
 | `skills-catalog` | SKILL-001: Contract index drift reduces route and runtime coverage. |
 | `contract-tooling` | TOOL-003: Credentials enforcement is shared by the staged hook and commit-range CI through tools/vbb-credentials-gate.py (ADR-0033); detection is differential and intentionally not exhaustive.; TOOL-005: Effective readiness conservatively combines documentary truth with local Git, source-integrity and open-risk measurements; strict closure validates declared long-run timing fields (ADR-0046). |
 | `architecture-source` | ARCH-001: The projection must never become a competing source of truth. |
@@ -62,6 +66,7 @@ graph TD
 |-------|------------|---------|-------|
 | `governance-core` | - | task triage, audit routing, session startup, session closeout, engineering knowledge promotion | `AGENTS.md`, `SYSTEM.md`, `docs/CONTEXT.md`, `docs/PILOTAGE.md`, `docs/PROJECT_MODE.md`, `docs/SESSION_RULES.md`, `docs/CONVENTIONS.md`, `skills/vibebackbone/**` |
 | `engineering-knowledge-governance` | `governance-core` | audit routing, decision authority, independent review, session closeout, canonical change integration, knowledge record lifecycle | `docs/ENGINEERING_KNOWLEDGE_GOVERNANCE.md`, `docs/templates/KNOWLEDGE_RECORD.md.template` |
+| `gate-assurance-governance` | `governance-core`, `engineering-knowledge-governance` | pre-implementation gates, independent review, implementation authorization, closeout, four-distribution governance | `docs/GATE_ASSURANCE_GOVERNANCE.md`, `docs/templates/01_INTAKE.md.template`, `docs/templates/04_PLAN.md.template`, `docs/templates/06_REVIEW.md.template`, `docs/templates/07_CLOSEOUT.md.template`, `prompts/canonical/06-p-vbb-review.md`, `prompts/canonical/07-p-vbb-closeout.md`, `tools/vbb-loop-closure-check.py` |
 | `skills-catalog` | `governance-core` | route execution, audit skills, structured task support | `skills/*/SKILL.md`, `skills/*/CONTRACT.yaml`, `skills/INDEX.yaml`, `docs/REFERENCE/scoped-audit-protocol.md` |
 | `prompt-library` | `governance-core`, `skills-catalog`, `engineering-knowledge-governance` | session entry, user-facing workflow selection, provider command generation | `prompts/*.md`, `prompts/canonical/*.md`, `PROMPTS_ARCHITECTURE.md` |
 | `contract-tooling` | `skills-catalog`, `governance-core` | CI confidence, release readiness, implementation-readiness audits | `pyproject.toml`, `requirements-dev.txt`, `tools/vbb-contract-lint.py`, `tools/vbb-contract-runtime.py`, `tools/vbb-executor.py`, `tools/vbb-phase-router.py`, `tools/vbb-project-init.py`, `tools/vbb-status-dashboard.py`, `tools/vbb-loop-closure-check.py`, `tools/vbb-gate-check.py`, `tools/vbb-credentials-gate.py`, `tools/vbb_run_resolution.py`, `tools/vbb_runtime_conformance.py`, `conformance/**`, `scripts/hooks/pre-commit-framework-gate`, `scripts/install-vbb-hooks.sh` |

@@ -26,6 +26,17 @@ remains the review reference for this solo-maintained repository.
 
 ## Latest governance integration
 
+- `ASR-GOV-001` — Design/Certification assurance v1 is `INTEGRATED`. ADR 0050
+  is ACCEPTED; Core authorities, templates, enforcement, compatibility tests
+  and four-distribution propagation are active. Independent Review Run 03 is
+  PASS after ASR-R01 through ASR-R06 remediation. No consumer project was
+  modified.
+- Evidence:
+  [`implementation run`](runs/2026-07-27_2145_design-certification-gates-core-integration/05_EXECUTION.md),
+  [`independent review`](runs/2026-07-27_2145_design-certification-gates-core-integration/06_REVIEW_RUN_03.md),
+  [`impact analysis`](audits/impact-analysis-design-certification-gates-20260727-2145.md),
+  [`test coverage`](audits/test-coverage-design-certification-gates-20260727-2200.md),
+  [`ADR 0050`](adr/0050-design-certification-assurance-schema.md).
 - `KNO-GOV-001` — engineering-knowledge governance is `INTEGRATED`. The audit,
   impact analysis, GO POC, final human decision and two-stage independent
   integration review are complete. ADR 0049 is `ACCEPTED`; the Core contract,

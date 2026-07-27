@@ -5,6 +5,7 @@ voie: "<RAPIDE|STRUCTUREE|AUDIT|CLOTURE>"
 status: "<READY|PARTIAL|BLOCKED|UNKNOWN>"
 kind: "<HANDOFF|CLOSEOUT>"   # HANDOFF if status != READY or next_action != null; CLOSEOUT otherwise
 knowledge_governance_version: "1.0"
+assurance_governance_version: "1.0"
 knowledge_harvest: "<NONE|OBSERVATION_RECORDED|EVIDENCE_LINKED>"
 agent: "<claude-code|codex|pi|opencode>"
 started_at: "<YYYY-MM-DDTHH:MM:SSZ>"
@@ -34,6 +35,35 @@ artifacts_produced:
 
 - <décision majeure 1>
 - <décision majeure 2>
+
+## Assurance
+
+```yaml
+ASSURANCE_STATUS:
+  schema_version: "1.0"
+  subject: "<livraison ou décision certifiée>"
+  gate_results:
+    - gate_id: "<stable-id>"
+      gate_family: "<DESIGN|CERTIFICATION|OTHER>"
+      checkpoint: "<PRE_IMPLEMENTATION|POST_IMPLEMENTATION|CLOSEOUT>"
+      subject: "<sujet borné>"
+      verdict: "<PASS|FAIL|NOT_ASSESSED|NOT_APPLICABLE>"
+      evidence: ["<preuve>"]
+      reasons: ["<raison factuelle>"]
+      applicability:
+        profile_id: "<requis uniquement pour NOT_APPLICABLE>"
+        status: "NOT_APPLICABLE"
+        evidence: ["<déclaration de profil>"]
+  implementation_authorization:
+    status: "<AUTHORIZED|NOT_AUTHORIZED>"
+    required_gate_ids: ["<gate-id>"]
+    reasons: ["<raison explicite>"]
+```
+
+Ce bloc est frère de `FINAL_STATUS`; aucune inférence croisée. Un
+`CERTIFICATION: FAIL` pré-implémentation impose `HANDOFF` et
+`NOT_AUTHORIZED`. Un échec post-implémentation impose `HANDOFF` et livraison
+non certifiée. Le Design PASS reste acquis sauf reclassification substantive.
 
 ## Artefacts livrés
 

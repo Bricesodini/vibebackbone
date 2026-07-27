@@ -45,6 +45,15 @@ The review must answer:
 5. Were any risks detected?
 6. What is the final recommendation?
 
+When assurance gates apply, the review also runs two independent profiles:
+
+- `DESIGN_REVIEW`: observable behavior, contracts and invariants;
+- `CERTIFICATION_REVIEW`: documentary coherence, traceability, proof, oracles
+  and references.
+
+Record distinct verdicts. A Certification finding that changes observable
+behavior reopens Design. Never infer one verdict from the other.
+
 ---
 
 ## Inputs to read
@@ -196,6 +205,20 @@ Create the `06_REVIEW_RUN_N.md` file in `docs/runs/`.
 **If REJETÉ**:
 - Main reason: [why the run is rejected]
 - Recommended action: [return to 04_PLAN or 03_DECISION]
+
+## Assurance review profiles
+
+### DESIGN_REVIEW
+
+**Gate ID**: [stable id]
+**Verdict**: PASS | FAIL | NOT_ASSESSED | NOT_APPLICABLE
+**Findings**: [...]
+
+### CERTIFICATION_REVIEW
+
+**Gate ID**: [stable id]
+**Verdict**: PASS | FAIL | NOT_ASSESSED | NOT_APPLICABLE
+**Findings**: [...]
 
 ## Handoff
 

@@ -4,6 +4,7 @@ phase: "01_INTAKE"
 voie: "<RAPIDE|STRUCTUREE|AUDIT|CLOTURE>"
 status: "<READY|PARTIAL|BLOCKED|UNKNOWN>"
 knowledge_governance_version: "1.0"
+assurance_governance_version: "1.0"
 agent: "<claude-code|codex|pi|opencode>"
 started_at: "<YYYY-MM-DDTHH:MM:SSZ>"
 ended_at: "<YYYY-MM-DDTHH:MM:SSZ>"
@@ -50,6 +51,13 @@ artifacts_produced:
   - <fichiers, docs, artefacts>
 - **Points de vigilance** :
   - <risques, hypothèses, ambiguïtés non levées>
+
+## Assurance initiale
+
+- **Gates applicables** : <DESIGN / CERTIFICATION / OTHER + identifiants>
+- **Checkpoint visé** : <PRE_IMPLEMENTATION|POST_IMPLEMENTATION|CLOSEOUT>
+- **Implémentation autorisée à l'intake** : `NON` — seule une décision
+  `implementation_authorization.status: AUTHORIZED` explicite peut l'autoriser.
 
 ## Notes
 

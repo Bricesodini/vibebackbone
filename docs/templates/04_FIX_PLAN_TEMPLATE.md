@@ -65,6 +65,19 @@ updated: YYYY-MM-DD
 
 ---
 
+## Autorisation d'implémentation
+
+```yaml
+implementation_authorization:
+  status: "AUTHORIZED|NOT_AUTHORIZED"
+  required_gate_ids: ["gate-id"]
+  reasons: ["raison explicite"]
+```
+
+L'autorisation est fail-closed et n'est jamais déduite de verdicts PASS.
+
+---
+
 ## Handoff
 
 Agent suivant (executor) : plan validé, commencer phase 05 selon ces étapes.

@@ -25,6 +25,19 @@ artifacts_produced:
 
 - <état du repo, accès, dépendances avant de commencer>
 
+## Autorisation d'implémentation
+
+```yaml
+implementation_authorization:
+  status: "<AUTHORIZED|NOT_AUTHORIZED>"
+  required_gate_ids: ["<gate-id>"]
+  reasons: ["<raison explicite>"]
+```
+
+`AUTHORIZED` est valide uniquement si chaque gate requis est un résultat
+`PRE_IMPLEMENTATION: PASS`. Champ absent, vide ou contradictoire =
+`NOT_AUTHORIZED` (fail-closed).
+
 ## Étapes ordonnées
 
 | # | Action | Fichiers cibles | Validation | Rollback |

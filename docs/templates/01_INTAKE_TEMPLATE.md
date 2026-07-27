@@ -48,6 +48,15 @@ updated: YYYY-MM-DD
 
 ---
 
+## Assurance initiale
+
+- **Gates applicables** : [DESIGN / CERTIFICATION / OTHER + identifiants]
+- **Checkpoint** : [PRE_IMPLEMENTATION / POST_IMPLEMENTATION / CLOSEOUT]
+- **Autorisation** : `NOT_AUTHORIZED` par défaut; seul un record explicite
+  `AUTHORIZED` peut permettre l'exécution.
+
+---
+
 ## Handoff
 
 Agent suivant : pour continuer, consulter cette INTAKE et l'artefact de la phase recommandée.

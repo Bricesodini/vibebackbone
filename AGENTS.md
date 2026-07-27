@@ -68,6 +68,11 @@ by every agent profile. Reference-only content is cited by path, not duplicated.
     the claimed scope, knowledge audit, independent review, human approval and
     migration to one final authority. Canonical knowledge changes only through
     a new governed version; see `docs/ENGINEERING_KNOWLEDGE_GOVERNANCE.md`.
+15. **Qualified gate assurance:** gate verdicts keep `PASS/FAIL` but declare
+    `DESIGN`, `CERTIFICATION` or `OTHER`. Runtime `FINAL_STATUS` and sibling
+    `ASSURANCE_STATUS` are orthogonal. Implementation authorization is explicit
+    and fail-closed; Knowledge Harvest remains a closeout control. Canon:
+    `docs/GATE_ASSURANCE_GOVERNANCE.md`.
 
 ## Runtime Behavior
 

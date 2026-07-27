@@ -336,6 +336,7 @@ architecture-sensible n'est couvert par aucun bloc.
 - **[`docs/PILOTAGE.md`](docs/PILOTAGE.md)** — Guide opérationnel : familles de voies, MVP START gate, triage, escalade, cascades verdict
 - **[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)** — Source canonique structurée de l'architecture
 - **[`docs/ENGINEERING_KNOWLEDGE_GOVERNANCE.md`](docs/ENGINEERING_KNOWLEDGE_GOVERNANCE.md)** — Cycle de maturité, preuves, revue, promotion et supersession des apprentissages d'ingénierie
+- **[`docs/GATE_ASSURANCE_GOVERNANCE.md`](docs/GATE_ASSURANCE_GOVERNANCE.md)** — Familles de gates Design/Certification, assurance v1 et autorisation d'implémentation fail-closed
 - **[`docs/RELATIONS.md`](docs/RELATIONS.md)** — Projection générée : graphe, zones sensibles, index d'impact
 - **[`docs/INDEX.md`](docs/INDEX.md)** — Carte de navigation du dépôt pour agents et humains
 

@@ -115,6 +115,50 @@ risks:
     note: Scope inflation can promote evidence beyond the independence it demonstrates.
 ```
 
+## Bloc: Gate Assurance Governance
+
+```yaml
+id: gate-assurance-governance
+type: governance
+status: active
+role: Canonical taxonomy and schema for Design, Certification and Other gate assurance.
+responsibilities:
+  - Preserve local PASS and FAIL while qualifying gate family and checkpoint
+  - Keep subject assurance orthogonal to runtime FINAL_STATUS
+  - Enforce explicit fail-closed implementation authorization
+  - Define separate Design and Certification review profiles
+  - Preserve historical runs and consumer projects
+  - Keep Knowledge Harvest at closeout
+depends_on:
+  - governance-core
+  - engineering-knowledge-governance
+impacts:
+  - pre-implementation gates
+  - independent review
+  - implementation authorization
+  - closeout
+  - four-distribution governance
+files:
+  - docs/GATE_ASSURANCE_GOVERNANCE.md
+  - docs/templates/01_INTAKE.md.template
+  - docs/templates/04_PLAN.md.template
+  - docs/templates/06_REVIEW.md.template
+  - docs/templates/07_CLOSEOUT.md.template
+  - prompts/canonical/06-p-vbb-review.md
+  - prompts/canonical/07-p-vbb-closeout.md
+  - tools/vbb-loop-closure-check.py
+contracts: []
+tests:
+  - tests/test_loop_closure.py
+risks:
+  - id: ASR-001
+    level: P1
+    note: Misclassifying a behavioral contradiction as Certification can preserve a false Design PASS.
+  - id: ASR-002
+    level: P1
+    note: Inferring authorization from PASS verdicts can bypass required gates.
+```
+
 ## Bloc: Skills Catalog
 
 ```yaml

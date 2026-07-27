@@ -25,6 +25,29 @@ artifacts_produced:
 - [ ] <...>
 - [ ] <...>
 
+## Profils de review d'assurance
+
+### DESIGN_REVIEW
+
+- **Applicable** : `oui|non`
+- **Checklist** : comportement observable, contrats, invariants, transactions,
+  SQL, concurrence et historique.
+- **Verdict** : `PASS|FAIL|NOT_ASSESSED|NOT_APPLICABLE`
+- **Gate ID** : `<stable-id>`
+- **Findings** : <...>
+
+### CERTIFICATION_REVIEW
+
+- **Applicable** : `oui|non`
+- **Checklist** : cohérence documentaire, traçabilité, preuves, oracles et
+  références.
+- **Verdict** : `PASS|FAIL|NOT_ASSESSED|NOT_APPLICABLE`
+- **Gate ID** : `<stable-id>`
+- **Findings** : <...>
+
+Un finding documentaire qui modifie le comportement observable rouvre
+`DESIGN_REVIEW`; aucun verdict n'est déduit de l'autre.
+
 ## Points conformes
 
 - <ce qui est en ordre>

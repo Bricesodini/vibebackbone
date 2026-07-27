@@ -52,6 +52,22 @@ Reviewing patch summary run #[N], exécuté par [executor name].
 - [ ] Risque mineur : [description, mitigation suggérée]
 - [ ] Risque majeur : [description, blocke la validation]
 
+## Profils d'assurance
+
+### DESIGN_REVIEW
+
+**Verdict** : [PASS | FAIL | NOT_ASSESSED | NOT_APPLICABLE]
+
+[Contrats, comportement observable, invariants et éventuelle réouverture.]
+
+### CERTIFICATION_REVIEW
+
+**Verdict** : [PASS | FAIL | NOT_ASSESSED | NOT_APPLICABLE]
+
+[Cohérence, traçabilité, preuves, oracles et références.]
+
+Les deux verdicts sont indépendants; un finding substantif est reclassé Design.
+
 ---
 
 ## Points non résolus

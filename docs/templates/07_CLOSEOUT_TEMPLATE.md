@@ -41,6 +41,22 @@ updated: YYYY-MM-DD
 
 ---
 
+## Assurance
+
+Insérer le bloc frère `ASSURANCE_STATUS` v1 de
+`docs/GATE_ASSURANCE_GOVERNANCE.md`, avec résultats qualifiés, preuves et
+autorisation explicite. Ne pas le fusionner avec `FINAL_STATUS`.
+
+---
+
+## Knowledge Harvest
+
+Disposition obligatoire : `NONE`, `OBSERVATION_RECORDED` ou
+`EVIDENCE_LINKED`. Le Harvest reste un contrôle de closeout et ne devient pas
+un gate Design ou Certification.
+
+---
+
 ## Risques identifiés et documentés
 
 - **Risque 1** : [description, niveau P0/P1/P2/P3, mitigation]
