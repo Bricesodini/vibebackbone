@@ -159,18 +159,18 @@ FINAL_STATUS:
   independent_review: PASS
   certified_commit_unchanged: "c4bb4b63b1e59e67d92acead1371ca6a95cf002a"
   adversarial_certification_unchanged: true
-  commit_created: false  # to be created separately
-  commit_sha: null
+  commit_created: true
+  commit_sha: "0ea53404ef21df12dc7a94888c92d6f50b1d8c87"
   pushed: false
-  next_authorized_action: "Créer le commit `fix(claude): install skills through canonical discovery paths` après validation humaine."
+  next_authorized_action: "Push du commit 0ea53404ef21df12dc7a94888c92d6f50b1d8c87 après validation humaine explicite. Aucune étape automatique."
 ```
 
-## Commits prévus
+## Commits
 
-| Type | Subject | SHA cible |
-|---|---|---|
-| `fix(claude)` | install skills through canonical discovery paths | NEW (sur `b9084e2`) |
-| Tag `vbb-v1.1-adversarial-certified` | (déjà existant) | `c4bb4b6` (inchangé) |
+| Type | Subject | SHA | Status |
+|---|---|---|---|
+| `fix(claude)` | install skills through canonical discovery paths | `0ea53404ef21df12dc7a94888c92d6f50b1d8c87` | ✅ créé (local) |
+| Tag `vbb-v1.1-adversarial-certified` | (déjà existant) | `c4bb4b63b1e59e67d92acead1371ca6a95cf002a` | ✅ inchangé |
 
 Le commit certifié `c4bb4b6` reste **immuable**. Le tag
 `vbb-v1.1-adversarial-certified` reste pointé sur `c4bb4b6`.
