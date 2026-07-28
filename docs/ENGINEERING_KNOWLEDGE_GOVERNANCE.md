@@ -214,6 +214,20 @@ An anti-pattern record additionally contains:
 
 Both follow the same maturity and promotion gates.
 
+### Producers — confirmed findings (ADR 0051)
+
+A `CONFIRMED` finding closed by a non-regression lock and a
+`COUNTER_PROOF` `PASS` is a **producer** for an anti-pattern observation.
+The finding record's `promotion` block answers the six destinations of
+[`ADVERSARIAL_ASSURANCE_GOVERNANCE.md` §9](../ADVERSARIAL_ASSURANCE_GOVERNANCE.md);
+destination #5 routes the observation into this knowledge loop as a
+candidate anti-pattern.
+
+This is the only path through which a finding can become a candidate.
+There is no direct edit of `docs/CONVENTIONS.md` or `AGENTS.md` from a
+finding. The knowledge loop (auditor → independent reviewer → human
+decision → canonical integration) is unchanged.
+
 ## Knowledge non-regression
 
 Canonical knowledge is immutable.

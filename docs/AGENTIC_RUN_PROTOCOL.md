@@ -96,10 +96,29 @@ close before implementation; Certification can run at pre-implementation,
 post-implementation or closeout checkpoints. Phase 06 exposes distinct
 `DESIGN_REVIEW` and `CERTIFICATION_REVIEW` profiles.
 
+### Third review profile — `ADVERSARIAL_REVIEW` (ADR 0051)
+
+Phase 06 may carry a third, parallel review profile: `ADVERSARIAL_REVIEW`.
+It does not review the delivery's conformity; it reviews the **campaign**:
+
+- Was the declared attack surface plausible and complete for the level?
+- Was the attack list pre-registered, and is it adequate — or did the
+  campaign test only what was easy?
+- Are reproductions genuine oracles, or assertions of intent?
+- Do non-regression locks actually `fails_before`?
+- Is `surfaces_unexplored` honest?
+- At `A2`: is the reviewer distinct from the campaign actor and the fixer?
+
+A Certification finding that affects behavior still reopens Design. An
+Adversarial review finding that affects behavior reopens both Design
+and Certification.
+
 Governed runs record subject assurance in sibling `ASSURANCE_STATUS`. Runtime
 `FINAL_STATUS` remains unchanged. Implementation proceeds only on an explicit
 fail-closed authorization record; two PASS verdicts never imply it. See
-[`GATE_ASSURANCE_GOVERNANCE.md`](GATE_ASSURANCE_GOVERNANCE.md).
+[`GATE_ASSURANCE_GOVERNANCE.md`](GATE_ASSURANCE_GOVERNANCE.md) for the
+schema, [`ADVERSARIAL_ASSURANCE_GOVERNANCE.md`](ADVERSARIAL_ASSURANCE_GOVERNANCE.md)
+for the domain.
 
 ## Governed learning after delivery
 

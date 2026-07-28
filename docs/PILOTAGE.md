@@ -66,6 +66,7 @@ Full details (sequences, alternatives, artifact conventions): [ROUTER_MATRIX.md]
 3. Touches security/integrity/compliance ? → AUDIT
 4. Neither ? → FAST
 5. End of session ? → CLOSE-HANDOFF (paused, reprise attendue) or CLOSE-FINAL (terminated): t-vbb-commit-ready → git commit → git push → update SESSION.md (archive if HANDOFF, empty if FINAL) → update CONTEXT.md
+6. Declare the **adversarial level** (A0 / A1 / A2) per the criticality matrix in `docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md` §1.2. Undeclared, ambiguous or contested criticality defaults to `A1`. An `A2` trigger forces STRUCTURED or AUDIT regardless of declared intent (P.R7 escalation).
 ```
 
 ### Engineering knowledge gate
@@ -78,6 +79,31 @@ Every formal closeout performs the Knowledge Harvest defined in
 - Qualifying or promoting a candidate enters `AUDIT` minimum.
 - Promotion requires a knowledge audit, a distinct independent review and an
   explicit human decision.
+
+### Adversarial level — fail-closed rules (ADR 0051, §1.3)
+
+Declared at intake, re-evaluated at execution end. The matrix is
+**trigger-based**, not declarative. Escalation is mandatory in the more
+prudent direction, never in the more lenient direction (symmetric with
+the severity-dependent arbitration authority).
+
+| Situation | Effective level |
+|---|---|
+| Niveau déclaré `A2`, déclencheur `A2` matche, contest absent | `A2` |
+| Niveau déclaré `A2`, déclencheur `A1` matche | `A2` (contest ouvert par défaut) |
+| Niveau déclaré `A1`, déclencheur `A2` matche | **escalade obligatoire** → `A2` |
+| Niveau non déclaré | `A1` (fail-closed) |
+| Niveau déclaré `A0` mais déclencheur `A1`/`A2` matche | **escalade obligatoire** vers le niveau du trigger |
+| Niveau contesté (objection écrite par gate expert dans `01_INTAKE.md`) | `A1` jusqu'à résolution |
+| Conflit déclarant / classifier automatique | `A1` |
+
+The classifier is verified by `tools/vbb-gate-check.py` at the
+`PRE_IMPLEMENTATION` checkpoint. A declared level that disagrees with the
+matrix default is recorded as a `contest_register` entry in
+`01_INTAKE.md`.
+
+Single authority for the matrix, levels, statuses and verdict
+conditions: [`docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md`](ADVERSARIAL_ASSURANCE_GOVERNANCE.md).
 - Canonical integration then uses a separately gated `STRUCTURED` run.
 - No FAST route may promote, edit or supersede canonical knowledge.
 

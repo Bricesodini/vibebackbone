@@ -31,6 +31,7 @@ status: active
 | 3 | `python tools/vbb-contract-lint.py` | Published contracts lint clean |
 | 4 | `python tools/vbb-loop-closure-check.py <run> --strict` | Closure invariant satisfied |
 | 5 | `pytest tests/ -q && bash scripts/vbb-ci-local.sh` | Test suite + local CI pass |
+| **5b** *(adversarial — ADR 0051)* | **`python tools/vbb-adversarial-gate.py <run> --strict && python -m pytest tests/adversarial_corpus/ -q`** | Adversarial validator + adversarial corpus execution as a **separately reported** check. **Distinct from command 5.** |
 
 ## Bloc shell canonique
 
@@ -39,9 +40,17 @@ python tools/vbb-architecture.py lint && \
 python tools/vbb-architecture.py graph --write && \
 python tools/vbb-contract-lint.py && \
 python tools/vbb-loop-closure-check.py <run_id> --strict && \
+( python tools/vbb-adversarial-gate.py <run_id> --strict || [ "$(adversarial_governance_cutoff_state)" = "pre-cutoff" ] ) && \
+( python -m pytest tests/adversarial_corpus/ -q || [ "$(adversarial_governance_cutoff_state)" = "pre-cutoff" ] ) && \
 pytest tests/ -q && \
 bash scripts/vbb-ci-local.sh
 ```
+
+Les deux lignes intermédiaires (`5b` — adversarial) sont conditionnelles
+au cutoff `2026-07-28_1400`. Avant le cutoff, le bloc retourne code 0
+même si les deux lignes sont sautées ; après le cutoff, elles sont
+obligatoires. Cette conditionnalité préserve la compatibilité
+ascendante (cf. ADR 0050 §Compatibility).
 
 ## Règles d'application
 

@@ -310,6 +310,13 @@ This loop is the canonical verification mechanism for all implementation runs.
 - Every architecture change must pass architecture lint and RELATIONS.md regeneration
 - These checks are enforced by CI on every push
 
+**Adversarial reinforcement (ADR 0051).** A `CONFIRMED` finding produces
+a permanent regression entry in the adversarial corpus
+(`docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md` §9). The corpus entry is
+mandatory and the only mechanism that prevents the same finding from
+re-emerging after a fix. Without a `fails_before`/`passes_after` lock,
+the fix is a patch — not a regression guard.
+
 ### P.R6 — Error Handling by Layer
 
 **Errors are handled at the appropriate layer.**

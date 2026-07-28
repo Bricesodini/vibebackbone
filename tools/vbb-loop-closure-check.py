@@ -136,6 +136,49 @@ ASSURANCE_CHECKPOINTS = frozenset(
 )
 ASSURANCE_VERDICTS = frozenset({"PASS", "FAIL", "NOT_ASSESSED", "NOT_APPLICABLE"})
 
+# ---------------------------------------------------------------------------
+# Adversarial governance v1.1 extensions (ADR 0051 + REM-02)
+# Effective 2026-07-28_1400 (M2-BIS M2-BIS_RATIFIED).
+# Pre-cutoff runs may omit these; post-cutoff runs SHOULD declare them.
+# ---------------------------------------------------------------------------
+ADVERSARIAL_GOVERNANCE_VERSION = "1.1"
+ADVERSARIAL_GOVERNANCE_CUTOVER_KEY = "2026-07-28_1400"
+ADVERSARIAL_GOVERNANCE_CUTOVER_AT = datetime(2026, 7, 28, 14, 0, 0, tzinfo=timezone.utc)
+ADVERSARIAL_GATE_FAMILIES = frozenset(
+    {"DESIGN", "CERTIFICATION", "ADVERSARIAL", "OTHER"}
+)
+ADVERSARIAL_CHECKPOINTS = frozenset(
+    {"PRE_IMPLEMENTATION", "POST_IMPLEMENTATION", "COUNTER_PROOF", "CLOSEOUT"}
+)
+ADVERSARIAL_CERTIFICATION_STATUSES = frozenset(
+    {
+        "NOT_CERTIFIED",
+        "CERTIFIED",
+        "SUSPENDED",
+        "NOT_APPLICABLE",
+        "UNASSESSED_LEGACY",
+        # RATIFIED 2026-07-28, REM-01 (R1)
+        "PRE_CERTIFICATION",
+        "MIGRATION",
+    }
+)
+ADVERSARIAL_ADVERSARIAL_STATUSES = frozenset(
+    {
+        "NOT_ASSESSED",
+        "NOT_REQUIRED",
+        "IN_CAMPAIGN",
+        "FINDINGS_OPEN",
+        "PASS_ADVERSARIAL",
+        "FAIL_ADVERSARIAL",
+    }
+)
+ADVERSARIAL_IMPLEMENTATION_STATUSES = frozenset(
+    {"NOT_STARTED", "IN_PROGRESS", "IMPLEMENTED", "ABANDONED"}
+)
+ADVERSARIAL_CONFORMITY_STATUSES = frozenset(
+    {"NOT_ASSESSED", "PASS_CONFORMITY", "FAIL_CONFORMITY", "NOT_APPLICABLE"}
+)
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -337,7 +380,14 @@ def _extract_assurance_status(path: Path) -> Tuple[Optional[Dict], Optional[str]
 
 
 def validate_assurance_status(run_dir: Path) -> List[str]:
-    """Validate additive gate assurance without rewriting historical runs."""
+    """Validate additive gate assurance without rewriting historical runs.
+
+    v1.1 (ADR 0051 + REM-02, 2026-07-28) extension:
+    - accepts `adversarial_governance_version: "1.1"` and the v1.1 enum
+      values (gate_family ADVERSARIAL, checkpoint COUNTER_PROOF,
+      certification_status PRE_CERTIFICATION / MIGRATION) when declared.
+    - falls back to strict v1.0 validation otherwise.
+    """
     intake_path = run_dir / "01_INTAKE.md"
     closeout_path = run_dir / "07_CLOSEOUT.md"
     intake_fm, intake_error = (
@@ -356,8 +406,17 @@ def validate_assurance_status(run_dir: Path) -> List[str]:
     if not _assurance_governance_required(run_dir, intake_fm, closeout_fm):
         return errors
 
+    # Determine v1.0 vs v1.1 mode based on field declarations.
+    intake_adv = str(intake_fm.get("adversarial_governance_version", ""))
+    closeout_adv = str(closeout_fm.get("adversarial_governance_version", ""))
     intake_version = str(intake_fm.get("assurance_governance_version", ""))
     closeout_version = str(closeout_fm.get("assurance_governance_version", ""))
+
+    adversarial_v11 = (
+        intake_adv == ADVERSARIAL_GOVERNANCE_VERSION
+        or closeout_adv == ADVERSARIAL_GOVERNANCE_VERSION
+    )
+
     if intake_path.exists() and not intake_version:
         errors.append(
             "01_INTAKE.md: assurance_governance_version is required "
@@ -384,14 +443,38 @@ def validate_assurance_status(run_dir: Path) -> List[str]:
         errors.append(
             "07_CLOSEOUT.md: assurance_governance_version must match 01_INTAKE.md"
         )
+    # v1.1 must be declared symmetrically across intake and closeout
+    if (intake_adv and not closeout_adv) or (closeout_adv and not intake_adv):
+        errors.append(
+            "adversarial_governance_version must be declared in both "
+            "01_INTAKE.md and 07_CLOSEOUT.md (or neither)"
+        )
+    for artifact, version in (
+        ("01_INTAKE.md", intake_adv),
+        ("07_CLOSEOUT.md", closeout_adv),
+    ):
+        if version and version != ADVERSARIAL_GOVERNANCE_VERSION:
+            errors.append(
+                f"{artifact}: adversarial_governance_version unsupported "
+                f"'{version}' (expected '{ADVERSARIAL_GOVERNANCE_VERSION}')"
+            )
 
     assurance, assurance_error = _extract_assurance_status(closeout_path)
     if assurance_error:
         errors.append(f"07_CLOSEOUT.md: {assurance_error}")
         return errors
     assert assurance is not None
-    if str(assurance.get("schema_version", "")) != ASSURANCE_GOVERNANCE_VERSION:
-        errors.append("ASSURANCE_STATUS.schema_version must be '1.0'")
+    # v1.1 ASSURANCE_STATUS may declare schema_version "1.1" (additive);
+    # v1.0 schema remains "1.0". A v1.1 reader accepts both.
+    schema_version = str(assurance.get("schema_version", ""))
+    if schema_version not in (
+        ASSURANCE_GOVERNANCE_VERSION,
+        ADVERSARIAL_GOVERNANCE_VERSION,
+    ):
+        errors.append(
+            f"ASSURANCE_STATUS.schema_version must be "
+            f"'{ASSURANCE_GOVERNANCE_VERSION}' or '{ADVERSARIAL_GOVERNANCE_VERSION}'"
+        )
     if not str(assurance.get("subject", "")).strip():
         errors.append("ASSURANCE_STATUS.subject must be non-empty")
 
@@ -408,6 +491,11 @@ def validate_assurance_status(run_dir: Path) -> List[str]:
             and all(isinstance(item, str) and bool(item.strip()) for item in value)
         )
 
+    gate_families = (
+        ADVERSARIAL_GATE_FAMILIES if adversarial_v11 else ASSURANCE_GATE_FAMILIES
+    )
+    checkpoints = ADVERSARIAL_CHECKPOINTS if adversarial_v11 else ASSURANCE_CHECKPOINTS
+
     for index, result in enumerate(gate_results):
         prefix = f"ASSURANCE_STATUS.gate_results[{index}]"
         if not isinstance(result, dict):
@@ -421,11 +509,19 @@ def validate_assurance_status(run_dir: Path) -> List[str]:
         else:
             gates_by_id[gate_id] = result
         family = str(result.get("gate_family", "")).strip()
-        if family not in ASSURANCE_GATE_FAMILIES:
-            errors.append(f"{prefix}.gate_family invalid '{family or 'missing'}'")
+        if family not in gate_families:
+            allowed = ", ".join(sorted(gate_families))
+            errors.append(
+                f"{prefix}.gate_family invalid '{family or 'missing'}' "
+                f"(allowed: {allowed})"
+            )
         checkpoint = str(result.get("checkpoint", "")).strip()
-        if checkpoint not in ASSURANCE_CHECKPOINTS:
-            errors.append(f"{prefix}.checkpoint invalid '{checkpoint or 'missing'}'")
+        if checkpoint not in checkpoints:
+            allowed = ", ".join(sorted(checkpoints))
+            errors.append(
+                f"{prefix}.checkpoint invalid '{checkpoint or 'missing'}' "
+                f"(allowed: {allowed})"
+            )
         verdict = str(result.get("verdict", "")).strip()
         if verdict not in ASSURANCE_VERDICTS:
             errors.append(f"{prefix}.verdict invalid '{verdict or 'missing'}'")
@@ -452,6 +548,50 @@ def validate_assurance_status(run_dir: Path) -> List[str]:
                     errors.append(
                         f"{prefix}.applicability.evidence must contain "
                         "non-empty strings"
+                    )
+
+    # Validate top-level status fields if v1.1 is declared.
+    if adversarial_v11:
+        # Build the list of (status_field, allowed_frozenset) tuples.
+        allowed_sets: list = [
+            ("implementation_status", ADVERSARIAL_IMPLEMENTATION_STATUSES),
+            ("conformity_status", ADVERSARIAL_CONFORMITY_STATUSES),
+            ("adversarial_status", ADVERSARIAL_ADVERSARIAL_STATUSES),
+            ("certification_status", ADVERSARIAL_CERTIFICATION_STATUSES),
+        ]
+        for status_field, allowed in allowed_sets:
+            observed = str(assurance.get(status_field, "")).strip()
+            if observed and observed not in allowed:
+                allowed_str = ", ".join(sorted(allowed))  # type: ignore[call-overload]
+                errors.append(
+                    f"ASSURANCE_STATUS.{status_field} invalid "
+                    f"'{observed}' (allowed: {allowed_str})"
+                )
+
+        # PRE_CERTIFICATION requires transient_reason + bootstrapped_at + bootstrapped_by
+        cert_status = str(assurance.get("certification_status", "")).strip()
+        if cert_status == "PRE_CERTIFICATION":
+            for required in ("transient_reason", "bootstrapped_at", "bootstrapped_by"):
+                value = assurance.get(required)
+                if not isinstance(value, str) or not value.strip():
+                    errors.append(
+                        f"ASSURANCE_STATUS.{required} is required when "
+                        f"certification_status is PRE_CERTIFICATION"
+                    )
+        elif cert_status == "MIGRATION":
+            for required in (
+                "transient_reason",
+                "migrating_from",
+                "migrating_to",
+                "migration_started_at",
+                "migration_plan_ref",
+                "migration_completion_deadline",
+            ):
+                value = assurance.get(required)
+                if not isinstance(value, str) or not value.strip():
+                    errors.append(
+                        f"ASSURANCE_STATUS.{required} is required when "
+                        f"certification_status is MIGRATION"
                     )
 
     authorization = assurance.get("implementation_authorization")

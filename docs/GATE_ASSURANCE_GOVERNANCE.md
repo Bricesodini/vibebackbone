@@ -19,7 +19,15 @@ This document is the canonical authority for gate-family semantics and the
 |---|---|---|
 | `DESIGN` | Close observable behavior: contracts, ADRs, transactions, SQL, concurrency and history. | The product is not fully specified. |
 | `CERTIFICATION` | Certify coherence, traceability, references, oracles and proof. | The design may be closed, but the documentary proof is not certified. |
-| `OTHER` | Represent a named gate outside both families without corrupting their semantics. | The named gate failed under its own contract. |
+| `ADVERSARIAL` | Document an attempted falsification: declared surface, declared depth, declared actor, named findings. | A confirmed finding at or above the blocking severity is unremediated within the declared scope. |
+| `OTHER` | Represent a named gate outside the three named families without corrupting their semantics. | The named gate failed under its own contract. |
+
+> **Schema 1.1 (effective 2026-07-28)** — extensions to ADR 0050:
+> - The `ADVERSARIAL` family is added (`ADR 0051`).
+> - The fourth checkpoint `COUNTER_PROOF` is added to the canonical checkpoint list.
+> - `gate_results[].checkpoint` accepts `{PRE_IMPLEMENTATION, POST_IMPLEMENTATION, COUNTER_PROOF, CLOSEOUT}`.
+> - `gate_results[].gate_family` accepts `{DESIGN, CERTIFICATION, ADVERSARIAL, OTHER}`.
+> - A v1.0 reader that sees `gate_family: ADVERSARIAL` is non-conformant by **explicit declaration**, not by silent re-injection into `OTHER`. The POC `tools/vbb-adversarial-gate.py` enforces this.
 
 Local verdicts are `PASS`, `FAIL`, `NOT_ASSESSED` and `NOT_APPLICABLE`.
 `PASS/FAIL` are never interpreted without `gate_family`, `gate_id`,
@@ -33,8 +41,21 @@ stays unambiguous.
 ## Checkpoints and aggregation
 
 Gate results are identified and append-only. The checkpoints are
-`PRE_IMPLEMENTATION`, `POST_IMPLEMENTATION` and `CLOSEOUT`; a later result
-cannot overwrite an earlier checkpoint.
+`PRE_IMPLEMENTATION`, `POST_IMPLEMENTATION`, `COUNTER_PROOF` (since v1.1,
+ADR 0051) and `CLOSEOUT`; a later result cannot overwrite an earlier
+checkpoint.
+
+Two distinct evaluations are defined and **must not be collapsed** into a
+single number:
+
+| Evaluation | Scope | Effect of `resolution` |
+|---|---|---|
+| `checkpoint_aggregation` | Per checkpoint | **None.** A `POST_IMPLEMENTATION` `FAIL` stays `FAIL` forever. That is the historical truth. |
+| `closure_evaluation` | Per run, at closeout | A `POST_IMPLEMENTATION` required `FAIL` stops blocking closure **iff** it carries a valid `resolution` whose closing gate result is `PASS` at `COUNTER_PROOF`. |
+
+A run may therefore `final-close` while permanently displaying a failed
+`POST_IMPLEMENTATION` checkpoint. The record reads "this broke once,
+here is the proof it was closed", not "this never broke".
 
 Within one checkpoint and its declared required-gate list, any required
 `FAIL` makes the checkpoint fail, a missing required result makes it
@@ -134,3 +155,85 @@ runs are not rewritten or reclassified. The objective cutoff is run key
 - Readers prefer v1 when present and preserve legacy semantics when absent.
 - Consumer projects adopt this contract only through their own future governed
   change; Vibebackbone does not rewrite them.
+
+### v1.1 additive delta (ADR 0051, effective 2026-07-28)
+
+The schema is extended additively by ADR 0051 (adversarial assurance
+dimension). `schema_version: "1.1"` is a strict superset of v1.0 — no
+field removed or renamed. Schema 1.1 adds:
+
+1. **Top-level statuses** (declared by ADR 0051 and operated in
+   `docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md`):
+   - `implementation_status` ∈ {`NOT_STARTED`, `IN_PROGRESS`,
+     `IMPLEMENTED`, `ABANDONED`}.
+   - `conformity_status` ∈ {`NOT_ASSESSED`, `PASS_CONFORMITY`,
+     `FAIL_CONFORMITY`, `NOT_APPLICABLE`}.
+   - `adversarial_status` ∈ {`NOT_ASSESSED`, `NOT_REQUIRED`,
+     `IN_CAMPAIGN`, `FINDINGS_OPEN`, `PASS_ADVERSARIAL`,
+     `FAIL_ADVERSARIAL`}.
+   - `certification_status` ∈ {`NOT_CERTIFIED`, `CERTIFIED`,
+     `SUSPENDED`, `NOT_APPLICABLE`, `UNASSESSED_LEGACY`}.
+2. **`status_evidence`** — one path or command per top-level status. A
+   status without evidence is **invalid**, not merely undocumented.
+3. **New `gate_family`** value: `ADVERSARIAL`. Documented in
+   `ADVERSARIAL_ASSURANCE_GOVERNANCE.md`.
+4. **New `checkpoint`** value: `COUNTER_PROOF`. A counter-proof verdict
+   `PASS` may close a previously-failing `POST_IMPLEMENTATION` result
+   via the `resolution` link on the failing entry.
+5. **`resolution`** — optional block on a failing gate result that
+   links to the closing gate at `COUNTER_PROOF` and to finding
+   identifiers.
+6. **Adversarial block** — `adversarial: { level, campaign_ref,
+   corpus_version, exploration_performed, surfaces_declared,
+   surfaces_unexplored, residual_uncertainty, findings, verdict }`.
+7. **Certification block** — `certification: { status, scope, bound_to,
+   conditions_met, owner, human_decision }`. The bound state makes the
+   claim revocable (cf. §6.3 in the dossier and §6 in
+   `ADVERSARIAL_ASSURANCE_GOVERNANCE.md`).
+8. **`UNASSESSED_LEGACY`** — distinct value of
+   `certification_status` for pre-cutoff subjects that were never
+   adversarially assessed. **Not** `NOT_CERTIFIED`, **not** a failure.
+
+9. **`PRE_CERTIFICATION`** (RATIFIED 2026-07-28, REM-01) — 6ᵉ value
+   of `certification_status` for post-cutoff subjects awaiting first
+   CERTIFIED. Mandatory companion fields: `transient_reason`,
+   `bootstrapped_at`, `bootstrapped_by`. Distinct from
+   `UNASSESSED_LEGACY` (which is strictly pre-cutoff) and from
+   `NOT_CERTIFIED` (which means "evaluated and not passing"). Full
+   semantics in `ADVERSARIAL_ASSURANCE_GOVERNANCE.md` §11.1.
+
+10. **`MIGRATION`** (RATIFIED 2026-07-28, REM-01) — 7ᵉ value of
+    `certification_status` for subjects in active transition between
+    governance regimes (e.g., v1.0 → v1.1). Mandatory companion
+    fields: `migrating_from`, `migrating_to`, `migration_started_at`,
+    `migration_plan_ref`, `migration_completion_deadline`. Full
+    semantics in `ADVERSARIAL_ASSURANCE_GOVERNANCE.md` §11.2.
+
+11. **`certification.transient_reason`** (NEW v1.1) — non-empty
+    string required when `certification_status ∈ {PRE_CERTIFICATION,
+    MIGRATION}`. Describes why the subject is in a transient state.
+    A status without `transient_reason` is **invalid**, not merely
+    undocumented.
+
+12. **`certification.bootstrapped_at`** (NEW v1.1) — ISO 8601 UTC
+    timestamp required for `PRE_CERTIFICATION`. Records the moment
+    the subject entered the bootstrap phase.
+
+13. **`certification.bootstrapped_by`** (NEW v1.1) — non-empty
+    identifier (agent or human) required for `PRE_CERTIFICATION`.
+
+A v1.0 reader ignores the new top-level blocks and statuses. Where it
+encounters a v1.1 enum value (`gate_family: ADVERSARIAL` or
+`checkpoint: COUNTER_PROOF`), the reader is **non-conformant** by
+explicit declaration. The current v1.1 reader checks for this and
+applies the appropriate fail-closed default.
+
+For `certification_status: PRE_CERTIFICATION` or `MIGRATION`, the
+v1.0 reader MUST treat the value as `NOT_CERTIFIED` for aggregation
+purposes (conservative interpretation) but MUST preserve the original
+value in the durable record (no silent rewriting).
+
+Cutoff key for adversarial governance:
+`adversarial_governance_version: "1.1"` /
+`cutoff_run_key: "2026-07-28_1400"` /
+`cutoff_timestamp: "2026-07-28T14:00:00Z"`.
