@@ -1,6 +1,13 @@
 ---
 name: 2-vbb-adversarial-campaign
-description: Orchestrate adversarial campaigns (A1/A2) on a declared subject by composing existing technique skills (security, systemic-risk, error-handling, etc.) into a single contracted campaign that produces findings, non-regression locks, and a `PASS_ADVERSARIAL` verdict or refutation. Use when a deliverable or canon requires adversarial assurance at A1 or A2 per the criticality matrix in `docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md` §1.2. Keywords: adversarial, campaign, falsification, attack, A1, A2, PASS_ADVERSARIAL, A2_DISTINCT_AGENT_PROXY, attacker_identity, non_regression_lock.
+description: |
+  Orchestrate adversarial campaigns (A1/A2) on a declared subject by composing existing
+  technique skills (security, systemic-risk, error-handling, etc.) into a single contracted
+  campaign that produces findings, non-regression locks, and a `PASS_ADVERSARIAL` verdict
+  or refutation. Use when a deliverable or canon requires adversarial assurance at A1 or A2
+  per the criticality matrix in `docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md` §1.2.
+  Keywords: adversarial, campaign, falsification, attack, A1, A2, PASS_ADVERSARIAL,
+  A2_DISTINCT_AGENT_PROXY, attacker_identity, non_regression_lock.
 context_role: adversarial-campaign-orchestrator
 phase: "execution+verification"
 status: "active"

@@ -1,6 +1,13 @@
 ---
 name: t-vbb-adversarial-corpus
-description: Manage the adversarial regression corpus — creation, versioning, quarantine, and execution of corpus entries. Use when a CONFIRMED adversarial finding must be registered as a permanent regression guard (mandatory per `ADVERSARIAL_ASSURANCE_GOVERNANCE.md` §9 destination 6) or when the corpus must be executed against a code state to validate regression posture. Keywords: corpus, regression guard, fails_before, passes_after, quarantine, adversarial corpus, finds-registry, tests/adversarial_corpus/.
+description: |
+  Manage the adversarial regression corpus — creation, versioning, quarantine, and execution
+  of corpus entries. Use when a CONFIRMED adversarial finding must be registered as a
+  permanent regression guard (mandatory per `ADVERSARIAL_ASSURANCE_GOVERNANCE.md` §9
+  destination 6) or when the corpus must be executed against a code state to validate
+  regression posture.
+  Keywords: corpus, regression guard, fails_before, passes_after, quarantine, adversarial
+  corpus, finds-registry, tests/adversarial_corpus/.
 context_role: corpus-steward
 phase: "transverse"
 status: "active"
