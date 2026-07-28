@@ -186,6 +186,7 @@ proposed v1.1 delta and is deliberately not used here.
 | `COND-05` | Single-authority boundary must be decided: one new authority versus rules spread over four existing ones | M1 run |
 | `COND-06` | Interaction between human-only `S0`/`S1` arbitration and autonomous run sequences (ADR-0031) | M1 run |
 | `OP-01` | Nothing is prototyped; every cost and feasibility claim is argued, not measured | M2 run |
+| `OP-03` | Archiving `docs/runs/2026-07-26_1701_i1-i2-normative-remediation/` is blocked by the pre-commit plan gate (see §État pour la prochaine session). Disposition pending | Human |
 | `OP-02` | The canonical P.R2 command `pytest tests/ -q` is interpreter-sensitive and can report 88 spurious failures (see §Vérification P.R2). Hardening it to `python -m pytest` would be a change to `docs/REFERENCE/pre-merge-gate.md`, i.e. a canon change out of scope here | Human |
 
 ## Knowledge Harvest
@@ -270,10 +271,27 @@ involved, and no test was modified. Recorded as an observation below.
 - **Branche**: `main`
 - **Commit parent**: `88266dd feat(governance): add design and certification gate assurance`
 - **Publication**: the user explicitly authorized commit and push at handoff,
-  lifting constraint C6 for this run only. Two commits are produced: the
-  pre-existing untracked `docs/runs/2026-07-26_1701_i1-i2-normative-remediation/`
-  (a codex `BLOCKED`/`HANDOFF` run, archived as-is and unmodified), then this
-  design run together with the `CONTEXT.md` and `AUDIT_STATUS.md` updates.
+  lifting constraint C6 for this run only. This design run, with the
+  `CONTEXT.md` and `AUDIT_STATUS.md` updates, is published as `3555a72
+  docs(design): propose adversarial assurance dimension`, pushed to
+  `origin/main`.
+- **Archivage refusé — `OP-03`**: committing the pre-existing untracked
+  `docs/runs/2026-07-26_1701_i1-i2-normative-remediation/` was authorized but
+  **blocked by the canonical pre-commit gate**:
+
+  ```text
+  [pre-commit] P0-2 FAIL: 04_PLAN.md has missing/empty/placeholder sections.
+  ✗ 04_PLAN.md: MISSING_SECTION: Objectif / Pré-conditions / Étapes ordonnées
+                / Critères d'acceptation / Plan de rollback global
+                / Risques identifiés
+  ```
+
+  The gate is behaving correctly: that codex run stopped fail-closed with
+  `status: BLOCKED` before producing a complete plan, so its `04_PLAN.md` is
+  genuinely incomplete. Three dispositions exist and the choice is the human's:
+  complete the six sections (which edits another agent's evidence artifact),
+  leave the run untracked, or authorize `--no-verify`. Nothing was bypassed and
+  nothing was modified; the directory remains untracked.
 - **Première action concrète à reprendre**: human decision on
   `CANON_CHANGE_PROPOSAL.md`, after satisfying `COND-01`.
 - **Fichiers à charger en priorité**: `04_DESIGN_DOSSIER.md`,
