@@ -192,10 +192,55 @@ claude_install_skill_symlinks() {
         continue
       fi
     elif [ -e "$dst" ]; then
-      # Real file or directory at destination — refuse
-      echo "✗ Claude Code: '$dst' exists as a real file (not a symlink) — refuse to overwrite user data"
-      fail=$((fail + 1))
-      continue
+      # Non-symlink at destination. Most common case on legacy installs:
+      # a previous setup.sh copied SKILL.md into ~/.claude/skills/ instead
+      # of symlinking it. When the copy is byte-identical to the canonical
+      # source, we auto-reconcile by moving it to a timestamped backup
+      # directory and creating the symlink in its place. When the copy
+      # differs, it is a user customization and we refuse to touch it.
+      if [ ! -f "$dst" ]; then
+        # Non-regular (directory, socket, fifo, etc.) — keep current refuse
+        echo "✗ Claude Code: '$dst' exists but is not a regular file or symlink — refuse"
+        fail=$((fail + 1))
+        continue
+      fi
+      if cmp -s "$dst" "$abs_src"; then
+        # Legacy copy is byte-identical to canonical — safe to reconcile.
+        # Lazy-init a single timestamped backup dir for the whole run so
+        # all auto-reconciliations land in one recoverable place.
+        if [ -z "${CLAUDE_BACKUP_DIR:-}" ]; then
+          CLAUDE_BACKUP_DIR="$skills_dst.bak.$(date +%s)"
+          if ! mkdir -p "$CLAUDE_BACKUP_DIR"; then
+            echo "✗ Claude Code: failed to create backup dir '$CLAUDE_BACKUP_DIR' — refused '$dst'"
+            fail=$((fail + 1))
+            continue
+          fi
+          echo "  (backing up identical legacy copies to $CLAUDE_BACKUP_DIR)"
+        fi
+        if mv "$dst" "$CLAUDE_BACKUP_DIR/$name.SKILL.md"; then
+          if ln -s "$abs_src" "$dst"; then
+            ok=$((ok + 1))
+            continue
+          else
+            # Best-effort restore so the user's data is not stranded
+            mv "$CLAUDE_BACKUP_DIR/$name.SKILL.md" "$dst" 2>/dev/null || true
+            echo "✗ Claude Code: failed to create symlink '$dst' after moving legacy copy — restored"
+            fail=$((fail + 1))
+            continue
+          fi
+        else
+          echo "✗ Claude Code: failed to move legacy copy '$dst' to backup — refused"
+          fail=$((fail + 1))
+          continue
+        fi
+      else
+        # Real file with different content — user customization, do not touch.
+        echo "✗ Claude Code: '$dst' differs from canonical '$abs_src' — refused (user customization preserved)"
+        echo "  Inspect with: diff '$dst' '$abs_src'"
+        echo "  To accept the canonical version: remove '$dst' and re-run setup.sh"
+        fail=$((fail + 1))
+        continue
+      fi
     fi
 
     # Create destination directory and symlink

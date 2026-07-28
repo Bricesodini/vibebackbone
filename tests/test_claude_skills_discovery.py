@@ -428,3 +428,124 @@ def test_correct_number_of_skill_symlinks(tmp_path: Path) -> None:
     assert len(symlinks) == SKILLS_COUNT, (
         f"expected {SKILLS_COUNT} skill dirs, got {len(symlinks)}"
     )
+
+
+# ── Test 16: legacy byte-identical copies are auto-reconciled ──────────────
+
+
+def test_byte_identical_legacy_copy_is_auto_reconciled(tmp_path: Path) -> None:
+    """When ~/.claude/skills/<name>/SKILL.md already exists as a real file
+    that is byte-identical to the canonical source, the setup MUST auto-
+    reconcile by moving the legacy copy to a timestamped backup directory
+    and creating a symlink to the canonical source.
+
+    This covers the case of a VPS deploy where a previous installer copied
+    SKILL.md files instead of symlinking them.
+    """
+    skills_dir = tmp_path / ".claude" / "skills"
+    skills_dir.mkdir(parents=True)
+    target_skill = "0-vbb-guide"
+    user_skill_dir = skills_dir / target_skill
+    user_skill_dir.mkdir()
+    user_skill_md = user_skill_dir / "SKILL.md"
+
+    # Copy the canonical SKILL.md verbatim (byte-identical)
+    canonical = CANONICAL_SKILLS / target_skill / "SKILL.md"
+    user_skill_md.write_bytes(canonical.read_bytes())
+    assert not user_skill_md.is_symlink()
+    assert user_skill_md.read_bytes() == canonical.read_bytes()
+
+    _run_setup(tmp_path)
+
+    # After setup, the destination must be a symlink to the canonical source
+    assert user_skill_md.is_symlink(), (
+        "byte-identical legacy copy was NOT reconciled into a symlink"
+    )
+    assert str(user_skill_md.resolve()) == str(canonical.resolve()), (
+        "symlink does not point at the canonical source"
+    )
+
+    # And the moved copy must be in a timestamped backup directory
+    backups = list((tmp_path / ".claude").glob("skills.bak.*"))
+    assert len(backups) == 1, (
+        f"expected exactly one backup dir, got {backups}"
+    )
+    backup_file = backups[0] / f"{target_skill}.SKILL.md"
+    assert backup_file.is_file(), (
+        f"expected backup file at {backup_file}, missing"
+    )
+    assert backup_file.read_bytes() == canonical.read_bytes(), (
+        "backup file content does not match canonical"
+    )
+
+
+# ── Test 17: user-customized (different) content is still refused ──────────
+
+
+def test_user_customized_real_file_is_still_refused(tmp_path: Path) -> None:
+    """The auto-reconciliation MUST only apply to byte-identical legacy
+    copies. If the user has customized the file (any byte differs), the
+    setup MUST refuse and leave the user's content untouched.
+    """
+    skills_dir = tmp_path / ".claude" / "skills"
+    skills_dir.mkdir(parents=True)
+    target_skill = "0-vbb-guide"
+    user_skill_dir = skills_dir / target_skill
+    user_skill_dir.mkdir()
+    user_skill_md = user_skill_dir / "SKILL.md"
+    user_content = "USER-CUSTOMIZED CONTENT — different from canonical"
+    user_skill_md.write_text(user_content)
+    assert not user_skill_md.is_symlink()
+
+    _run_setup(tmp_path)
+
+    # The user file must still be a real file (not symlinked), content preserved
+    assert user_skill_md.is_file() and not user_skill_md.is_symlink(), (
+        "user-customized file was replaced with a symlink"
+    )
+    assert user_skill_md.read_text() == user_content, (
+        "user-customized content was overwritten"
+    )
+
+    # No backup dir should have been created for this case
+    backups = list((tmp_path / ".claude").glob("skills.bak.*"))
+    assert backups == [], (
+        f"backup dir was unexpectedly created: {backups}"
+    )
+
+
+# ── Test 18: reconcile is idempotent (2nd run is no-op) ────────────────────
+
+
+def test_byte_identical_reconcile_is_idempotent(tmp_path: Path) -> None:
+    """Running setup.sh twice on a byte-identical legacy copy MUST
+    reconcile on the first run and be a no-op on the second run (since
+    the destination is then already the correct symlink)."""
+    skills_dir = tmp_path / ".claude" / "skills"
+    skills_dir.mkdir(parents=True)
+    target_skill = "0-vbb-guide"
+    user_skill_dir = skills_dir / target_skill
+    user_skill_dir.mkdir()
+    user_skill_md = user_skill_dir / "SKILL.md"
+
+    canonical = CANONICAL_SKILLS / target_skill / "SKILL.md"
+    user_skill_md.write_bytes(canonical.read_bytes())
+
+    # 1st run: reconcile
+    _run_setup(tmp_path)
+    assert user_skill_md.is_symlink()
+    first_backups = list((tmp_path / ".claude").glob("skills.bak.*"))
+    assert len(first_backups) == 1
+
+    # 2nd run: no-op
+    _run_setup(tmp_path)
+    assert user_skill_md.is_symlink(), (
+        "second run broke the symlink"
+    )
+    second_backups = list((tmp_path / ".claude").glob("skills.bak.*"))
+    assert len(second_backups) == 1, (
+        f"second run created an unexpected backup dir: {second_backups}"
+    )
+    assert second_backups[0] == first_backups[0], (
+        "second run created a new backup dir instead of being idempotent"
+    )
