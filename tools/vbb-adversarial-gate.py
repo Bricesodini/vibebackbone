@@ -167,12 +167,18 @@ class GateResult:
 
 
 def read_yaml_block(text: str, marker: str) -> Tuple[Optional[Any], Optional[str]]:
-    """Extract the first YAML fenced block whose first line is `marker:`."""
+    """Extract the first YAML fenced block whose first line starts with `marker:`.
+
+    The v1.1 canonical adversarial block is `adversarial: { ... }`, which
+    parses to `{"adversarial": {...}}`. This helper recognises both the bare
+    `marker:` line and `marker: <value>` lines (mapping, scalar, list).
+    """
     pattern = re.compile(r"```(?:ya?ml)\s*\n(.*?)```", re.DOTALL)
     for match in pattern.finditer(text):
         block = match.group(1)
         first_line = block.splitlines()[0].strip() if block.splitlines() else ""
-        if first_line.rstrip(":").strip() == marker:
+        # Accept any line that starts with `marker:` (with or without a value).
+        if first_line == marker or first_line.startswith(marker + ":"):
             try:
                 return yaml.safe_load(block), None
             except yaml.YAMLError as exc:
@@ -199,6 +205,173 @@ def non_empty_list(value: Any) -> bool:
 # ---------------------------------------------------------------------------
 # Gate checks
 # ---------------------------------------------------------------------------
+
+
+def check_a2_distinct_identity(
+    adv: Dict[str, Any],
+) -> Tuple[List[GateResult], List[GateResult]]:
+    """M3-02: Verify A2 attacker_identity is distinct from a declared defender_identity.
+
+    The M1-02 contract (A2_DISTINCT_AGENT_PROXY) requires:
+      - distinct_llm: MANDATORY (different llm family or human)
+      - distinct_system_prompt: MANDATORY
+      - distinct_provider_or_human: MANDATORY (different provider OR human)
+
+    Mechanical comparison:
+      - attacker.llm != defender.llm by family
+      - attacker.system_prompt_version != defender.system_prompt_version
+      - either attacker.provider != defender.provider OR external human
+    """
+    passes: List[GateResult] = []
+    fails: List[GateResult] = []
+
+    defender = adv.get("defender_identity")
+    attacker = adv.get("attacker_identity")
+    if not isinstance(defender, dict):
+        fails.append(
+            GateResult(
+                gate_id="adv-a2-defender-identity",
+                subject="A2 declares defender_identity comparable to attacker_identity",
+                verdict="FAIL",
+                evidence=["adversarial.attacker_identity declared"],
+                reasons=[
+                    "defender_identity must be a mapping for mechanical "
+                    "comparison (M1-02 distinct_llm MANDATORY)"
+                ],
+                severity="S1",
+            )
+        )
+        return passes, fails
+
+    # Required mechanical fields on defender
+    for key in ("llm", "system_prompt_version"):
+        if not non_empty_string(defender.get(key)):
+            fails.append(
+                GateResult(
+                    gate_id="adv-a2-defender-identity",
+                    subject="A2 defender_identity declares mandatory mechanical fields",
+                    verdict="FAIL",
+                    evidence=["defender_identity block present"],
+                    reasons=[f"defender_identity.{key} must be non-empty"],
+                    severity="S1",
+                )
+            )
+            return passes, fails
+
+    if not isinstance(attacker, dict):
+        # Without attacker comparison is impossible.
+        fails.append(
+            GateResult(
+                gate_id="adv-a2-distinct",
+                subject="A2 attacker_identity and defender_identity are mechanically distinct",
+                verdict="FAIL",
+                evidence=["defender_identity present"],
+                reasons=["attacker_identity must be present to compare"],
+                severity="S1",
+            )
+        )
+        return passes, fails
+
+    # Mechanical distinctness: at least one strict dimension must differ.
+    a_llm = str(attacker.get("llm", "")).strip()
+    d_llm = str(defender.get("llm", "")).strip()
+    a_sp = str(attacker.get("system_prompt_version", "")).strip()
+    d_sp = str(defender.get("system_prompt_version", "")).strip()
+    a_pr = str(attacker.get("provider", "")).strip()
+    d_pr = str(defender.get("provider", "")).strip()
+
+    llm_distinct = _llm_family_distinct(a_llm, d_llm)
+    prompt_distinct = bool(a_sp) and bool(d_sp) and (a_sp != d_sp)
+    provider_distinct = bool(a_pr) and bool(d_pr) and (a_pr != d_pr)
+
+    if llm_distinct and prompt_distinct and (provider_distinct or not a_pr):
+        passes.append(
+            GateResult(
+                gate_id="adv-a2-distinct",
+                subject="A2 attacker_identity and defender_identity are mechanically distinct",
+                verdict="PASS",
+                evidence=[
+                    f"attacker.llm={a_llm}, defender.llm={d_llm}",
+                    f"attacker.system_prompt_version={a_sp}",
+                    f"defender.system_prompt_version={d_sp}",
+                ],
+                reasons=[
+                    "distinct_llm (family), distinct_system_prompt, and "
+                    "provider_or_human boundary declared (M1-02 contract)"
+                ],
+            )
+        )
+    else:
+        reasons = []
+        if not llm_distinct:
+            reasons.append(
+                f"distinct_llm MANDATORY: attacker.llm={a_llm!r} and "
+                f"defender.llm={d_llm!r} are not distinct (M1-02)"
+            )
+        if not prompt_distinct:
+            reasons.append(
+                f"distinct_system_prompt MANDATORY: attacker.system_prompt_version="
+                f"{a_sp!r} and defender={d_sp!r} match (M1-02)"
+            )
+        if not provider_distinct and a_pr:
+            reasons.append(
+                f"distinct_provider_or_human MANDATORY: attacker.provider={a_pr!r} "
+                f"and defender.provider={d_pr!r} match (M1-02)"
+            )
+        fails.append(
+            GateResult(
+                gate_id="adv-a2-distinct",
+                subject="A2 attacker_identity and defender_identity are mechanically distinct",
+                verdict="FAIL",
+                evidence=[
+                    f"attacker.llm={a_llm}",
+                    f"defender.llm={d_llm}",
+                    f"attacker.system_prompt_version={a_sp}",
+                    f"defender.system_prompt_version={d_sp}",
+                ],
+                reasons=reasons,
+                severity="S1",
+            )
+        )
+
+    # A2 proxy mode disclosure (optional but if declared must be coherent)
+    proxy = adv.get("a2_proxy_mode")
+    if isinstance(proxy, dict):
+        enabled = bool(proxy.get("enabled"))
+        limitations = proxy.get("limitations")
+        if enabled:
+            if not isinstance(limitations, list) or not limitations:
+                fails.append(
+                    GateResult(
+                        gate_id="adv-a2-proxy-disclosure",
+                        subject="A2_DISTINCT_AGENT_PROXY declares limitations when enabled",
+                        verdict="FAIL",
+                        evidence=["a2_proxy_mode.enabled = true"],
+                        reasons=[
+                            "A2_DISTINCT_AGENT_PROXY requires limitations[] "
+                            "to be non-empty when enabled (M1-02)"
+                        ],
+                        severity="S2",
+                    )
+                )
+
+    return passes, fails
+
+
+def _llm_family_distinct(attacker_llm: str, defender_llm: str) -> bool:
+    """Return True if the two LLM identifiers belong to distinct families.
+
+    A family is the prefix before the first `/` (e.g., 'anthropic',
+    'minimax', 'google'). Same family => same operator / model line.
+    Different families => mechanical distinction.
+    """
+    if not attacker_llm or not defender_llm:
+        return False
+    if attacker_llm == defender_llm:
+        return False
+    fam_a = attacker_llm.split("/", 1)[0].strip().lower()
+    fam_b = defender_llm.split("/", 1)[0].strip().lower()
+    return bool(fam_a) and bool(fam_b) and fam_a != fam_b
 
 
 def check_adversarial_block(
@@ -228,22 +401,25 @@ def check_adversarial_block(
             )
         )
         return passes, fails
-    if not isinstance(adv, dict):
-        adv = (
-            adv.get("adversarial") if isinstance(adv.get("adversarial"), dict) else adv
-        )
-        if not isinstance(adv, dict):
-            fails.append(
-                GateResult(
-                    gate_id="adv-block-shape",
-                    subject="adversarial block is a mapping",
-                    verdict="FAIL",
-                    evidence=["07_CLOSEOUT.md read"],
-                    reasons=["adversarial block must be a mapping"],
-                    severity="S1",
-                )
+    # Handle the canonical v1.1 nested structure: `adversarial: { ... }`
+    # parses to `{"adversarial": {...}}`. Unwrap if the YAML root is a
+    # mapping whose `adversarial` key holds a mapping.
+    if isinstance(adv, dict) and "adversarial" in adv:
+        inner = adv["adversarial"]
+        if isinstance(inner, dict):
+            adv = inner
+    if not isinstance(adv, dict) or not adv:
+        fails.append(
+            GateResult(
+                gate_id="adv-block-shape",
+                subject="adversarial block is a non-empty mapping",
+                verdict="FAIL",
+                evidence=["07_CLOSEOUT.md read"],
+                reasons=["adversarial block must be a non-empty mapping"],
+                severity="S1",
             )
-            return passes, fails
+        )
+        return passes, fails
 
     passes.append(
         GateResult(
@@ -251,7 +427,7 @@ def check_adversarial_block(
             subject="adversarial block present in 07_CLOSEOUT.md",
             verdict="PASS",
             evidence=["07_CLOSEOUT.md read"],
-            reasons=["adversarial block is a mapping"],
+            reasons=["adversarial block is a non-empty mapping"],
         )
     )
 
@@ -342,6 +518,53 @@ def check_adversarial_block(
                         reasons=["3 disclosures present"],
                     )
                 )
+
+                # M3-05: validate `session` (M1-02 traceability, opaque token)
+                sess = identity.get("session")
+                sess_str = str(sess).strip() if isinstance(sess, (str, int)) else ""
+                if not sess_str:
+                    fails.append(
+                        GateResult(
+                            gate_id="adv-a2-session-present",
+                            subject="A2 attacker_identity declares a session token",
+                            verdict="FAIL",
+                            evidence=["adversarial.level = A2"],
+                            reasons=[
+                                "attacker_identity.session must be a non-empty string "
+                                "(M1-02 session traceability)"
+                            ],
+                            severity="S2",
+                        )
+                    )
+                elif len(sess_str) < 8:
+                    fails.append(
+                        GateResult(
+                            gate_id="adv-a2-session-length",
+                            subject="A2 attacker_identity.session is at least 8 chars",
+                            verdict="FAIL",
+                            evidence=[f"observed session length={len(sess_str)}"],
+                            reasons=[
+                                f"attacker_identity.session must be at least 8 chars "
+                                f"(observed len={len(sess_str)})"
+                            ],
+                            severity="S2",
+                        )
+                    )
+                else:
+                    passes.append(
+                        GateResult(
+                            gate_id="adv-a2-session",
+                            subject="A2 attacker_identity declares a session token",
+                            verdict="PASS",
+                            evidence=[f"session length={len(sess_str)} chars"],
+                            reasons=["session present and length >= 8"],
+                        )
+                    )
+
+        # M3-02: defender_identity distinctness check (M1-02 contract)
+        p, f = check_a2_distinct_identity(adv)
+        passes.extend(p)
+        fails.extend(f)
 
     # campaign_ref and corpus_version
     if not non_empty_string(adv.get("campaign_ref")):
@@ -856,6 +1079,113 @@ def check_certification_status(
             )
         )
 
+    # M3-09: last_external_review cadence validation when CERTIFIED or PRE_CERTIFICATION
+    if status in ("CERTIFIED", "PRE_CERTIFICATION"):
+        ler = cert.get("last_external_review")
+        cadence = str(cert.get("cadence", "manual:quarterly")).strip()
+        # Cadence format check (manual:, cron:, webhook:).
+        cadence_ok = (
+            cadence.startswith("manual:")
+            or cadence.startswith("cron:")
+            or cadence.startswith("webhook:")
+        )
+        if not cadence_ok:
+            fails.append(
+                GateResult(
+                    gate_id="adv-cert-cadence-format",
+                    subject="cadence format (manual:|cron:|webhook:)",
+                    verdict="FAIL",
+                    evidence=[f"cadence={cadence}"],
+                    reasons=[
+                        "cadence must be one of manual:<interval>, cron:<expr>, "
+                        "webhook:<target>"
+                    ],
+                    severity="S2",
+                )
+            )
+        # last_external_review must be ISO8601 UTC and within cadence.
+        if not non_empty_string(ler):
+            fails.append(
+                GateResult(
+                    gate_id="adv-cert-last-external-review",
+                    subject="last_external_review declared (ISO8601 UTC)",
+                    verdict="FAIL",
+                    evidence=[f"status={status}, cadence={cadence}"],
+                    reasons=[
+                        f"last_external_review must be ISO8601 UTC string when "
+                        f"status={status}"
+                    ],
+                    severity="S2",
+                )
+            )
+        else:
+            # Naive cadence check: manual:quarterly = 90 days.
+            from datetime import datetime, timezone
+
+            try:
+                ler_dt = datetime.fromisoformat(str(ler).replace("Z", "+00:00"))
+                if ler_dt.tzinfo is None:
+                    ler_dt = ler_dt.replace(tzinfo=timezone.utc)
+                # Reference `now` = run's knowledge cutoff (deterministic, not time-of-day).
+                from datetime import datetime as _dt, timezone as _tz
+
+                ref = _dt(2026, 7, 28, tzinfo=_tz.utc)
+                delta = abs((ref - ler_dt).days)
+                if ler_dt > ref:
+                    fails.append(
+                        GateResult(
+                            gate_id="adv-cert-last-external-review-future",
+                            subject="last_external_review is not in the future",
+                            verdict="FAIL",
+                            evidence=[f"last_external_review={ler}"],
+                            reasons=[
+                                f"last_external_review is in the future "
+                                f"(delta={delta} days, ref={ref.isoformat()})"
+                            ],
+                            severity="S2",
+                        )
+                    )
+                elif delta > 90:
+                    fails.append(
+                        GateResult(
+                            gate_id="adv-cert-last-external-review-cadence",
+                            subject=f"last_external_review within cadence ({cadence})",
+                            verdict="FAIL",
+                            evidence=[
+                                f"last_external_review={ler}",
+                                f"ref={ref.isoformat()}, delta={delta} days",
+                            ],
+                            reasons=[
+                                f"last_external_review exceeds cadence "
+                                f"(delta={delta} days > 90 for {cadence})"
+                            ],
+                            severity="S2",
+                        )
+                    )
+                else:
+                    passes.append(
+                        GateResult(
+                            gate_id="adv-cert-last-external-review",
+                            subject="last_external_review within cadence",
+                            verdict="PASS",
+                            evidence=[
+                                f"last_external_review={ler}, delta={delta} days"
+                            ],
+                            reasons=["last_external_review within cadence"],
+                        )
+                    )
+            except ValueError as exc:
+                fails.append(
+                    GateResult(
+                        gate_id="adv-cert-last-external-review-format",
+                        subject="last_external_review ISO8601 UTC format",
+                        verdict="FAIL",
+                        evidence=[f"last_external_review={ler}"],
+                        reasons=[f"invalid ISO8601 UTC: {exc}"],
+                        severity="S2",
+                    )
+                )
+
     return passes, fails
 
 
@@ -882,9 +1212,12 @@ def validate_run(run_dir: Path) -> Dict[str, Any]:
             "summary": "07_CLOSEOUT.md missing",
         }
 
-    intake_text = intake.read_text(encoding="utf-8")
+    # M3-04: 01_INTAKE.md exists-only check. The validator must not derive
+    # data from `01_INTAKE.md` (no read-then-ignore pattern). Future intake-side
+    # checks must be added with an explicit test asserting the read has
+    # observable effect on the verdict.
+    assert intake.exists(), f"01_INTAKE.md missing in {run_dir}"
     closeout_text = closeout.read_text(encoding="utf-8")
-    del intake_text  # currently unused; reserved for future intake-side checks
 
     passes: List[GateResult] = []
     fails: List[GateResult] = []

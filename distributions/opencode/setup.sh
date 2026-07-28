@@ -7,6 +7,13 @@
 # Behavior is identical to the pre-Phase-2E inlined §8+§9 "OpenCode"
 # blocks in setup.sh. Extracted verbatim — mechanical relocation only.
 #
+# Adversarial governance (M3-11): this script inherits v1.1 adversarial
+# governance from Core (`docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md`,
+# `tools/vbb-adversarial-gate.py`) via the AGENTS.md reference. The
+# provider's settings.json `skills` key is not auto-merged by OpenCode
+# the way Claude auto-discovers skills; resolution goes through Core
+# when the agent reads AGENTS.md at session start.
+#
 # Globals expected from the caller (setup.sh):
 #   REPO_ROOT, HOME
 #   AGENTS_SRC, SYSTEM_SRC

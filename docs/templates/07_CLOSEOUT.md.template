@@ -93,6 +93,19 @@ adversarial:
     agent: "<name>"
     llm: "<model id>"
     system_prompt_version: "<hash>"
+  defender_identity:                  # M3-02: required at A2 for mechanical comparison
+    agent: "<name>"
+    llm: "<model id>"
+    provider: "<provider>"
+    system_prompt_version: "<hash>"
+    session: "<session id or N/A>"
+  distinct_llm: true                  # M3-02: M1-02 distinct_llm MANDATORY
+  distinct_system_prompt: true        # M3-02: M1-02 distinct_system_prompt MANDATORY
+  distinct_provider_or_human: true    # M3-02: M1-02 operator_constraint
+  a2_proxy_mode:                      # M3-02: A2_DISTINCT_AGENT_PROXY declaration
+    enabled: true|false
+    limitations: ["<list of disclosed limitations>"]
+    quarterly_external_review_due: "<ISO8601 UTC>"
   last_external_review: "<ISO8601 UTC; required at A2 quarterly>"
   surfaces_declared: ["<path>", "<...>"]
   surfaces_unexplored: ["<path>", "<...>"]

@@ -74,6 +74,27 @@ agent-governed repository is the documents that *steer* agents. Treating
 them as documentation-only would systematically route the most impactful
 changes to the no-exploration level.
 
+#### §1.1.1 — `level_reason` field (mandatory for `A0`)
+
+When the declared level is `A0`, the closeout **must** carry a
+non-empty `level_reason` field (gate `adv-a0-reason`, S1) explaining
+why the run is exempt from adversarial exploration. This field is the
+mechanical justification for the absence of exploration and must be
+preserved across templates, prompts, validators, and tests.
+
+The field is:
+
+- **Mandatory** when `level == "A0"` (gate `adv-a0-reason`, severity S1)
+- **Absent** for `A1` and `A2` (not enforced)
+- A free-form string; the validator only checks non-emptiness
+- Documented in `docs/templates/01_INTAKE.md.template` and
+  `docs/templates/07_CLOSEOUT.md.template` as `<required when level=A0>`
+
+The `level_reason` field was added by M3-03 to close the
+documentary contradiction between templates (which required it) and
+the canon (which was silent). R2 §3 (ADVR-A2-02) recorded this as a
+`CONTRADICTION_DOCUMENTAIRE` of severity S2; M3-03 closes it.
+
 ### §1.2 — Criticality matrix triggers
 
 Evaluated at intake, re-evaluated at execution end.
@@ -314,6 +335,34 @@ This is a conjunction of named conditions (D6 — no aggregate, no average,
 no rollup). Each is bound to one code state (`run_id` + commit +
 `corpus_version` + declared scope + date).
 
+#### §5.3.0 — Separation of validator responsibilities
+
+The 13 conditions below are **not** all validated by the same
+validator. Responsibilities are split between three surfaces:
+
+- **`vbb-adversarial-gate.py`** (this document's primary tool) owns
+  conditions `6.3.1`, `6.3.2`, `6.3.8`, `6.3.9`, `6.3.13` — those
+  derivable mechanically from the `07_CLOSEOUT.md` file (the
+  `adversarial` block, the findings, and the certification block).
+
+- **A future `vbb-certification-monitor`** (or its current equivalent,
+  the `vbb-status-dashboard` certification-state report plus the
+  `vbb-loop-closure-check` SLA breach detection) owns conditions
+  `6.3.10` (`revocation_mechanism` declared), `6.3.11` (cadence ≤ 90
+  days), `6.3.12` (`last_reviewed` within cadence). These depend on
+  runtime state, not just the closeout file.
+
+- **Run-level closure** (cross-validated at `COUNTER_PROOF`) owns
+  conditions `6.3.3`, `6.3.4`, `6.3.5`, `6.3.6`, `6.3.7`.
+
+The full chain **must** be fail-closed (§6 SLA breach flow): a
+monitoring surface that finds a missing or expired runtime check
+(e.g., `revocation_mechanism` declared but never executed) does
+**not** allow a `CERTIFIED` to be emitted. The monitor emits an
+alert and `vbb-loop-closure-check` fails the closure invariant.
+
+#### §5.3.1 — `CERTIFIED` conditions (13 total, IDs reused)
+
 1. `conformity_status` ∈ {`PASS_CONFORMITY`, `NOT_APPLICABLE` avec profil}.
 2. `adversarial_status` ∈ {`PASS_ADVERSARIAL`, `NOT_REQUIRED` (A0 valide +
    aucun trigger A1/A2)}.
@@ -333,10 +382,12 @@ no rollup). Each is bound to one code state (`run_id` + commit +
 9. `implementation_authorization.status` is `AUTHORIZED` per ADR 0050
    §Explicit fail-closed authorization, for subjects that included
    implementation.
-10. `certification.revocation_mechanism` is declared
-    (`manual:<cadence>`, `cron:<expr>`, `webhook:<target>`).
-11. The declared cadence is ≤ 90 days.
-12. `certification.last_reviewed` is within the declared cadence.
+10. `certification.revocation_mechanism` is declared (monitor
+    responsibility per §5.3.0) — format `manual:<cadence>`,
+    `cron:<expr>`, or `webhook:<target>`.
+11. The declared cadence is ≤ 90 days (monitor responsibility).
+12. `certification.last_reviewed` is within the declared cadence
+    (monitor responsibility, triggers §6 SLA breach).
 13. For every `CONFIRMED` finding at level `A2`, the non-regression lock
     has `witnessed_by` (distinct from `discovered_by`) and `test_review`
     (PASS|FAIL verdict by second agent or human) populated.

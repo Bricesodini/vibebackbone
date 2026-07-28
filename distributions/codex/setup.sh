@@ -7,6 +7,12 @@
 # Runtime files are compiled without ever writing through a destination
 # symlink. Legacy VBB links to the Core source are migrated to regular files.
 #
+# Adversarial governance (M3-11): this script inherits v1.1 adversarial
+# governance from Core (`docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md`,
+# `tools/vbb-adversarial-gate.py`) via the AGENTS.md reference. Provider
+# binaries are unaware of the v1.1 schema version on their own; the
+# gateway check is performed through the Core resolver.
+#
 # Globals expected from the caller (setup.sh):
 #   REPO_ROOT, HOME
 #   AGENTS_SRC, SYSTEM_SRC, PROMPTS_SRC
