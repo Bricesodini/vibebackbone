@@ -175,6 +175,40 @@ that triggered the decision.
 
 <!-- Add entries below as decisions are made -->
 
+### 2026-07-28 — Adversarial assurance dimension promoted to Core (ADR-0051)
+
+**Decision**: keep the adversarial gate family (`ADVERSARIAL`), the
+`COUNTER_PROOF` checkpoint, the `closure_evaluation` semantics, the
+finding lifecycle, the criticality matrix, the level fail-closed
+rules, `A2_DISTINCT_AGENT_PROXY`, `certification.owner` (3 modes +
+cadence ≤ 90 days + SLA breach), the 13 `CERTIFIED` conditions, the
+6 loss triggers, the corpus contract, and the 7 transient/baseline
+status values in Core. Add `PRE_CERTIFICATION` and `MIGRATION` as 6th
+and 7th values of `certification_status` (RATIFIED 2026-07-28 per
+REM-01, R1).
+
+**Reason**: the adversarial dimension is a generic governance
+contract applicable to every supported runtime. It is provider- and
+project-neutral. Implementing it in an adapter would create divergent
+certification authority and break the no-parallel-truth principle
+(AGENTS.md Critical Rule 5).
+
+**Impact**: Pi, OpenCode, Codex and Claude Code inherit the same
+adversarial level rules, status enum, validator (`tools/vbb-adversarial-gate.py`),
+and template extensions (`FINDING.md`, `ADVERSARIAL_CAMPAIGN.md`,
+`01_INTAKE.md` extension with `contest_register` and `level`,
+`07_CLOSEOUT.md` extension with `adversarial` block and
+`certification_status` v1.1). The boot set of each distribution
+references the new authority. Adapter paths, secrets and runtime
+configuration do not change. Each distribution must pass its existing
+setup smoke test after Core integration.
+
+**Trigger**: R1 arbitration of 13 R0 findings; human acceptance of
+REM-01 and REM-02.
+
+**Author**: Brice (explicit final approval of REM-01, REM-02 and the
+status values), AI arbitrator (M2-BIS) — R1 / M2-BIS / REM-01.
+
 ### 2026-07-27 — Design/Certification assurance promoted to Core (ADR-0050)
 
 **Decision**: keep gate-family semantics, `ASSURANCE_STATUS`, explicit

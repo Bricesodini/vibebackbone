@@ -5,6 +5,7 @@ voie: "<RAPIDE|STRUCTUREE|AUDIT|CLOTURE>"
 status: "<READY|PARTIAL|BLOCKED|UNKNOWN>"
 knowledge_governance_version: "1.0"
 assurance_governance_version: "1.0"
+adversarial_governance_version: "1.1"   # post-cutoff (2026-07-28_1400)
 agent: "<claude-code|codex|pi|opencode>"
 started_at: "<YYYY-MM-DDTHH:MM:SSZ>"
 ended_at: "<YYYY-MM-DDTHH:MM:SSZ>"
@@ -54,10 +55,44 @@ artifacts_produced:
 
 ## Assurance initiale
 
-- **Gates applicables** : <DESIGN / CERTIFICATION / OTHER + identifiants>
-- **Checkpoint visé** : <PRE_IMPLEMENTATION|POST_IMPLEMENTATION|CLOSEOUT>
+- **Gates applicables** : <DESIGN / CERTIFICATION / ADVERSARIAL / OTHER + identifiants>
+- **Checkpoint visé** : <PRE_IMPLEMENTATION|POST_IMPLEMENTATION|COUNTER_PROOF|CLOSEOUT>
 - **Implémentation autorisée à l'intake** : `NON` — seule une décision
   `implementation_authorization.status: AUTHORIZED` explicite peut l'autoriser.
+
+## Adversarial level (ADR 0051, M1-03) — post-cutoff required
+
+Déclarer explicitement le niveau adversarial au triage. *Niveau non
+déclaré = `A1` (fail-closed).*
+
+```yaml
+adversarial_level:
+  level: "A0|A1|A2"            # declared per criticality matrix
+  level_reason: "<human-readable reason; required for A0>"
+  contest_register:            # optional, only when contested
+    - objector: "<named gate expert>"
+      trigger: "<trigger disputed>"
+      rationale: "<rationale for objection>"
+      status: "OPEN|RESOLVED"
+```
+
+Règles fail-closed (cf. `PILOTAGE.md` §Adversarial level) :
+- Niveau déclaré < trigger matchant → escalade obligatoire vers trigger.
+- Niveau contesté → `A1` jusqu'à résolution.
+- Conflit déclarant/classifier → `A1` (plus prudent).
+
+## Certification status (post-cutoff)
+
+```yaml
+certification_status:
+  declared_status: "NOT_CERTIFIED|CERTIFIED|SUSPENDED|NOT_APPLICABLE|UNASSESSED_LEGACY|PRE_CERTIFICATION|MIGRATION"
+  transient_reason: "<required when PRE_CERTIFICATION or MIGRATION>"
+  bootstrapped_at: "<ISO8601; required when PRE_CERTIFICATION>"
+  bootstrapped_by: "<identifier; required when PRE_CERTIFICATION>"
+  migrating_from: "<v1.0; required when MIGRATION>"
+  migrating_to: "<v1.1; required when MIGRATION>"
+  migration_plan_ref: "<run_id; required when MIGRATION>"
+```
 
 ## Notes
 

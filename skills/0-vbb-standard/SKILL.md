@@ -3,14 +3,35 @@ name: 0-vbb-standard
 description: |
   Defines the canonical Vibebackbone skill contract for Pi.
   Use when creating, adapting, reviewing, or validating any Vibebackbone skill.
+  Post-cutoff (2026-07-28_1400) skills targeting governance canon, A1/A2
+  subjects, or contracts consumed by other repositories must declare an
+  adversarial level in their frontmatter (adversarial_level: A0|A1|A2).
   Keywords: skill standard, frontmatter, validation, report template, Pi compatibility,
-  skill contract, mode-sensitive, subagent.
+  skill contract, mode-sensitive, subagent, adversarial level.
 version: "1.1"
 phase: transverse
 token_budget: low
 subagent_eligible: false
 mode_sensitive: false
+adr: "0051"
 ---
+
+## ADVERSARIAL LEVEL DECLARATION (post-cutoff, ADR 0051)
+
+Skills created or substantially updated after the cutoff
+(`2026-07-28_1400`) should declare `adversarial_level` in their
+frontmatter:
+
+```yaml
+adversarial_level: "A0|A1|A2"
+adversarial_level_reason: "<required when A0>"
+```
+
+This declaration is validated by `tools/vbb-adversarial-gate.py`
+when a skill is consumed by an A1 or A2 subject. A0 declarations
+require a `level_reason`. Skills whose `adversarial_level` is
+contested fall back to `A1` per the fail-closed rules of
+`ADVERSARIAL_ASSURANCE_GOVERNANCE.md` §4.3.
 
 # Vibebackbone Skill Standard
 

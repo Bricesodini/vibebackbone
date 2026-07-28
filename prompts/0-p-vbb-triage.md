@@ -1,5 +1,5 @@
 ---
-description: Classify a task into the correct Vibebackbone execution path
+description: Classify a task into the correct Vibebackbone execution path. Post-cutoff (2026-07-28_1400) tasks also require declaring an adversarial level (A0/A1/A2) per the criticality matrix in `docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md` §1.2; this prompt surfaces that requirement during triage.
 ---
 
 You are running the Vibebackbone triage protocol for this task: $@
@@ -57,6 +57,24 @@ Path rules:
 - Choose CLOSEOUT if the task is about session wrap-up, handoff, resumability, or documenting what was done and what remains.
 - **Choose ENGINE_ONLY first** for any UI/UX, design system, or visual architecture request.
 
+Adversarial level (post-cutoff 2026-07-28_1400):
+
+After choosing the path, declare the adversarial level per the
+criticality matrix in `docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md` §1.2.
+Apply the 7 fail-closed rules of §4.3 (escalation toward more prudent,
+never more lenient):
+
+| Situation | Effective level |
+|---|---|
+| Undeclared level | A1 |
+| Level declared A0 but A1/A2 trigger matches | trigger level |
+| Contested level (written objection) | A1 |
+| Conflict between declarer and classifier | A1 |
+
+When the chosen path is AUDIT or STRUCTURED, the level is most often
+A1 or A2 (governance canon, contracts, multi-file behavior).
+A0 is reserved for pure documentation with no agent-steering effect.
+
 Output format:
 
 - Goal
@@ -67,6 +85,11 @@ Output format:
 - Fallback justification
 - Chosen path
 - Reason
+- **Adversarial level** (post-cutoff):
+  - declared level + reason
+  - applicable triggers from §1.2
+  - contest register if contested
 - Next action
   - For ENGINE_ONLY: list `4-vbb-user-experience-engine` as primary + `4-vbb-front-pipeline-reference` as companion
   - For standard path: list next skill by name
+  - For A1/A2: list `2-vbb-adversarial-campaign` as companion

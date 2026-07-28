@@ -90,7 +90,7 @@ def test_active_skills_use_english_instructional_prose() -> None:
     failures: dict[str, list[str]] = {}
     skill_paths = sorted(SKILLS_ROOT.glob("*/SKILL.md"))
 
-    assert len(skill_paths) == 64
+    assert len(skill_paths) == 66
     for path in skill_paths:
         markers = french_instruction_markers(path.read_text(encoding="utf-8"))
         if markers:

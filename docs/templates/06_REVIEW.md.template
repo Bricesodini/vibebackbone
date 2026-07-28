@@ -45,8 +45,20 @@ artifacts_produced:
 - **Gate ID** : `<stable-id>`
 - **Findings** : <...>
 
+### ADVERSARIAL_REVIEW (ADR 0051, M0 §9.3) — conditional
+
+- **Applicable** : `oui` if subject was at A1 or A2; otherwise `N/A`.
+- **Checklist** : declared attack surface plausible and complete for the
+  level; attack list pre-registered and adequate; reproductions are
+  genuine oracles; non-regression locks actually fail_before; surfaces_
+  unexplored honest; at A2 reviewer distinct from actor and fixer.
+- **Verdict** : `PASS|FAIL|NOT_ASSESSED|NOT_APPLICABLE`
+- **Gate ID** : `<stable-id>`
+- **Findings** : <...>
+
 Un finding documentaire qui modifie le comportement observable rouvre
-`DESIGN_REVIEW`; aucun verdict n'est déduit de l'autre.
+`DESIGN_REVIEW`; un finding adversarial qui modifie le comportement
+rouvre `DESIGN_REVIEW` et `CERTIFICATION_REVIEW`.
 
 ## Points conformes
 

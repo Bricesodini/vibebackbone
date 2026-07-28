@@ -1,0 +1,122 @@
+---
+template: "FINDING.md"
+version: "1.0"
+phase: "finding"
+status: "active"
+context_role: "finding-record"
+adr: "0051"
+companion_to: "ADVERSARIAL_CAMPAIGN.md.template"
+referenced_by:
+  - "docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md §2 (lifecycle)"
+  - "docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md §5.2 (PASS_ADVERSARIAL)"
+  - "docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md §5.3 condition 6.3.5 (promotion)"
+  - "docs/ENGINEERING_KNOWLEDGE_GOVERNANCE.md §Producers"
+  - "docs/templates/ADVERSARIAL_CAMPAIGN.md.template"
+---
+
+# Finding — Adversarial campaign record
+
+> **Use.** This template records one adversarial finding as part of a
+> campaign run. Findings flow through the 17-state lifecycle of
+> `ADVERSARIAL_ASSURANCE_GOVERNANCE.md` §2. The `history[]` field is
+> externalized (ADVR-18, M1) to keep individual finding records bounded.
+
+## Frontmatter
+
+```yaml
+---
+finding_id: "<stable-id, e.g. FIND-2026-07-28-001>"
+campaign_ref: "<run_id of parent campaign>"
+level: "A0|A1|A2"
+severity: "S0|S1|S2|S3"
+confidence: "CONFIRMED|PLAUSIBLE|REFUTED"
+state: "<one of the 17 lifecycle states>"
+discovered_by: "<agent or human identifier>"
+discovered_at: "ISO8601 UTC"
+surface: "<file path or system component>"
+attack_class: "<e.g. prompt-injection|auth-bypass|schema-drift>"
+---
+```
+
+## Required fields
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `id` | string | yes | stable across the campaign |
+| `summary` | string | yes | ≤ 200 chars |
+| `severity` | enum | yes | S0..S3 |
+| `confidence` | enum | yes | CONFIRMED only blocks |
+| `state` | enum | yes | per lifecycle |
+| `reproduction` | string | yes | steps + expected + observed |
+| `oracle` | string | yes | what the test asserts |
+| `fails_before` | bool | when CONFIRMED | true (test reproduces) |
+| `passes_after` | bool | when CONFIRMED | true (after fix) |
+
+## Optional fields
+
+| Field | Type | Required when | Notes |
+|---|---|---|---|
+| `non_regression_lock.witnessed_by` | string | A2 CONFIRMED | distinct from `discovered_by` |
+| `non_regression_lock.test_review` | string | A2 CONFIRMED | PASS\|FAIL by 2nd agent or human |
+| `non_regression_lock.reviewed_by` | string | A1 within 30 days | 2nd agent review |
+| `accepted_risk.owner` | string | ACCEPTED_RISK | human approver |
+| `accepted_risk.expiry` | ISO8601 | ACCEPTED_RISK | deadline |
+| `accepted_risk.reopen_trigger` | string | ACCEPTED_RISK | what reopens the finding |
+| `history[]` | array | (externalized) | see `ADVERSARIAL_CAMPAIGN.md.template §history` |
+
+## Promotion block (mandatory for CONFIRMED findings)
+
+Per `ADVERSARIAL_ASSURANCE_GOVERNANCE.md` §9, every CONFIRMED finding
+must answer all six destinations:
+
+```yaml
+promotion:
+  destination_1_canonical_test: "tests/test_<id>.py"        # or "NOT_APPLICABLE: <reason>"
+  destination_2_integration_test: "tests/integration/<id>.py" # or "NOT_APPLICABLE: <reason>"
+  destination_3_certification_gate: "<new gate_id or vbb-*.py check>" # or "NOT_APPLICABLE: <reason>"
+  destination_4_checklist: "<pre-merge|closeout|review item>" # or "NOT_APPLICABLE: <reason>"
+  destination_5_normative_rule: "candidate_id=<id>  # routes via ADR 0049 OBSERVATION→CANONICAL"
+  destination_6_adversarial_corpus: "<corpus entry id or path>" # MANDATORY, never NOT_APPLICABLE
+```
+
+## Reproduction format
+
+```yaml
+reproduction:
+  setup: "<commands or context to reproduce>"
+  steps:
+    - "<step 1>"
+    - "<step 2>"
+  expected: "<expected behavior>"
+  observed: "<observed behavior>"
+  oracle: "<what the test asserts>"
+```
+
+## Non-regression lock
+
+```yaml
+non_regression_lock:
+  test_id: "<test identifier>"
+  test_path: "<path to test file>"
+  fails_before: true
+  passes_after: true
+  # A2 only
+  witnessed_by: "<distinct identifier>"
+  test_review: "PASS|FAIL"
+  test_review_reviewer: "<agent or human>"
+```
+
+## History (externalized)
+
+The full history of state transitions is stored in the parent
+campaign record, not in this finding. The finding carries only the
+*current* state and the *origin* transition. The campaign record
+holds the complete `history[]` for traceability.
+
+## Notes
+
+- A finding can only have one `state` at a time.
+- `REFUTED` findings are kept (negative evidence prevents re-litigation).
+- The promotion block is mandatory at `state ∈ {REMEDIATED,
+  NON_REGRESSION_LOCKED, CLOSED_REMEDIATED, CLOSED_ACCEPTED,
+  CLOSED_REJECTED}`.

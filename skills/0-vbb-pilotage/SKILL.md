@@ -4,11 +4,15 @@ description: |
   Reference for Vibebackbone execution paths and triage rules.
   Use when selecting workflow, clarifying execution level, or checking how a task
   should be routed across FAST, STRUCTURED, AUDIT, or HANDOFF paths.
+  Post-cutoff (2026-07-28_1400) tasks also require declaring an adversarial
+  level (A0/A1/A2) per the criticality matrix; this skill surfaces that
+  requirement during triage.
 version: "1.0"
 phase: transverse
 token_budget: low
 subagent_eligible: false
 mode_sensitive: false
+adr: "0051"
 ---
 
 # Vibebackbone Pilotage Reference
@@ -25,6 +29,7 @@ You clarify:
 - the 4 execution paths
 - the triage rules
 - the escalation rules
+- (post-cutoff) the adversarial level declaration
 
 You do NOT execute work.
 You do NOT replace business or audit skills.
@@ -64,6 +69,7 @@ This skill defines:
 - triage rule
 - escalation rule
 - mapping between paths and skill families
+- (post-cutoff) adversarial level declaration rules
 
 ## PROCESS
 
@@ -76,12 +82,41 @@ This skill defines:
 3. Apply the pilotage rule from the document.
 4. Determine the corresponding path.
 5. Indicate which skill family belongs to that path.
+6. (Post-cutoff) **Declare the adversarial level** per the criticality
+   matrix in `docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md` §1.2. Apply
+   the 7 fail-closed rules of §4.3 (escalation always toward more
+   prudent). If the declared level is contested, the effective level
+   is `A1` until resolution.
+
+## ADVERSARIAL LEVEL TRIAGE (post-cutoff)
+
+Per ADR 0051, every post-cutoff run must declare its adversarial level:
+
+- **A0** — pure documentation with no agent-steering effect, no
+  contract, no behavior, no data path. Never for governance canon
+  per `§1.1` (governance canon = minimum A1).
+- **A1** — observable behavior change on a single internal surface;
+  bounded exploration.
+- **A2** — auth, secrets, data integrity, money, published contract,
+  concurrency, deployment, governance canon, `S0/S1` history in
+  last 10 runs. Requires distinct actor + human decision or
+  `A2_DISTINCT_AGENT_PROXY`.
+
+**Fail-closed rules:**
+
+| Situation | Effective level |
+|---|---|
+| Undeclared level | A1 |
+| Level declared A0 but A1/A2 trigger matches | trigger level |
+| Contested level (written objection in 01_INTAKE.md) | A1 |
+| Conflict between declarer and classifier | A1 |
 
 ## OUTPUT CONTRACT
 
 Output must contain:
 
 - selected path
+- (post-cutoff) declared adversarial level + reason
 - brief explanation
 - reminder of escalation rule if relevant
 - corresponding Vibebackbone skill family

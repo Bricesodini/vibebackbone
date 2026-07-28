@@ -1,5 +1,5 @@
 ---
-description: Execute a structured Vibebackbone task with explicit grounding
+description: Execute a structured Vibebackbone task with explicit grounding. Post-cutoff (2026-07-28_1400) STRUCTURED tasks may be at A0 (pure doc), A1 (single-surface change), or A2 (auth, secrets, canon, contracts) per the criticality matrix; A2 requires `attacker_identity` disclosure and human decision.
 ---
 
 Handle this as a Vibebackbone STRUCTURED task: $@
@@ -24,15 +24,21 @@ Required process:
 
 1. Restate the goal briefly.
 2. Confirm why the task is STRUCTURED.
-3. State which governance files are available and relevant.
-4. Identify the artifact or change type.
-5. If this is post-audit implementation, require a concrete finding / target before execution: id, file, skill, or behavior to fix.
-6. For skill changes, read the relevant `skills/*/CONTRACT.yaml` and `skills/INDEX.yaml`; do not assume a root `CONTRACT.yaml` exists.
-7. Treat `docs/AUDIT_STATUS.md` as the source of truth for the current audit state.
-8. List pre-existing untracked files and leave them untouched unless they are explicitly in scope.
-9. Produce a short but explicit plan.
-10. Execute in a controlled way.
-11. Summarize what changed and what remains open.
+3. **Declare the adversarial level** (post-cutoff) per the
+   criticality matrix in `docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md`
+   §1.2. For A2, publish `attacker_identity` and respect the
+   `A2_DISTINCT_AGENT_PROXY` contract.
+4. State which governance files are available and relevant.
+5. Identify the artifact or change type.
+6. If this is post-audit implementation, require a concrete finding / target before execution: id, file, skill, or behavior to fix.
+7. For skill changes, read the relevant `skills/*/CONTRACT.yaml` and `skills/INDEX.yaml`; do not assume a root `CONTRACT.yaml` exists.
+8. Treat `docs/AUDIT_STATUS.md` as the source of truth for the current audit state.
+9. List pre-existing untracked files and leave them untouched unless they are explicitly in scope.
+10. Produce a short but explicit plan.
+11. Execute in a controlled way.
+12. For A1/A2 tasks, invoke `2-vbb-adversarial-campaign` to plan
+    the inline campaign and register findings + non-regression locks.
+13. Summarize what changed and what remains open.
 
 STRUCTURED triggers:
 

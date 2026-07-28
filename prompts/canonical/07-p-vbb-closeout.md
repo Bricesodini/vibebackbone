@@ -172,6 +172,40 @@ For governed v1 runs, write the sibling `ASSURANCE_STATUS` block defined in
   post-implementation Certification FAIL, or missing Knowledge Harvest;
 - preserve Design PASS unless a substantive finding reopens Design.
 
+**Post-cutoff (2026-07-28_1400, ADR 0051):** the ASSURANCE_STATUS
+block uses `schema_version: "1.1"` (additive over v1.0). The block
+also declares:
+
+```yaml
+implementation_status: "<NOT_STARTED|IN_PROGRESS|IMPLEMENTED|ABANDONED>"
+conformity_status: "<NOT_ASSESSED|PASS_CONFORMITY|FAIL_CONFORMITY|NOT_APPLICABLE>"
+adversarial_status: "<NOT_ASSESSED|NOT_REQUIRED|IN_CAMPAIGN|FINDINGS_OPEN|PASS_ADVERSARIAL|FAIL_ADVERSARIAL>"
+certification_status: "<NOT_CERTIFIED|CERTIFIED|SUSPENDED|NOT_APPLICABLE|UNASSESSED_LEGACY|PRE_CERTIFICATION|MIGRATION>"
+```
+
+`PRE_CERTIFICATION` requires `transient_reason`, `bootstrapped_at`,
+`bootstrapped_by`. `MIGRATION` requires `transient_reason`,
+`migrating_from`, `migrating_to`, `migration_started_at`,
+`migration_plan_ref`, `migration_completion_deadline`.
+
+For A1/A2 subjects, also include the sibling `adversarial` block with
+level, campaign_ref, corpus_version, exploration_performed, surfaces,
+findings, verdict, and the mandatory non-claim (when
+verdict = PASS_ADVERSARIAL). See `docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md`
+§5.2.
+
+### Step 4quinquies — Adversarial closeout
+
+If the run was at A1 or A2 (or if `adversarial_status` is
+`PASS_ADVERSARIAL` / `FAIL_ADVERSARIAL`), include:
+
+1. The campaign record path (`ADVERSARIAL_CAMPAIGN.md`).
+2. The list of findings (with `id`, severity, confidence, state).
+3. The corpus entries registered (mandatory for CONFIRMED findings).
+4. The promotion matrix answer (six destinations per finding,
+   `ADVERSARIAL_ASSURANCE_GOVERNANCE.md` §9).
+5. The verdict and its mandatory non-claim.
+
 ### Step 5 — Recommend the next session
 
 If open items or risks remain:

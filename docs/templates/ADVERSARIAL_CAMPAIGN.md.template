@@ -1,0 +1,138 @@
+---
+template: "ADVERSARIAL_CAMPAIGN.md"
+version: "1.0"
+phase: "campaign"
+status: "active"
+context_role: "campaign-record"
+adr: "0051"
+companion_to: "FINDING.md.template"
+referenced_by:
+  - "docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md §1 (levels)"
+  - "docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md §3 (A2 contract)"
+  - "docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md §5.2 (PASS_ADVERSARIAL)"
+  - "docs/templates/FINDING.md.template"
+---
+
+# Adversarial Campaign — Record
+
+> **Use.** This template records one adversarial campaign against a
+> declared subject at a declared level (A0/A1/A2). The campaign
+> produces zero or more findings recorded via `FINDING.md.template`.
+
+## Frontmatter
+
+```yaml
+---
+campaign_id: "<CAMP-YYYY-MM-DD-NNN>"
+subject: "<subject under adversarial assurance>"
+scope: "<declared scope>"
+level: "A0|A1|A2"
+attacker_identity:        # A2 only
+  agent: "<name>"
+  llm: "<model id>"
+  system_prompt_version: "<hash>"
+corpus_version: "<version>"
+started_at: "ISO8601 UTC"
+ended_at: "ISO8601 UTC"
+actor: "<primary campaign actor>"
+exploration_performed: true|false   # false only at A0
+---
+```
+
+## Required sections
+
+### 1. Declared surface
+
+```yaml
+surfaces_declared:
+  - "<file path or component>"
+  - "<...>"
+```
+
+### 2. Attack-surface classes
+
+```yaml
+attack_classes:
+  - name: "<class>"
+    description: "<...>"
+    techniques:
+      - "<technique 1>"
+      - "<...>"
+    oracles:
+      - "<oracle 1>"
+      - "<...>"
+```
+
+### 3. Depth / effort bound
+
+```yaml
+depth_bound:
+  total_effort_hours: "<int>"
+  parallel_actors: "<int>"
+  techniques_planned: "<int>"
+  techniques_executed: "<int>"
+stop_criteria: "<when the campaign halts>"
+```
+
+### 4. Surfaces unexplored (mandatory non-empty honesty)
+
+```yaml
+surfaces_unexplored:
+  - "<surface not covered>"
+  - "<rationale for non-coverage>"
+```
+
+### 5. Findings
+
+```yaml
+findings:
+  - finding_ref: "<FIND-... id>"
+    summary: "<...>"
+    severity: "S0|S1|S2|S3"
+    confidence: "CONFIRMED|PLAUSIBLE|REFUTED"
+    state: "<lifecycle state>"
+```
+
+### 6. Residual uncertainty
+
+```yaml
+residual_uncertainty: |
+  <free-form statement of what remains uncertain after the campaign>
+```
+
+### 7. Verdict
+
+```yaml
+verdict: "PASS_ADVERSARIAL | FAIL_ADVERSARIAL | IN_CAMPAIGN | FINDINGS_OPEN | NOT_REQUIRED"
+non_claim: |
+  PASS_ADVERSARIAL means: a declared attack surface was exercised at a
+  declared depth by a declared actor, and no unremediated confirmed
+  finding remains within that scope. It does NOT mean the subject is
+  correct, secure, or free of defects. Absence of finding is bounded
+  evidence, never proof.
+```
+
+## History (externalized from individual findings)
+
+```yaml
+history:
+  - finding_ref: "<FIND-...>"
+    transitions:
+      - from_state: "DETECTED"
+        to_state: "CLASSIFIED"
+        at: "ISO8601"
+        actor: "<...>"
+      - from_state: "CLASSIFIED"
+        to_state: "ARBITRATED"
+        at: "ISO8601"
+        actor: "<...>"
+      # ... full transition log
+```
+
+## Notes
+
+- `surfaces_unexplored` MUST be honest and non-empty (an empty list
+  requires explicit justification that the declared surface was
+  exhaustively covered).
+- `residual_uncertainty` is mandatory and non-empty.
+- The `non_claim` is mandatory when `verdict = PASS_ADVERSARIAL`.

@@ -1,5 +1,5 @@
 ---
-description: Run a Vibebackbone audit-oriented analysis
+description: Run a Vibebackbone audit-oriented analysis. Post-cutoff (2026-07-28_1400) audit tasks may run at A1 or A2; A2 triggers `A2_DISTINCT_AGENT_PROXY` contract (different LLM family or human reviewer) per ADR 0051.
 ---
 
 Handle this as a Vibebackbone AUDIT task: $@
@@ -36,23 +36,32 @@ Required process:
 2. Confirm why the task belongs to AUDIT.
 3. State which governance files are available and relevant.
 4. Identify the audit scope.
-5. Follow the canonical audit sequence proportionally:
+5. **Declare the adversarial level** per
+   `docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md` §1.2 (post-cutoff).
+   A2 audit tasks require the `A2_DISTINCT_AGENT_PROXY` contract
+   (different LLM family or human reviewer) and `attacker_identity`
+   disclosure (`{agent, llm, system_prompt_version}`).
+6. Follow the canonical audit sequence proportionally:
    - readiness / scope
    - structural context
    - domain audit
    - risk consolidation
-6. Produce findings, risks, and recommended actions.
+7. For A1/A2 audits, invoke `2-vbb-adversarial-campaign` to orchestrate
+   the campaign and produce findings + verdict.
+8. Produce findings, risks, and recommended actions.
 
 Constraints:
 
 - Do not present an audit as canonical if governance is missing or unread.
 - If some stages cannot be completed, say so clearly.
 - Distinguish facts, inferences, and uncertainties.
+- A2 audits must respect the quarterly external review cadence (≤ 90 days).
 
 Output format:
 
 - Goal
 - Why this is AUDIT
+- **Adversarial level** (post-cutoff) + attacker_identity (A2)
 - Governance used
 - Scope
 - Primary skill path
@@ -62,6 +71,7 @@ Output format:
 - Risks
 - Recommendations
 - Missing evidence / uncertainties
+- Adversarial verdict (if campaign run)
 
 ---
 

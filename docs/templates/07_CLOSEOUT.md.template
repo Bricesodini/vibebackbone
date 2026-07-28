@@ -6,6 +6,7 @@ status: "<READY|PARTIAL|BLOCKED|UNKNOWN>"
 kind: "<HANDOFF|CLOSEOUT>"   # HANDOFF if status != READY or next_action != null; CLOSEOUT otherwise
 knowledge_governance_version: "1.0"
 assurance_governance_version: "1.0"
+adversarial_governance_version: "1.1"   # post-cutoff (2026-07-28_1400)
 knowledge_harvest: "<NONE|OBSERVATION_RECORDED|EVIDENCE_LINKED>"
 agent: "<claude-code|codex|pi|opencode>"
 started_at: "<YYYY-MM-DDTHH:MM:SSZ>"
@@ -40,12 +41,26 @@ artifacts_produced:
 
 ```yaml
 ASSURANCE_STATUS:
-  schema_version: "1.0"
+  schema_version: "1.1"   # post-cutoff (2026-07-28_1400); v1.0 still accepted for legacy runs
   subject: "<livraison ou décision certifiée>"
+  implementation_status: "<NOT_STARTED|IN_PROGRESS|IMPLEMENTED|ABANDONED>"
+  conformity_status: "<NOT_ASSESSED|PASS_CONFORMITY|FAIL_CONFORMITY|NOT_APPLICABLE>"
+  adversarial_status: "<NOT_ASSESSED|NOT_REQUIRED|IN_CAMPAIGN|FINDINGS_OPEN|PASS_ADVERSARIAL|FAIL_ADVERSARIAL>"
+  certification_status: "<NOT_CERTIFIED|CERTIFIED|SUSPENDED|NOT_APPLICABLE|UNASSESSED_LEGACY|PRE_CERTIFICATION|MIGRATION>"
+  # PRE_CERTIFICATION companion fields (required when certification_status=PRE_CERTIFICATION)
+  transient_reason: "<required when PRE_CERTIFICATION or MIGRATION>"
+  bootstrapped_at: "<ISO8601 UTC; required when PRE_CERTIFICATION>"
+  bootstrapped_by: "<identifier; required when PRE_CERTIFICATION>"
+  # MIGRATION companion fields (required when certification_status=MIGRATION)
+  migrating_from: "<version; required when MIGRATION>"
+  migrating_to: "<version; required when MIGRATION>"
+  migration_started_at: "<ISO8601 UTC; required when MIGRATION>"
+  migration_plan_ref: "<run_id; required when MIGRATION>"
+  migration_completion_deadline: "<ISO8601 UTC; required when MIGRATION>"
   gate_results:
     - gate_id: "<stable-id>"
-      gate_family: "<DESIGN|CERTIFICATION|OTHER>"
-      checkpoint: "<PRE_IMPLEMENTATION|POST_IMPLEMENTATION|CLOSEOUT>"
+      gate_family: "<DESIGN|CERTIFICATION|ADVERSARIAL|OTHER>"
+      checkpoint: "<PRE_IMPLEMENTATION|POST_IMPLEMENTATION|COUNTER_PROOF|CLOSEOUT>"
       subject: "<sujet borné>"
       verdict: "<PASS|FAIL|NOT_ASSESSED|NOT_APPLICABLE>"
       evidence: ["<preuve>"]
@@ -64,6 +79,34 @@ Ce bloc est frère de `FINAL_STATUS`; aucune inférence croisée. Un
 `CERTIFICATION: FAIL` pré-implémentation impose `HANDOFF` et
 `NOT_AUTHORIZED`. Un échec post-implémentation impose `HANDOFF` et livraison
 non certifiée. Le Design PASS reste acquis sauf reclassification substantive.
+
+## Adversarial block (ADR 0051, M1-01..M1-06) — post-cutoff required
+
+```yaml
+adversarial:
+  level: "A0|A1|A2"
+  level_reason: "<required when level=A0>"
+  campaign_ref: "<run_id of parent campaign>"
+  corpus_version: "<version>"
+  exploration_performed: true|false   # true required for A1/A2
+  attacker_identity:                  # A2 only
+    agent: "<name>"
+    llm: "<model id>"
+    system_prompt_version: "<hash>"
+  last_external_review: "<ISO8601 UTC; required at A2 quarterly>"
+  surfaces_declared: ["<path>", "<...>"]
+  surfaces_unexplored: ["<path>", "<...>"]
+  residual_uncertainty: |
+    <free-form statement of what remains uncertain>
+  findings: []    # see docs/templates/FINDING.md.template
+  verdict: "PASS_ADVERSARIAL | FAIL_ADVERSARIAL | IN_CAMPAIGN | FINDINGS_OPEN | NOT_REQUIRED"
+  non_claim: |
+    PASS_ADVERSARIAL means: a declared attack surface was exercised at
+    a declared depth by a declared actor, and no unremediated confirmed
+    finding remains within that scope. It does NOT mean the subject is
+    correct, secure, or free of defects. Absence of finding is bounded
+    evidence, never proof.
+```
 
 ## Artefacts livrés
 
