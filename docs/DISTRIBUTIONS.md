@@ -72,12 +72,48 @@ The supported surface is intentionally limited to four coding-agent runtimes:
 | `pi/` | `~/.pi/` | AGENTS/SYSTEM/prompt symlinks and Pi package |
 | `opencode/` | `~/.config/opencode/` | instructions and generated commands |
 | `codex/` | `~/.codex/` | compiled AGENTS.md governance block |
-| `claude/` | `~/.claude/` | settings, CLAUDE.md imports and commands |
+| `claude/` | `~/.claude/` | settings, CLAUDE.md imports, commands and skill symlinks |
 
 There is no privileged orchestrator distribution. Each supported agent consumes
 the same Core gates, conventions, skills and phase artifacts through its adapter.
 Hermes/Cody was retired by ADR 0025; external Hermes state is never modified by
 this repository.
+
+### 4.1. Claude Code skill discovery
+
+Claude Code discovers skills by scanning one directory per skill under
+`~/.claude/skills/<skill-name>/`, each containing a `SKILL.md` file.
+This is the canonical and only mechanism Claude Code consumes for
+skill discovery at session start.
+
+**The historical `settings.json.skills` key is NOT a discovery
+mechanism.** It is a vestigial workaround from issue
+`anthropics/claude-code#31005` that was never implemented by Claude
+Code. The Vibe Backbone Claude distribution
+(`distributions/claude/setup.sh`) no longer injects this key. Instead,
+it installs one symlink per canonical skill:
+
+```
+~/.claude/skills/<skill-name>/SKILL.md -> <repo>/skills/<skill-name>/SKILL.md
+```
+
+The setup is idempotent, fail-closed on collision, and never
+overwrites user files at the destination. See run
+`2026-07-30_0700_claude-skills-discovery-01` for the rationale and the
+fail-before reproduction.
+
+**User verification:**
+
+```bash
+find ~/.claude/skills -maxdepth 2 -name SKILL.md -print
+readlink ~/.claude/skills/<skill-name>/SKILL.md
+```
+
+**Removal procedure** (manual, no automatic uninstall):
+
+```bash
+rm -rf ~/.claude/skills
+```
 
 ## 5. Alignment rules (propagation)
 
@@ -421,6 +457,32 @@ duplique AGENTIC_RUN_PROTOCOL/LONG_RUN_RULE (grep) — héritage direct.
 **Impact**: Core : section « Runs autonomes » canonique + stub LONG_RUN_RULE.
 Distributions : aucune modification de code.
 **Author**: claude-code (GO Brice)
+
+### 2026-07-30 — Claude Code skill discovery mechanism corrected
+
+**Decision**: keep `~/.claude/skills/<name>/SKILL.md` symlink
+installation as the canonical Claude distribution responsibility. Stop
+injecting the historical `settings.json.skills` key. Add 16 dedicated
+distribution tests with isolated `$HOME` fixtures.
+
+**Trigger**: run `2026-07-30_0700_claude-skills-discovery-01`
+(`scope_id: CLAUDE-SKILLS-DISCOVERY-01`); pre-cutoff the Claude setup
+wrote `settings.json.skills = ["~/.agents/skills"]` while Claude Code
+does not consume this key for discovery. Skills were therefore not
+discoverable in Claude Code sessions.
+
+**Reason**: the Claude discovery path is a provider-specific runtime
+mechanism that lives in the Claude distribution (`distributions/claude/setup.sh`).
+Promoting it to Core would create a Claude-only invariant with no
+generic value. The fix belongs in the distribution.
+
+**Impact**: Pi, OpenCode and Codex inherit no change. Claude Code gains
+66 individual skill symlinks under `~/.claude/skills/<name>/SKILL.md`
+on every install. `settings.json.skills` is no longer added; existing
+`settings.json` is preserved verbatim. The contract is idempotent,
+fail-closed on collision, and reverts via `rm -rf ~/.claude/skills`.
+
+**Author**: minimax/MiniMax-M3 (publication operator)
 
 ### Template
 
