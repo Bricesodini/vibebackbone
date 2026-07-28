@@ -3,7 +3,7 @@ context_role: moc-central
 phase: transverse
 status: active
 run_id: permanent
-updated: 2026-07-27
+updated: 2026-07-28
 temporal_provenance: TEMPORAL_PROVENANCE.md
 ---
 
@@ -21,19 +21,24 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 ## Active state
 
-- **Route**: CLOSEOUT after STRUCTURED integration
+- **Route**: HANDOFF after an AUDIT design run
 - **Release posture**: READY; Design/Certification assurance v1 independently
-  approved and integrated
+  approved and integrated. The adversarial assurance dimension is `PROPOSED`
+  only — no canon change.
 - **Active run**:
-  [`2026-07-27_2145_design-certification-gates-core-integration`](runs/2026-07-27_2145_design-certification-gates-core-integration/07_CLOSEOUT.md)
-  — CLOSEOUT, ADR 0050 ACCEPTED, Review Run 03 PASS
+  [`2026-07-28_1002_adversarial-loop-governance-design`](runs/2026-07-28_1002_adversarial-loop-governance-design/07_CLOSEOUT.md)
+  — HANDOFF, design dossier delivered, canon change `PROPOSED`, blocked on
+  `COND-01` (independent review by a distinct actor)
 - **Latest completed run**:
   [`2026-07-27_2145_design-certification-gates-core-integration`](runs/2026-07-27_2145_design-certification-gates-core-integration/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: observe first-use friction in new assurance records; any
-  consumer adoption requires its own governed run
+- **Next action**: human decision on
+  [`CANON_CHANGE_PROPOSAL.md`](runs/2026-07-28_1002_adversarial-loop-governance-design/CANON_CHANGE_PROPOSAL.md)
+  after a distinct-actor independent review; separately, observe first-use
+  friction in new assurance records. Any consumer adoption requires its own
+  governed run.
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
 - **Quality**: [CONVENTIONS.md](CONVENTIONS.md), pillars P1–P5 and P.R1–P.R8

@@ -2,7 +2,7 @@
 context_role: audit-dashboard
 phase: transverse
 status: active
-updated: 2026-07-27
+updated: 2026-07-28
 temporal_provenance: TEMPORAL_PROVENANCE.md
 ---
 
@@ -47,6 +47,24 @@ remains the review reference for this solo-maintained repository.
   [`test coverage`](audits/test-coverage-engineering-knowledge-governance-20260727-1750.md),
   [`impact analysis`](audits/impact-analysis-engineering-knowledge-governance-20260727-1612.md),
   [`ADR 0049`](adr/0049-engineering-knowledge-governance.md).
+
+## Pending governance proposals
+
+- `ADV-GOV-001` — adversarial assurance dimension is `PROPOSED`, not approved
+  and not integrated. The design run maps the current cycle, records gaps
+  `AG-01`…`AG-13`, and proposes an additive assurance schema `1.1` with a
+  fourth gate family `ADVERSARIAL`, a `COUNTER_PROOF` checkpoint, four declared
+  statuses, three criticality levels and a canonical finding lifecycle. No
+  canon file was modified.
+- Blocking before any decision: `COND-01` — the review of the proposal is a
+  disclosed adversarial self-review and does not satisfy actor independence, so
+  the run closed as `HANDOFF` with a required `CERTIFICATION` gate `FAIL`.
+- Evidence:
+  [`design dossier`](runs/2026-07-28_1002_adversarial-loop-governance-design/04_DESIGN_DOSSIER.md),
+  [`review`](runs/2026-07-28_1002_adversarial-loop-governance-design/06_INDEPENDENT_REVIEW.md),
+  [`migration strategy`](runs/2026-07-28_1002_adversarial-loop-governance-design/05_MIGRATION_STRATEGY.md),
+  [`proposal`](runs/2026-07-28_1002_adversarial-loop-governance-design/CANON_CHANGE_PROPOSAL.md),
+  [`closeout`](runs/2026-07-28_1002_adversarial-loop-governance-design/07_CLOSEOUT.md).
 
 ## Active risks
 
