@@ -21,7 +21,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
 import yaml
 
 REPO = Path(__file__).resolve().parent.parent
@@ -69,12 +68,14 @@ def test_all_skill_frontmatter_is_valid_yaml():
             continue
         if not isinstance(data, dict):
             failures.append(
-                (str(skill.relative_to(REPO)), f"frontmatter is not a mapping: {type(data).__name__}")
+                (
+                    str(skill.relative_to(REPO)),
+                    f"frontmatter is not a mapping: {type(data).__name__}",
+                )
             )
             continue
-    assert failures == [], (
-        "Skill frontmatter YAML parse failures:\n"
-        + "\n".join(f"  {path}: {msg}" for path, msg in failures)
+    assert failures == [], "Skill frontmatter YAML parse failures:\n" + "\n".join(
+        f"  {path}: {msg}" for path, msg in failures
     )
 
 
@@ -125,5 +126,7 @@ def test_no_unquoted_description_with_internal_colon():
     assert offenders == [], (
         "Skills with unquoted `description:` containing `:` substring "
         "(triggers YAML mapping parse error):\n"
-        + "\n".join(f"  {path}:{lineno}: {snippet!r}" for path, lineno, snippet in offenders)
+        + "\n".join(
+            f"  {path}:{lineno}: {snippet!r}" for path, lineno, snippet in offenders
+        )
     )

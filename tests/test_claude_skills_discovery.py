@@ -467,13 +467,9 @@ def test_byte_identical_legacy_copy_is_auto_reconciled(tmp_path: Path) -> None:
 
     # And the moved copy must be in a timestamped backup directory
     backups = list((tmp_path / ".claude").glob("skills.bak.*"))
-    assert len(backups) == 1, (
-        f"expected exactly one backup dir, got {backups}"
-    )
+    assert len(backups) == 1, f"expected exactly one backup dir, got {backups}"
     backup_file = backups[0] / f"{target_skill}.SKILL.md"
-    assert backup_file.is_file(), (
-        f"expected backup file at {backup_file}, missing"
-    )
+    assert backup_file.is_file(), f"expected backup file at {backup_file}, missing"
     assert backup_file.read_bytes() == canonical.read_bytes(), (
         "backup file content does not match canonical"
     )
@@ -509,9 +505,7 @@ def test_user_customized_real_file_is_still_refused(tmp_path: Path) -> None:
 
     # No backup dir should have been created for this case
     backups = list((tmp_path / ".claude").glob("skills.bak.*"))
-    assert backups == [], (
-        f"backup dir was unexpectedly created: {backups}"
-    )
+    assert backups == [], f"backup dir was unexpectedly created: {backups}"
 
 
 # ── Test 18: reconcile is idempotent (2nd run is no-op) ────────────────────
@@ -539,9 +533,7 @@ def test_byte_identical_reconcile_is_idempotent(tmp_path: Path) -> None:
 
     # 2nd run: no-op
     _run_setup(tmp_path)
-    assert user_skill_md.is_symlink(), (
-        "second run broke the symlink"
-    )
+    assert user_skill_md.is_symlink(), "second run broke the symlink"
     second_backups = list((tmp_path / ".claude").glob("skills.bak.*"))
     assert len(second_backups) == 1, (
         f"second run created an unexpected backup dir: {second_backups}"
