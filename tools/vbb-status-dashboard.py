@@ -395,6 +395,20 @@ def measure_repository_health(repo: Path, risks: List[Dict]) -> Dict:
     if head_ok and upstream_ok and head != upstream:
         reasons.append("git HEAD differs from upstream")
 
+    # Contract coverage is an invariant, not a statistic. A catalog where a
+    # canonical skill is uncontracted or unindexed cannot measure as READY,
+    # otherwise the gap stays a cosmetic percentage (finding F2).
+    contracted, skill_total, _ = count_contracts(repo)
+    indexed_total = count_indexed_contracts(repo)
+    if skill_total and contracted != skill_total:
+        reasons.append(
+            f"{skill_total - contracted} canonical skill(s) have no CONTRACT.yaml"
+        )
+    if skill_total and indexed_total != skill_total:
+        reasons.append(
+            f"{skill_total - indexed_total} canonical skill(s) are missing from INDEX.yaml"
+        )
+
     open_severities = {str(risk.get("severity", "")).upper() for risk in risks}
     if any(re.search(r"\bP0\b|BLOCKER", severity) for severity in open_severities):
         reasons.append("an open P0 or blocker is recorded")
@@ -661,9 +675,20 @@ def format_terminal(status: Dict, full: bool = False) -> str:
         text = str(value)
         return text[:width].ljust(width)
 
-    pct = int(status["contract_coverage"] * 100)
-    cov = fit(f"{status['contracts']}/{status['skills']} ({pct}%)", 29)
-    idx = fit(f"{status['indexed_contracts']}/{status['skills']}", 29)
+    # Contract coverage is a closed obligation, not a statistic: every
+    # canonical skill must be contracted and indexed. Anything below full
+    # coverage is a FAIL, so 64/66 can no longer read as a benign "97%"
+    # (audit 2026-07-29, finding F2).
+    contract_ok = status["contracts"] == status["skills"]
+    index_ok = status["indexed_contracts"] == status["skills"]
+    cov = fit(
+        f"{status['contracts']}/{status['skills']} {'PASS' if contract_ok else 'FAIL'}",
+        29,
+    )
+    idx = fit(
+        f"{status['indexed_contracts']}/{status['skills']} {'PASS' if index_ok else 'FAIL'}",
+        29,
+    )
     lines = [
         "╔══════════════════════════════════════════════════╗",
         f"║  VBB STATUS — {Path(status['repo']).name:<33}║",

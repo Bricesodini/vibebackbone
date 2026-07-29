@@ -459,6 +459,80 @@ def test_missing_required_key():
         )
 
 
+def test_canonical_skill_without_contract_is_rejected():
+    """A skill shipped without CONTRACT.yaml must fail the linter.
+
+    Regression for audit finding F2. get_contract_skills() only sees directories
+    that already carry a contract, so an uncontracted skill belonged to neither
+    side of the comparison in lint_all() and passed silently: the real catalog
+    reported "All contracts valid" at exit 0 while two adversarial skills had no
+    contract at all.
+    """
+    import yaml
+
+    with tempfile.TemporaryDirectory() as tmp:
+        skills_tmp = Path(tmp) / "skills"
+        skills_tmp.mkdir()
+
+        contracted = skills_tmp / "test-contracted"
+        contracted.mkdir()
+        contract = yaml.safe_load(MINIMAL_CONTRACT)
+        contract["id"] = "test-contracted"
+        (contracted / "CONTRACT.yaml").write_text(
+            yaml.dump(contract, default_flow_style=False)
+        )
+        (contracted / "SKILL.md").write_text(_canonical_skill_text())
+
+        # Canonical skill: has SKILL.md, carries no contract, absent from INDEX.
+        uncontracted = skills_tmp / "test-uncontracted"
+        uncontracted.mkdir()
+        (uncontracted / "SKILL.md").write_text(_canonical_skill_text())
+
+        count, errors = _run_linter(contracted)
+        assert count > 0, "an uncontracted canonical skill must not pass"
+        assert any(
+            "test-uncontracted" in str(e) and "no CONTRACT.yaml" in str(e)
+            for e in errors
+        ), f"Expected the missing-contract error: {errors}"
+        assert any(
+            "test-uncontracted" in str(e) and "missing from INDEX.yaml" in str(e)
+            for e in errors
+        ), f"Expected the missing-index error: {errors}"
+
+
+def test_nested_directories_are_not_canonical_skills():
+    """Template and asset subdirectories must not be asked for a contract.
+
+    The canonical population is first-level only, so skills/<name>/templates/
+    stays out of scope and the F2 check cannot start demanding contracts for
+    asset folders.
+    """
+    import yaml
+
+    with tempfile.TemporaryDirectory() as tmp:
+        skills_tmp = Path(tmp) / "skills"
+        skills_tmp.mkdir()
+
+        skill_dir = skills_tmp / "test-with-templates"
+        skill_dir.mkdir()
+        contract = yaml.safe_load(MINIMAL_CONTRACT)
+        contract["id"] = "test-with-templates"
+        (skill_dir / "CONTRACT.yaml").write_text(
+            yaml.dump(contract, default_flow_style=False)
+        )
+        (skill_dir / "SKILL.md").write_text(_canonical_skill_text())
+
+        nested = skill_dir / "templates"
+        nested.mkdir()
+        (nested / "SKILL.md").write_text(_canonical_skill_text())
+
+        count, errors = _run_linter(skill_dir)
+        assert not any("templates" in str(e) for e in errors), (
+            f"nested directory must not be treated as a skill: {errors}"
+        )
+        assert count == 0, f"Expected a clean lint, got {errors}"
+
+
 def test_invalid_type():
     """Contract with type != prompt_skill → linter must report error."""
     import yaml

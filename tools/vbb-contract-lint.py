@@ -72,6 +72,26 @@ def get_contract_skills() -> Set[str]:
     }
 
 
+def get_canonical_skills() -> Set[str]:
+    """Return the population of skills that must be under contract.
+
+    Canonical population = a **first-level** directory of ``skills/`` that
+    contains a ``SKILL.md``. Nested directories (``skills/vibebackbone/docs``,
+    ``skills/t-vbb-*/templates``) are at depth two and are deliberately out of
+    scope, so the linter never demands a contract for template or asset folders.
+
+    This set exists to close the fail-open direction: ``get_contract_skills``
+    only sees directories that *already have* a contract, so a skill shipped
+    without one belonged to neither side of the comparison in ``lint_all`` and
+    passed silently (audit 2026-07-29, finding F2).
+    """
+    return {
+        skill_dir.name
+        for skill_dir in SKILLS_DIR.iterdir()
+        if skill_dir.is_dir() and (skill_dir / "SKILL.md").exists()
+    }
+
+
 def load_contract(skill_dir: Path) -> Dict:
     contract_path = skill_dir / "CONTRACT.yaml"
     with open(contract_path, "r") as f:
@@ -540,9 +560,15 @@ def lint_all() -> Tuple[int, List[str], List[str]]:
     all_warnings: List[str] = []
     indexed = get_indexed_skills()
     contract_skills = get_contract_skills()
+    canonical_skills = get_canonical_skills()
 
     missing_from_index = sorted(contract_skills - indexed)
     stale_index_entries = sorted(indexed - contract_skills)
+    # The other direction: a canonical skill that carries no contract, or that
+    # no index entry points at. Without these two loops the catalog is only
+    # checked from the contract side and an uncontracted skill is invisible.
+    uncontracted = sorted(canonical_skills - contract_skills)
+    unindexed = sorted(canonical_skills - indexed)
 
     for skill_id in missing_from_index:
         all_errors.append(
@@ -551,6 +577,14 @@ def lint_all() -> Tuple[int, List[str], List[str]]:
     for skill_id in stale_index_entries:
         all_errors.append(
             f"[{skill_id}] INDEX.yaml entry points to a skill without CONTRACT.yaml"
+        )
+    for skill_id in uncontracted:
+        all_errors.append(
+            f"[{skill_id}] canonical skill (skills/{skill_id}/SKILL.md) has no CONTRACT.yaml"
+        )
+    for skill_id in unindexed:
+        all_errors.append(
+            f"[{skill_id}] canonical skill (skills/{skill_id}/SKILL.md) is missing from INDEX.yaml"
         )
 
     # Load all contracts

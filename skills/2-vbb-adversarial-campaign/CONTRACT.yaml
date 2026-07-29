@@ -1,0 +1,107 @@
+id: 2-vbb-adversarial-campaign
+version: '0.3'
+contract_schema_version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - subject_under_campaign
+  - declared_level
+  - declared_scope
+  optional:
+  - corpus_version
+  - docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md
+  - docs/CONTEXT.md
+blocking_conditions:
+- condition: level_contested
+  action: CLARIFY
+  message: Declared adversarial level is contested — fall back to A1 and record the
+    fallback
+- condition: a2_without_distinct_actor
+  action: STOP
+  message: A2 requires an actor distinct from the defender — declare the absence,
+    never simulate independence
+- condition: surfaces_unexplored_empty
+  action: STOP
+  message: An empty surfaces_unexplored asserts exhaustive coverage — refuse
+- condition: confirmed_without_lock
+  action: STOP
+  message: A CONFIRMED finding requires fails_before and passes_after before closure
+outputs:
+  required:
+  - status
+  - summary
+  - findings
+  - verdict
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact:
+    path_pattern: docs/runs/{run_id}/ADVERSARIAL_CAMPAIGN.md
+    template: docs/templates/ADVERSARIAL_CAMPAIGN.md.template
+    must_exist_after_run: true
+    kind: phase_artifact
+    frontmatter_required:
+    - run_id
+    - phase
+    - voie
+    - status
+    - agent
+    - started_at
+    - ended_at
+    - next_phase
+    - artifacts_consumed
+    - artifacts_produced
+  secondary_artifacts:
+  - path_pattern: docs/runs/{run_id}/findings/FIND-{id}.md
+    kind: audit_report
+    must_exist_after_run: false
+  - path_pattern: tests/adversarial_corpus/CORPUS-{id}.py
+    kind: persistent_state_update
+    must_exist_after_run: false
+gates:
+  before: []
+  success:
+  - id: verdict_present
+    output_must_contain:
+    - verdict
+  - id: findings_present
+    output_must_contain:
+    - findings
+events: {}
+routing:
+  phase_scope:
+  - audit
+  - phase_2
+  finding_id_prefix: ADV
+  triggers:
+  - adversarial campaign
+  - adversarial assurance
+  - falsification campaign
+  - attack campaign
+  - PASS_ADVERSARIAL
+  excludes:
+  - corpus_entry_management
+  - certification_decision
+limits:
+  max_gate_depth: 2
+  circular_dependencies: forbidden
+state_policy:
+  persistent: false
+  allowed_fields:
+  - findings_count
+  - severity_distribution
+  - verdict

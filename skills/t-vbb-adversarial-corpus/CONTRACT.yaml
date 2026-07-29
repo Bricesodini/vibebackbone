@@ -1,0 +1,77 @@
+id: t-vbb-adversarial-corpus
+version: '0.3'
+contract_schema_version: '0.3'
+type: prompt_skill
+formalization_level: declarative
+entrypoint:
+  kind: markdown_prompt
+  path: SKILL.md
+compatibility:
+  runtime_required: false
+  agents:
+  - claude-code
+  - codex
+  - pi
+  - opencode
+inputs:
+  required:
+  - finding_record
+  optional:
+  - corpus_version
+  - quarantine_reason
+blocking_conditions:
+- condition: invalid_severity_or_confidence
+  action: STOP
+  message: Corpus registration requires severity S0/S1/S2 and confidence CONFIRMED
+- condition: missing_non_regression_lock
+  action: STOP
+  message: A fails_before/passes_after lock is required — a missing lock is a reason
+    to stop, never to register a weaker guard
+- condition: corpus_directory_absent
+  action: STOP
+  message: tests/adversarial_corpus/ is absent from the working tree
+outputs:
+  required:
+  - status
+  - summary
+  - next_action
+  statuses:
+  - PASS
+  - PARTIAL
+  - FAIL
+  - BLOCKED
+  artifact:
+    path_pattern: tests/adversarial_corpus/CORPUS-{id}.py
+    must_exist_after_run: false
+    kind: persistent_state_update
+  secondary_artifacts:
+  - path_pattern: tests/adversarial_corpus/INDEX.md
+    kind: persistent_state_update
+    must_exist_after_run: false
+gates:
+  before: []
+  success:
+  - id: status_present
+    output_must_contain:
+    - status
+events: {}
+routing:
+  phase_scope:
+  - transverse
+  triggers:
+  - adversarial corpus
+  - regression guard
+  - corpus entry
+  - corpus quarantine
+  - fails_before
+  excludes:
+  - severity_assignment
+  - confidence_assignment
+limits:
+  max_gate_depth: 1
+  circular_dependencies: forbidden
+state_policy:
+  persistent: true
+  allowed_fields:
+  - corpus_version
+  - entry_count
