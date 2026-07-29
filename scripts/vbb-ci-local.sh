@@ -79,60 +79,71 @@ echo ""
 
 require_python_modules
 
-echo "[1/14] Contract lint"
+echo "[1/16] Contract lint"
 run_check "Lint 0 errors" "$PYTHON" tools/vbb-contract-lint.py
 
 echo ""
-echo "[2/14] Architecture lint"
+echo "[2/16] Architecture lint"
 run_check "Architecture valid" "$PYTHON" tools/vbb-architecture.py lint
 
 echo ""
-echo "[3/14] Contract runtime dry-run"
+echo "[3/16] Contract runtime dry-run"
 run_check "Runtime dry-run" "$PYTHON" tools/vbb-contract-runtime.py run --all --dry-run
 
 echo ""
-echo "[4/14] Runtime conformance self-test"
+echo "[4/16] Runtime conformance self-test"
 run_check "Runtime conformance" "$PYTHON" tools/vbb_runtime_conformance.py self-test
 
 echo ""
-echo "[5/14] Hook installer regression"
+echo "[5/16] Hook installer regression"
 run_check "Hook installer" bash tests/test_install_vbb_hooks.sh
 
 echo ""
-echo "[6/14] Credentials gate (staged additions)"
+echo "[6/16] Credentials gate (staged additions)"
 run_check "Credentials clean" "$PYTHON" tools/vbb-credentials-gate.py --staged
 
 echo ""
-echo "[7/14] Ruff check"
+echo "[7/16] Ruff check"
 run_check "Ruff check" "$PYTHON" -m ruff check tools tests
 
 echo ""
-echo "[8/14] Ruff format check"
+echo "[8/16] Ruff format check"
 run_check "Ruff format check" "$PYTHON" -m ruff format --check tools tests
 
 echo ""
-echo "[9/14] Mypy"
+echo "[9/16] Mypy"
 run_check "Mypy" "$PYTHON" -m mypy tools
 
 echo ""
-echo "[10/14] Loop closure (latest run)"
+echo "[10/16] Adversarial gate (latest run)"
+# Pre-merge gate 5b, first half. Same interface as the canonical block in
+# docs/REFERENCE/pre-merge-gate.md and as .github/workflows/vbb-contracts.yml.
+run_check "Adversarial gate" "$PYTHON" tools/vbb-adversarial-gate.py --latest --strict
+
+echo ""
+echo "[11/16] Adversarial corpus"
+# Pre-merge gate 5b, second half. Reported separately from the main suite.
+run_check "Adversarial corpus" "$PYTHON" -m pytest tests/adversarial_corpus/ -q
+
+echo ""
+echo "[12/16] Loop closure (latest run)"
 # WARN is acceptable if the latest run has unknown voie (ad-hoc session)
 run_check_warn "Closure check" "$PYTHON" tools/vbb-loop-closure-check.py
 
 echo ""
-echo "[11/14] Loop closure tests"
+echo "[13/16] Loop closure tests"
 run_check "test_loop_closure.py" "$PYTHON" tests/test_loop_closure.py
 
 echo ""
-echo "[12/14] Portability tests"
+echo "[14/16] Portability tests"
 run_check "test_portability.py" "$PYTHON" tests/test_portability.py
 
 echo ""
-echo "[13/14] Project init tests"
+echo "[15/16] Project init tests"
 run_check "test_project_init.py" "$PYTHON" tests/test_project_init.py
 
 echo ""
-echo "[14/14] Pytest suite"
+echo "[16/16] Pytest suite"
 run_check "pytest tests/" "$PYTHON" -m pytest tests/ -q
 
 # ── Summary ─────────────────────────────────────────────────────────

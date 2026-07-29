@@ -30,6 +30,7 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import re
 import sys
@@ -1250,13 +1251,63 @@ def validate_run(run_dir: Path) -> Dict[str, Any]:
     }
 
 
+REPO_ROOT = Path(__file__).parent.parent.resolve()
+RUNS_DIR = REPO_ROOT / "docs" / "runs"
+
+# Shared run resolution (ADR-0027), reused from vbb-loop-closure-check.py so
+# that "latest run" means the same thing to every gate.
+_RUN_RES_SPEC = importlib.util.spec_from_file_location(
+    "vbb_run_resolution", Path(__file__).parent / "vbb_run_resolution.py"
+)
+assert _RUN_RES_SPEC is not None and _RUN_RES_SPEC.loader is not None
+_run_resolution = importlib.util.module_from_spec(_RUN_RES_SPEC)
+_RUN_RES_SPEC.loader.exec_module(_run_resolution)
+
+
+def resolve_run_dir(raw: Optional[Path], use_latest: bool = False) -> Optional[Path]:
+    """Resolve a run argument to an existing run directory.
+
+    Accepts three forms so that the canonical block, the CI scripts and manual
+    invocations cannot diverge:
+
+      * ``--latest``            -> most recent *closed* run under docs/runs/
+      * a bare run_id           -> docs/runs/<run_id>
+      * a path (relative or absolute) -> used as given
+
+    ``--latest`` deliberately selects the latest *closed* run, not the latest
+    existing one. A run still in progress has no 07_CLOSEOUT.md, so validating
+    it would block CI on every commit made during a run — a failure of the
+    selector, not of the adversarial contract.
+
+    Returns ``None`` when nothing resolves, so the caller reports the failure
+    instead of silently validating the wrong run.
+    """
+    if use_latest:
+        latest = _run_resolution.latest_closed_run(RUNS_DIR)
+        return latest if latest is not None and latest.is_dir() else None
+    if raw is None:
+        return None
+    if raw.is_dir():
+        return raw
+    candidate = RUNS_DIR / raw.name
+    return candidate if candidate.is_dir() else None
+
+
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(
         prog="vbb-adversarial-gate",
         description="Validate the adversarial assurance dimension (v1.1).",
     )
     parser.add_argument(
-        "run_dir", type=Path, help="Path to the run directory to validate"
+        "run_dir",
+        type=Path,
+        nargs="?",
+        help="Run directory or bare run_id to validate (omit with --latest)",
+    )
+    parser.add_argument(
+        "--latest",
+        action="store_true",
+        help="Validate the most recent run directory (used by CI, which has no run argument)",
     )
     parser.add_argument(
         "--strict",
@@ -1270,9 +1321,12 @@ def main(argv: Optional[List[str]] = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    if not args.run_dir.is_dir():
-        sys.stderr.write(f"ERROR: {args.run_dir} is not a directory\n")
+    run_dir = resolve_run_dir(args.run_dir, use_latest=args.latest)
+    if run_dir is None:
+        target = "--latest" if args.latest else args.run_dir
+        sys.stderr.write(f"ERROR: cannot resolve a run directory from {target}\n")
         return 3
+    args.run_dir = run_dir
 
     result = validate_run(args.run_dir)
     if args.json:

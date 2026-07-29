@@ -29,28 +29,47 @@ status: active
 | 1 | `python tools/vbb-architecture.py lint` | `docs/ARCHITECTURE.md` blocks valid |
 | 2 | `python tools/vbb-architecture.py graph --write` | `docs/RELATIONS.md` regenerated |
 | 3 | `python tools/vbb-contract-lint.py` | Published contracts lint clean |
-| 4 | `python tools/vbb-loop-closure-check.py <run> --strict` | Closure invariant satisfied |
+| 4 | `python tools/vbb-loop-closure-check.py <run_id> --strict` | Closure invariant satisfied |
 | 5 | `pytest tests/ -q && bash scripts/vbb-ci-local.sh` | Test suite + local CI pass |
-| **5b** *(adversarial — ADR 0051)* | **`python tools/vbb-adversarial-gate.py <run> --strict && python -m pytest tests/adversarial_corpus/ -q`** | Adversarial validator + adversarial corpus execution as a **separately reported** check. **Distinct from command 5.** |
+| **5b** *(adversarial — ADR 0051)* | **`python tools/vbb-adversarial-gate.py <run_id> --strict && python -m pytest tests/adversarial_corpus/ -q`** | Adversarial validator + adversarial corpus execution as a **separately reported** check. **Distinct from command 5.** |
+
+`<run_id>` désigne partout l'identifiant nu du run (`2026-07-29_0840_audit-remediation`),
+jamais un chemin. Les deux outils résolvent le chemin eux-mêmes.
 
 ## Bloc shell canonique
 
 ```bash
+RUN_ID=<run_id>
+
 python tools/vbb-architecture.py lint && \
 python tools/vbb-architecture.py graph --write && \
 python tools/vbb-contract-lint.py && \
-python tools/vbb-loop-closure-check.py <run_id> --strict && \
-( python tools/vbb-adversarial-gate.py <run_id> --strict || [ "$(adversarial_governance_cutoff_state)" = "pre-cutoff" ] ) && \
-( python -m pytest tests/adversarial_corpus/ -q || [ "$(adversarial_governance_cutoff_state)" = "pre-cutoff" ] ) && \
+python tools/vbb-loop-closure-check.py "$RUN_ID" --strict && \
+python tools/vbb-adversarial-gate.py "$RUN_ID" --strict && \
+python -m pytest tests/adversarial_corpus/ -q && \
 pytest tests/ -q && \
 bash scripts/vbb-ci-local.sh
 ```
 
-Les deux lignes intermédiaires (`5b` — adversarial) sont conditionnelles
-au cutoff `2026-07-28_1400`. Avant le cutoff, le bloc retourne code 0
-même si les deux lignes sont sautées ; après le cutoff, elles sont
-obligatoires. Cette conditionnalité préserve la compatibilité
-ascendante (cf. ADR 0050 §Compatibility).
+Ce bloc est **exécutable tel quel** : il se copie-colle après avoir renseigné
+`RUN_ID`. Toute ligne qui ne s'exécute pas n'appartient pas à ce bloc.
+
+> **Historique.** Jusqu'au 2026-07-29, les deux lignes `5b` étaient encadrées par
+> `[ "$(adversarial_governance_cutoff_state)" = "pre-cutoff" ]`. Cette fonction
+> n'a jamais existé dans le dépôt : la substitution échouait, la comparaison était
+> fausse, et la chaîne `&&` s'interrompait quel que soit l'état. Le bloc dit
+> « canonique » n'a donc jamais pu être exécuté (audit 2026-07-29, finding F5).
+> Le cutoff `2026-07-28_1400` étant dépassé, `5b` est désormais inconditionnel et
+> la conditionnalité ascendante (cf. ADR 0050 §Compatibility) ne concerne plus que
+> les runs historiques, qui ne sont pas rejoués.
+
+### Corpus vide
+
+`pytest tests/adversarial_corpus/ -q` retourne 0 quand le corpus est vide : c'est
+un état légitime tant qu'aucun finding `CONFIRMED` n'est en attente
+(`tests/adversarial_corpus/conftest.py`). L'obligation « tout finding CONFIRMED
+possède une entrée de corpus » est portée par `tests/test_corpus_mandatory.py`,
+exécuté par la commande 5, et non par le code de sortie de cette commande.
 
 ## Règles d'application
 
