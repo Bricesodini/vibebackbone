@@ -15,14 +15,43 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 ## Global verdict
 
-**`READY — readiness integrity remediation revalidated`**
+**`NOT_READY — remediation in progress`**
 
-The previously published READY baseline was invalidated by a reproduced Codex
-legacy-symlink write into the canonical `AGENTS.md`, a documentary-only
-dashboard verdict, and an unenforced long-run declaration. ADR 0046 remediation
-is merged on `main`; local P.R2, exact-SHA remote CI, clean-main checks and a
-fresh read-only revalidation now pass. The existing independent READY baseline
-remains the review reference for this solo-maintained repository.
+A read-only audit on 2026-07-29 established that the previously published READY
+verdict was not supported by measurement. The remote `vbb-contracts` workflow was
+`failure` on `main` for **eight consecutive commits** — from `3d2eeee`
+(2026-07-28T17:24) through `f8850ca`, last green `75953fc` — with two independent
+causes: `Ruff check` and `Pytest suite`. Exit criteria #3 and #4 below were
+therefore unmet the whole time, including when the v1.1 adversarial assurance
+campaign was published `CERTIFIED` and the runs after it closed `READY` /
+`PASS_ADVERSARIAL`.
+
+Two causes are closed as isolated FAST-MINIMAL hotfixes:
+
+- `F1` — unused import and formatting drift on the canonical `tools tests` scope,
+  introduced by run `2026-07-30_0700`, closed by `f8850ca`.
+- `F14` — `tests/adversarial_corpus/` was an empty **untracked** directory, so it
+  existed on developer machines and in no clone. `test_corpus_directory_exists`
+  passed locally and failed on every CI run. Closed by `a2a1d0a`; remote CI green
+  again at that SHA.
+
+Findings `F2`–`F7` remain open and are handled by run
+`2026-07-29_0840_audit-remediation` (in progress; its artifacts are committed at
+closeout, not incrementally, so that no half-filled closeout ever claims gate
+results it has not produced).
+They are not six independent defects but one broken chain: an invariant is
+declared, but nothing registers it in the contracts, no gate verifies it, no test
+can fail on it, no CI executes it, and the canonical surfaces do not reflect it.
+
+This verdict returns to `READY — revalidated at <SHA>` only when that run passes
+its acceptance criteria, including the negative-proof matrix. The prior
+independent READY baseline is **not** a valid reference until then.
+
+### Lesson recorded
+
+`pytest` on the working tree is not evidence of CI. Local state masked `F14` for
+eight commits. Verification claiming a verdict must run against a fresh
+`git clone --no-local` of HEAD.
 
 ## Latest governance integration
 

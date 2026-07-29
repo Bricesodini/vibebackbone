@@ -270,7 +270,17 @@ def count_tests(repo: Path) -> int:
     )
 
 
-VERDICT_TOKENS = ("READY", "PARTIAL", "PASS", "FAIL", "BLOCKED", "UNKNOWN")
+# NOT_READY must precede READY: regex alternation is ordered, so the compound
+# token has to be offered first or "NOT_READY" would be read as a bare "READY".
+VERDICT_TOKENS = (
+    "NOT_READY",
+    "READY",
+    "PARTIAL",
+    "PASS",
+    "FAIL",
+    "BLOCKED",
+    "UNKNOWN",
+)
 VERDICT_RE = re.compile(
     r"\b(" + "|".join(VERDICT_TOKENS) + r")\b",
     re.IGNORECASE,
@@ -289,10 +299,21 @@ def extract_verdict(repo: Path) -> str:
     for index, line in enumerate(lines):
         if not section_heading.match(line.strip()):
             continue
+        # The verdict is the declaration, never the prose that explains it.
+        # Read the heading itself (legacy same-line form) and then the first
+        # non-empty line below it, and stop there. Scanning further would let a
+        # narrative sentence such as "the previously published READY baseline"
+        # override an explicit NOT_READY declaration.
         for offset, candidate in enumerate(lines[index : index + 6]):
-            if offset > 0 and candidate.lstrip().startswith("#"):
-                break
+            stripped = candidate.strip()
+            if offset > 0:
+                if not stripped:
+                    continue
+                if stripped.startswith("#"):
+                    break
             match = VERDICT_RE.search(candidate)
+            if offset > 0:
+                return match.group(1).upper() if match else "UNKNOWN"
             if match:
                 return match.group(1).upper()
         break
@@ -401,6 +422,7 @@ def effective_verdict(documented: str, measured: str) -> str:
         "UNKNOWN": 2,
         "FAIL": 3,
         "BLOCKED": 3,
+        "NOT_READY": 3,
     }
     if severity.get(measured, 2) > severity.get(documented, 2):
         return measured

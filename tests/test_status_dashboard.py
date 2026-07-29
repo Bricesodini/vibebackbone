@@ -536,6 +536,73 @@ def test_get_open_risks_parses_all_tables_and_prioritizes_severity():
         assert risks[1]["status"] == "Open — verified"
 
 
+# --- Audit finding F15: the verdict is the declaration, not the prose ---
+
+
+def test_extract_verdict_reads_not_ready_as_first_class_token():
+    """NOT_READY must be representable; it is not a bare READY."""
+    mod = _import_dashboard()
+
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = Path(tmp)
+        docs = repo / "docs"
+        docs.mkdir()
+        (docs / "AUDIT_STATUS.md").write_text(
+            "# AUDIT_STATUS\n\n"
+            "## Global verdict\n\n"
+            "**`NOT_READY — remediation in progress`**\n"
+        )
+
+        assert mod.extract_verdict(repo) == "NOT_READY"
+
+
+def test_extract_verdict_ignores_narrative_below_the_declaration():
+    """Prose mentioning another verdict must not override the declaration.
+
+    Regression for F15: the section scan used to read up to six lines and take
+    the first token found, so a sentence such as "the previously published READY
+    baseline" silently reported READY for a NOT_READY document.
+    """
+    mod = _import_dashboard()
+
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = Path(tmp)
+        docs = repo / "docs"
+        docs.mkdir()
+        (docs / "AUDIT_STATUS.md").write_text(
+            "# AUDIT_STATUS\n\n"
+            "## Global verdict\n\n"
+            "**`NOT_READY — remediation in progress`**\n\n"
+            "The previously published READY baseline was invalidated because\n"
+            "the remote CI was PASS on no commit in this range.\n"
+        )
+
+        assert mod.extract_verdict(repo) == "NOT_READY"
+
+
+def test_effective_verdict_treats_not_ready_as_blocking():
+    """A NOT_READY document must not be softened by a milder measurement."""
+    mod = _import_dashboard()
+
+    assert mod.effective_verdict("NOT_READY", "PARTIAL") == "NOT_READY"
+    assert mod.effective_verdict("NOT_READY", "READY") == "NOT_READY"
+
+
+def test_extract_verdict_declaration_without_token_is_unknown():
+    """A verdict section whose declaration line carries no token is UNKNOWN."""
+    mod = _import_dashboard()
+
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = Path(tmp)
+        docs = repo / "docs"
+        docs.mkdir()
+        (docs / "AUDIT_STATUS.md").write_text(
+            "# AUDIT_STATUS\n\n## Global verdict\n\nSee the run closeout.\n"
+        )
+
+        assert mod.extract_verdict(repo) == "UNKNOWN"
+
+
 # --- Direct execution fallback ---
 if __name__ == "__main__":
     try:
