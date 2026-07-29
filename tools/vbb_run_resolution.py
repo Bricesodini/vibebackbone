@@ -49,6 +49,7 @@ __all__ = [
     "verify_bound_subject",
     "verify_certification_subject",
     "certification_identity",
+    "find_duplicate_critical_arguments",
 ]
 
 # Accepts the three naming schemes present in docs/runs/:
@@ -158,6 +159,25 @@ def resolve_explicit_run(runs_dir: Path, raw: Path) -> Optional[Path]:
 
 _YAML_FENCE_RE = re.compile(r"```(?:ya?ml)\s*\n(.*?)```", re.DOTALL)
 _FULL_COMMIT_RE = re.compile(r"^[0-9a-f]{40}$", re.IGNORECASE)
+
+
+def find_duplicate_critical_arguments(argv: List[str]) -> Optional[str]:
+    """Return the first repeated subject-selecting option in ``argv``.
+
+    ``argparse``'s scalar ``store`` action silently keeps the last occurrence
+    of a repeated option.  Release identity must never depend on argument
+    order, so both Core gates reject repeated selector options before parsing.
+    The ``--name=value`` spelling is counted as an occurrence as well.
+    """
+    critical = {"--expected-commit", "--candidate-id", "--run-id", "--runs-dir"}
+    seen = set()
+    for token in argv:
+        option = token.split("=", 1)[0] if token.startswith("--") else None
+        if option in critical:
+            if option in seen:
+                return option
+            seen.add(option)
+    return None
 
 
 def validate_expected_commit(

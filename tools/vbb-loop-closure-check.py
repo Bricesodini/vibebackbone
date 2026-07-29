@@ -1408,6 +1408,33 @@ def check_run(
 
 
 def main() -> int:
+    duplicate = _run_resolution.find_duplicate_critical_arguments(sys.argv[1:])
+    if duplicate is not None:
+        reason = "duplicate_critical_argument"
+        msg = f"GATE FAILED: {reason}: {duplicate} may be supplied only once"
+        # Fail before argparse can apply its scalar last-value-wins behavior.
+        if "--json" in sys.argv[1:] or any(
+            token.startswith("--json=") for token in sys.argv[1:]
+        ):
+            import json as _json
+
+            print(
+                _json.dumps(
+                    {
+                        "exit_intent": "FAIL",
+                        "run_id": None,
+                        "voie": None,
+                        "reason": reason,
+                        "errors": [msg],
+                        "report": [],
+                    },
+                    indent=2,
+                )
+            )
+        else:
+            print(msg, file=sys.stderr)
+        return 2 if "--strict" in sys.argv[1:] else 1
+
     parser = argparse.ArgumentParser(
         description="Verify VBB run closure invariant",
         formatter_class=argparse.RawDescriptionHelpFormatter,

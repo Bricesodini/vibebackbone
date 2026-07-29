@@ -72,4 +72,17 @@ authorized before they pass.
   validation; `REOPENED` is active.
 - Three canonical tests, three corpus locks and three finding records added.
 - Previous checkpoint retained and marked `REJECTED_BY_A2`.
+
+## Remédiation suivante — CR-05 et CR-04-LOCAL-CI
+
+- `tools/vbb_run_resolution.py` fournit une détection commune des occurrences
+  répétées d’arguments sélecteurs critiques.
+- `tools/vbb-loop-closure-check.py` et `tools/vbb-adversarial-gate.py` refusent
+  toute répétition avant parsing, fail-closed avec
+  `duplicate_critical_argument`.
+- `tests/test_loop_closure.py` contrôle explicitement l’environnement de tous
+  ses sous-processus et `tests/test_release_subject_arguments.py` couvre la
+  matrice des doublons.
+- Les findings `RUN1-A2-CR-05` et `RUN1-A2-CR-04-LOCAL-CI` sont
+  `REMEDIATED_PENDING_COUNTER_PROOF`; merge et Run 2 restent interdits.
 - Certification remains `PENDING_A2`; merge and Run 2 remain forbidden.

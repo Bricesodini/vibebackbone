@@ -1303,6 +1303,15 @@ def resolve_run_dir(
 
 
 def main(argv: Optional[List[str]] = None) -> int:
+    raw_argv = list(sys.argv[1:] if argv is None else argv)
+    duplicate = _run_resolution.find_duplicate_critical_arguments(raw_argv)
+    if duplicate is not None:
+        sys.stderr.write(
+            "ERROR: duplicate_critical_argument: "
+            f"{duplicate} may be supplied only once\n"
+        )
+        return 2 if "--strict" in raw_argv else 1
+
     parser = argparse.ArgumentParser(
         prog="vbb-adversarial-gate",
         description="Validate the adversarial assurance dimension (v1.1).",
@@ -1353,7 +1362,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         action="store_true",
         help="Emit machine-readable JSON output",
     )
-    args = parser.parse_args(argv)
+    args = parser.parse_args(raw_argv)
 
     if args.expected_commit is not None:
         valid_expected, expected_reason, _ = _run_resolution.validate_expected_commit(

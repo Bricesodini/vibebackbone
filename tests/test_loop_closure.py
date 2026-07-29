@@ -34,6 +34,14 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).parent.parent.resolve()
 TOOL = REPO_ROOT / "tools" / "vbb-loop-closure-check.py"
 
+
+def _controlled_env(**overrides: str) -> dict[str, str]:
+    """Make subprocess tests independent from the invoking shell's VBB state."""
+    env = {k: v for k, v in os.environ.items() if not k.startswith("VBB_")}
+    env.update(overrides)
+    return env
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -115,11 +123,7 @@ def _run(run_id: str, runs_dir: Path, extra_args=None):
         cmd,
         capture_output=True,
         text=True,
-        env={
-            k: v
-            for k, v in os.environ.items()
-            if k not in {"VBB_RUN_ID", "VBB_EXPECTED_COMMIT", "VBB_CANDIDATE_ID"}
-        },
+        env=_controlled_env(),
     )
     return result.returncode, result.stdout, result.stderr
 
@@ -188,11 +192,13 @@ def test_path_and_bare_id_resolve_the_same_run():
             [sys.executable, str(TOOL), rid, "--runs-dir", str(runs)],
             capture_output=True,
             text=True,
+            env=_controlled_env(),
         )
         path_result = subprocess.run(
             [sys.executable, str(TOOL), str(d), "--runs-dir", str(runs)],
             capture_output=True,
             text=True,
+            env=_controlled_env(),
         )
         assert id_result.returncode == path_result.returncode == 0
         assert f"Run     : {rid}" in id_result.stdout
@@ -202,10 +208,16 @@ def test_path_and_bare_id_resolve_the_same_run():
 def test_expected_commit_requires_matching_bound_subject():
     with tempfile.TemporaryDirectory() as tmp:
         runs = Path(tmp)
-        subprocess.run(["git", "init", str(runs)], check=True, capture_output=True)
+        subprocess.run(
+            ["git", "init", str(runs)],
+            check=True,
+            capture_output=True,
+            env=_controlled_env(),
+        )
         subprocess.run(
             ["git", "-C", str(runs), "config", "user.name", "VBB Test"],
             check=True,
+            env=_controlled_env(),
         )
         subprocess.run(
             [
@@ -217,13 +229,19 @@ def test_expected_commit_requires_matching_bound_subject():
                 "vbb@example.invalid",
             ],
             check=True,
+            env=_controlled_env(),
         )
         (runs / "candidate").write_text("candidate\n")
-        subprocess.run(["git", "-C", str(runs), "add", "candidate"], check=True)
+        subprocess.run(
+            ["git", "-C", str(runs), "add", "candidate"],
+            check=True,
+            env=_controlled_env(),
+        )
         subprocess.run(
             ["git", "-C", str(runs), "commit", "-m", "candidate"],
             check=True,
             capture_output=True,
+            env=_controlled_env(),
         )
         d = runs / "2026-01-01_1000_bound"
         d.mkdir()
@@ -233,6 +251,7 @@ def test_expected_commit_requires_matching_bound_subject():
             check=True,
             capture_output=True,
             text=True,
+            env=_controlled_env(),
         ).stdout.strip()
         for phase in ["01_INTAKE", "04_PLAN", "05_EXECUTION", "07_CLOSEOUT"]:
             _make_artifact(d / f"{phase}.md", rid, phase, "STRUCTUREE")
@@ -269,6 +288,7 @@ def test_expected_commit_requires_explicit_run():
             ],
             capture_output=True,
             text=True,
+            env=_controlled_env(),
         )
         assert proc.returncode == 64
         assert "explicit run" in proc.stdout + proc.stderr
@@ -291,6 +311,7 @@ def test_expected_commit_empty_is_invalid_and_fail_closed():
             ],
             capture_output=True,
             text=True,
+            env=_controlled_env(),
         )
         assert proc.returncode != 0
         assert '"exit_intent": "FAIL"' in proc.stdout
@@ -314,6 +335,7 @@ def test_expected_commit_invalid_variants_fail_closed():
                 ],
                 capture_output=True,
                 text=True,
+                env=_controlled_env(),
             )
             assert proc.returncode != 0
             assert "invalid_or_empty_expected_commit" in proc.stdout
@@ -334,6 +356,7 @@ def test_expected_commit_invalid_variants_fail_closed():
             ],
             capture_output=True,
             text=True,
+            env=_controlled_env(),
         )
         assert proc.returncode != 0
 
@@ -1155,12 +1178,11 @@ def test_strict_no_run_id_returns_exit_64():
         empty.mkdir()
         cmd = [sys.executable, str(TOOL), "--strict", "--runs-dir", str(empty)]
         # Ensure VBB_RUN_ID is unset for this test
-        env = {k: v for k, v in __import__("os").environ.items() if k != "VBB_RUN_ID"}
         result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
-            env=env,
+            env=_controlled_env(),
         )
         assert result.returncode == 64, (
             f"Expected exit 64 (USAGE_ERROR), got {result.returncode}\nstderr:\n{result.stderr}"
