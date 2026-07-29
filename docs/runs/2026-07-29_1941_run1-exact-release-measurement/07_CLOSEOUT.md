@@ -63,6 +63,10 @@ ASSURANCE_STATUS:
   conformity_status: "PASS_CONFORMITY"
   adversarial_status: "FINDINGS_OPEN"
   certification_status: "NOT_CERTIFIED"
+  identity_contract:
+    self_referential_commit_field: false
+    expected_commit_source: carrier
+    stable_candidate_identifier: "RUN1-EXACT-RELEASE-MEASUREMENT-CANDIDATE-03"
   gate_results:
     - gate_id: "RUN1-INTEGRATION-GATE"
       gate_family: "DESIGN"
@@ -119,8 +123,16 @@ ASSURANCE_STATUS:
 ```yaml
 adversarial:
   level: "A2"
+  certification:
+    status: "PRE_CERTIFICATION"
+    transient_reason: "Awaiting independent A2 counter-review"
+    bootstrapped_at: "2026-07-29T20:00:00Z"
+    bootstrapped_by: "codex"
+    run_id: "2026-07-29_1941_run1-exact-release-measurement"
+    candidate_id: "RUN1-EXACT-RELEASE-MEASUREMENT-CANDIDATE-03"
+    binding: "carrier_expected_commit_equals_HEAD"
   campaign_ref: "CAMP-2026-07-29-RUN1"
-  corpus_version: "1.2.0"
+  corpus_version: "1.4.0"
   exploration_performed: true
   attacker_identity:
     agent: "/root/run1_a2_distinct"
@@ -213,6 +225,30 @@ adversarial:
         passes_after: true
         witnessed_by: "PENDING_DISTINCT_A2_ACTOR"
         test_review: "Technical replay PASS; independent replay pending."
+    - id: "RUN1-A2-CR-04-RESIDUAL"
+      severity: "S0"
+      confidence: "CONFIRMED"
+      state: "REMEDIATED"
+      non_regression_lock:
+        fails_before: true
+        passes_after: true
+        witnessed_by: "PENDING_DISTINCT_A2_ACTOR"
+    - id: "RUN1-A2-CR-04-CARRIER"
+      severity: "S1"
+      confidence: "CONFIRMED"
+      state: "REMEDIATED"
+      non_regression_lock:
+        fails_before: true
+        passes_after: true
+        witnessed_by: "PENDING_DISTINCT_A2_ACTOR"
+    - id: "RUN1-A2-CR-04-LOCAL-CI"
+      severity: "S1"
+      confidence: "CONFIRMED"
+      state: "REMEDIATED"
+      non_regression_lock:
+        fails_before: true
+        passes_after: true
+        witnessed_by: "PENDING_DISTINCT_A2_ACTOR"
   verdict: "FINDINGS_OPEN"
   non_claim: |
     No PASS_ADVERSARIAL is claimed. Technical remediation is not independent

@@ -165,3 +165,11 @@ remediation_intake:
 The reopening is limited to the three reproduced counter-review findings.
 Certification remains `PENDING_A2`; the implementation actor cannot issue
 `PASS_A2`.
+# Identity contract for the reopened Run 1
+
+The candidate declares `run_id` and the stable `candidate_id` in the
+certification metadata. The release carrier supplies `expected_commit`; Core
+gates verify `expected_commit == HEAD`, the declared run matches the explicit
+run, and a supplied `--candidate-id` matches the declared candidate. No
+certification gate reads a field containing the candidate commit's own SHA.
+Historical resolution without `expected_commit` remains non-certifying.

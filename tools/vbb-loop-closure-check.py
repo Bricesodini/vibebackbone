@@ -1436,8 +1436,16 @@ def main() -> int:
         "--expected-commit",
         metavar="SHA",
         help=(
-            "Require the explicit run's certification.bound_to.commit to equal "
-            "this full Git SHA. This option never auto-selects a run."
+            "Require the explicit run's carrier expected commit to equal HEAD "
+            "and its non-self-referential certification identity."
+        ),
+    )
+    parser.add_argument(
+        "--candidate-id",
+        metavar="ID",
+        help=(
+            "Require the explicit run's stable certification candidate_id to "
+            "equal this value. Omit to use the candidate declared by the run."
         ),
     )
     parser.add_argument(
@@ -1648,7 +1656,7 @@ def main() -> int:
                 print(msg, file=sys.stderr)
             return 2 if args.strict else 1
         subject_ok, subject_reason = _run_resolution.verify_certification_subject(
-            resolved, args.expected_commit
+            resolved, args.expected_commit, args.candidate_id
         )
         if not subject_ok:
             msg = f"GATE FAILED: release-subject-binding: {subject_reason}"

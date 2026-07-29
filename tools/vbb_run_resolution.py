@@ -48,6 +48,7 @@ __all__ = [
     "validate_expected_commit",
     "verify_bound_subject",
     "verify_certification_subject",
+    "certification_identity",
 ]
 
 # Accepts the three naming schemes present in docs/runs/:
@@ -243,6 +244,40 @@ def _bound_to_from_closeout(run_dir: Path) -> Optional[Dict[str, Any]]:
     return None
 
 
+def certification_identity(run_dir: Path) -> Optional[Dict[str, Any]]:
+    """Return the non-self-referential certification identity metadata.
+
+    A candidate must declare its run and stable candidate identifier.  The
+    carrier supplies the commit being tested; the candidate must never embed
+    that commit's own SHA in its certification record.
+    """
+    closeout = find_closeout(run_dir)
+    if closeout is None:
+        return None
+    try:
+        text = closeout.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    for match in _YAML_FENCE_RE.finditer(text):
+        try:
+            parsed = yaml.safe_load(match.group(1))
+        except yaml.YAMLError:
+            continue
+        if not isinstance(parsed, dict):
+            continue
+        adversarial = parsed.get("adversarial")
+        if not isinstance(adversarial, dict):
+            continue
+        certification = adversarial.get("certification")
+        if not isinstance(certification, dict):
+            continue
+        run_id = str(certification.get("run_id", "")).strip()
+        candidate_id = str(certification.get("candidate_id", "")).strip()
+        if run_id and candidate_id:
+            return {"run_id": run_id, "candidate_id": candidate_id}
+    return None
+
+
 def verify_bound_subject(run_dir: Path, expected_commit: str) -> Tuple[bool, str]:
     """Resolve an existing historical ``certification.bound_to`` run/SHA."""
     valid, _reason, expected = validate_expected_commit(expected_commit)
@@ -288,13 +323,50 @@ def verify_bound_subject(run_dir: Path, expected_commit: str) -> Tuple[bool, str
 
 
 def verify_certification_subject(
-    run_dir: Path, expected_commit: str
+    run_dir: Path, expected_commit: str, expected_candidate_id: Optional[str] = None
 ) -> Tuple[bool, str]:
-    """Certify only when metadata, expected commit and checked-out HEAD agree."""
-    bound_ok, bound_reason = verify_bound_subject(run_dir, expected_commit)
-    if not bound_ok:
-        return False, bound_reason
-    expected = expected_commit.strip().lower()
+    """Certify one checkout without requiring a self-referential SHA field."""
+    valid, reason, expected = validate_expected_commit(expected_commit)
+    if not valid or expected is None:
+        return False, reason
+    identity = certification_identity(run_dir)
+    if identity is None:
+        return False, "certification identity metadata is missing"
+    if identity["run_id"] != run_dir.name:
+        return (
+            False,
+            f"certification run_id '{identity['run_id']}' does not match explicit run '{run_dir.name}'",
+        )
+    if expected_candidate_id is not None:
+        requested = expected_candidate_id.strip()
+        if not requested or requested != identity["candidate_id"]:
+            return (
+                False,
+                f"candidate_id '{identity['candidate_id']}' does not match requested candidate '{requested}'",
+            )
+    # Legacy records may still carry bound_to. It is checked only as a
+    # consistency guard; the carrier SHA and HEAD remain the certification
+    # authority for the new non-self-referential contract.
+    legacy_bound = _bound_to_from_closeout(run_dir)
+    if legacy_bound is not None:
+        legacy_commit = str(legacy_bound.get("commit", "")).strip().lower()
+        if legacy_commit and legacy_commit != expected:
+            return (
+                False,
+                f"bound commit '{legacy_commit}' does not match expected commit '{expected}'",
+            )
+    try:
+        exists = subprocess.run(
+            ["git", "-C", str(run_dir), "cat-file", "-e", f"{expected}^{{commit}}"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return False, "expected commit could not be verified"
+    if exists.returncode != 0:
+        return False, f"expected commit '{expected}' is not a Git commit object"
     try:
         head = subprocess.run(
             ["git", "-C", str(run_dir), "rev-parse", "HEAD"],
@@ -314,4 +386,7 @@ def verify_certification_subject(
             f"checked-out HEAD '{evaluated_head}' does not match expected commit "
             f"'{expected}'",
         )
-    return True, f"{bound_reason}, HEAD={evaluated_head}"
+    return True, (
+        f"run_id={identity['run_id']}, candidate_id={identity['candidate_id']}, "
+        f"expected_commit={expected}, HEAD={evaluated_head}"
+    )

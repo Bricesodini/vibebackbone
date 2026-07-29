@@ -193,6 +193,8 @@ def _bound_body(run_id: str, commit: str) -> str:
         "  defender_identity:\n",
         "  certification:\n"
         '    status: "NOT_CERTIFIED"\n'
+        f'    run_id: "{run_id}"\n'
+        '    candidate_id: "fixture-candidate"\n'
         "    bound_to:\n"
         f'      run_id: "{run_id}"\n'
         f'      commit: "{commit}"\n'

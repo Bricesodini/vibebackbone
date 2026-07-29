@@ -231,6 +231,8 @@ def test_bound_subject_requires_exact_run_and_full_commit(tmp_path: Path) -> Non
         "```yaml\n"
         "adversarial:\n"
         "  certification:\n"
+        f'    run_id: "{run.name}"\n'
+        '    candidate_id: "test-candidate"\n'
         "    bound_to:\n"
         f'      run_id: "{run.name}"\n'
         f'      commit: "{commit}"\n'
@@ -270,6 +272,8 @@ def test_bound_subject_rejects_invented_full_sha(tmp_path: Path) -> None:
         "```yaml\n"
         "adversarial:\n"
         "  certification:\n"
+        f'    run_id: "{run.name}"\n'
+        '    candidate_id: "test-candidate"\n'
         "    bound_to:\n"
         f'      run_id: "{run.name}"\n'
         f'      commit: "{invented}"\n'
@@ -325,6 +329,8 @@ def test_certification_rejects_historical_commit_when_head_differs(
         "```yaml\n"
         "adversarial:\n"
         "  certification:\n"
+        f'    run_id: "{run.name}"\n'
+        '    candidate_id: "test-candidate"\n'
         "    bound_to:\n"
         f'      run_id: "{run.name}"\n'
         f'      commit: "{old_commit}"\n'
@@ -361,7 +367,11 @@ def test_loop_closure_autodetect_uses_latest_existing(tmp_path: Path) -> None:
     """TD-101 non-regression: auto-detection must select the newest run by
     mtime, not the lexical maximum ``20260615-usage-audit``."""
     runs = _mixed_population(tmp_path)
-    env = {k: v for k, v in os.environ.items() if k != "VBB_RUN_ID"}
+    env = {
+        k: v
+        for k, v in os.environ.items()
+        if k not in {"VBB_RUN_ID", "VBB_EXPECTED_COMMIT", "VBB_CANDIDATE_ID"}
+    }
     proc = subprocess.run(
         [sys.executable, str(LOOP_CLOSURE), "--runs-dir", str(runs)],
         capture_output=True,
@@ -381,7 +391,11 @@ def test_loop_closure_normalizes_voie_alias(tmp_path: Path) -> None:
     (run / "01_INTAKE.md").write_text(
         "---\nvoie: STRUCTURED\n---\n# intake\n", encoding="utf-8"
     )
-    env = {k: v for k, v in os.environ.items() if k != "VBB_RUN_ID"}
+    env = {
+        k: v
+        for k, v in os.environ.items()
+        if k not in {"VBB_RUN_ID", "VBB_EXPECTED_COMMIT", "VBB_CANDIDATE_ID"}
+    }
     proc = subprocess.run(
         [
             sys.executable,

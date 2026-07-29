@@ -104,6 +104,30 @@ Lifecycle, entry format, quarantine and promotion are owned by
 
 ## Provenance
 
+## CORPUS-RUN1-A2-CR-04-RESIDUAL
+
+- **Origin**: `docs/runs/2026-07-29_1941_run1-exact-release-measurement/ADVERSARIAL_CAMPAIGN.md`
+- **Severity**: S0
+- **Oracle**: exact carrier identity is required without a self-referential SHA.
+- **Added**: 2026-07-29
+- **State**: ACTIVE
+
+## CORPUS-RUN1-A2-CR-04-CARRIER
+
+- **Origin**: `docs/runs/2026-07-29_1941_run1-exact-release-measurement/ADVERSARIAL_CAMPAIGN.md`
+- **Severity**: S1
+- **Oracle**: campaign, closeout and corpus manifest remain aligned.
+- **Added**: 2026-07-29
+- **State**: ACTIVE
+
+## CORPUS-RUN1-A2-CR-04-LOCAL-CI
+
+- **Origin**: `docs/runs/2026-07-29_1941_run1-exact-release-measurement/ADVERSARIAL_CAMPAIGN.md`
+- **Severity**: S1
+- **Oracle**: inherited environment cannot alter explicit-argument tests.
+- **Added**: 2026-07-29
+- **State**: ACTIVE
+
 The three entries above were created on 2026-07-29 to bring the repository into
 conformity with §9 as it already stands. This is **not** a rule change and not an
 arbitrary backfill: the three findings were `CONFIRMED` in the run that granted

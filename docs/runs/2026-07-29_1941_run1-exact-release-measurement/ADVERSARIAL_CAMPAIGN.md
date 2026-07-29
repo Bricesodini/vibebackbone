@@ -2,13 +2,14 @@
 campaign_id: "CAMP-2026-07-29-RUN1"
 subject: "Run 1 exact release measurement implementation"
 scope: "RR-BK-02, RR-BK-03 and exact-subject portion of F9"
+candidate_id: "RUN1-EXACT-RELEASE-MEASUREMENT-CANDIDATE-03"
 level: "A2"
 attacker_identity:
   agent: "/root/run1_a2_review (Codex sub-agent)"
   llm: "gpt-5"
   provider: "openai"
   system_prompt_version: "codex-desktop-2026-07-29"
-corpus_version: "1.3.0"
+corpus_version: "1.4.0"
 started_at: "2026-07-29T18:10:00Z"
 ended_at: "2026-07-29T18:24:00Z"
 actor: "/root/run1_a2_review"
@@ -129,18 +130,18 @@ history:
   - finding_ref: "RUN1-A2-01"
     transitions:
       - {from_state: "DETECTED", to_state: "CLASSIFIED", at: "2026-07-29T18:13:00Z", actor: "/root/run1_a2_review"}
-      - {from_state: "CLASSIFIED", to_state: "REMEDIATION_IN_PROGRESS", at: "2026-07-29T18:16:00Z", actor: "codex"}
-      - {from_state: "REMEDIATION_IN_PROGRESS", to_state: "REMEDIATED", at: "2026-07-29T18:22:00Z", actor: "codex"}
+      - {from_state: "CLASSIFIED", to_state: "REMEDIATED", at: "2026-07-29T18:16:00Z", actor: "codex"}
+      - {from_state: "REMEDIATED", to_state: "REMEDIATED", at: "2026-07-29T18:22:00Z", actor: "codex"}
   - finding_ref: "RUN1-A2-02"
     transitions:
       - {from_state: "DETECTED", to_state: "CLASSIFIED", at: "2026-07-29T18:13:00Z", actor: "/root/run1_a2_review"}
-      - {from_state: "CLASSIFIED", to_state: "REMEDIATION_IN_PROGRESS", at: "2026-07-29T18:16:00Z", actor: "codex"}
-      - {from_state: "REMEDIATION_IN_PROGRESS", to_state: "REMEDIATED", at: "2026-07-29T18:22:00Z", actor: "codex"}
+      - {from_state: "CLASSIFIED", to_state: "REMEDIATED", at: "2026-07-29T18:16:00Z", actor: "codex"}
+      - {from_state: "REMEDIATED", to_state: "REMEDIATED", at: "2026-07-29T18:22:00Z", actor: "codex"}
   - finding_ref: "RUN1-A2-03"
     transitions:
       - {from_state: "DETECTED", to_state: "CLASSIFIED", at: "2026-07-29T18:13:00Z", actor: "/root/run1_a2_review"}
-      - {from_state: "CLASSIFIED", to_state: "REMEDIATION_IN_PROGRESS", at: "2026-07-29T18:16:00Z", actor: "codex"}
-      - {from_state: "REMEDIATION_IN_PROGRESS", to_state: "REMEDIATED", at: "2026-07-29T18:22:00Z", actor: "codex"}
+      - {from_state: "CLASSIFIED", to_state: "REMEDIATED", at: "2026-07-29T18:16:00Z", actor: "codex"}
+      - {from_state: "REMEDIATED", to_state: "REMEDIATED", at: "2026-07-29T18:22:00Z", actor: "codex"}
 ```
 
 ## Independent counter-review and remediation reopening
@@ -150,6 +151,21 @@ dedicated non-derived A2 prompt) returned `FAIL_A2` for checkpoint `b8d2209…`.
 
 ```yaml
 remediation_findings:
+  - finding_ref: "RUN1-A2-CR-04-RESIDUAL"
+    severity: "S0"
+    confidence: "CONFIRMED"
+    state: "REMEDIATED"
+    lock: "tests/adversarial_corpus/CORPUS-RUN1-A2-CR-04.py"
+  - finding_ref: "RUN1-A2-CR-04-CARRIER"
+    severity: "S1"
+    confidence: "CONFIRMED"
+    state: "REMEDIATED"
+    lock: "tests/adversarial_corpus/CORPUS-RUN1-A2-CR-04.py"
+  - finding_ref: "RUN1-A2-CR-04-LOCAL-CI"
+    severity: "S1"
+    confidence: "CONFIRMED"
+    state: "REMEDIATED"
+    lock: "tests/adversarial_corpus/CORPUS-RUN1-A2-CR-04.py"
   - finding_ref: "RUN1-A2-CR-01"
     severity: "S1"
     confidence: "CONFIRMED"

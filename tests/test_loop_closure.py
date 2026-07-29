@@ -24,6 +24,7 @@ Usage:
     python3 tests/test_loop_closure.py
 """
 
+import os
 import sys
 import subprocess
 import tempfile
@@ -114,6 +115,11 @@ def _run(run_id: str, runs_dir: Path, extra_args=None):
         cmd,
         capture_output=True,
         text=True,
+        env={
+            k: v
+            for k, v in os.environ.items()
+            if k not in {"VBB_RUN_ID", "VBB_EXPECTED_COMMIT", "VBB_CANDIDATE_ID"}
+        },
     )
     return result.returncode, result.stdout, result.stderr
 
@@ -127,6 +133,8 @@ def _add_bound_subject(closeout: Path, run_id: str, commit: str) -> None:
             ```yaml
             adversarial:
               certification:
+                run_id: "{run_id}"
+                candidate_id: "test-candidate"
                 bound_to:
                   run_id: "{run_id}"
                   commit: "{commit}"

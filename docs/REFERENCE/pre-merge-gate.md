@@ -57,7 +57,9 @@ arguments explicites, une exécution reste un diagnostic ou un contrôle de run 
 elle ne constitue pas une preuve de release liée à un état Git.
 
 En mode certification, les deux gates imposent la même égalité stricte :
-`certification.bound_to.commit == --expected-commit == HEAD` évalué. La
+`--expected-commit == HEAD` évalué. Le closeout doit aussi déclarer le `run_id`
+explicite et un `candidate_id` stable; aucun candidat ne contient son propre
+SHA. La
 résolution d'un commit historique reste consultable par le helper Core mais ne
 peut produire aucun verdict de certification.
 

@@ -1186,7 +1186,9 @@ def check_certification_status(
 
 
 def validate_run(
-    run_dir: Path, expected_commit: Optional[str] = None
+    run_dir: Path,
+    expected_commit: Optional[str] = None,
+    expected_candidate_id: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Run the full adversarial gate validation on a run directory."""
     intake = run_dir / "01_INTAKE.md"
@@ -1227,11 +1229,11 @@ def validate_run(
 
     if expected_commit is not None:
         subject_ok, subject_reason = _run_resolution.verify_certification_subject(
-            run_dir, expected_commit
+            run_dir, expected_commit, expected_candidate_id
         )
         result = GateResult(
             gate_id="release-subject-binding",
-            subject="explicit run_id and expected commit match certification.bound_to",
+            subject="explicit run_id, candidate_id and expected commit match checkout",
             verdict="PASS" if subject_ok else "FAIL",
             evidence=[subject_reason],
             reasons=[
@@ -1329,8 +1331,16 @@ def main(argv: Optional[List[str]] = None) -> int:
         "--expected-commit",
         metavar="SHA",
         help=(
-            "Require the explicit run's certification.bound_to.commit to equal "
-            "this full Git SHA. Release evidence must use an explicit run."
+            "Require the explicit run's carrier expected commit to equal HEAD "
+            "and its non-self-referential certification identity."
+        ),
+    )
+    parser.add_argument(
+        "--candidate-id",
+        metavar="ID",
+        help=(
+            "Require the explicit run's stable certification candidate_id to "
+            "equal this value. Omit to use the candidate declared by the run."
         ),
     )
     parser.add_argument(
@@ -1371,7 +1381,11 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 3
     args.run_dir = run_dir
 
-    result = validate_run(args.run_dir, expected_commit=args.expected_commit)
+    result = validate_run(
+        args.run_dir,
+        expected_commit=args.expected_commit,
+        expected_candidate_id=args.candidate_id,
+    )
     if args.json:
         print(json.dumps(result, indent=2, sort_keys=True))
     else:
