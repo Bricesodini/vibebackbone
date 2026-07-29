@@ -378,28 +378,46 @@ def test_latest_runs_skips_loose_files():
         assert ids == ["2026-06-13_2200_xxx"]
 
 
-def test_latest_runs_mtime_overrides_future_name():
-    """Case 3 (RUN 3): a future-dated folder name is treated by mtime, not
-    by the literal name. A folder named ``2026-12-31_2359_xxx`` whose mtime
-    is older must not be ranked above a folder whose mtime is newer.
+def test_latest_runs_order_ignores_mtime():
+    """Run order follows the run identity, not the filesystem mtime.
+
+    This reverses the RUN 3 assertion "mtime (newer) must win over a
+    future-dated folder name". That rule was unsound: mtime is not chronology.
+    A `git clone` stamps every run directory with the checkout time, so on CI
+    the mtime order is arbitrary — which is how the adversarial gate came to
+    validate a June legacy run (audit 2026-07-29, finding F19).
+
+    The concern RUN 3 was protecting against — a future-dated folder silently
+    dominating — is not dropped. It is carried where it belongs, by the
+    temporal-provenance signal that already reports directories dated after the
+    workspace date, not by an ordering key that cannot survive a clone.
     """
     mod = _import_dashboard()
     with tempfile.TemporaryDirectory() as tmp:
         repo = Path(tmp)
-        # Future-dated name, but oldest mtime (offset -1000s).
+        # Newest identity, oldest mtime.
         _make_run(repo, "2026-12-31_2359_xxx", mtime_offset=-1000)
-        # Older-looking name, but most recent mtime (offset +1000s).
+        # Older identity, newest mtime.
         _make_run(repo, "2026-06-13_2200_recent", mtime_offset=1000)
 
         latest = mod.get_latest_runs(repo, limit=5)
         assert latest, "Expected at least one latest run"
-        assert latest[0]["id"] == "2026-06-13_2200_recent", (
-            "mtime (newer) must win over a future-dated folder name, "
-            f"got {latest[0]['id']}"
+        assert latest[0]["id"] == "2026-12-31_2359_xxx", (
+            f"the run identity must decide the order, not mtime, got {latest[0]['id']}"
         )
-        # The future-dated folder is still present (not rejected by name).
+        # Neither folder is rejected by name.
         ids = {r["id"] for r in latest}
-        assert "2026-12-31_2359_xxx" in ids
+        assert ids == {"2026-12-31_2359_xxx", "2026-06-13_2200_recent"}
+
+
+def test_future_dated_runs_are_still_flagged():
+    """Ordering by identity must not silence the temporal-provenance signal."""
+    mod = _import_dashboard()
+    repo = Path(__file__).parent.parent
+    notes = mod.get_temporal_notes(repo)
+    assert any("dated after" in note or "future" in note.lower() for note in notes), (
+        f"future-dated run directories must remain visible: {notes}"
+    )
 
 
 def test_latest_runs_accepts_non_canonical_closeout():

@@ -74,6 +74,64 @@ def test_mtime_order_beats_lexical_trap(tmp_path: Path) -> None:
     assert max(ordered) == "20260615-usage-audit"
 
 
+def test_order_survives_a_fresh_clone(tmp_path: Path) -> None:
+    """Identical mtimes must not scramble the order (audit finding F19).
+
+    A `git clone` stamps every directory with the checkout time, so mtime
+    carries no chronology on CI. Sorting on it returned the June legacy run as
+    "latest", and the adversarial gate then validated the wrong run.
+    """
+    res = _load_module()
+    runs = tmp_path / "runs"
+    checkout = time.time()
+    # Deliberately created in an order that contradicts chronology, all sharing
+    # one mtime, exactly as a fresh checkout produces them.
+    for name in (
+        "20260615-usage-audit",
+        "2026-07-13_1717_closed",
+        "20260602_0817_legacy",
+        "2026-07-30_0700_newest",
+    ):
+        _make_run(runs, name, closed=True, mtime=checkout)
+
+    # Asserted through latest_closed_run, which exists in both the old and the
+    # new API, so this fails on the ordering itself rather than on a rename.
+    latest = res.latest_closed_run(runs)
+    assert latest is not None and latest.name == "2026-07-30_0700_newest", (
+        f"selector returned {latest.name if latest else None} on identical "
+        f"mtimes — the order collapsed to filesystem order"
+    )
+    ordered = [d.name for d in res.list_runs_by_mtime(runs)]
+    assert ordered == [
+        "2026-07-30_0700_newest",
+        "2026-07-13_1717_closed",
+        "20260615-usage-audit",
+        "20260602_0817_legacy",
+    ], f"unexpected order: {ordered}"
+
+
+def test_undated_run_sorts_below_every_dated_run(tmp_path: Path) -> None:
+    """A name carrying no parsable date must never win the selector."""
+    res = _load_module()
+    runs = tmp_path / "runs"
+    now = time.time()
+    _make_run(runs, "scratch-notes", closed=True, mtime=now)
+    _make_run(runs, "2026-01-02_0300_dated", closed=True, mtime=now - 5000)
+
+    ordered = [d.name for d in res.list_runs_chronological(runs)]
+    assert ordered[0] == "2026-01-02_0300_dated", (
+        f"an undated directory outranked a dated run: {ordered}"
+    )
+
+
+def test_impossible_date_is_not_an_identity(tmp_path: Path) -> None:
+    """A name-shaped but invalid date falls back to the undated population."""
+    res = _load_module()
+    runs = tmp_path / "runs"
+    assert res.run_identity_datetime(runs / "2026-13-45_9999_bogus") is None
+    assert res.run_identity_datetime(runs / "2026-07-30_0700_ok") is not None
+
+
 def test_selectors_have_distinct_populations(tmp_path: Path) -> None:
     res = _load_module()
     runs = _mixed_population(tmp_path)
