@@ -45,6 +45,54 @@ Lifecycle, entry format, quarantine and promotion are owned by
 - **Added**: 2026-07-29
 - **State**: BEHAVIOUR_PIN
 
+## CORPUS-S1
+
+- **Origin**: `docs/runs/2026-07-29_1130_gcg-genericity-stress-test/`
+- **Severity**: S1
+- **Oracle**: the compatibility scanner decides applicability from the run
+  identity alone; the canonical enforcer combines three sources by `OR`. A
+  subset of a disjunction can only under-report.
+- **Added**: 2026-07-29
+- **State**: BEHAVIOUR_PIN
+
+## CORPUS-S2
+
+- **Origin**: `docs/runs/2026-07-29_1130_gcg-genericity-stress-test/`
+- **Severity**: S1
+- **Oracle**: run identity carries no declared timezone; the corpus contains
+  both the local-time and the UTC convention, two hours apart, against a
+  six-hour debt window.
+- **Added**: 2026-07-29
+- **State**: BEHAVIOUR_PIN
+
+## CORPUS-S3
+
+- **Origin**: `docs/runs/2026-07-29_1130_gcg-genericity-stress-test/`
+- **Severity**: S1
+- **Oracle**: the Compatibility Act is mono-rule — one `rule_set`, one flat
+  `counts`, one global ratio. It cannot represent one artifact judged by two
+  rules.
+- **Added**: 2026-07-29
+- **State**: BEHAVIOUR_PIN
+
+## CORPUS-S4
+
+- **Origin**: `docs/runs/2026-07-29_1130_gcg-genericity-stress-test/`
+- **Severity**: S1
+- **Oracle**: no population contract; an undatable artifact is a blocking
+  `UNKNOWN` instead of being out of population.
+- **Added**: 2026-07-29
+- **State**: BEHAVIOUR_PIN
+
+## CORPUS-S5
+
+- **Origin**: `docs/runs/2026-07-29_1130_gcg-genericity-stress-test/`
+- **Severity**: S2
+- **Oracle**: two divergent closeout resolvers; `2026-07-28_1200_m1` both has
+  and has not a closeout depending on who asks.
+- **Added**: 2026-07-29
+- **State**: BEHAVIOUR_PIN
+
 ## Provenance
 
 The three entries above were created on 2026-07-29 to bring the repository into

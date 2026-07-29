@@ -52,6 +52,18 @@ def adversarial_gate():
     return load_tool("vbb-adversarial-gate.py", "vbb_adversarial_gate_corpus")
 
 
+@pytest.fixture(scope="session")
+def governance_compat():
+    """The Governance Compatibility Scanner, shared by corpus entries."""
+    return load_tool("vbb-governance-compat.py", "vbb_governance_compat_corpus")
+
+
+@pytest.fixture(scope="session")
+def loop_closure():
+    """The loop-closure checker — the canonical enforcer of dated rules."""
+    return load_tool("vbb-loop-closure-check.py", "vbb_loop_closure_corpus")
+
+
 def pytest_collect_file(parent, file_path):
     """Collect ``CORPUS-<id>.py`` entries.
 
