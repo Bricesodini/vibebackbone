@@ -47,12 +47,19 @@ python tools/vbb-contract-lint.py && \
 python tools/vbb-loop-closure-check.py "$RUN_ID" --strict && \
 python tools/vbb-adversarial-gate.py "$RUN_ID" --strict && \
 python -m pytest tests/adversarial_corpus/ -q && \
-pytest tests/ -q && \
+python -m pytest tests/ -q && \
 bash scripts/vbb-ci-local.sh
 ```
 
 Ce bloc est **exécutable tel quel** : il se copie-colle après avoir renseigné
 `RUN_ID`. Toute ligne qui ne s'exécute pas n'appartient pas à ce bloc.
+
+Toutes les lignes passent par le **même interpréteur** (`python -m pytest`,
+jamais `pytest` nu). Le raccourci `pytest` résout vers le premier shim du `PATH`,
+qui n'est pas nécessairement l'interpréteur exécutant les autres lignes : sur un
+poste où `python` est 3.11 et `pytest` un shim 3.13, le bloc échouait sur un
+`ModuleNotFoundError: No module named 'yaml'` sans aucun rapport avec l'état du
+dépôt (audit 2026-07-29, finding F20).
 
 > **Historique.** Jusqu'au 2026-07-29, les deux lignes `5b` étaient encadrées par
 > `[ "$(adversarial_governance_cutoff_state)" = "pre-cutoff" ]`. Cette fonction

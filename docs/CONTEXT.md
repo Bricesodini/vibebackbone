@@ -22,23 +22,26 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 ## Active state
 
 - **Route**: STRUCTURED remediation of a read-only audit
-- **Release posture**: `NOT_READY — remediation in progress`. The remote CI was
+- **Release posture**: `PARTIAL — P0/P1 closed and revalidated, six P2/P3 open`.
+  The remote CI was
   red on `main` for eight consecutive commits (`3d2eeee` → `f8850ca`) while the
   published verdict said READY. Design/Certification assurance v1 and the
   adversarial assurance dimension are both `INTEGRATED`; ADR 0051 is accepted
   and enforced by pre-merge gate 5b in local and remote CI.
-- **Active run**: `2026-07-29_0840_audit-remediation` — closing audit findings
-  F2–F7 plus F14–F19 found during execution. Its artifacts are committed at
-  closeout, not incrementally.
+- **Active run**: none. Last run
+  [`2026-07-29_0840_audit-remediation`](runs/2026-07-29_0840_audit-remediation/07_CLOSEOUT.md)
+  closed `HANDOFF`: implementation complete and verified, A2 adversarial
+  certification not granted for want of a distinct actor.
 - **Latest completed run**:
   [`2026-07-30_0700_claude-skills-discovery-01`](runs/2026-07-30_0700_claude-skills-discovery-01/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: finish `2026-07-29_0840_audit-remediation` — run the negative
-  proof matrix, then restore the verdict to `READY — revalidated at <SHA>` with
-  the commands, their results and the observed remote CI run. Residual P2/P3
-  findings (F8–F13) are recorded as active risks, not carried silently.
+- **Next action**: an A2 adversarial review by an actor distinct from the
+  implementer, in priority on the two checkers of
+  `tests/test_governance_coherence.py` — each failed its own first negative
+  proof. Then arbitrate `F8`–`F11`: resolve them or accept them on their merits,
+  not in order to reach `READY`.
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
 - **Quality**: [CONVENTIONS.md](CONVENTIONS.md), pillars P1–P5 and P.R1–P.R8

@@ -15,7 +15,26 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 ## Global verdict
 
-**`NOT_READY — remediation in progress`**
+**`PARTIAL — P0/P1 closed and revalidated, six P2/P3 open`**
+
+Run `2026-07-29_0840_audit-remediation` closed fourteen findings and
+**demonstrated each hardened gate capable of failing**. The exact SHA, the
+commands and their results are recorded in that run's
+[`07_CLOSEOUT.md`](runs/2026-07-29_0840_audit-remediation/07_CLOSEOUT.md), with
+the observed remote CI run.
+
+The verdict is `PARTIAL`, not `READY`, and this is deliberate. Exit criterion #2
+requires every P2 to be **resolved or explicitly accepted** with an owner and a
+reopen trigger. `F8`–`F11` are neither: they are real defects this run chose not
+to fix. Recording them as "accepted" to reach `READY` would be the same move that
+produced the verdict this audit invalidated — a documentary verdict the
+measurement does not support. The measured verdict is `PARTIAL`; the documented
+one now says the same thing.
+
+`READY` becomes available when `F8`–`F11` are resolved, or accepted on their
+merits by a decision that is not merely a wish to publish `READY`.
+
+### What invalidated the previous verdict
 
 A read-only audit on 2026-07-29 established that the previously published READY
 verdict was not supported by measurement. The remote `vbb-contracts` workflow was
@@ -35,17 +54,12 @@ Two causes are closed as isolated FAST-MINIMAL hotfixes:
   passed locally and failed on every CI run. Closed by `a2a1d0a`; remote CI green
   again at that SHA.
 
-Findings `F2`–`F7` remain open and are handled by run
-`2026-07-29_0840_audit-remediation` (in progress; its artifacts are committed at
-closeout, not incrementally, so that no half-filled closeout ever claims gate
-results it has not produced).
-They are not six independent defects but one broken chain: an invariant is
-declared, but nothing registers it in the contracts, no gate verifies it, no test
-can fail on it, no CI executes it, and the canonical surfaces do not reflect it.
-
-This verdict returns to `READY — revalidated at <SHA>` only when that run passes
-its acceptance criteria, including the negative-proof matrix. The prior
-independent READY baseline is **not** a valid reference until then.
+`F2`–`F7` were not six independent defects but one broken chain: an invariant was
+declared, but nothing registered it in the contracts, no gate verified it, no
+test could fail on it, no CI executed it, and the canonical surfaces did not
+reflect it. Run `2026-07-29_0840_audit-remediation` closed the chain end to end
+and found seven further findings while doing so (`F15`–`F20`), one of which
+(`F19`) was a regression introduced by the run itself and caught by remote CI.
 
 ### Lesson recorded
 
@@ -105,9 +119,17 @@ None.
 
 ## Active risks
 
-| ID | Severity | Status | Description |
-|---|---|---|---|
-No active P0/P1/P2 risk remains.
+| ID | Severity | Status | Owner | Description and reopen trigger |
+|---|---|---|---|---|
+| `F8` | P2 | OPEN | governance maintainer | `TEMPORAL_PROVENANCE.md` is stale (`updated: 2026-05-27`, declared skew `2026-06-10`→`2026-06-13`) while five runs are dated 2026-07-29/30 against a local date of 2026-07-29, and its own rule "use the current local date for new artifacts" is violated by the `2026-07-30_*` runs. The dashboard labels them "future-dated **historical** state acknowledged", which relabels new artifacts as historical evidence. Reopen: on any new run dated ahead of the workspace date. |
+| `F9` | P2 | OPEN | tooling maintainer | `vbb-loop-closure-check.py` double-prefixes `docs/runs/`, so passing the path form yields `RESULT: FAIL — run directory does not exist`, indistinguishable from a real closure defect. `vbb-adversarial-gate.py` was given a tolerant resolver in this run; the closure check was not. Reopen: on any false FAIL traced to argument shape. |
+| `F10` | P2 | OPEN | tooling maintainer | The closure check is `run_check_warn` (non-blocking) in `vbb-ci-local.sh` and is invoked with no run argument. Decide explicitly: blocking on the latest run, or a documented reason to stay advisory. Reopen: when a closure defect reaches `main` unflagged. |
+| `F11` | P2 | OPEN | ops maintainer | 145 MB / 37,091 untracked JSON files under `docs/audits/vbb-runtime/` — about 70% of the working tree — with no retention or rotation policy. Gitignored, so no repository impact; local tooling and searches pay for it. Reopen: when the directory affects tool latency or disk pressure. |
+| `F12` | P3 | OPEN | catalog maintainer | `0-vbb-standard` SKILL.md description is 505 chars against a 500 target. Non-blocking lint warning. Reopen: not needed; close on the next edit of that file. |
+| `F13` | P3 | OPEN | governance maintainer | `docs/TECH_DEBT.md` and `docs/REFERENCE/pre-merge-gate.md` are in French while ADR 0036/0044 migrated agent-facing surfaces to English. Active canon is bilingual. Reopen: when a non-francophone agent misreads a canonical instruction. |
+
+Closed by run `2026-07-29_0840_audit-remediation`: `F1` `F2` `F3` `F4` `F5` `F6`
+`F7` `F14` `F15` `F16` `F17` `F18` `F19` `F20`.
 
 ## Latest evidence
 

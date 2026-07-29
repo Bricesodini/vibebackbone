@@ -70,6 +70,24 @@ def test_canonical_block_scripts_are_syntactically_valid():
     )
 
 
+def test_canonical_block_uses_one_interpreter():
+    """No bare `pytest`: every line must run under the same interpreter.
+
+    Regression for F20. The block mixed `python -m pytest` and a bare `pytest`,
+    which resolves to the first shim on PATH. Where `python` is 3.11 and the
+    `pytest` shim is 3.13, the block died on ModuleNotFoundError for yaml —
+    a failure with no relation to the state being gated.
+    """
+    for line in _canonical_block().splitlines():
+        stripped = line.strip()
+        if stripped.startswith("#") or not stripped:
+            continue
+        assert not re.match(r"^\(?\s*pytest\b", stripped), (
+            f"bare pytest invocation in the canonical block: {stripped!r}; "
+            "use `python -m pytest` so the interpreter is the same throughout"
+        )
+
+
 def test_canonical_block_invokes_both_halves_of_5b():
     block = _canonical_block()
     assert ADVERSARIAL_GATE in block, "5b adversarial gate missing from the block"
