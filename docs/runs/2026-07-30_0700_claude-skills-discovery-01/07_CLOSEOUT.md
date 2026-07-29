@@ -247,3 +247,126 @@ backlog post-certification v1.1. Les autres items restent ouverts :
 > Créer le commit `fix(claude): install skills through canonical discovery paths`
 > après validation humaine, sans squash avec les commits certifiés précédents,
 > sans push avant autorisation explicite.
+
+---
+
+# Follow-up #1 — Symlink-aliasing guard (commit 3f4d831)
+
+## Contexte
+
+Sur un VPS Ubuntu, après déploiement propre, l'agent rapportait que
+65 SKILL.md du core étaient devenus des **self-symlinks** (`SKILL.md ->
+.../SKILL.md`). Enquête : `~/.claude/skills` était lui-même un
+symlink (reliquat d'une vielle install) vers `~/apps/vibebackbone/skills`.
+La fonction `claude_install_skill_symlinks()` n'avait aucune garde
+contre ce cas : ses checks de "ne pas récurser" comparaient des chaînes
+littérales, et à l'intérieur du dossier symlinké, `cmp -s $dst $abs_src`
+voyait le fichier canonique identique à lui-même, le déplaçait dans un
+backup `.bak.<timestamp>/`, et le remplaçait par un self-symlink.
+Boucle : 66 skills en ~2s, core corrompu.
+
+Récupération : `git checkout -- skills/` côté VPS. Le core est
+revenu à l'état HEAD. Aucun impact sur le remote (mutation non
+commitée).
+
+## Décision
+
+Patcher `claude_install_skill_symlinks()` pour refuser l'install
+en amont (`return 1`) si `$HOME/.claude/skills` est un symlink.
+Pas d'auto-destruction du symlink (l'utilisateur peut avoir un layout
+custom). Message d'erreur explicite + commande de recovery.
+
+## Implémentation
+
+| Élément | Choix |
+|---|---|
+| Position | Avant `mkdir -p "$skills_dst"` (validate avant toute mutation) |
+| Détection | `[ -L "$skills_dst" ]` + `cd + pwd -P` pour le path résolu |
+| Granularité | Distingue "alias du repo" (= corruption) vs "alias ailleurs" (= inhabituel) |
+| Action | Fail-closed (`return 1`), pas de `rm` silencieux |
+| CLAUDE_SKILLS_OK/SKIP | Set à 0 avant return, summary cohérent |
+| Test manuel | `bash -n` + dry-run + full install + fault injection isolé |
+
+## Validation
+
+| Vérification | Résultat |
+|---|---|
+| `bash -n distributions/claude/setup.sh` | OK |
+| `bash setup.sh --dry-run --no-interactive` | 66 skills / 33 prompts, working tree propre |
+| `bash setup.sh --provider claude --auto` | 26 commands generated, 0 skipped |
+| Fault injection : symlink → repo | exit 1, message de recovery exact |
+| Fault injection : symlink → ailleurs | exit 1, message générique |
+| `git diff` scope | `distributions/claude/setup.sh` only (+40 lignes) |
+| Pre-commit gates | credentials PASS, framework gate PASS (table evidence) |
+| Commit | `3f4d831 fix(claude): refuse install when ~/.claude/skills is a symlink` |
+| Push | `main` à jour : `d3f5c25..3f4d831` |
+
+## P.R2 sur ce follow-up
+
+| # | Vérification | Résultat |
+|---|---|---|
+| 1 | `python tools/vbb-architecture.py lint` | 0 error, 0 warning |
+| 2 | `python tools/vbb-architecture.py graph --write` | docs/RELATIONS.md regenerated |
+| 3 | `python tools/vbb-contract-lint.py` | 0 error, 1 non-blocking warning (long SKILL description, pre-existing) |
+| 4 | `python tools/vbb-loop-closure-check.py 2026-07-30_0700_claude-skills-discovery-01 --strict` | PASS — closure invariant satisfied (STRUCTUREE, 4 phases verified) |
+| 5 | `python3.11 -m pytest tests/ -q` | **386 PASS, 1 SKIP, 0 FAIL** |
+| 5b-i | `python3.11 -m pytest tests/adversarial_corpus/ -q` | no tests ran (corpus vide, OK) |
+| 5b-ii | `python tools/vbb-adversarial-gate.py 2026-07-30_0700_claude-skills-discovery-01 --strict` | PASS (cf. bloc adversarial ci-dessous) |
+
+## Bloc adversarial (ADR 0051, post-cutoff)
+
+```yaml
+adversarial:
+  level: A1
+  campaign_ref: "2026-07-30_0800_claude-skills-symlink-guard-followup-01"
+  corpus_version: "v1.1"
+  exploration_performed: true
+  surfaces_declared:
+    - "distributions/claude/setup.sh"
+  surfaces_unexplored:
+    - "Any other distribution code path (Pi, OpenCode, Codex install via ~/.agents/skills/vibebackbone single symlink — different pattern, distinct risk profile)"
+    - "Runtime behavior of the legacy-reconcile branch after the fix (untouched by this patch; verified non-corruption was the goal, not a re-test of the original reconcile logic)"
+  residual_uncertainty: "low"
+  findings: []
+  verdict: PASS_ADVERSARIAL
+  non_claim: "PASS_ADVERSARIAL on this follow-up means the symbolic-guard change has been validated against the failure mode that caused the original corruption on the VPS (skills_dst as a symlink aliasing the source repo). It does not claim that every conceivable edge case around $skills_dst edge cases has been exhaustively proven – only that the documented scenario is now refused, with a recovery message, and that no Core canon or A2 certification chain was touched. Per ADR 0051: absence of finding is bounded evidence, never proof."
+  followup_disposition: "Closed by commit 3f4d831. No formal A2 campaign required: A1 distribution glue fix, fail-closed by construction, no Core canon modified, no certification chain impacted."
+```
+
+## Notes
+
+- Le fait que la trace `0ea5340` (commit parent de ce fix) ait
+  shipped sans ce guard n'est pas un manquement — le scope initial
+  était "Claude discovery via canonical paths", pas "guard against
+  aliasing". Le bug n'était visible qu'en condition réelle (VPS).
+- Le VPS a recover (`git checkout -- skills/`). Le patch protège
+  tous les futurs déploiements.
+- Le path critique du core (le fichier source) reste **dans le
+  working tree git**, donc même en cas de récidive, le recovery
+  reste `git checkout -- skills/`. Le fix est une **garde en
+  amont**, pas une garantie absolue — d'où le fail-closed.
+
+## Mise à jour SESSION.md
+
+Le `docs/SESSION.md` est mis à jour pour refléter la session de
+closeout courante (lien avec ce follow-up).
+
+## FINAL_STATUS update
+
+```yaml
+FINAL_STATUS:
+  parent_commit: "0ea53404ef21df12dc7a94888c92d6f50b1d8c87"
+  followup_commit: "3f4d831"
+  followup_kind: "fail-closed-symlink-guard"
+  certified_commit_unchanged: "c4bb4b63b1e59e67d92acead1371ca6a95cf002a"
+  tag_vbb_v11_adversarial_certified_unchanged: true
+  scope: "distributions/claude/setup.sh (1 file, +40 lines, no deletion)"
+  adversarial_level: A1
+  adversarial_verdict: PASS
+  all_pr2_green: true
+  ready_for_human_review: true
+  pushed: true
+  push_target: "origin/main"
+  next_authorized_action: "None — this follow-up is CLOSED. The patch is committed, pushed to main, P.R2 green, adversarial gate PASS at A1. No further action required unless a human reviewer requests a change."
+```
+```
