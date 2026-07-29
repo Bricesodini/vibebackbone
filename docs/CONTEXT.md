@@ -3,7 +3,7 @@ context_role: moc-central
 phase: transverse
 status: active
 run_id: permanent
-updated: 2026-07-28
+updated: 2026-07-29
 temporal_provenance: TEMPORAL_PROVENANCE.md
 ---
 
@@ -21,24 +21,24 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 ## Active state
 
-- **Route**: HANDOFF after an AUDIT design run
-- **Release posture**: READY; Design/Certification assurance v1 independently
-  approved and integrated. The adversarial assurance dimension is `PROPOSED`
-  only — no canon change.
-- **Active run**:
-  [`2026-07-28_1002_adversarial-loop-governance-design`](runs/2026-07-28_1002_adversarial-loop-governance-design/07_CLOSEOUT.md)
-  — HANDOFF, design dossier delivered, canon change `PROPOSED`, blocked on
-  `COND-01` (independent review by a distinct actor)
+- **Route**: STRUCTURED remediation of a read-only audit
+- **Release posture**: `NOT_READY — remediation in progress`. The remote CI was
+  red on `main` for eight consecutive commits (`3d2eeee` → `f8850ca`) while the
+  published verdict said READY. Design/Certification assurance v1 and the
+  adversarial assurance dimension are both `INTEGRATED`; ADR 0051 is accepted
+  and enforced by pre-merge gate 5b in local and remote CI.
+- **Active run**: `2026-07-29_0840_audit-remediation` — closing audit findings
+  F2–F7 plus F14–F19 found during execution. Its artifacts are committed at
+  closeout, not incrementally.
 - **Latest completed run**:
-  [`2026-07-27_2145_design-certification-gates-core-integration`](runs/2026-07-27_2145_design-certification-gates-core-integration/07_CLOSEOUT.md)
+  [`2026-07-30_0700_claude-skills-discovery-01`](runs/2026-07-30_0700_claude-skills-discovery-01/07_CLOSEOUT.md)
 - **Audit truth and open blockers**: [AUDIT_STATUS.md](AUDIT_STATUS.md)
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: human decision on
-  [`CANON_CHANGE_PROPOSAL.md`](runs/2026-07-28_1002_adversarial-loop-governance-design/CANON_CHANGE_PROPOSAL.md)
-  after a distinct-actor independent review; separately, observe first-use
-  friction in new assurance records. Any consumer adoption requires its own
-  governed run.
+- **Next action**: finish `2026-07-29_0840_audit-remediation` — run the negative
+  proof matrix, then restore the verdict to `READY — revalidated at <SHA>` with
+  the commands, their results and the observed remote CI run. Residual P2/P3
+  findings (F8–F13) are recorded as active risks, not carried silently.
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
 - **Quality**: [CONVENTIONS.md](CONVENTIONS.md), pillars P1–P5 and P.R1–P.R8

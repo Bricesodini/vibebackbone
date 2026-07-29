@@ -2,7 +2,7 @@
 context_role: audit-dashboard
 phase: transverse
 status: active
-updated: 2026-07-28
+updated: 2026-07-29
 temporal_provenance: TEMPORAL_PROVENANCE.md
 ---
 
@@ -55,6 +55,19 @@ eight commits. Verification claiming a verdict must run against a fresh
 
 ## Latest governance integration
 
+- `ADV-GOV-001` — the adversarial assurance dimension is `INTEGRATED`.
+  [`ADR 0051`](adr/0051-adversarial-assurance-dimension.md) is `accepted` by M1
+  arbitration; `docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md` is the canonical
+  authority; `tools/vbb-adversarial-gate.py` is part of the canonical toolset and
+  is executed by pre-merge gate 5b in local and remote CI since 2026-07-29.
+  `COND-01` was resolved by the distinct-actor review recorded in the M1
+  arbitration run. The regression corpus is populated and enforced.
+- Evidence:
+  [`M1 arbitration`](runs/2026-07-28_1200_m1-adversarial-loop-normative-arbitration/M1_DECISIONS.md),
+  [`M2 implementation`](runs/2026-07-28_1400_m2-adversarial-loop-implementation/07_CLOSEOUT.md),
+  [`A2 certification`](runs/2026-07-30_0100_a2-auth-certification-of-m3-remediation/07_CLOSEOUT.md),
+  [`ADR 0051`](adr/0051-adversarial-assurance-dimension.md).
+
 - `ASR-GOV-001` — Design/Certification assurance v1 is `INTEGRATED`. ADR 0050
   is ACCEPTED; Core authorities, templates, enforcement, compatibility tests
   and four-distribution propagation are active. Independent Review Run 03 is
@@ -79,21 +92,16 @@ eight commits. Verification claiming a verdict must run against a fresh
 
 ## Pending governance proposals
 
-- `ADV-GOV-001` — adversarial assurance dimension is `PROPOSED`, not approved
-  and not integrated. The design run maps the current cycle, records gaps
-  `AG-01`…`AG-13`, and proposes an additive assurance schema `1.1` with a
-  fourth gate family `ADVERSARIAL`, a `COUNTER_PROOF` checkpoint, four declared
-  statuses, three criticality levels and a canonical finding lifecycle. No
-  canon file was modified.
-- Blocking before any decision: `COND-01` — the review of the proposal is a
-  disclosed adversarial self-review and does not satisfy actor independence, so
-  the run closed as `HANDOFF` with a required `CERTIFICATION` gate `FAIL`.
-- Evidence:
-  [`design dossier`](runs/2026-07-28_1002_adversarial-loop-governance-design/04_DESIGN_DOSSIER.md),
-  [`review`](runs/2026-07-28_1002_adversarial-loop-governance-design/06_INDEPENDENT_REVIEW.md),
-  [`migration strategy`](runs/2026-07-28_1002_adversarial-loop-governance-design/05_MIGRATION_STRATEGY.md),
-  [`proposal`](runs/2026-07-28_1002_adversarial-loop-governance-design/CANON_CHANGE_PROPOSAL.md),
-  [`closeout`](runs/2026-07-28_1002_adversarial-loop-governance-design/07_CLOSEOUT.md).
+None.
+
+> `ADV-GOV-001` was listed here as `PROPOSED, not approved and not integrated`,
+> blocked on `COND-01`, until 2026-07-29 — while ADR 0051 was already `accepted`,
+> `docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md` existed, the validator was declared
+> canonical in `AGENTS.md`, `SYSTEM.md` and `CLAUDE.md`, tests enforced it and
+> five runs had used it. An agent following the Startup Checklist read this file
+> and concluded the adversarial dimension was blocked (audit 2026-07-29, findings
+> F6/F7). The contradiction is now detectable by
+> `tests/test_governance_coherence.py`, not only correctable by hand.
 
 ## Active risks
 
