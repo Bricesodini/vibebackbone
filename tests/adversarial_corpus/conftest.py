@@ -19,10 +19,51 @@ fails, and an empty corpus stops being legitimate. Genuine corpus failures still
 exit 1 and are untouched here.
 """
 
+import importlib.util
+import sys
 from pathlib import Path
+
+import pytest
 
 EXIT_NO_TESTS_COLLECTED = 5
 CORPUS_DIR = Path(__file__).parent.resolve()
+REPO_ROOT = CORPUS_DIR.parent.parent
+
+
+def load_tool(tool_filename: str, module_name: str):
+    """Import a hyphenated tool from tools/ as a module.
+
+    The module is registered in ``sys.modules`` before execution: dataclasses
+    resolve ``cls.__module__`` through that registry, and an unregistered module
+    makes ``@dataclass`` fail with an opaque AttributeError.
+    """
+    path = REPO_ROOT / "tools" / tool_filename
+    spec = importlib.util.spec_from_file_location(module_name, path)
+    assert spec is not None and spec.loader is not None, f"cannot load {path}"
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+@pytest.fixture(scope="session")
+def adversarial_gate():
+    """The adversarial gate validator, shared by corpus entries."""
+    return load_tool("vbb-adversarial-gate.py", "vbb_adversarial_gate_corpus")
+
+
+def pytest_collect_file(parent, file_path):
+    """Collect ``CORPUS-<id>.py`` entries.
+
+    ``t-vbb-adversarial-corpus`` mandates the ``CORPUS-<id>.py`` filename, which
+    matches neither ``test_*.py`` nor ``*_test.py``. Without this hook pytest
+    collects nothing here, so the corpus would report "no tests ran" even when
+    fully populated — the obligation would look satisfied while executing zero
+    guards.
+    """
+    if file_path.suffix == ".py" and file_path.name.startswith("CORPUS-"):
+        return pytest.Module.from_parent(parent, path=file_path)
+    return None
 
 
 def _targets_corpus_only(session) -> bool:

@@ -20,13 +20,16 @@ inputs:
   - corpus_version
   - quarantine_reason
 blocking_conditions:
-- condition: invalid_severity_or_confidence
+- condition: confidence_not_confirmed
   action: STOP
-  message: Corpus registration requires severity S0/S1/S2 and confidence CONFIRMED
+  message: Corpus registration requires confidence CONFIRMED. Severity is never an
+    exemption — ADVERSARIAL_ASSURANCE_GOVERNANCE.md §9 destination 6 applies
+    regardless of severity
 - condition: missing_non_regression_lock
-  action: STOP
-  message: A fails_before/passes_after lock is required — a missing lock is a reason
-    to stop, never to register a weaker guard
+  action: CLARIFY
+  message: A fails_before/passes_after lock is required for an ACTIVE guard. Without
+    one the finding is unremediated, so register a BEHAVIOUR_PIN — never claim a
+    remediation that did not happen
 - condition: corpus_directory_absent
   action: STOP
   message: tests/adversarial_corpus/ is absent from the working tree

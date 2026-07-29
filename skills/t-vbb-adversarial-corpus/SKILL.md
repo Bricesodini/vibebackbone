@@ -44,18 +44,31 @@ finding to make registration easier.
 
 ## BLOCKING CONDITIONS
 
-Abort registration and escalate when any of these is not satisfied:
+Abort registration and escalate when:
 
-- `severity` is not one of `S0`, `S1`, `S2`;
-- `confidence` is not `CONFIRMED`;
-- `state` is not one of `REMEDIATED`, `NON_REGRESSION_LOCKED`,
-  `CLOSED_REMEDIATED`;
-- `non_regression_lock.fails_before` is not `true`;
-- `non_regression_lock.passes_after` is not `true`;
+- `confidence` is not `CONFIRMED` — only confirmed findings are registrable;
 - `tests/adversarial_corpus/` is absent from the working tree.
 
-Corpus registration requires a valid lock. A missing lock is a reason to stop,
-never a reason to register a weaker guard.
+**Severity is never an exemption.** `ADVERSARIAL_ASSURANCE_GOVERNANCE.md` §9
+destination 6 is "mandatory for every `CONFIRMED` finding, no exception", and
+states that the matrix "applies regardless of severity". An earlier revision of
+this skill listed `severity ∈ {S0, S1, S2}` as a blocking condition, which
+silently exempted S3 and contradicted §9 (audit 2026-07-29, finding F18).
+
+### Which entry kind applies
+
+| Finding state | Lock present | Entry kind |
+|---|---|---|
+| `REMEDIATED`, `NON_REGRESSION_LOCKED`, `CLOSED_REMEDIATED` | `fails_before` and `passes_after` both `true` | `ACTIVE` regression guard |
+| `ARBITRATED`, `DEFERRED`, or any open state | none — the defect is not fixed | `BEHAVIOUR_PIN` |
+
+A `BEHAVIOUR_PIN` encodes the current, defective behaviour so it cannot change
+silently: it fails the day the defect is fixed or drifts, forcing the finding to
+be re-arbitrated and the entry rewritten as a real guard. A green pin means "the
+known defect is still exactly as documented" — never "fixed".
+
+Registering an `ACTIVE` guard without a valid lock remains forbidden: a missing
+lock is a reason to register a pin, never to claim a remediation.
 
 ## SCOPE
 
