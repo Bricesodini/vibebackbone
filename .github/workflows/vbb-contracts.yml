@@ -38,12 +38,17 @@ jobs:
         env:
           VBB_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           VBB_HEAD_SHA: ${{ github.sha }}
+          VBB_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
-          if git cat-file -e "$VBB_BASE_SHA^{commit}" 2>/dev/null; then
-            changed_closeouts="$(git diff --name-only "$VBB_BASE_SHA" "$VBB_HEAD_SHA" -- 'docs/runs/*/07_CLOSEOUT.md')"
-          else
-            changed_closeouts="$(git ls-files 'docs/runs/*/07_CLOSEOUT.md')"
+          if [ -z "$VBB_BASE_SHA" ] || [ "$VBB_BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            test -n "$VBB_DEFAULT_BRANCH"
+            git fetch --no-tags origin \
+              "refs/heads/$VBB_DEFAULT_BRANCH:refs/remotes/origin/$VBB_DEFAULT_BRANCH"
           fi
+          changed_closeouts="$(python3 tools/vbb-changed-closeouts.py \
+            --base-sha "$VBB_BASE_SHA" \
+            --head-sha "$VBB_HEAD_SHA" \
+            --default-ref "refs/remotes/origin/$VBB_DEFAULT_BRANCH")"
           if [ -z "$changed_closeouts" ]; then
             echo "No changed run closeout to validate."
           else
