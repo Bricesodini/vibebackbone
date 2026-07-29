@@ -152,6 +152,131 @@ def test_selectors_on_empty_and_missing_dir(tmp_path: Path) -> None:
     assert res.latest_closed_run(missing) is None
 
 
+def test_explicit_run_argument_normalizes_bare_id_and_exact_path(
+    tmp_path: Path,
+) -> None:
+    """Release callers cannot obtain two subjects from ID and path forms."""
+    res = _load_module()
+    runs = tmp_path / "runs"
+    run = _make_run(
+        runs,
+        "2026-07-29_1200_target",
+        closed=True,
+        mtime=time.time(),
+    )
+
+    assert res.resolve_explicit_run(runs, Path(run.name)) == run.resolve()
+    assert res.resolve_explicit_run(runs, run) == run.resolve()
+
+
+def test_explicit_run_argument_rejects_outside_or_ambiguous_paths(
+    tmp_path: Path,
+) -> None:
+    """A matching basename outside docs/runs cannot be substituted."""
+    res = _load_module()
+    runs = tmp_path / "runs"
+    run = _make_run(
+        runs,
+        "2026-07-29_1200_target",
+        closed=True,
+        mtime=time.time(),
+    )
+    outside = tmp_path / "outside" / run.name
+    outside.mkdir(parents=True)
+
+    assert res.resolve_explicit_run(runs, outside) is None
+    assert res.resolve_explicit_run(runs, Path("missing") / run.name) is None
+
+
+def test_bound_subject_requires_exact_run_and_full_commit(tmp_path: Path) -> None:
+    """The existing certification.bound_to contract binds run ID and SHA."""
+    res = _load_module()
+    runs = tmp_path / "runs"
+    run = _make_run(
+        runs,
+        "2026-07-29_1200_target",
+        closed=True,
+        mtime=time.time(),
+    )
+    subprocess.run(["git", "init", str(tmp_path)], check=True, capture_output=True)
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "config", "user.name", "VBB Test"],
+        check=True,
+    )
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(tmp_path),
+            "config",
+            "user.email",
+            "vbb@example.invalid",
+        ],
+        check=True,
+    )
+    (tmp_path / "baseline").write_text("candidate\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(tmp_path), "add", "baseline"], check=True)
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "commit", "-m", "candidate"],
+        check=True,
+        capture_output=True,
+    )
+    commit = subprocess.run(
+        ["git", "-C", str(tmp_path), "rev-parse", "HEAD"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    (run / "07_CLOSEOUT.md").write_text(
+        "```yaml\n"
+        "adversarial:\n"
+        "  certification:\n"
+        "    bound_to:\n"
+        f'      run_id: "{run.name}"\n'
+        f'      commit: "{commit}"\n'
+        '      corpus_version: "1"\n'
+        "```\n",
+        encoding="utf-8",
+    )
+
+    ok, reason = res.verify_bound_subject(run, commit)
+    assert ok, reason
+    assert res.verify_bound_subject(run, "b" * 40)[0] is False
+
+    text = (run / "07_CLOSEOUT.md").read_text(encoding="utf-8")
+    (run / "07_CLOSEOUT.md").write_text(
+        text.replace(run.name, "2026-07-30_0700_other"),
+        encoding="utf-8",
+    )
+    assert res.verify_bound_subject(run, commit)[0] is False
+
+
+def test_bound_subject_rejects_invented_full_sha(tmp_path: Path) -> None:
+    """Forty hexadecimal characters are not evidence of a Git commit."""
+    res = _load_module()
+    subprocess.run(["git", "init", str(tmp_path)], check=True, capture_output=True)
+    run = _make_run(
+        tmp_path / "runs",
+        "2026-07-29_1200_target",
+        closed=True,
+        mtime=time.time(),
+    )
+    invented = "a" * 40
+    (run / "07_CLOSEOUT.md").write_text(
+        "```yaml\n"
+        "adversarial:\n"
+        "  certification:\n"
+        "    bound_to:\n"
+        f'      run_id: "{run.name}"\n'
+        f'      commit: "{invented}"\n'
+        "```\n",
+        encoding="utf-8",
+    )
+    ok, reason = res.verify_bound_subject(run, invented)
+    assert ok is False
+    assert "not a Git commit object" in reason
+
+
 def test_find_closeout_fallback(tmp_path: Path) -> None:
     res = _load_module()
     run = tmp_path / "run"

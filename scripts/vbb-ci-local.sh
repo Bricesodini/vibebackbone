@@ -36,21 +36,6 @@ run_check() {
   fi
 }
 
-run_check_warn() {
-  local label="$1"
-  shift
-  echo -n "  $label ... "
-  local out
-  if out=$("$@" 2>&1); then
-    echo "✅ PASS"
-    PASS=$((PASS + 1))
-  else
-    echo "⚠️  WARN (non-blocking)"
-    echo "$out" | sed 's/^/    /'
-    WARN=$((WARN + 1))
-  fi
-}
-
 require_python_modules() {
   local missing
   missing=$("$PYTHON" - <<'PY'
@@ -78,6 +63,13 @@ echo "=== VBB Local CI ==="
 echo ""
 
 require_python_modules
+
+if { [ -n "${VBB_RUN_ID:-}" ] && [ -z "${VBB_EXPECTED_COMMIT:-}" ]; } ||
+  { [ -z "${VBB_RUN_ID:-}" ] && [ -n "${VBB_EXPECTED_COMMIT:-}" ]; }; then
+  echo "VBB_RUN_ID and VBB_EXPECTED_COMMIT must be declared together."
+  echo "Exact release evidence is fail-closed when either subject field is absent."
+  exit 1
+fi
 
 echo "[1/16] Contract lint"
 run_check "Lint 0 errors" "$PYTHON" tools/vbb-contract-lint.py
@@ -115,10 +107,15 @@ echo "[9/16] Mypy"
 run_check "Mypy" "$PYTHON" -m mypy tools
 
 echo ""
-echo "[10/16] Adversarial gate (latest run)"
-# Pre-merge gate 5b, first half. Same interface as the canonical block in
-# docs/REFERENCE/pre-merge-gate.md and as .github/workflows/vbb-contracts.yml.
-run_check "Adversarial gate" "$PYTHON" tools/vbb-adversarial-gate.py --latest --strict
+echo "[10/16] Adversarial gate (explicit run)"
+# An implicit latest run is diagnostic convenience, never release evidence.
+# VBB_EXPECTED_COMMIT activates exact run+SHA binding for release verification.
+if [ -n "${VBB_RUN_ID:-}" ]; then
+  run_check "Adversarial gate" "$PYTHON" tools/vbb-adversarial-gate.py \
+    "$VBB_RUN_ID" --expected-commit "$VBB_EXPECTED_COMMIT" --strict
+else
+  echo "  Adversarial gate ... ⏭️  SKIP (VBB_RUN_ID not declared)"
+fi
 
 echo ""
 echo "[11/16] Adversarial corpus"
@@ -126,9 +123,13 @@ echo "[11/16] Adversarial corpus"
 run_check "Adversarial corpus" "$PYTHON" -m pytest tests/adversarial_corpus/ -q
 
 echo ""
-echo "[12/16] Loop closure (latest run)"
-# WARN is acceptable if the latest run has unknown voie (ad-hoc session)
-run_check_warn "Closure check" "$PYTHON" tools/vbb-loop-closure-check.py
+echo "[12/16] Loop closure (explicit run)"
+if [ -n "${VBB_RUN_ID:-}" ]; then
+  run_check "Closure check" "$PYTHON" tools/vbb-loop-closure-check.py \
+    "$VBB_RUN_ID" --expected-commit "$VBB_EXPECTED_COMMIT" --strict
+else
+  echo "  Closure check ... ⏭️  SKIP (VBB_RUN_ID not declared)"
+fi
 
 echo ""
 echo "[13/16] Loop closure tests"

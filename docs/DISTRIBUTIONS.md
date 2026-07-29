@@ -910,6 +910,22 @@ installation ou configuration provider ne change.
 
 **Author**: Brice (demande explicite), Codex — ADR 0048
 
+### 2026-07-29 — Mesure de release exacte conservée dans Core
+
+**Decision**: Conserver la résolution explicite `run_id` + SHA attendu, la
+lecture des risques actifs et les gates de run modifié dans le Contract Tooling
+Core. Aucun adaptateur provider n'implémente ou ne redéfinit ces règles.
+
+**Reason**: L'identité du sujet vérifié et l'impossibilité d'un faux `READY`
+sont des invariants génériques de release. Les dupliquer dans Pi, OpenCode,
+Codex ou Claude créerait quatre autorités divergentes.
+
+**Impact**: Les quatre distributions héritent des mêmes outils et gates Core.
+Leurs scripts, chemins, personas et états runtime restent inchangés. Les smokes
+communs d'installation et de propagation vérifient les quatre distributions.
+
+**Author**: Brice (validation explicite du Run 1), Codex — ADR 0027/0046/0051
+
 ## 9. References
 
 - `README.md` — entry point; "VBB Core vs Distributions" anchors the

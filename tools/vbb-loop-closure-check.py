@@ -1433,6 +1433,14 @@ def main() -> int:
         help="Override docs/runs/ directory (used in tests)",
     )
     parser.add_argument(
+        "--expected-commit",
+        metavar="SHA",
+        help=(
+            "Require the explicit run's certification.bound_to.commit to equal "
+            "this full Git SHA. This option never auto-selects a run."
+        ),
+    )
+    parser.add_argument(
         "--strict",
         dest="strict",
         action="store_true",
@@ -1497,9 +1505,38 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    run_id = args.run_id or args.run_id_flag or os.environ.get("VBB_RUN_ID")
-
     base = Path(args.runs_dir) if args.runs_dir else RUNS_DIR
+    explicit_run = args.run_id or args.run_id_flag or os.environ.get("VBB_RUN_ID")
+    run_id = explicit_run
+
+    if args.expected_commit and not explicit_run:
+        msg = (
+            "GATE FAILED: --expected-commit requires an explicit run via "
+            "positional run_id, --run-id, or VBB_RUN_ID."
+        )
+        if args.json_output:
+            import json as _json
+
+            print(
+                _json.dumps(
+                    {
+                        "exit_intent": "GATE_BLOCKED",
+                        "run_id": None,
+                        "voie": None,
+                        "errors": [msg],
+                        "report": [],
+                    },
+                    indent=2,
+                )
+            )
+        else:
+            print(msg, file=sys.stderr)
+        return 64
+
+    if explicit_run:
+        resolved = _run_resolution.resolve_explicit_run(base, Path(explicit_run))
+        if resolved is not None:
+            run_id = resolved.name
 
     if not run_id:
         # Auto-detect: selector « dernier run existant » (shared mtime
@@ -1561,6 +1598,54 @@ def main() -> int:
             print(msg, file=sys.stderr)
         return 1  # retrocompatible exit for "no run_id" in default mode
 
+    bound_subject_evidence: Optional[str] = None
+    if args.expected_commit:
+        resolved = _run_resolution.resolve_explicit_run(base, Path(str(run_id)))
+        if resolved is None:
+            msg = f"GATE FAILED: cannot resolve explicit run '{run_id}'"
+            if args.json_output:
+                import json as _json
+
+                print(
+                    _json.dumps(
+                        {
+                            "exit_intent": "GATE_BLOCKED",
+                            "run_id": run_id,
+                            "voie": None,
+                            "errors": [msg],
+                            "report": [],
+                        },
+                        indent=2,
+                    )
+                )
+            else:
+                print(msg, file=sys.stderr)
+            return 2 if args.strict else 1
+        subject_ok, subject_reason = _run_resolution.verify_bound_subject(
+            resolved, args.expected_commit
+        )
+        if not subject_ok:
+            msg = f"GATE FAILED: release-subject-binding: {subject_reason}"
+            if args.json_output:
+                import json as _json
+
+                print(
+                    _json.dumps(
+                        {
+                            "exit_intent": "GATE_BLOCKED",
+                            "run_id": run_id,
+                            "voie": None,
+                            "errors": [msg],
+                            "report": [],
+                        },
+                        indent=2,
+                    )
+                )
+            else:
+                print(msg, file=sys.stderr)
+            return 2 if args.strict else 1
+        bound_subject_evidence = subject_reason
+
     # ---- Core check ----
     try:
         passed, report_lines = check_run(
@@ -1598,6 +1683,9 @@ def main() -> int:
             print(msg, file=sys.stderr)
         return 3  # TOOL_BROKEN — same in both modes (an internal error is an
         # internal error).
+
+    if bound_subject_evidence:
+        report_lines.insert(4, f"  ✓ release subject bound: {bound_subject_evidence}")
 
     if args.json_output:
         import json as _json

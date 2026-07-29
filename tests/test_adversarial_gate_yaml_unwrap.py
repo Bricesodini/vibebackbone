@@ -56,9 +56,14 @@ def _write_closeout(tmp_path: Path, body: str) -> Path:
     return tmp_path
 
 
-def _run_validator(run_dir: Path) -> tuple[int, str]:
+def _run_validator(
+    run_dir: Path, extra_args: list[str] | None = None
+) -> tuple[int, str]:
+    args = ["python", "tools/vbb-adversarial-gate.py", str(run_dir)]
+    if extra_args:
+        args.extend(extra_args)
     proc = subprocess.run(
-        ["python", "tools/vbb-adversarial-gate.py", str(run_dir)],
+        args,
         cwd=str(REPO),
         capture_output=True,
         text=True,
@@ -162,3 +167,101 @@ def test_adversarial_gate_consistency_text_json_exit(tmp_path: Path):
         assert rc == 0, f"with structural passes, expected exit 0, got {rc}"
         verdict_line = text.splitlines()[0]
         assert "PASS" in verdict_line
+
+
+def _bound_body(run_id: str, commit: str) -> str:
+    return CANON_V11_BODY.replace(
+        "  defender_identity:\n",
+        "  certification:\n"
+        '    status: "NOT_CERTIFIED"\n'
+        "    bound_to:\n"
+        f'      run_id: "{run_id}"\n'
+        f'      commit: "{commit}"\n'
+        '      corpus_version: "v1.1"\n'
+        "  defender_identity:\n",
+    )
+
+
+def _git_bound_run(tmp_path: Path) -> tuple[Path, str]:
+    repo = tmp_path / "repo"
+    run = repo / "runs" / "declared-run"
+    run.mkdir(parents=True)
+    subprocess.run(["git", "init", str(repo)], check=True, capture_output=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.name", "VBB Test"], check=True
+    )
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.email", "vbb@example.invalid"],
+        check=True,
+    )
+    (repo / "candidate").write_text("candidate\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo), "add", "candidate"], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "commit", "-m", "candidate"],
+        check=True,
+        capture_output=True,
+    )
+    commit = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    _write_closeout(run, _bound_body(run.name, commit))
+    return run, commit
+
+
+def test_expected_commit_binds_the_declared_run(tmp_path: Path):
+    run, commit = _git_bound_run(tmp_path)
+    rc, text = _run_validator(
+        run,
+        ["--runs-dir", str(run.parent), "--expected-commit", commit, "--strict"],
+    )
+    assert rc == 0, text
+    assert "release-subject-binding" in text
+
+
+def test_expected_commit_rejects_wrong_sha(tmp_path: Path):
+    run, _ = _git_bound_run(tmp_path)
+    rc, text = _run_validator(
+        run,
+        [
+            "--runs-dir",
+            str(run.parent),
+            "--expected-commit",
+            "b" * 40,
+            "--strict",
+        ],
+    )
+    assert rc == 2
+    assert "release-subject-binding" in text
+    assert "does not match expected commit" in text
+
+
+def test_expected_commit_rejects_external_run_directory(tmp_path: Path):
+    run, commit = _git_bound_run(tmp_path)
+    rc, text = _run_validator(
+        run,
+        ["--expected-commit", commit, "--strict"],
+    )
+    assert rc == 3
+    assert "cannot resolve a run directory" in text
+
+
+def test_expected_commit_rejects_implicit_latest(tmp_path: Path):
+    _write_closeout(tmp_path, _bound_body(tmp_path.name, "a" * 40))
+    proc = subprocess.run(
+        [
+            "python",
+            "tools/vbb-adversarial-gate.py",
+            "--latest",
+            "--expected-commit",
+            "a" * 40,
+            "--strict",
+        ],
+        cwd=str(REPO),
+        capture_output=True,
+        text=True,
+    )
+    assert proc.returncode != 0
+    assert "explicit run" in (proc.stdout + proc.stderr)

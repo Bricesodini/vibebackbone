@@ -1195,7 +1195,9 @@ def check_certification_status(
 # ---------------------------------------------------------------------------
 
 
-def validate_run(run_dir: Path) -> Dict[str, Any]:
+def validate_run(
+    run_dir: Path, expected_commit: Optional[str] = None
+) -> Dict[str, Any]:
     """Run the full adversarial gate validation on a run directory."""
     intake = run_dir / "01_INTAKE.md"
     closeout = run_dir / "07_CLOSEOUT.md"
@@ -1233,6 +1235,22 @@ def validate_run(run_dir: Path) -> Dict[str, Any]:
     passes.extend(p)
     fails.extend(f)
 
+    if expected_commit is not None:
+        subject_ok, subject_reason = _run_resolution.verify_bound_subject(
+            run_dir, expected_commit
+        )
+        result = GateResult(
+            gate_id="release-subject-binding",
+            subject="explicit run_id and expected commit match certification.bound_to",
+            verdict="PASS" if subject_ok else "FAIL",
+            evidence=[subject_reason],
+            reasons=[
+                "release subject is explicitly bound" if subject_ok else subject_reason
+            ],
+            severity=None if subject_ok else "S0",
+        )
+        (passes if subject_ok else fails).append(result)
+
     all_gates = passes + fails
     overall = "PASS" if not fails else "FAIL"
     return {
@@ -1264,7 +1282,12 @@ _run_resolution = importlib.util.module_from_spec(_RUN_RES_SPEC)
 _RUN_RES_SPEC.loader.exec_module(_run_resolution)
 
 
-def resolve_run_dir(raw: Optional[Path], use_latest: bool = False) -> Optional[Path]:
+def resolve_run_dir(
+    raw: Optional[Path],
+    use_latest: bool = False,
+    runs_dir: Path = RUNS_DIR,
+    require_canonical_child: bool = False,
+) -> Optional[Path]:
     """Resolve a run argument to an existing run directory.
 
     Accepts three forms so that the canonical block, the CI scripts and manual
@@ -1283,14 +1306,17 @@ def resolve_run_dir(raw: Optional[Path], use_latest: bool = False) -> Optional[P
     instead of silently validating the wrong run.
     """
     if use_latest:
-        latest = _run_resolution.latest_closed_run(RUNS_DIR)
+        latest = _run_resolution.latest_closed_run(runs_dir)
         return latest if latest is not None and latest.is_dir() else None
     if raw is None:
         return None
+    if require_canonical_child:
+        return _run_resolution.resolve_explicit_run(runs_dir, raw)
+    # Preserve the validator's fixture/external-run contract: an existing path
+    # is already an explicit subject and must not be replaced by its basename.
     if raw.is_dir():
-        return raw
-    candidate = RUNS_DIR / raw.name
-    return candidate if candidate.is_dir() else None
+        return raw.resolve()
+    return _run_resolution.resolve_explicit_run(runs_dir, raw)
 
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -1307,7 +1333,24 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument(
         "--latest",
         action="store_true",
-        help="Validate the most recent run directory (used by CI, which has no run argument)",
+        help=(
+            "Validate the most recent closed run for diagnostics. "
+            "Not valid with --expected-commit."
+        ),
+    )
+    parser.add_argument(
+        "--runs-dir",
+        type=Path,
+        default=RUNS_DIR,
+        help="Override docs/runs for isolated tests.",
+    )
+    parser.add_argument(
+        "--expected-commit",
+        metavar="SHA",
+        help=(
+            "Require the explicit run's certification.bound_to.commit to equal "
+            "this full Git SHA. Release evidence must use an explicit run."
+        ),
     )
     parser.add_argument(
         "--strict",
@@ -1321,14 +1364,25 @@ def main(argv: Optional[List[str]] = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    run_dir = resolve_run_dir(args.run_dir, use_latest=args.latest)
+    if args.expected_commit and (args.latest or args.run_dir is None):
+        sys.stderr.write(
+            "ERROR: --expected-commit requires an explicit run and cannot use --latest\n"
+        )
+        return 3
+
+    run_dir = resolve_run_dir(
+        args.run_dir,
+        use_latest=args.latest,
+        runs_dir=args.runs_dir,
+        require_canonical_child=args.expected_commit is not None,
+    )
     if run_dir is None:
         target = "--latest" if args.latest else args.run_dir
         sys.stderr.write(f"ERROR: cannot resolve a run directory from {target}\n")
         return 3
     args.run_dir = run_dir
 
-    result = validate_run(args.run_dir)
+    result = validate_run(args.run_dir, expected_commit=args.expected_commit)
     if args.json:
         print(json.dumps(result, indent=2, sort_keys=True))
     else:

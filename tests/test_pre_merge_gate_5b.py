@@ -19,6 +19,7 @@ import re
 import shutil
 import subprocess
 import sys
+import os
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parent.parent.resolve()
@@ -106,20 +107,39 @@ def test_remote_ci_runs_both_halves_of_5b():
     assert CORPUS_TARGET in workflow, "remote CI does not run the adversarial corpus"
 
 
-def test_local_and_remote_ci_use_the_same_5b_interface():
-    """The two CI surfaces must call the gate with the same flags."""
+def test_ci_never_uses_latest_as_gate_authority():
+    """An unrelated future run cannot become the CI subject."""
     ci = CI_LOCAL.read_text(encoding="utf-8")
     workflow = WORKFLOW.read_text(encoding="utf-8")
-    pattern = re.compile(re.escape(ADVERSARIAL_GATE) + r"([^\n]*)")
+    assert "--latest" not in ci
+    assert "--latest" not in workflow
+    assert "VBB_RUN_ID" in ci
+    assert 'run_dir="${closeout%/07_CLOSEOUT.md}"' in workflow
 
-    local_flags = {m.group(1).strip() for m in pattern.finditer(ci)}
-    remote_flags = {m.group(1).strip() for m in pattern.finditer(workflow)}
-    assert local_flags, "no adversarial gate invocation found in local CI"
-    assert remote_flags, "no adversarial gate invocation found in remote CI"
-    assert local_flags == remote_flags, (
-        f"local CI calls the gate with {local_flags}, remote CI with "
-        f"{remote_flags} — the two surfaces have drifted"
+
+def test_release_binding_interface_is_documented_and_carried_locally():
+    """Release evidence requires an explicit run and expected full commit."""
+    doc = GATE_DOC.read_text(encoding="utf-8")
+    ci = CI_LOCAL.read_text(encoding="utf-8")
+    for text in (doc, ci):
+        assert "--expected-commit" in text
+    assert "VBB_EXPECTED_COMMIT" in ci
+
+
+def test_local_release_binding_rejects_half_declared_subject():
+    """A run without its expected SHA is not allowed to look release-ready."""
+    env = dict(os.environ)
+    env["VBB_RUN_ID"] = "declared-without-sha"
+    env.pop("VBB_EXPECTED_COMMIT", None)
+    result = subprocess.run(
+        ["bash", str(CI_LOCAL)],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
     )
+    assert result.returncode == 1
+    assert "must be declared together" in result.stdout
 
 
 def test_empty_corpus_exits_zero_for_a_corpus_scoped_run():

@@ -176,6 +176,64 @@ def test_measured_health_prevents_false_ready():
         assert corrupt["verdict"] == "BLOCKED"
 
 
+def test_canonical_active_risk_table_prevents_false_ready():
+    """The exact canonical qualified description header must be recognized."""
+    mod = _import_dashboard()
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = _make_measured_repo(Path(tmp))
+        header = (
+            "## Active risks\n\n"
+            "| ID | Severity | Status | Owner | Description and reopen trigger |\n"
+            "|---|---|---|---|---|\n"
+        )
+
+        for severity, expected in (
+            ("P0", "BLOCKED"),
+            ("P1", "PARTIAL"),
+            ("P2", "PARTIAL"),
+        ):
+            (repo / "docs" / "AUDIT_STATUS.md").write_text(
+                "## Global verdict\n\n**`READY`**\n\n"
+                + header
+                + f"| `R-{severity}` | {severity} | OPEN | owner | active risk |\n"
+            )
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            subprocess.run(
+                ["git", "-C", str(repo), "commit", "-m", f"risk {severity}"],
+                check=True,
+                capture_output=True,
+            )
+            subprocess.run(
+                ["git", "-C", str(repo), "push", "origin", "main"],
+                check=True,
+                capture_output=True,
+            )
+
+            status = mod.gather_status(repo)
+            assert [risk["id"] for risk in status["risks"]] == [f"R-{severity}"]
+            assert status["measured_verdict"] == expected
+            assert status["verdict"] == expected
+
+
+def test_qualified_description_header_variants_do_not_hide_risks():
+    """Nearby punctuation/plural drift remains within the description column."""
+    mod = _import_dashboard()
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = Path(tmp)
+        docs = repo / "docs"
+        docs.mkdir()
+        for description_header in (
+            "Description & reopen trigger",
+            "Description and reopen triggers",
+        ):
+            (docs / "AUDIT_STATUS.md").write_text(
+                "| ID | Severity | Status | Owner | " + description_header + " |\n"
+                "|---|---|---|---|---|\n"
+                "| `R-P0` | P0 | OPEN | owner | active risk |\n"
+            )
+            assert [risk["id"] for risk in mod.get_open_risks(repo)] == ["R-P0"]
+
+
 def test_strict_dashboard_uses_effective_verdict():
     """Strict mode succeeds only for a clean, synchronized effective READY."""
     with tempfile.TemporaryDirectory() as tmp:

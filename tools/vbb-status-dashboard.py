@@ -537,12 +537,23 @@ def get_open_risks(repo: Path) -> List[Dict]:
             "id": {"id"},
             "severity": {"severity", "sévérité"},
             "status": {"status", "statut"},
-            "description": {"description", "constat"},
+            "description": {
+                "description",
+                "description and reopen trigger",
+                "constat",
+            },
         }
-        detected = {
-            name: next((i for i, header in enumerate(headers) if header in names), -1)
-            for name, names in aliases.items()
-        }
+        detected = {}
+        for name, names in aliases.items():
+            detected[name] = next(
+                (
+                    i
+                    for i, header in enumerate(headers)
+                    if header in names
+                    or (name == "description" and header.startswith("description"))
+                ),
+                -1,
+            )
         if all(index >= 0 for index in detected.values()):
             columns = detected
             continue

@@ -45,6 +45,30 @@ Lifecycle, entry format, quarantine and promotion are owned by
 - **Added**: 2026-07-29
 - **State**: BEHAVIOUR_PIN
 
+## CORPUS-RUN1-A2-01
+
+- **Origin**: `docs/runs/2026-07-29_1941_run1-exact-release-measurement/findings/FIND-RUN1-A2-01.md`
+- **Severity**: S0
+- **Oracle**: `Description`-prefixed qualified headers preserve an open P0.
+- **Added**: 2026-07-29
+- **State**: ACTIVE
+
+## CORPUS-RUN1-A2-02
+
+- **Origin**: `docs/runs/2026-07-29_1941_run1-exact-release-measurement/findings/FIND-RUN1-A2-02.md`
+- **Severity**: S1
+- **Oracle**: a matching 40-hex value must resolve to a real Git commit object.
+- **Added**: 2026-07-29
+- **State**: ACTIVE
+
+## CORPUS-RUN1-A2-03
+
+- **Origin**: `docs/runs/2026-07-29_1941_run1-exact-release-measurement/findings/FIND-RUN1-A2-03.md`
+- **Severity**: S1
+- **Oracle**: expected-commit mode rejects a run outside the declared runs directory.
+- **Added**: 2026-07-29
+- **State**: ACTIVE
+
 ## Provenance
 
 The three entries above were created on 2026-07-29 to bring the repository into

@@ -28,9 +28,12 @@ immune to filesystem metadata.
 """
 
 import re
+import subprocess
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
+
+import yaml
 
 __all__ = [
     "list_runs_chronological",
@@ -39,6 +42,8 @@ __all__ = [
     "latest_closed_run",
     "find_closeout",
     "run_identity_datetime",
+    "resolve_explicit_run",
+    "verify_bound_subject",
 ]
 
 # Accepts the three naming schemes present in docs/runs/:
@@ -127,3 +132,95 @@ def latest_closed_run(runs_dir: Path) -> Optional[Path]:
         if find_closeout(run_dir) is not None:
             return run_dir
     return None
+
+
+def resolve_explicit_run(runs_dir: Path, raw: Path) -> Optional[Path]:
+    """Resolve one explicit run argument to an exact child of ``runs_dir``.
+
+    Bare IDs and existing path forms converge on the same canonical directory.
+    A path outside ``runs_dir`` or a non-existing path with a matching basename
+    is rejected instead of silently falling back to another subject.
+    """
+    base = runs_dir.resolve()
+    if raw.is_absolute() or len(raw.parts) > 1:
+        candidate = raw.resolve()
+    else:
+        candidate = (base / raw.name).resolve()
+    if candidate.parent != base or not candidate.is_dir():
+        return None
+    return candidate
+
+
+_YAML_FENCE_RE = re.compile(r"```(?:ya?ml)\s*\n(.*?)```", re.DOTALL)
+_FULL_COMMIT_RE = re.compile(r"^[0-9a-f]{40}$", re.IGNORECASE)
+
+
+def _bound_to_from_closeout(run_dir: Path) -> Optional[Dict[str, Any]]:
+    closeout = find_closeout(run_dir)
+    if closeout is None:
+        return None
+    try:
+        text = closeout.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    for match in _YAML_FENCE_RE.finditer(text):
+        try:
+            parsed = yaml.safe_load(match.group(1))
+        except yaml.YAMLError:
+            continue
+        if not isinstance(parsed, dict):
+            continue
+        adversarial = parsed.get("adversarial")
+        if not isinstance(adversarial, dict):
+            continue
+        certification = adversarial.get("certification")
+        if not isinstance(certification, dict):
+            continue
+        bound_to = certification.get("bound_to")
+        if isinstance(bound_to, dict):
+            return bound_to
+    return None
+
+
+def verify_bound_subject(run_dir: Path, expected_commit: str) -> Tuple[bool, str]:
+    """Check the existing ``certification.bound_to`` run/SHA contract."""
+    expected = expected_commit.strip().lower()
+    if not _FULL_COMMIT_RE.fullmatch(expected):
+        return False, "expected commit must be a full 40-character Git SHA"
+    bound_to = _bound_to_from_closeout(run_dir)
+    if bound_to is None:
+        return False, "certification.bound_to is missing"
+    bound_run = str(bound_to.get("run_id", "")).strip()
+    bound_commit = str(bound_to.get("commit", "")).strip().lower()
+    if bound_run != run_dir.name:
+        return (
+            False,
+            f"bound run_id '{bound_run}' does not match explicit run '{run_dir.name}'",
+        )
+    if not _FULL_COMMIT_RE.fullmatch(bound_commit):
+        return False, "certification.bound_to.commit must be a full Git SHA"
+    if bound_commit != expected:
+        return (
+            False,
+            f"bound commit '{bound_commit}' does not match expected commit '{expected}'",
+        )
+    try:
+        exists = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(run_dir),
+                "cat-file",
+                "-e",
+                f"{expected}^{{commit}}",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return False, "Git commit existence could not be verified"
+    if exists.returncode != 0:
+        return False, f"expected commit '{expected}' is not a Git commit object"
+    return True, f"run_id={bound_run}, commit={bound_commit}"

@@ -32,12 +32,29 @@ jobs:
         run: python3 -m ruff format --check tools tests
       - name: Mypy
         run: python3 -m mypy tools
-      # Pre-merge gate 5b (ADR 0051). Commands must stay identical to
-      # scripts/vbb-ci-local.sh and to the canonical block in
-      # docs/REFERENCE/pre-merge-gate.md; tests/test_pre_merge_gate_5b.py
-      # fails if the three drift apart.
-      - name: Adversarial gate
-        run: python3 tools/vbb-adversarial-gate.py --latest --strict
+      # Validate only closeouts changed by this push/PR. A future-dated
+      # unrelated run can never become the implicit subject of this workflow.
+      - name: Explicit changed-run gates
+        env:
+          VBB_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          VBB_HEAD_SHA: ${{ github.sha }}
+        run: |
+          if git cat-file -e "$VBB_BASE_SHA^{commit}" 2>/dev/null; then
+            changed_closeouts="$(git diff --name-only "$VBB_BASE_SHA" "$VBB_HEAD_SHA" -- 'docs/runs/*/07_CLOSEOUT.md')"
+          else
+            changed_closeouts="$(git ls-files 'docs/runs/*/07_CLOSEOUT.md')"
+          fi
+          if [ -z "$changed_closeouts" ]; then
+            echo "No changed run closeout to validate."
+          else
+            while IFS= read -r closeout; do
+              run_dir="${closeout%/07_CLOSEOUT.md}"
+              python3 tools/vbb-loop-closure-check.py "$run_dir" --strict
+              python3 tools/vbb-adversarial-gate.py "$run_dir" --strict
+            done <<EOF
+          $changed_closeouts
+          EOF
+          fi
       - name: Adversarial corpus
         run: python3 -m pytest tests/adversarial_corpus/ -q
       - name: Contract lint
