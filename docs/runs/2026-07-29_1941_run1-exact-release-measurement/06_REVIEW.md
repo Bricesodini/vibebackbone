@@ -116,11 +116,12 @@ préservation, sans modifier le verdict A2. Ce checkpoint reste explicitement
 
 ```yaml
 checkpoint_handoff:
-  checkpoint_sha: "PENDING_POST_COMMIT_ATTESTATION"
+  checkpoint_sha: "b8d2209aab0a4ae68bccd1a284d03b1f093733f5"
   certification: "NOT_CERTIFIED"
   merge_authorization: "NOT_AUTHORIZED_FOR_MERGE"
   run_2_authorization: "RUN_2_NOT_AUTHORIZED"
   allowed_next_result: "PASS_A2 | FAIL_A2 | INCONCLUSIVE"
+  counter_review_packet: "/Users/bricesodini/01_ai-stack/vibebackbone-checkpoints/run1-b8d2209aab0a/COUNTER_REVIEW.md"
 ```
 
 ## Déclaration de limitation

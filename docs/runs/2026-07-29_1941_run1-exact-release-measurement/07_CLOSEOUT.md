@@ -244,13 +244,14 @@ candidat de release.
 
 ```yaml
 checkpoint:
-  checkpoint_sha: "PENDING_POST_COMMIT_ATTESTATION"
+  checkpoint_sha: "b8d2209aab0a4ae68bccd1a284d03b1f093733f5"
   certification: "NOT_CERTIFIED"
   merge_authorization: "NOT_AUTHORIZED_FOR_MERGE"
   run_2_authorization: "RUN_2_NOT_AUTHORIZED"
   permitted_use: "Independent A2 counter-review only"
   permitted_outcomes: ["PASS_A2", "FAIL_A2", "INCONCLUSIVE"]
   functional_changes_after_checkpoint: "FORBIDDEN"
+  counter_review_packet: "/Users/bricesodini/01_ai-stack/vibebackbone-checkpoints/run1-b8d2209aab0a/COUNTER_REVIEW.md"
 ```
 
 ## Change Set
@@ -316,7 +317,13 @@ revérification complète.
 - **Clone** : `/tmp/vbb-run1-Uhlfod/repo`.
 - **Branche** : `codex/run1-exact-release-measurement`.
 - **Baseline** : `6b0daf4785d652b23931b80aafba57979e69d9b4`.
-- **Commit Run 1** : aucun.
+- **Checkpoint Run 1** : `b8d2209aab0a4ae68bccd1a284d03b1f093733f5`.
+- **Inventaire du checkpoint** : 31 fichiers, identique à la section
+  `Fichiers modifiés`.
+- **Vérification après checkpoint** : arbre propre ; `444 passed, 1 skipped` ;
+  CI locale `14 passed, 0 failed, 0 warnings`.
+- **Paquet A2** :
+  `/Users/bricesodini/01_ai-stack/vibebackbone-checkpoints/run1-b8d2209aab0a/`.
 - **Workspace historique** : non modifié.
 
 ## LONG_RUN_SUMMARY
@@ -338,7 +345,7 @@ FINAL_STATUS:
   tests_full_passed: 444
   tests_full_skipped: 1
   ci_local: "14 passed, 0 failed, 0 warnings"
-  commit_sha: null
+  commit_sha: "b8d2209aab0a4ae68bccd1a284d03b1f093733f5"
   run_2_authorized: false
   progress_emitted: true
   progress_count: 1
