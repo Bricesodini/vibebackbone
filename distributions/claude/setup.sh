@@ -134,6 +134,46 @@ claude_install_skill_symlinks() {
     return 0
   fi
 
+  # Refuse to install if $skills_dst is a symlink. When $skills_dst is a
+  # symlink into the source repo (e.g. a leftover `ln -s $REPO_ROOT/skills
+  # ~/.claude/skills`), every $dst path resolves to a canonical source
+  # file. The legacy-reconcile branch below (`cmp -s $dst $abs_src`) sees
+  # the file as identical to itself, mv's it out of the repo, and
+  # replaces it with a self-referencing symlink — corrupting the source
+  # repo in ~2s for 60+ skills. Fail-closed with explicit recovery.
+  # Reproduced 2026-07-28 on a VPS install (see hippo memory).
+  if [ -L "$skills_dst" ]; then
+    local dst_resolved
+    dst_resolved="$(cd "$skills_dst" 2>/dev/null && pwd -P || echo '<unresolvable>')"
+    echo "✗ Claude Code: '$skills_dst' is a symlink"
+    echo "    resolves to: $dst_resolved"
+    if [ "$dst_resolved" = "$skills_src" ]; then
+      cat <<EOF
+  Refusing to install: this would alias the source repo and CORRUPT
+    $skills_src (canonical SKILL.md files would be moved to a backup
+    dir and replaced by self-referencing symlinks).
+
+  Fix (manual):
+    rm '$skills_dst'
+    mkdir -p '$skills_dst'
+    bash setup.sh    # re-run
+
+  If this symlink is intentional (e.g. shared directory layout), point
+  it at a directory OUTSIDE the repo:
+    rm '$skills_dst' && ln -s /some/path/outside/repo '$skills_dst'
+EOF
+    else
+      cat <<EOF
+  Refusing to install on a symlinked destination — Claude Code expects
+    a real directory it owns. Fix:
+    rm '$skills_dst' && mkdir -p '$skills_dst'
+EOF
+    fi
+    CLAUDE_SKILLS_OK=0
+    CLAUDE_SKILLS_SKIP=0
+    return 1
+  fi
+
   mkdir -p "$skills_dst"
 
   local skill_dir
