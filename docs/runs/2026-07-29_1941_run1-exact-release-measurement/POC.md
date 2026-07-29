@@ -134,3 +134,27 @@ reproducible: true
 verified_at: "2026-07-29T17:57:00Z"
 verified_by: "codex"
 ```
+
+## A2 remediation POC
+
+The three counter-review bypasses were converted into executable locks and
+replayed against the functional checkpoint before changing implementation:
+
+```text
+RUN1-A2-CR-01 FAIL-BEFORE: GitHub workflow omits --expected-commit "$VBB_HEAD_SHA"
+RUN1-A2-CR-02 FAIL-BEFORE: verify_certification_subject is absent while historical binding accepts the old valid commit
+RUN1-A2-CR-03 FAIL-BEFORE: P0 REOPENED is absent from active risks and cannot block READY
+```
+
+Command:
+
+```bash
+.venv/bin/python -m pytest -q -p no:cacheprovider \
+  tests/test_pre_merge_gate_5b.py::test_remote_release_binding_carries_checked_out_sha_to_both_gates \
+  tests/test_run_resolution.py::test_certification_rejects_historical_commit_when_head_differs \
+  tests/test_status_dashboard.py::test_reopened_p0_is_active_and_forces_blocked
+```
+
+Observed: `3 failed`. Verdict: `GO`; each finding has a direct negative oracle
+and no implementation outside the existing release-measurement surface is
+required.

@@ -612,6 +612,40 @@ def test_get_open_risks_parses_all_tables_and_prioritizes_severity():
         assert risks[1]["status"] == "Open — verified"
 
 
+def test_reopened_p0_is_active_and_forces_blocked():
+    """CR-03: canonical REOPENED lifecycle state cannot be hidden from READY."""
+    mod = _import_dashboard()
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = Path(tmp)
+        audit = repo / "docs" / "AUDIT_STATUS.md"
+        audit.parent.mkdir(parents=True)
+        audit.write_text(
+            "# AUDIT_STATUS\n\n"
+            "## Global verdict\n\n"
+            "**`READY`**\n\n"
+            "| ID | Severity | Status | Description |\n"
+            "|----|----------|--------|-------------|\n"
+            "| R-P0 | P0 | REOPENED | Regression observed again |\n"
+        )
+
+        risks = mod.get_open_risks(repo)
+        assert [risk["id"] for risk in risks] == ["R-P0"]
+        assert mod.effective_verdict("READY", "BLOCKED") == "BLOCKED"
+
+
+def test_reopened_p0_p1_p2_can_never_measure_ready():
+    """Every release-blocking severity remains non-READY when REOPENED."""
+    mod = _import_dashboard()
+    for severity in ("P0", "P1", "P2"):
+        risks = [{"id": f"R-{severity}", "severity": severity, "status": "REOPENED"}]
+        measured = mod.measure_repository_health(REPO_ROOT, risks)
+        assert measured["verdict"] != "READY"
+        if severity == "P0":
+            assert "an open P0 or blocker is recorded" in measured["reasons"]
+        else:
+            assert "an open P1/P2 risk is recorded" in measured["reasons"]
+
+
 # --- Audit finding F15: the verdict is the declaration, not the prose ---
 
 

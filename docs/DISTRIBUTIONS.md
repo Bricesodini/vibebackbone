@@ -924,6 +924,11 @@ Codex ou Claude créerait quatre autorités divergentes.
 Leurs scripts, chemins, personas et états runtime restent inchangés. Les smokes
 communs d'installation et de propagation vérifient les quatre distributions.
 
+**Remédiation A2**: le carrier GitHub transmet désormais le SHA checkouté aux
+deux gates, la certification Core exige l'égalité métadonnées/SHA/HEAD, et le
+dashboard partage le cycle de vie canonique incluant `REOPENED`. Ces règles
+restent dans Core; aucun adaptateur provider n'est modifié.
+
 **Author**: Brice (validation explicite du Run 1), Codex — ADR 0027/0046/0051
 
 ## 9. References

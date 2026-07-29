@@ -126,6 +126,18 @@ def test_release_binding_interface_is_documented_and_carried_locally():
     assert "VBB_EXPECTED_COMMIT" in ci
 
 
+def test_remote_release_binding_carries_checked_out_sha_to_both_gates():
+    """CR-01: GitHub release gates certify the checkout, never only a run path."""
+    workflow = WORKFLOW.read_text(encoding="utf-8")
+    assert (
+        'vbb-loop-closure-check.py "$run_dir" '
+        '--expected-commit "$VBB_HEAD_SHA" --strict'
+    ) in workflow
+    assert (
+        'vbb-adversarial-gate.py "$run_dir" --expected-commit "$VBB_HEAD_SHA" --strict'
+    ) in workflow
+
+
 def test_local_release_binding_rejects_half_declared_subject():
     """A run without its expected SHA is not allowed to look release-ready."""
     env = dict(os.environ)

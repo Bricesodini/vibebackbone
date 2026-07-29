@@ -45,6 +45,14 @@ except ImportError:  # pragma: no cover
     sys.stderr.write("PyYAML is required: pip install pyyaml\n")
     sys.exit(2)
 
+# Shared Core authority for run binding and finding lifecycle.
+_RUN_RES_SPEC = importlib.util.spec_from_file_location(
+    "vbb_run_resolution", Path(__file__).parent / "vbb_run_resolution.py"
+)
+assert _RUN_RES_SPEC is not None and _RUN_RES_SPEC.loader is not None
+_run_resolution = importlib.util.module_from_spec(_RUN_RES_SPEC)
+_RUN_RES_SPEC.loader.exec_module(_run_resolution)
+
 
 # ---------------------------------------------------------------------------
 # Constants — ADR 0051 + ADVERSARIAL_ASSURANCE_GOVERNANCE.md
@@ -57,25 +65,7 @@ ADVERSARIAL_GOVERNANCE_CUTOVER_AT = datetime(2026, 7, 28, 14, 0, 0, tzinfo=timez
 LEVELS = frozenset({"A0", "A1", "A2"})
 SEVERITIES = frozenset({"S0", "S1", "S2", "S3"})
 CONFIDENCES = frozenset({"CONFIRMED", "PLAUSIBLE", "REFUTED"})
-FINDING_STATES = frozenset(
-    {
-        "DETECTED",
-        "CLASSIFIED",
-        "ARBITRATED",
-        "REMEDIATION_IN_PROGRESS",
-        "REMEDIATED",
-        "NON_REGRESSION_LOCKED",
-        "GATE_UPDATED",
-        "RE_AUDITED",
-        "HARVESTED",
-        "DEFERRED",
-        "CLOSED_REMEDIATED",
-        "CLOSED_ACCEPTED",
-        "CLOSED_REJECTED",
-        "CLOSED_DUPLICATE",
-        "REOPENED",
-    }
-)
+FINDING_STATES = _run_resolution.FINDING_STATES
 ADVERSARIAL_STATUSES = frozenset(
     {
         "NOT_ASSESSED",
@@ -1236,7 +1226,7 @@ def validate_run(
     fails.extend(f)
 
     if expected_commit is not None:
-        subject_ok, subject_reason = _run_resolution.verify_bound_subject(
+        subject_ok, subject_reason = _run_resolution.verify_certification_subject(
             run_dir, expected_commit
         )
         result = GateResult(
@@ -1271,15 +1261,6 @@ def validate_run(
 
 REPO_ROOT = Path(__file__).parent.parent.resolve()
 RUNS_DIR = REPO_ROOT / "docs" / "runs"
-
-# Shared run resolution (ADR-0027), reused from vbb-loop-closure-check.py so
-# that "latest run" means the same thing to every gate.
-_RUN_RES_SPEC = importlib.util.spec_from_file_location(
-    "vbb_run_resolution", Path(__file__).parent / "vbb_run_resolution.py"
-)
-assert _RUN_RES_SPEC is not None and _RUN_RES_SPEC.loader is not None
-_run_resolution = importlib.util.module_from_spec(_RUN_RES_SPEC)
-_RUN_RES_SPEC.loader.exec_module(_run_resolution)
 
 
 def resolve_run_dir(

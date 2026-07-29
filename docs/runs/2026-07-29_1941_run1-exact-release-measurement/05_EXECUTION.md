@@ -126,3 +126,33 @@ The technical counter-proofs pass, but the available review actor disclosed
 the same Codex/GPT-5/OpenAI identity as the implementer. The required distinct
 A2 witness is therefore unavailable and the implementation is not
 commit-ready.
+
+## A2 remediation execution
+
+The independent counter-review bound to `b8d2209aab0a4ae68bccd1a284d03b1f093733f5`
+returned `FAIL_A2` with exactly three reproducible findings. The reopened
+implementation changed only their demonstrated surfaces:
+
+- `RUN1-A2-CR-01`: both GitHub gates now carry
+  `--expected-commit "$VBB_HEAD_SHA"`;
+- `RUN1-A2-CR-02`: historical binding lookup remains non-certifying, while
+  certification additionally requires expected commit to equal evaluated
+  `HEAD`;
+- `RUN1-A2-CR-03`: the dashboard and adversarial validator share the canonical
+  lifecycle; every non-terminal canonical state, including `REOPENED`, is
+  active.
+
+```text
+fails-before: 3 failed
+new locks after correction: 3 passed
+focused + corpus + mandatory registry: 131 passed
+focused release surface: 116 passed
+full suite: 451 passed, 1 skipped
+local CI: 14 passed, 0 failed, 0 warnings
+architecture: 0 errors, 0 warnings, 11 blocks
+contract lint: 0 errors, 1 pre-existing non-blocking F12 warning
+distribution/runtime/setup: 46 passed; setup smoke 32/0/0
+```
+
+No new certification is claimed. The corrected tree is only a candidate for a
+new independent A2 counter-review.

@@ -62,3 +62,14 @@ artifacts_produced:
 
 Distinct A2 falsification and final closeout are pending. No commit is
 authorized before they pass.
+
+## Remediation delta after FAIL_A2
+
+- GitHub exact-SHA carrier added to both release gates.
+- Certification verifier separated from historical binding lookup and bound to
+  evaluated `HEAD`.
+- Canonical lifecycle shared between risk measurement and adversarial
+  validation; `REOPENED` is active.
+- Three canonical tests, three corpus locks and three finding records added.
+- Previous checkpoint retained and marked `REJECTED_BY_A2`.
+- Certification remains `PENDING_A2`; merge and Run 2 remain forbidden.

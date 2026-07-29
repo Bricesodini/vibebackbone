@@ -1621,7 +1621,7 @@ def main() -> int:
             else:
                 print(msg, file=sys.stderr)
             return 2 if args.strict else 1
-        subject_ok, subject_reason = _run_resolution.verify_bound_subject(
+        subject_ok, subject_reason = _run_resolution.verify_certification_subject(
             resolved, args.expected_commit
         )
         if not subject_ok:

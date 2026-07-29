@@ -32,17 +32,18 @@ artifacts_produced:
 
 **Kind** : `HANDOFF`
 
-Le patch est techniquement vérifié mais ne peut pas être certifié ni intégré :
-l'acteur de contre-test disponible n'est pas distinct du défenseur selon le
-contrat A2. Un commit checkpoint de préservation est autorisé sans conférer
-d'autorisation de merge.
+Le checkpoint `b8d2209…` a été rejeté par une contre-revue A2 indépendante.
+Les trois findings sont techniquement remédiés dans un nouveau candidat, mais
+ce candidat ne peut être certifié ni intégré avant une nouvelle contre-revue
+A2 indépendante. Un commit checkpoint de préservation est autorisé sans
+conférer d'autorisation de merge.
 
 ## Résultat
 
-La résolution run/SHA, l'extraction des risques et les carriers de gate ont été
-rendus explicites et fail-closed dans le clone isolé. Les trois bypasses
-découverts par l'attaque ont été corrigés et verrouillés, mais la condition
-d'indépendance A2 empêche `RUN_1_COMPLETE`.
+CR-01, CR-02 et CR-03 sont couverts par trois locks fails-before/passes-after.
+Le carrier GitHub transmet le SHA checkouté, la certification impose
+métadonnées/SHA/HEAD, et `REOPENED` est mesuré comme actif. Le verdict demeure
+`PENDING_A2`, sans `RUN_1_COMPLETE`.
 
 ## Assurance
 
@@ -82,9 +83,9 @@ ASSURANCE_STATUS:
       subject: "Subject substitution, risk masking and false READY"
       verdict: "FAIL"
       evidence:
-        - "Three confirmed bypasses are remediated and their counter-proofs pass."
-        - "Attacker and defender both disclose gpt-5/openai/codex-desktop-2026-07-29."
-      reasons: ["A2 distinct actor requirement is not satisfied."]
+        - "Independent review of b8d2209 returned FAIL_A2 with RUN1-A2-CR-01/02/03."
+        - "Three new fails-before locks now pass technically on the remediated tree."
+      reasons: ["The remediated checkpoint has not yet received an independent A2 counter-proof."]
     - gate_id: "RUN1-LOOP-CLOSURE"
       gate_family: "OTHER"
       checkpoint: "CLOSEOUT"
@@ -114,24 +115,24 @@ adversarial:
   corpus_version: "1.2.0"
   exploration_performed: true
   attacker_identity:
-    agent: "/root/run1_a2_review"
-    llm: "gpt-5"
+    agent: "/root/run1_a2_distinct"
+    llm: "gpt-5.6-terra"
     provider: "openai"
-    system_prompt_version: "codex-desktop-2026-07-29"
-    session: "run1-a2-review"
+    system_prompt_version: "run1-a2-distinct-dedicated-a2-task-prompt-fork-none-2026-07-29"
+    session: "run1_a2_distinct"
   defender_identity:
     agent: "codex"
     llm: "gpt-5"
     provider: "openai"
     system_prompt_version: "codex-desktop-2026-07-29"
     session: "run1-implementation"
-  distinct_llm: false
-  distinct_system_prompt: false
+  distinct_llm: true
+  distinct_system_prompt: true
   distinct_provider_or_human: false
   a2_proxy_mode:
-    enabled: false
+    enabled: true
     limitations:
-      - "The available reviewer shares the defender's LLM family, provider and system-prompt identity."
+      - "The distinct proxy reviewed b8d2209; the remediated checkpoint still requires a new independent replay."
   surfaces_declared:
     - "tools/vbb_run_resolution.py"
     - "tools/vbb-adversarial-gate.py"
@@ -177,6 +178,33 @@ adversarial:
         passes_after: true
         witnessed_by: "/root/run1_a2_review"
         test_review: "Technical replay PASS; independent A2 review FAIL."
+    - id: "RUN1-A2-CR-01"
+      severity: "S1"
+      confidence: "CONFIRMED"
+      state: "REMEDIATED"
+      non_regression_lock:
+        fails_before: true
+        passes_after: true
+        witnessed_by: "PENDING_DISTINCT_A2_ACTOR"
+        test_review: "Technical replay PASS; independent replay pending."
+    - id: "RUN1-A2-CR-02"
+      severity: "S0"
+      confidence: "CONFIRMED"
+      state: "REMEDIATED"
+      non_regression_lock:
+        fails_before: true
+        passes_after: true
+        witnessed_by: "PENDING_DISTINCT_A2_ACTOR"
+        test_review: "Technical replay PASS; independent replay pending."
+    - id: "RUN1-A2-CR-03"
+      severity: "S0"
+      confidence: "CONFIRMED"
+      state: "REMEDIATED"
+      non_regression_lock:
+        fails_before: true
+        passes_after: true
+        witnessed_by: "PENDING_DISTINCT_A2_ACTOR"
+        test_review: "Technical replay PASS; independent replay pending."
   verdict: "FINDINGS_OPEN"
   non_claim: |
     No PASS_ADVERSARIAL is claimed. Technical remediation is not independent
@@ -235,31 +263,67 @@ tools/vbb_run_resolution.py
 
 ## Points ouverts
 
-Un seul point bloque ce run : refaire le contre-test final avec un humain ou un
-acteur d'une autre famille LLM/provider. Ce handoff autorise uniquement le
-checkpoint de préservation demandé ; il n'autorise ni merge, ni Run 2, ni
-candidat de release.
+Un seul point bloque ce run : une nouvelle contre-revue A2 indépendante du
+checkpoint remédié. Ce handoff autorise uniquement le checkpoint de
+préservation demandé ; il n'autorise ni merge, ni Run 2, ni candidat de
+release.
 
 ## Checkpoint policy
 
 ```yaml
 checkpoint:
-  checkpoint_sha: "b8d2209aab0a4ae68bccd1a284d03b1f093733f5"
+  previous_checkpoint_sha: "b8d2209aab0a4ae68bccd1a284d03b1f093733f5"
+  previous_checkpoint_status: "REJECTED_BY_A2"
+  checkpoint_sha: "<PENDING_CHECKPOINT_SHA>"
   certification: "NOT_CERTIFIED"
   merge_authorization: "NOT_AUTHORIZED_FOR_MERGE"
   run_2_authorization: "RUN_2_NOT_AUTHORIZED"
-  permitted_use: "Independent A2 counter-review only"
+  permitted_use: "New independent A2 counter-review only"
   permitted_outcomes: ["PASS_A2", "FAIL_A2", "INCONCLUSIVE"]
   functional_changes_after_checkpoint: "FORBIDDEN"
-  counter_review_packet: "/Users/bricesodini/01_ai-stack/vibebackbone-checkpoints/run1-b8d2209aab0a/COUNTER_REVIEW.md"
+  counter_review_packet: "<PENDING_SHA_BOUND_PACKET>"
 ```
 
 ## Change Set
 
-- 31 fichiers exactement, inventoriés dans la section `Fichiers modifiés`.
+- Inventaire exact à fixer avec le SHA du nouveau checkpoint.
 - Périmètre : `RR-BK-02`, `RR-BK-03` et normalisation ID/chemin bornée de
   `F9`.
-- Aucun fichier de version, changelog, checklist ou tag.
+- Aucune version produit/release, changelog, checklist ou tag. La version du
+  corpus adversarial passe de `v1.2.0` à `v1.3.0` pour les trois locks
+  obligatoires.
+
+### Remediation inventory from documentary baseline 150ffe0
+
+```text
+.github/workflows/vbb-contracts.yml
+docs/DISTRIBUTIONS.md
+docs/REFERENCE/pre-merge-gate.md
+docs/runs/2026-07-29_1941_run1-exact-release-measurement/01_INTAKE.md
+docs/runs/2026-07-29_1941_run1-exact-release-measurement/04_PLAN.md
+docs/runs/2026-07-29_1941_run1-exact-release-measurement/05_EXECUTION.md
+docs/runs/2026-07-29_1941_run1-exact-release-measurement/05_PATCH_SUMMARY_RUN_01.md
+docs/runs/2026-07-29_1941_run1-exact-release-measurement/06_REVIEW.md
+docs/runs/2026-07-29_1941_run1-exact-release-measurement/07_CLOSEOUT.md
+docs/runs/2026-07-29_1941_run1-exact-release-measurement/ADVERSARIAL_CAMPAIGN.md
+docs/runs/2026-07-29_1941_run1-exact-release-measurement/INTEGRATION_GATE.md
+docs/runs/2026-07-29_1941_run1-exact-release-measurement/POC.md
+docs/runs/2026-07-29_1941_run1-exact-release-measurement/findings/FIND-RUN1-A2-CR-01.md
+docs/runs/2026-07-29_1941_run1-exact-release-measurement/findings/FIND-RUN1-A2-CR-02.md
+docs/runs/2026-07-29_1941_run1-exact-release-measurement/findings/FIND-RUN1-A2-CR-03.md
+tests/adversarial_corpus/CORPUS-RUN1-A2-CR-01.py
+tests/adversarial_corpus/CORPUS-RUN1-A2-CR-02.py
+tests/adversarial_corpus/CORPUS-RUN1-A2-CR-03.py
+tests/adversarial_corpus/INDEX.md
+tests/adversarial_corpus/VERSION
+tests/test_pre_merge_gate_5b.py
+tests/test_run_resolution.py
+tests/test_status_dashboard.py
+tools/vbb-adversarial-gate.py
+tools/vbb-loop-closure-check.py
+tools/vbb-status-dashboard.py
+tools/vbb_run_resolution.py
+```
 
 ## Commit Readiness
 
@@ -279,19 +343,19 @@ checkpoint:
 
 ## Remaining Risks
 
-- Aucune contre-revue A2 indépendante n'a encore été fournie.
+- Le checkpoint remédié n'a pas encore reçu sa contre-revue A2 indépendante.
 - Les surfaces non explorées restent celles déclarées dans la campagne.
 
 ## Suggested Commit Message
 
 ```text
-chore(run1): checkpoint exact release measurement pending A2
+fix(run1): remediate exact release measurement A2 findings
 ```
 
 ## Next Action
 
-Contre-revue indépendante exclusivement sur le SHA checkpoint. Toute
-correction fonctionnelle devra être un nouveau commit suivi d'une
+Contre-revue indépendante exclusivement sur le nouveau SHA checkpoint. Toute
+correction fonctionnelle ultérieure devra être un nouveau commit suivi d'une
 revérification complète.
 
 ## Knowledge Harvest
@@ -305,25 +369,24 @@ revérification complète.
 
 - **Décision** : `EXECUTED`
 - **Déclencheur évalué** : gates de gouvernance et comportement de release.
-- **Résultat** : 107 tests ciblés, 18 corpus/contrat, 444 tests complets,
-  14 preuves négatives explicites, CI locale 14/0/0, architecture 0/0,
-  contract lint 0 erreur.
+- **Résultat** : 131 tests ciblés/corpus, 451 tests complets,
+  trois nouveaux fails-before/passes-after et les trois locks précédents,
+  CI locale 14/0/0, architecture 0/0, contract lint 0 erreur.
 - **P0/P1** : les trois findings bornés sont remédiés techniquement ; aucune
   remédiation générale ou vNext n'est ouverte.
 
 ## État Git
 
 - **Méthode d'isolation** : clone temporaire.
-- **Clone** : `/tmp/vbb-run1-Uhlfod/repo`.
+- **Clone** : `/tmp/vbb-run1-remediation-0ZGlha/repo`.
 - **Branche** : `codex/run1-exact-release-measurement`.
 - **Baseline** : `6b0daf4785d652b23931b80aafba57979e69d9b4`.
-- **Checkpoint Run 1** : `b8d2209aab0a4ae68bccd1a284d03b1f093733f5`.
-- **Inventaire du checkpoint** : 31 fichiers, identique à la section
-  `Fichiers modifiés`.
-- **Vérification après checkpoint** : arbre propre ; `444 passed, 1 skipped` ;
-  CI locale `14 passed, 0 failed, 0 warnings`.
-- **Paquet A2** :
-  `/Users/bricesodini/01_ai-stack/vibebackbone-checkpoints/run1-b8d2209aab0a/`.
+- **Checkpoint précédent** : `b8d2209aab0a4ae68bccd1a284d03b1f093733f5`,
+  `REJECTED_BY_A2`.
+- **Nouveau checkpoint Run 1** : `<PENDING_CHECKPOINT_SHA>`.
+- **Vérification avant checkpoint** : `451 passed, 1 skipped` ; CI locale
+  `14 passed, 0 failed, 0 warnings`.
+- **Paquet A2** : `<PENDING_SHA_BOUND_PACKET>`.
 - **Workspace historique** : non modifié.
 
 ## LONG_RUN_SUMMARY
@@ -338,14 +401,16 @@ FINAL_STATUS:
   technical_counter_proofs: "PASS"
   adversarial_status: "FINDINGS_OPEN"
   certification_status: "NOT_CERTIFIED"
-  blocker: "No distinct A2 actor available."
-  tests_focused: 107
-  tests_corpus_contract: 18
-  tests_negative_proofs: 14
-  tests_full_passed: 444
+  blocker: "New independent A2 review of the remediated checkpoint is pending."
+  tests_focused: 131
+  tests_corpus_contract: 24
+  tests_negative_proofs: 17
+  tests_full_passed: 451
   tests_full_skipped: 1
   ci_local: "14 passed, 0 failed, 0 warnings"
-  commit_sha: "b8d2209aab0a4ae68bccd1a284d03b1f093733f5"
+  previous_checkpoint: "b8d2209aab0a4ae68bccd1a284d03b1f093733f5"
+  previous_checkpoint_status: "REJECTED_BY_A2"
+  commit_sha: "<PENDING_CHECKPOINT_SHA>"
   run_2_authorized: false
   progress_emitted: true
   progress_count: 1

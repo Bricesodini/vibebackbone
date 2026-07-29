@@ -142,3 +142,26 @@ certification_status:
   bootstrapped_at: "2026-07-29T17:41:32Z"
   bootstrapped_by: "codex"
 ```
+
+## Reopening — A2 remediation
+
+```yaml
+remediation_intake:
+  route: "STRUCTURED"
+  adversarial_level: "A2"
+  functional_baseline: "b8d2209aab0a4ae68bccd1a284d03b1f093733f5"
+  documentary_baseline: "150ffe0fe25e07ae6ce50a3b686ab02e6fef716d"
+  branch: "codex/run1-exact-release-measurement"
+  isolation: "fresh --no-local clone at /tmp/vbb-run1-remediation-0ZGlha/repo"
+  previous_checkpoint_status: "REJECTED_BY_A2"
+  findings:
+    - "RUN1-A2-CR-01"
+    - "RUN1-A2-CR-02"
+    - "RUN1-A2-CR-03"
+  merge_authorized: false
+  run_2_authorized: false
+```
+
+The reopening is limited to the three reproduced counter-review findings.
+Certification remains `PENDING_A2`; the implementation actor cannot issue
+`PASS_A2`.

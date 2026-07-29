@@ -84,3 +84,16 @@ implementation_authorization:
     - "POC verdict is GO (4/4)."
     - "Integration Gate reports can_code_start=true with no blockers."
 ```
+
+## Remediation plan after independent FAIL_A2
+
+1. Carry the checked-out SHA to both GitHub release gates.
+2. Add a certification-only verifier requiring
+   `bound_to.commit == expected_commit == HEAD`; retain historical binding
+   lookup only as a non-certifying API.
+3. Reuse the canonical finding lifecycle to classify `REOPENED` as active and
+   make every active P0/P1/P2 incompatible with `READY`.
+4. Replay the three new locks, the three previous locks, focused/full suites,
+   local CI, architecture, contracts and distribution propagation.
+5. Commit one new checkpoint, keep merge and Run 2 forbidden, and package it
+   for a new independent A2 review.

@@ -241,6 +241,10 @@ def test_bound_subject_requires_exact_run_and_full_commit(tmp_path: Path) -> Non
 
     ok, reason = res.verify_bound_subject(run, commit)
     assert ok, reason
+    certification_ok, certification_reason = res.verify_certification_subject(
+        run, commit
+    )
+    assert certification_ok, certification_reason
     assert res.verify_bound_subject(run, "b" * 40)[0] is False
 
     text = (run / "07_CLOSEOUT.md").read_text(encoding="utf-8")
@@ -275,6 +279,69 @@ def test_bound_subject_rejects_invented_full_sha(tmp_path: Path) -> None:
     ok, reason = res.verify_bound_subject(run, invented)
     assert ok is False
     assert "not a Git commit object" in reason
+
+
+def test_certification_rejects_historical_commit_when_head_differs(
+    tmp_path: Path,
+) -> None:
+    """CR-02: historical lookup is allowed, certification is bound to HEAD."""
+    res = _load_module()
+    subprocess.run(["git", "init", str(tmp_path)], check=True, capture_output=True)
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "config", "user.name", "VBB Test"],
+        check=True,
+    )
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(tmp_path),
+            "config",
+            "user.email",
+            "vbb@example.invalid",
+        ],
+        check=True,
+    )
+    run = _make_run(
+        tmp_path / "runs",
+        "2026-07-29_1200_target",
+        closed=True,
+        mtime=time.time(),
+    )
+    (tmp_path / "state").write_text("old\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(tmp_path), "add", "."], check=True)
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "commit", "-m", "old"],
+        check=True,
+        capture_output=True,
+    )
+    old_commit = subprocess.run(
+        ["git", "-C", str(tmp_path), "rev-parse", "HEAD"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    (run / "07_CLOSEOUT.md").write_text(
+        "```yaml\n"
+        "adversarial:\n"
+        "  certification:\n"
+        "    bound_to:\n"
+        f'      run_id: "{run.name}"\n'
+        f'      commit: "{old_commit}"\n'
+        "```\n",
+        encoding="utf-8",
+    )
+    subprocess.run(["git", "-C", str(tmp_path), "add", "."], check=True)
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "commit", "-m", "new"],
+        check=True,
+        capture_output=True,
+    )
+
+    assert res.verify_bound_subject(run, old_commit)[0] is True
+    ok, reason = res.verify_certification_subject(run, old_commit)
+    assert ok is False
+    assert "HEAD" in reason
 
 
 def test_find_closeout_fallback(tmp_path: Path) -> None:

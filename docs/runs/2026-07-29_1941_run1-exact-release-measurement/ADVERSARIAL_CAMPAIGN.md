@@ -8,7 +8,7 @@ attacker_identity:
   llm: "gpt-5"
   provider: "openai"
   system_prompt_version: "codex-desktop-2026-07-29"
-corpus_version: "1.2.0"
+corpus_version: "1.3.0"
 started_at: "2026-07-29T18:10:00Z"
 ended_at: "2026-07-29T18:24:00Z"
 actor: "/root/run1_a2_review"
@@ -142,3 +142,36 @@ history:
       - {from_state: "CLASSIFIED", to_state: "REMEDIATION_IN_PROGRESS", at: "2026-07-29T18:16:00Z", actor: "codex"}
       - {from_state: "REMEDIATION_IN_PROGRESS", to_state: "REMEDIATED", at: "2026-07-29T18:22:00Z", actor: "codex"}
 ```
+
+## Independent counter-review and remediation reopening
+
+The distinct reviewer `/root/run1_a2_distinct` (`gpt-5.6-terra`, OpenAI,
+dedicated non-derived A2 prompt) returned `FAIL_A2` for checkpoint `b8d2209…`.
+
+```yaml
+remediation_findings:
+  - finding_ref: "RUN1-A2-CR-01"
+    severity: "S1"
+    confidence: "CONFIRMED"
+    state: "REMEDIATED"
+    lock: "tests/adversarial_corpus/CORPUS-RUN1-A2-CR-01.py"
+  - finding_ref: "RUN1-A2-CR-02"
+    severity: "S0"
+    confidence: "CONFIRMED"
+    state: "REMEDIATED"
+    lock: "tests/adversarial_corpus/CORPUS-RUN1-A2-CR-02.py"
+  - finding_ref: "RUN1-A2-CR-03"
+    severity: "S0"
+    confidence: "CONFIRMED"
+    state: "REMEDIATED"
+    lock: "tests/adversarial_corpus/CORPUS-RUN1-A2-CR-03.py"
+counter_proof:
+  implementation_actor: "codex"
+  technical_result: "PASS"
+  independent_witness: "PENDING"
+  certification: "PENDING_A2"
+verdict: "FINDINGS_OPEN"
+```
+
+The campaign does not emit `PASS_ADVERSARIAL`; a new independent review must
+replay the six locks and the exact release carriers on the new checkpoint.

@@ -117,3 +117,22 @@ ASSURANCE_STATUS:
 Implementation is authorized only for the files and negative proofs demonstrated
 by `POC.md`. Scope expansion or a failed negative proof returns the run to
 `NOT_AUTHORIZED`.
+
+## A2 remediation gate
+
+```yaml
+remediation_gate:
+  checkpoint: "PRE_IMPLEMENTATION"
+  findings:
+    RUN1-A2-CR-01: "REPRODUCED"
+    RUN1-A2-CR-02: "REPRODUCED"
+    RUN1-A2-CR-03: "REPRODUCED"
+  poc_verdict: "GO"
+  scope_unchanged: true
+  can_code_start: true
+  blockers: []
+  certification: "PENDING_A2"
+```
+
+Authorization is limited to making the three fails-before locks pass while
+preserving the previous locks and exact run/SHA interface.

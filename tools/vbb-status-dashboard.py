@@ -567,8 +567,7 @@ def get_open_risks(repo: Path) -> List[Dict]:
         severity = clean(cells[columns["severity"]])
         status = clean(cells[columns["status"]])
         desc = clean(cells[columns["description"]])
-        status_key = status.lower()
-        if status_key.startswith("open") or status_key.startswith("mitigating"):
+        if _run_resolution.is_active_risk_status(status):
             risks.append(
                 {
                     "id": rid,

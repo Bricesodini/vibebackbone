@@ -49,8 +49,8 @@ jobs:
           else
             while IFS= read -r closeout; do
               run_dir="${closeout%/07_CLOSEOUT.md}"
-              python3 tools/vbb-loop-closure-check.py "$run_dir" --strict
-              python3 tools/vbb-adversarial-gate.py "$run_dir" --strict
+              python3 tools/vbb-loop-closure-check.py "$run_dir" --expected-commit "$VBB_HEAD_SHA" --strict
+              python3 tools/vbb-adversarial-gate.py "$run_dir" --expected-commit "$VBB_HEAD_SHA" --strict
             done <<EOF
           $changed_closeouts
           EOF

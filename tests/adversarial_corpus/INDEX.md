@@ -69,6 +69,30 @@ Lifecycle, entry format, quarantine and promotion are owned by
 - **Added**: 2026-07-29
 - **State**: ACTIVE
 
+## CORPUS-RUN1-A2-CR-01
+
+- **Origin**: `docs/runs/2026-07-29_1941_run1-exact-release-measurement/findings/FIND-RUN1-A2-CR-01.md`
+- **Severity**: S1
+- **Oracle**: both GitHub release gates receive the checked-out SHA explicitly.
+- **Added**: 2026-07-29
+- **State**: ACTIVE
+
+## CORPUS-RUN1-A2-CR-02
+
+- **Origin**: `docs/runs/2026-07-29_1941_run1-exact-release-measurement/findings/FIND-RUN1-A2-CR-02.md`
+- **Severity**: S0
+- **Oracle**: a valid historical commit is readable but cannot certify another HEAD.
+- **Added**: 2026-07-29
+- **State**: ACTIVE
+
+## CORPUS-RUN1-A2-CR-03
+
+- **Origin**: `docs/runs/2026-07-29_1941_run1-exact-release-measurement/findings/FIND-RUN1-A2-CR-03.md`
+- **Severity**: S0
+- **Oracle**: a P0 `REOPENED` remains active and makes `READY` impossible.
+- **Added**: 2026-07-29
+- **State**: ACTIVE
+
 ## Provenance
 
 The three entries above were created on 2026-07-29 to bring the repository into

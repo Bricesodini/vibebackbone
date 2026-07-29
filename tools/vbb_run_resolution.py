@@ -43,7 +43,10 @@ __all__ = [
     "find_closeout",
     "run_identity_datetime",
     "resolve_explicit_run",
+    "FINDING_STATES",
+    "is_active_risk_status",
     "verify_bound_subject",
+    "verify_certification_subject",
 ]
 
 # Accepts the three naming schemes present in docs/runs/:
@@ -154,6 +157,45 @@ def resolve_explicit_run(runs_dir: Path, raw: Path) -> Optional[Path]:
 _YAML_FENCE_RE = re.compile(r"```(?:ya?ml)\s*\n(.*?)```", re.DOTALL)
 _FULL_COMMIT_RE = re.compile(r"^[0-9a-f]{40}$", re.IGNORECASE)
 
+# Canonical lifecycle from ADVERSARIAL_ASSURANCE_GOVERNANCE.md §2. Consumers
+# import it here instead of maintaining partial local state lists.
+FINDING_STATES = frozenset(
+    {
+        "DETECTED",
+        "CLASSIFIED",
+        "ARBITRATED",
+        "REMEDIATION_IN_PROGRESS",
+        "REMEDIATED",
+        "NON_REGRESSION_LOCKED",
+        "GATE_UPDATED",
+        "RE_AUDITED",
+        "HARVESTED",
+        "DEFERRED",
+        "CLOSED_REMEDIATED",
+        "CLOSED_ACCEPTED",
+        "CLOSED_REJECTED",
+        "CLOSED_DUPLICATE",
+        "REOPENED",
+    }
+)
+_TERMINAL_FINDING_STATES = frozenset(
+    {
+        "CLOSED_REMEDIATED",
+        "CLOSED_ACCEPTED",
+        "CLOSED_REJECTED",
+        "CLOSED_DUPLICATE",
+    }
+)
+_LEGACY_ACTIVE_RISK_STATUSES = frozenset({"OPEN", "MITIGATING"})
+
+
+def is_active_risk_status(status: str) -> bool:
+    """Return whether a risk-table status represents a non-terminal finding."""
+    normalized = re.split(r"[\s—:-]", status.strip().upper(), maxsplit=1)[0]
+    return normalized in _LEGACY_ACTIVE_RISK_STATUSES or (
+        normalized in FINDING_STATES and normalized not in _TERMINAL_FINDING_STATES
+    )
+
 
 def _bound_to_from_closeout(run_dir: Path) -> Optional[Dict[str, Any]]:
     closeout = find_closeout(run_dir)
@@ -183,7 +225,7 @@ def _bound_to_from_closeout(run_dir: Path) -> Optional[Dict[str, Any]]:
 
 
 def verify_bound_subject(run_dir: Path, expected_commit: str) -> Tuple[bool, str]:
-    """Check the existing ``certification.bound_to`` run/SHA contract."""
+    """Resolve an existing historical ``certification.bound_to`` run/SHA."""
     expected = expected_commit.strip().lower()
     if not _FULL_COMMIT_RE.fullmatch(expected):
         return False, "expected commit must be a full 40-character Git SHA"
@@ -224,3 +266,33 @@ def verify_bound_subject(run_dir: Path, expected_commit: str) -> Tuple[bool, str
     if exists.returncode != 0:
         return False, f"expected commit '{expected}' is not a Git commit object"
     return True, f"run_id={bound_run}, commit={bound_commit}"
+
+
+def verify_certification_subject(
+    run_dir: Path, expected_commit: str
+) -> Tuple[bool, str]:
+    """Certify only when metadata, expected commit and checked-out HEAD agree."""
+    bound_ok, bound_reason = verify_bound_subject(run_dir, expected_commit)
+    if not bound_ok:
+        return False, bound_reason
+    expected = expected_commit.strip().lower()
+    try:
+        head = subprocess.run(
+            ["git", "-C", str(run_dir), "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return False, "checked-out HEAD could not be verified"
+    if head.returncode != 0:
+        return False, "checked-out HEAD could not be verified"
+    evaluated_head = head.stdout.strip().lower()
+    if evaluated_head != expected:
+        return (
+            False,
+            f"checked-out HEAD '{evaluated_head}' does not match expected commit "
+            f"'{expected}'",
+        )
+    return True, f"{bound_reason}, HEAD={evaluated_head}"

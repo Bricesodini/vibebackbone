@@ -130,3 +130,26 @@ checkpoint_handoff:
 - [x] Son identité mécanique a été comparée à celle de l'implémenteur.
 - [x] La non-indépendance a été déclarée au lieu d'accorder un PASS.
 - [x] Aucun échec n'a été transformé en exception documentaire.
+
+## Independent counter-review of checkpoint b8d2209
+
+```yaml
+reviewer_identity:
+  agent: "/root/run1_a2_distinct"
+  llm: "gpt-5.6-terra"
+  provider: "openai"
+  system_prompt_version: "run1-a2-distinct-dedicated-a2-task-prompt-fork-none-2026-07-29"
+  session: "run1_a2_distinct"
+  distinct_from_defender: true
+verdict: "FAIL_A2"
+checkpoint: "b8d2209aab0a4ae68bccd1a284d03b1f093733f5"
+findings:
+  - "RUN1-A2-CR-01"
+  - "RUN1-A2-CR-02"
+  - "RUN1-A2-CR-03"
+```
+
+The previous checkpoint is `REJECTED_BY_A2`, preserved in Git history and never
+retargeted. The three findings are technically remediated in a new candidate
+tree, but their `passes_after` evidence has not yet been witnessed by a new
+independent A2 actor. Current certification remains `PENDING_A2`.
