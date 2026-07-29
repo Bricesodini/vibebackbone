@@ -17,10 +17,17 @@ evidence reconstructible? — the tool does not guess: it reads an arbitrated
 disposition from the ledger, and blocks when none exists.
 
 Anti-laundering rule (the reason the ledger is not a backdoor):
-a ledger entry is honored **only** for runs that predate the birth of the tool
-enforcing the rule. An artifact produced when the enforcement already existed
-can never be reclassified as historical debt. That frontier is anchored on an
-immutable fact — which commit introduced the checker — not on today's date.
+a ledger entry is honored **only** inside the debt window — between the moment a
+rule starts applying and the moment enforcement becomes effective. An artifact
+produced when enforcement already existed can never be reclassified as
+historical debt. The window is bounded and immutable once the rule is
+published; it never widens toward the present.
+
+This tool is the **Scanner** of the model in
+``docs/REFERENCE/governance-compatibility-model.md``: it observes, classifies
+and writes nothing. Arbitration is human and produces the ledger; the Migration
+Engine applies ledgered decisions and is not implemented. No component may
+observe, judge and modify at once (invariant I7).
 
 Stdlib only, per repository convention.
 """
@@ -59,30 +66,47 @@ HISTORICAL_NONCOMPLIANCE = "HISTORICAL_NONCOMPLIANCE"
 CURRENT_NONCOMPLIANCE = "CURRENT_NONCOMPLIANCE"
 OVERCLAIM = "OVERCLAIM"
 UNKNOWN = "UNKNOWN"
-OUT_OF_SCOPE = "OUT_OF_SCOPE"
+
+# The artifact that would carry the evidence does not exist yet. Named for the
+# lifecycle, not for a scope: a run in progress is not outside the population,
+# it has not reached the step that produces its proof.
+#
+# The strict limit is what keeps the category honest (model §4.1): it applies
+# only when the evidence-bearing artifact is *absent*. A closed run that fails
+# because it is waiting for an independent review is CURRENT_NONCOMPLIANCE —
+# the proof exists and is insufficient. Without that limit, every failing run
+# declares itself "awaiting a later step" and the category becomes a
+# self-issued exemption, the same laundering vector as the ledger.
+PENDING_LIFECYCLE = "PENDING_LIFECYCLE"
 
 BLOCKING = {CURRENT_NONCOMPLIANCE, OVERCLAIM, UNKNOWN}
 LEDGERABLE = {HISTORICAL_VALID, MIGRATION_AVAILABLE, HISTORICAL_NONCOMPLIANCE}
 
-# ── Rule set: adversarial assurance 1.1 ─────────────────────────────────────
-# `cutoff` — when the rule started applying (ADVERSARIAL_ASSURANCE_GOVERNANCE
-# §10, cutoff_run_key 2026-07-28_1400).
-# `enforcement_birth` — the run whose commit introduced the checker
-# (921a780c "feat(adversarial): bootstrap assurance governance v1.1", produced
-# by run 2026-07-28_2000_m2-bis). Runs at or before it could not self-apply:
-# they wrote the instrument that judges them. Runs after it could.
+# ── Rule declaration: adversarial assurance 1.1 ─────────────────────────────
+# A normative frontier is *declared by the canon*, never derived from a
+# technical artifact (model §3.3, invariant I8). Both bounds below are run
+# identities read from the canon; the commit is evidence of implementation and
+# carries no normative weight.
 #
-# Both bounds are expressed as run identities on purpose. Mixing a git
-# timestamp with a run identity would cross two clocks, and the repo has a
-# known drift between them (finding F8) — a comparison across them would be
-# arbitrary in exactly the way this tool exists to prevent.
+# Two bounds, never one — the distinction the canon was missing:
+#
+#   applies_from                enforcement_effective_from
+#        │                                │
+#   ─────┼────────────────────────────────┼────────────►
+#        │      DEBT WINDOW               │  DEFECT ZONE
+#        │  obligation exists,            │  obligation exists
+#        │  verification impossible       │  AND verifiable
+#
+# An artifact may receive a debt disposition only inside the debt window. The
+# window is bounded and immutable once the rule is published: it never widens,
+# so an artifact produced today can never enter it.
 
-ADVERSARIAL_CUTOFF = datetime(2026, 7, 28, 14, 0)
-ADVERSARIAL_ENFORCEMENT_BIRTH = datetime(2026, 7, 28, 20, 0)
-ENFORCEMENT_BIRTH_PROVENANCE = (
-    "git 921a780ccf8299bc37099b377ce4e7d0d8ba2561 "
-    "'feat(adversarial): bootstrap assurance governance v1.1' "
-    "-> run 2026-07-28_2000_m2-bis-adversarial-loop-bootstrap-deployment"
+ADVERSARIAL_APPLIES_FROM = datetime(2026, 7, 28, 14, 0)
+ADVERSARIAL_ENFORCEMENT_EFFECTIVE_FROM = datetime(2026, 7, 28, 20, 0)
+ENFORCEMENT_EVIDENCE = (
+    "commit 921a780ccf8299bc37099b377ce4e7d0d8ba2561 "
+    "'feat(adversarial): bootstrap assurance governance v1.1' — evidence of "
+    "implementation, not the definition of the frontier"
 )
 
 # A positive claim is what makes an artifact dangerous rather than merely
@@ -149,11 +173,11 @@ def classify_run(run_dir: Path, ledger: Dict[str, str]) -> Classification:
     if identity is None:
         return Classification(run_id, UNKNOWN, "run identity is not parsable", None)
 
-    if identity < ADVERSARIAL_CUTOFF:
+    if identity < ADVERSARIAL_APPLIES_FROM:
         return Classification(
             run_id,
             HISTORICAL_VALID,
-            "predates the adversarial 1.1 cutoff (2026-07-28_1400)",
+            "predates applies_from for adversarial 1.1 (2026-07-28_1400)",
             None,
         )
 
@@ -161,8 +185,8 @@ def classify_run(run_dir: Path, ledger: Dict[str, str]) -> Classification:
     if closeout is None:
         return Classification(
             run_id,
-            OUT_OF_SCOPE,
-            "run is still open (no closeout artifact)",
+            PENDING_LIFECYCLE,
+            "no closeout artifact yet: the evidence-bearing artifact does not exist",
             None,
         )
 
@@ -184,13 +208,13 @@ def classify_run(run_dir: Path, ledger: Dict[str, str]) -> Classification:
             gate_exit,
         )
 
-    if identity > ADVERSARIAL_ENFORCEMENT_BIRTH:
+    if identity > ADVERSARIAL_ENFORCEMENT_EFFECTIVE_FROM:
         # The checker already existed when this run closed. Whatever the reason
         # for the failure, it is a defect of now, repairable now — never debt.
         return Classification(
             run_id,
             CURRENT_NONCOMPLIANCE,
-            "postdates enforcement birth: the checker existed when this run closed",
+            "outside the debt window: enforcement was already effective when this run closed",
             gate_exit,
         )
 
@@ -206,7 +230,7 @@ def classify_run(run_dir: Path, ledger: Dict[str, str]) -> Classification:
     return Classification(
         run_id,
         UNKNOWN,
-        "predates enforcement birth and carries no arbitrated disposition",
+        "inside the debt window with no arbitrated disposition in the ledger",
         gate_exit,
     )
 
@@ -225,15 +249,17 @@ def build_act(results: List[Classification]) -> dict:
         counts[item.category] = counts.get(item.category, 0) + 1
 
     applicable = [
-        r for r in results if r.category not in (HISTORICAL_VALID, OUT_OF_SCOPE)
+        r for r in results if r.category not in (HISTORICAL_VALID, PENDING_LIFECYCLE)
     ]
     blocking = [r for r in results if r.category in BLOCKING]
 
     return {
         "rule_set": "adversarial-assurance-1.1",
-        "cutoff": ADVERSARIAL_CUTOFF.strftime("%Y-%m-%d_%H%M"),
-        "enforcement_birth": ADVERSARIAL_ENFORCEMENT_BIRTH.strftime("%Y-%m-%d_%H%M"),
-        "enforcement_birth_provenance": ENFORCEMENT_BIRTH_PROVENANCE,
+        "applies_from": ADVERSARIAL_APPLIES_FROM.strftime("%Y-%m-%d_%H%M"),
+        "enforcement_effective_from": ADVERSARIAL_ENFORCEMENT_EFFECTIVE_FROM.strftime(
+            "%Y-%m-%d_%H%M"
+        ),
+        "enforcement_evidence": ENFORCEMENT_EVIDENCE,
         "population_total": len(results),
         "population_applicable": len(applicable),
         "counts": counts,
@@ -275,11 +301,11 @@ def main() -> int:
     else:
         print("=== Governance Compatibility Act ===")
         print(f"rule set          : {act['rule_set']}")
-        print(f"cutoff            : {act['cutoff']}")
-        print(f"enforcement birth : {act['enforcement_birth']}")
+        print(f"applies from      : {act['applies_from']}")
+        print(f"enforced from     : {act['enforcement_effective_from']}")
         print()
         for item in results:
-            if item.category in (HISTORICAL_VALID, OUT_OF_SCOPE):
+            if item.category in (HISTORICAL_VALID, PENDING_LIFECYCLE):
                 continue
             mark = "BLOCK" if item.category in BLOCKING else "  ok "
             print(f"  [{mark}] {item.category:<26} {item.run_id}")
