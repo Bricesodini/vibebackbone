@@ -93,6 +93,15 @@ Lifecycle, entry format, quarantine and promotion are owned by
 - **Added**: 2026-07-29
 - **State**: ACTIVE
 
+## CORPUS-RUN1-A2-CR-04
+
+- **Origin**: `docs/runs/2026-07-29_1941_run1-exact-release-measurement/findings/FIND-RUN1-A2-CR-04.md`
+- **Severity**: S0
+- **Oracle**: an explicitly supplied empty or whitespace expected commit is
+  rejected; it cannot disable loop-closure certification.
+- **Added**: 2026-07-29
+- **State**: ACTIVE
+
 ## Provenance
 
 The three entries above were created on 2026-07-29 to bring the repository into

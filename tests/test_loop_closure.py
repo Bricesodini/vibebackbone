@@ -266,6 +266,70 @@ def test_expected_commit_requires_explicit_run():
         assert "explicit run" in proc.stdout + proc.stderr
 
 
+def test_expected_commit_empty_is_invalid_and_fail_closed():
+    """An explicitly supplied empty SHA must never disable certification."""
+    with tempfile.TemporaryDirectory() as tmp:
+        proc = subprocess.run(
+            [
+                sys.executable,
+                str(TOOL),
+                "2026-07-29_1941_run1-exact-release-measurement",
+                "--runs-dir",
+                tmp,
+                "--expected-commit",
+                "",
+                "--strict",
+                "--json",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        assert proc.returncode != 0
+        assert '"exit_intent": "FAIL"' in proc.stdout
+        assert '"reason": "invalid_or_empty_expected_commit"' in proc.stdout
+
+
+def test_expected_commit_invalid_variants_fail_closed():
+    for value in ("   ", "abc", "g" * 40):
+        with tempfile.TemporaryDirectory() as tmp:
+            proc = subprocess.run(
+                [
+                    sys.executable,
+                    str(TOOL),
+                    "2026-07-29_1941_run1-exact-release-measurement",
+                    "--runs-dir",
+                    tmp,
+                    "--expected-commit",
+                    value,
+                    "--strict",
+                    "--json",
+                ],
+                capture_output=True,
+                text=True,
+            )
+            assert proc.returncode != 0
+            assert "invalid_or_empty_expected_commit" in proc.stdout
+
+    # A full-hex SHA reaches Git object validation and must still fail closed.
+    with tempfile.TemporaryDirectory() as tmp:
+        proc = subprocess.run(
+            [
+                sys.executable,
+                str(TOOL),
+                "2026-07-29_1941_run1-exact-release-measurement",
+                "--runs-dir",
+                tmp,
+                "--expected-commit",
+                "f" * 40,
+                "--strict",
+                "--json",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        assert proc.returncode != 0
+
+
 def test_audit_complete():
     with tempfile.TemporaryDirectory() as tmp:
         d = Path(tmp) / "2026-01-01_1000_audit"

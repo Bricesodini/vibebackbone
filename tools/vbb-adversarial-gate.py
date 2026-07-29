@@ -1345,7 +1345,15 @@ def main(argv: Optional[List[str]] = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    if args.expected_commit and (args.latest or args.run_dir is None):
+    if args.expected_commit is not None:
+        valid_expected, expected_reason, _ = _run_resolution.validate_expected_commit(
+            args.expected_commit
+        )
+        if not valid_expected:
+            sys.stderr.write(f"ERROR: {expected_reason}\n")
+            return 2 if args.strict else 1
+
+    if args.expected_commit is not None and (args.latest or args.run_dir is None):
         sys.stderr.write(
             "ERROR: --expected-commit requires an explicit run and cannot use --latest\n"
         )

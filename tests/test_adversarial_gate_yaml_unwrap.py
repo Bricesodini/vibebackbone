@@ -83,6 +83,25 @@ def _fails(text: str) -> set[str]:
     )
 
 
+def test_expected_commit_empty_is_rejected_before_run_selection(tmp_path: Path):
+    proc = subprocess.run(
+        [
+            "python",
+            "tools/vbb-adversarial-gate.py",
+            str(tmp_path),
+            "--expected-commit",
+            "",
+            "--strict",
+            "--json",
+        ],
+        cwd=str(REPO),
+        capture_output=True,
+        text=True,
+    )
+    assert proc.returncode != 0
+    assert "invalid_or_empty_expected_commit" in proc.stdout + proc.stderr
+
+
 # A. Nested block (v1.1 canonical) — must PASS structural gates
 def test_adversarial_gate_parses_nested_adversarial_block(tmp_path: Path):
     """vbb-adversarial-gate.py must extract fields from a YAML block whose first

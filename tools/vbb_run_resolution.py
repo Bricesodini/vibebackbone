@@ -45,6 +45,7 @@ __all__ = [
     "resolve_explicit_run",
     "FINDING_STATES",
     "is_active_risk_status",
+    "validate_expected_commit",
     "verify_bound_subject",
     "verify_certification_subject",
 ]
@@ -157,6 +158,24 @@ def resolve_explicit_run(runs_dir: Path, raw: Path) -> Optional[Path]:
 _YAML_FENCE_RE = re.compile(r"```(?:ya?ml)\s*\n(.*?)```", re.DOTALL)
 _FULL_COMMIT_RE = re.compile(r"^[0-9a-f]{40}$", re.IGNORECASE)
 
+
+def validate_expected_commit(
+    expected_commit: Optional[str],
+) -> Tuple[bool, str, Optional[str]]:
+    """Validate an explicitly supplied certification SHA.
+
+    ``None`` means the option was omitted and is therefore not a certification
+    request.  Any supplied value, including the empty string, must be a full
+    hexadecimal commit SHA; callers must not use truthiness for this decision.
+    """
+    if expected_commit is None:
+        return True, "expected commit option absent", None
+    normalized = expected_commit.strip().lower()
+    if not _FULL_COMMIT_RE.fullmatch(normalized):
+        return False, "invalid_or_empty_expected_commit", None
+    return True, "valid expected commit", normalized
+
+
 # Canonical lifecycle from ADVERSARIAL_ASSURANCE_GOVERNANCE.md §2. Consumers
 # import it here instead of maintaining partial local state lists.
 FINDING_STATES = frozenset(
@@ -226,8 +245,8 @@ def _bound_to_from_closeout(run_dir: Path) -> Optional[Dict[str, Any]]:
 
 def verify_bound_subject(run_dir: Path, expected_commit: str) -> Tuple[bool, str]:
     """Resolve an existing historical ``certification.bound_to`` run/SHA."""
-    expected = expected_commit.strip().lower()
-    if not _FULL_COMMIT_RE.fullmatch(expected):
+    valid, _reason, expected = validate_expected_commit(expected_commit)
+    if not valid or expected is None:
         return False, "expected commit must be a full 40-character Git SHA"
     bound_to = _bound_to_from_closeout(run_dir)
     if bound_to is None:

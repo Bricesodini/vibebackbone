@@ -1509,7 +1509,33 @@ def main() -> int:
     explicit_run = args.run_id or args.run_id_flag or os.environ.get("VBB_RUN_ID")
     run_id = explicit_run
 
-    if args.expected_commit and not explicit_run:
+    if args.expected_commit is not None:
+        valid_expected, expected_reason, _ = _run_resolution.validate_expected_commit(
+            args.expected_commit
+        )
+        if not valid_expected:
+            msg = f"GATE FAILED: {expected_reason}"
+            if args.json_output:
+                import json as _json
+
+                print(
+                    _json.dumps(
+                        {
+                            "exit_intent": "FAIL",
+                            "run_id": explicit_run,
+                            "voie": None,
+                            "reason": expected_reason,
+                            "errors": [msg],
+                            "report": [],
+                        },
+                        indent=2,
+                    )
+                )
+            else:
+                print(msg, file=sys.stderr)
+            return 2 if args.strict else 1
+
+    if args.expected_commit is not None and not explicit_run:
         msg = (
             "GATE FAILED: --expected-commit requires an explicit run via "
             "positional run_id, --run-id, or VBB_RUN_ID."
@@ -1599,7 +1625,7 @@ def main() -> int:
         return 1  # retrocompatible exit for "no run_id" in default mode
 
     bound_subject_evidence: Optional[str] = None
-    if args.expected_commit:
+    if args.expected_commit is not None:
         resolved = _run_resolution.resolve_explicit_run(base, Path(str(run_id)))
         if resolved is None:
             msg = f"GATE FAILED: cannot resolve explicit run '{run_id}'"

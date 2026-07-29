@@ -38,6 +38,14 @@ ce candidat ne peut être certifié ni intégré avant une nouvelle contre-revue
 A2 indépendante. Un commit checkpoint de préservation est autorisé sans
 conférer d'autorisation de merge.
 
+Le checkpoint fonctionnel `7ccbb6202219b2ec151b77ac57f3d68134d2cadd` a ensuite
+été rejeté par la contre-revue A2 pour `RUN1-A2-CR-04` : une valeur vide
+explicitement fournie à `--expected-commit` désactivait le contrôle loop
+closure. Cette remédiation est documentée dans
+`findings/FIND-RUN1-A2-CR-04.md`; le nouveau checkpoint reste
+`NOT_CERTIFIED`, `NOT_AUTHORIZED_FOR_MERGE` et `RUN_2_NOT_AUTHORIZED` jusqu'à
+une nouvelle revue indépendante.
+
 ## Résultat
 
 CR-01, CR-02 et CR-03 sont couverts par trois locks fails-before/passes-after.
