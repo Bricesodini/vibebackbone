@@ -3,6 +3,7 @@
 **Version**: `1.1.0-rc.1`
 **Candidate subject**: technical metadata commit; exact SHA is recorded in
 the isolated run evidence carrier after commit
+**CANDIDATE_SHA**: `58e51eeebfd057a359eb78393ce16d6df4a05cf3`
 **Future annotated tag**: `v1.1.0-rc.1`
 **Status**: Candidate preparation — independent revalidation pending
 
