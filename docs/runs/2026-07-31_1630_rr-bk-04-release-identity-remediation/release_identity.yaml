@@ -29,8 +29,9 @@ release_identity:
   subject_evidence_boundary:
     technical_subject_commit: "58e51eeebfd057a359eb78393ce16d6df4a05cf3"
     evidence_carrier_commits:
-      - "882c9b1"
-      - "45d271b"
-      - "ced44c5"
-      - "03b2f40"
+      - "882c9b1c3dd2141c06d72e2308f65439a41500b2"
+      - "45d271b3ce3d4f442f3fc334ccc576320b9d527d"
+      - "ced44c5b773773dad286568296caec7a155047f2"
+      - "03b2f404e5e62d3c824f336c5061731aeaa62cbc"
+      - "1529eb3a7b3f0c0c00a7f0d301e37158d1898fd5"
     note: "Evidence carriers are not S and are not P; their full content references S after S exists."
