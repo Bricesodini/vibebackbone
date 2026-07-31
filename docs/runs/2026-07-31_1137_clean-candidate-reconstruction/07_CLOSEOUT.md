@@ -118,6 +118,8 @@ ASSURANCE_STATUS:
 adversarial:
   certification:
     status: "NOT_CERTIFIED"
+    run_id: "2026-07-31_1137_clean-candidate-reconstruction"
+    candidate_id: "clean-pre-candidate-2026-07-31"
   level: "A2"
   campaign_ref: "2026-07-31_1137_clean-candidate-reconstruction"
   corpus_version: "v1.2.0"
