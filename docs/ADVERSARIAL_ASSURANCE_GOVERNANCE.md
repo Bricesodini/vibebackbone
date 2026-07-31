@@ -3,7 +3,7 @@ load_policy: reference
 context_role: adversarial-assurance-domain
 phase: transverse
 status: active
-version: "1.0"
+version: "1.2"
 adr: "0051"
 canonical: true
 referenced_by:
@@ -14,6 +14,30 @@ referenced_by:
 ---
 
 # Adversarial Assurance Governance
+
+## Versioned A2/A3 clarification (v1.2)
+
+This clarification is adopted by ADR 0053 and applies only to runs that
+declare `adversarial_governance_version: "1.2"` (or the explicitly marked
+`1.2-proposed` transition profile). Runs governed by v1.1 retain their
+original meaning and are never reinterpreted retroactively.
+
+- `A1` is bounded internal self-adversarial review.
+- `A2` is adversarial review with verifiable operational isolation. At
+  minimum the run records a distinct session, fresh context, explicit
+  adversarial role, non-exposure of defender conclusions, preserved inputs,
+  preserved raw transcript, independently produced findings, declared scope,
+  and observed runtime identity.
+- `A3` is strengthened external independence. It requires the A2 isolation
+  evidence plus an independently controlled actor/environment and evidence
+  that the producer has no control over the review. Human, organization,
+  provider, model, and environment are transparency metadata unless the A3
+  profile explicitly makes one a blocking criterion.
+
+Model and provider identity are therefore disclosure metadata for A2. They do
+not substitute for operational isolation and do not make an A2 run an A3 run.
+Missing isolation evidence fails closed. Historical v1.1 verdicts remain true
+under v1.1; a new run may explicitly re-evaluate them under v1.2.
 
 This document is the **single authority** for the adversarial assurance
 *domain*: the three criticality levels, the four declared statuses, the
@@ -60,7 +84,8 @@ defaults to `A1` (fail-closed).
 |---|---|---|---|---|---|
 | `A0` | none (declared with reason) | yes, always | n/a | no | n/a |
 | `A1` | bounded — changed surface + immediate blast radius | yes | disclosed self-adversarial permitted, pre-registered attack list mandatory | no | required iff any finding is confirmed |
-| `A2` | full declared attack-surface classes | yes | **distinct actor** (see §3) | **mandatory** | **mandatory, distinct actor** |
+| `A2` | full declared attack-surface classes plus v1.2 operational-isolation evidence | yes | **operational isolation** (v1.2; v1.1 historical profile remains distinct-actor) | **mandatory** | **mandatory** |
+| `A3` | A2 plus strengthened external independence | yes | **independent external actor/environment** | **mandatory** | **mandatory, external independence** |
 
 ### §1.1 — `A0` exclusion rule
 
@@ -199,7 +224,12 @@ a human approves, rejects, narrows or defers").
 5. **Detection mode is recorded.** It is the mechanical basis for
    distinguishing exploration from regression.
 
-## §3 — `A2` — Solo Repository Contract (`A2_DISTINCT_AGENT_PROXY`)
+## §3 — v1.1 compatibility profile — `A2_DISTINCT_AGENT_PROXY`
+
+The following profile remains normative for v1.1 runs and historical evidence.
+For v1.2 runs, the versioned clarification at the top of this document is
+the applicable A2 rule; the proxy remains a transparency and external-review
+mechanism, not an A3 claim.
 
 When `A2` is required but no genuinely distinct human actor is available
 (solo-maintained repositories), `A2_DISTINCT_AGENT_PROXY` is permitted.

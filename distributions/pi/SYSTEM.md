@@ -86,15 +86,16 @@ cutoff `2026-07-28_1400`) require:
   and §4.3.
 - **7 fail-closed rules** apply to level determination; escalation
   is mandatory in the more prudent direction.
-- **A2_DISTINCT_AGENT_PROXY** when no genuinely distinct human actor
-  is available. The proxy publishes three identity disclosures
-  (`{agent, llm, system_prompt_version}`) and respects quarterly
-  external review (≤ 90 days).
+- **A2** requires verifiable operational isolation; model/provider are
+  transparency metadata. **A3** adds strengthened external independence.
+  When no genuinely distinct human actor is available, A2 proxy mode
+  publishes the three identity disclosures and respects quarterly external
+  review (≤ 90 days). See the versioned v1.2 authority.
 - **PRE_CERTIFICATION / MIGRATION** are valid `certification_status`
   values post-cutoff (introduced by REM-01, ratified 2026-07-28).
 - **adversarial validator** (`tools/vbb-adversarial-gate.py`) is now
   part of the canonical toolset. It validates the adversarial block
-  in `07_CLOSEOUT.md` against the schema 1.1 contract.
+  in `07_CLOSEOUT.md` against the versioned v1.1/v1.2 contract.
 
 When the task involves governance canon, auth, secrets, data integrity,
 published contracts, money, concurrency, deployment, or canon-gating

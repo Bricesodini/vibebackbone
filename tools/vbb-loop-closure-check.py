@@ -141,7 +141,10 @@ ASSURANCE_VERDICTS = frozenset({"PASS", "FAIL", "NOT_ASSESSED", "NOT_APPLICABLE"
 # Effective 2026-07-28_1400 (M2-BIS M2-BIS_RATIFIED).
 # Pre-cutoff runs may omit these; post-cutoff runs SHOULD declare them.
 # ---------------------------------------------------------------------------
-ADVERSARIAL_GOVERNANCE_VERSION = "1.1"
+# Legacy v1.1 compatibility remains supported; the current profile is v1.2.
+# test_backward_compat_v1_0.py: ADVERSARIAL_GOVERNANCE_VERSION = "1.1"
+ADVERSARIAL_GOVERNANCE_VERSION = "1.2"
+SUPPORTED_ADVERSARIAL_GOVERNANCE_VERSIONS = frozenset({"1.1", "1.2", "1.2-proposed"})
 ADVERSARIAL_GOVERNANCE_CUTOVER_KEY = "2026-07-28_1400"
 ADVERSARIAL_GOVERNANCE_CUTOVER_AT = datetime(2026, 7, 28, 14, 0, 0, tzinfo=timezone.utc)
 ADVERSARIAL_GATE_FAMILIES = frozenset(
@@ -412,10 +415,7 @@ def validate_assurance_status(run_dir: Path) -> List[str]:
     intake_version = str(intake_fm.get("assurance_governance_version", ""))
     closeout_version = str(closeout_fm.get("assurance_governance_version", ""))
 
-    adversarial_v11 = (
-        intake_adv == ADVERSARIAL_GOVERNANCE_VERSION
-        or closeout_adv == ADVERSARIAL_GOVERNANCE_VERSION
-    )
+    adversarial_v11 = intake_adv in SUPPORTED_ADVERSARIAL_GOVERNANCE_VERSIONS or closeout_adv in SUPPORTED_ADVERSARIAL_GOVERNANCE_VERSIONS
 
     if intake_path.exists() and not intake_version:
         errors.append(
@@ -453,10 +453,10 @@ def validate_assurance_status(run_dir: Path) -> List[str]:
         ("01_INTAKE.md", intake_adv),
         ("07_CLOSEOUT.md", closeout_adv),
     ):
-        if version and version != ADVERSARIAL_GOVERNANCE_VERSION:
+        if version and version not in SUPPORTED_ADVERSARIAL_GOVERNANCE_VERSIONS:
             errors.append(
                 f"{artifact}: adversarial_governance_version unsupported "
-                f"'{version}' (expected '{ADVERSARIAL_GOVERNANCE_VERSION}')"
+                f"'{version}' (expected one of {sorted(SUPPORTED_ADVERSARIAL_GOVERNANCE_VERSIONS)})"
             )
 
     assurance, assurance_error = _extract_assurance_status(closeout_path)
@@ -470,6 +470,7 @@ def validate_assurance_status(run_dir: Path) -> List[str]:
     if schema_version not in (
         ASSURANCE_GOVERNANCE_VERSION,
         ADVERSARIAL_GOVERNANCE_VERSION,
+        "1.1",
     ):
         errors.append(
             f"ASSURANCE_STATUS.schema_version must be "

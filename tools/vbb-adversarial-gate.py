@@ -50,11 +50,12 @@ except ImportError:  # pragma: no cover
 # Constants — ADR 0051 + ADVERSARIAL_ASSURANCE_GOVERNANCE.md
 # ---------------------------------------------------------------------------
 
-ADVERSARIAL_GOVERNANCE_VERSION = "1.1"
+ADVERSARIAL_GOVERNANCE_VERSION = "1.2"
+SUPPORTED_GOVERNANCE_VERSIONS = frozenset({"1.1", "1.2", "1.2-proposed"})
 ADVERSARIAL_GOVERNANCE_CUTOVER_KEY = "2026-07-28_1400"
 ADVERSARIAL_GOVERNANCE_CUTOVER_AT = datetime(2026, 7, 28, 14, 0, 0, tzinfo=timezone.utc)
 
-LEVELS = frozenset({"A0", "A1", "A2"})
+LEVELS = frozenset({"A0", "A1", "A2", "A3"})
 SEVERITIES = frozenset({"S0", "S1", "S2", "S3"})
 CONFIDENCES = frozenset({"CONFIRMED", "PLAUSIBLE", "REFUTED"})
 FINDING_STATES = frozenset(
@@ -375,6 +376,38 @@ def _llm_family_distinct(attacker_llm: str, defender_llm: str) -> bool:
     return bool(fam_a) and bool(fam_b) and fam_a != fam_b
 
 
+def check_a2_a3_clarification(adv: dict, level: str):
+    """Enforce the versioned A2 isolation / A3 independence clarification."""
+    passes: List[GateResult] = []
+    fails: List[GateResult] = []
+    version = str(adv.get("governance_version", "1.1")).strip()
+    if version not in SUPPORTED_GOVERNANCE_VERSIONS:
+        fails.append(GateResult("adv-governance-version", "adversarial governance version supported", "FAIL", [version], [f"version must be in {sorted(SUPPORTED_GOVERNANCE_VERSIONS)}"], "S1"))
+        return passes, fails
+    if version == "1.1":
+        return passes, fails
+    if level not in {"A2", "A3"}:
+        return passes, fails
+    isolation = adv.get("operational_isolation")
+    required = {
+        "session_distinct", "fresh_context", "adversarial_role_explicit",
+        "inputs_preserved", "raw_transcript_preserved", "findings_independent",
+        "declared_scope", "runtime_identity_observed",
+    }
+    isolation_ok = isinstance(isolation, dict) and all(isolation.get(key) is True for key in required) and isolation.get("defender_conclusions_exposed") is False
+    if not isolation_ok:
+        fails.append(GateResult("adv-a2-operational-isolation", "A2 operational isolation evidence", "FAIL", [f"level={level}", f"governance_version={version}"], [f"all required isolation fields must be true: {sorted(required)}"], "S0"))
+    else:
+        passes.append(GateResult("adv-a2-operational-isolation", "A2 operational isolation evidence", "PASS", [f"governance_version={version}"], ["session, fresh context, role, evidence preservation, independence and runtime identity observed"]))
+    if level == "A3":
+        external = adv.get("external_independence")
+        if not isinstance(external, dict) or external.get("independent_actor") is not True or external.get("producer_control_absent") is not True:
+            fails.append(GateResult("adv-a3-external-independence", "A3 strengthened external independence", "FAIL", [f"governance_version={version}"], ["independent_actor and producer_control_absent must both be true"], "S0"))
+        else:
+            passes.append(GateResult("adv-a3-external-independence", "A3 strengthened external independence", "PASS", [f"independent_actor={external.get('actor_type', 'declared')}"], ["external independence evidence present"]))
+    return passes, fails
+
+
 def check_adversarial_block(
     closeout_text: str, run_id: str
 ) -> Tuple[List[GateResult], List[GateResult]]:
@@ -438,7 +471,7 @@ def check_adversarial_block(
         fails.append(
             GateResult(
                 gate_id="adv-level-valid",
-                subject="adversarial.level is one of A0/A1/A2",
+                subject="adversarial.level is one of A0/A1/A2/A3",
                 verdict="FAIL",
                 evidence=[f"observed level='{level}'"],
                 reasons=[f"level must be in {sorted(LEVELS)}"],
@@ -449,7 +482,7 @@ def check_adversarial_block(
         passes.append(
             GateResult(
                 gate_id="adv-level-valid",
-                subject="adversarial.level is one of A0/A1/A2",
+                subject="adversarial.level is one of A0/A1/A2/A3",
                 verdict="PASS",
                 evidence=[f"level='{level}'"],
                 reasons=["declared level valid"],
@@ -590,6 +623,10 @@ def check_adversarial_block(
             )
         )
 
+    p, f = check_a2_a3_clarification(adv, level)
+    passes.extend(p)
+    fails.extend(f)
+
     if not non_empty_string(adv.get("corpus_version")):
         fails.append(
             GateResult(
@@ -614,22 +651,22 @@ def check_adversarial_block(
 
     # exploration_performed
     exploration = adv.get("exploration_performed")
-    if level in ("A1", "A2") and exploration is not True:
+    if level in ("A1", "A2", "A3") and exploration is not True:
         fails.append(
             GateResult(
                 gate_id="adv-exploration-performed",
-                subject="exploration_performed: true for A1/A2",
+                subject="exploration_performed: true for A1/A2/A3",
                 verdict="FAIL",
                 evidence=[f"level={level}"],
                 reasons=["exploration_performed must be true at A1/A2"],
                 severity="S1",
             )
         )
-    elif level in ("A1", "A2") and exploration is True:
+    elif level in ("A1", "A2", "A3") and exploration is True:
         passes.append(
             GateResult(
                 gate_id="adv-exploration-performed",
-                subject="exploration_performed: true for A1/A2",
+                subject="exploration_performed: true for A1/A2/A3",
                 verdict="PASS",
                 evidence=[f"level={level}"],
                 reasons=["exploration_performed = true"],
