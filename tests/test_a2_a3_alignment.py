@@ -62,3 +62,53 @@ def test_historical_v11_profile_is_not_reinterpreted():
     historical = {"level": "A2", "governance_version": "1.1"}
     passes, fails = MODULE.check_a2_a3_clarification(historical, "A2")
     assert not passes and not fails
+
+
+def test_v12_a2_does_not_call_legacy_distinct_actor_gate(monkeypatch):
+    """v1.2 A2 must use isolation, not the superseded v1.1 actor test."""
+    body = """```yaml
+adversarial:
+  level: A2
+  governance_version: "1.2"
+  campaign_ref: test-v12
+  corpus_version: v1.2.0
+  exploration_performed: true
+  surfaces_declared:
+    - tools/vbb-adversarial-gate.py
+  surfaces_unexplored:
+    - remote external review
+  residual_uncertainty: "No A3 independence claim."
+  findings: []
+  verdict: FINDINGS_OPEN
+  attacker_identity:
+    agent: same-operational-proxy
+    llm: GPT-5
+    provider: OpenAI
+    system_prompt_version: same-runtime
+    session: isolated-v12-session
+  defender_identity:
+    agent: same-defender
+    llm: GPT-5
+    provider: OpenAI
+    system_prompt_version: same-runtime
+    session: current-session
+  operational_isolation:
+    session_distinct: true
+    fresh_context: true
+    adversarial_role_explicit: true
+    defender_conclusions_exposed: false
+    inputs_preserved: true
+    raw_transcript_preserved: true
+    findings_independent: true
+    declared_scope: true
+    runtime_identity_observed: true
+```
+"""
+
+    def legacy_gate_must_not_run(_adv):
+        raise AssertionError("v1.2 must not invoke the v1.1 distinct-actor gate")
+
+    monkeypatch.setattr(MODULE, "check_a2_distinct_identity", legacy_gate_must_not_run)
+    passes, fails = MODULE.check_adversarial_block(body, "test-v12")
+    assert any(item.gate_id == "adv-a2-operational-isolation" for item in passes)
+    assert not any(item.gate_id == "adv-a2-distinct" for item in fails)

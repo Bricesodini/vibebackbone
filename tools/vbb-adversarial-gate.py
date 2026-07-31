@@ -653,10 +653,15 @@ def check_adversarial_block(
                         )
                     )
 
-        # M3-02: defender_identity distinctness check (M1-02 contract)
-        p, f = check_a2_distinct_identity(adv)
-        passes.extend(p)
-        fails.extend(f)
+        # M3-02 is the v1.1 compatibility profile. Under v1.2, A2 is gated
+        # by operational isolation; model/provider identity is disclosure
+        # metadata and must not reintroduce the obsolete distinct-actor
+        # failure. A3 gets its stronger external-independence check below.
+        governance_version = str(adv.get("governance_version", "1.1")).strip()
+        if governance_version == "1.1":
+            p, f = check_a2_distinct_identity(adv)
+            passes.extend(p)
+            fails.extend(f)
 
     # campaign_ref and corpus_version
     if not non_empty_string(adv.get("campaign_ref")):
