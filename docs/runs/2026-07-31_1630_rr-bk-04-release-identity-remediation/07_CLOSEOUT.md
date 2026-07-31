@@ -122,5 +122,5 @@ adversarial:
     transient_reason: "Preparation only; independent revalidation is explicitly not executed."
     bootstrapped_at: "2026-07-31T14:30:00Z"
     bootstrapped_by: "codex/gpt-5"
-    last_external_review: "2026-07-31T14:30:00Z"
+    last_external_review: "2026-07-28T00:00:00Z"
 ```
