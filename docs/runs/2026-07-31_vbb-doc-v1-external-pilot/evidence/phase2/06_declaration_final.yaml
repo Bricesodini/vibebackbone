@@ -1,0 +1,22 @@
+document_convention: vbb-doc-v1
+version: "1.0"
+adoption: adopted
+scope:
+  roots:
+    - docs/DOCUMENT_CONVENTION.md
+    - docs/PRODUCT_BRIEF.md
+    - docs/ARCHITECTURE.md
+    - docs/VBB_GATE_CONTRACT_V1.md
+    - docs/POC_SYS_001_SYSTEM_HYPOTHESIS.md
+    - docs/RELATIONS.md
+  excludes:
+    - docs/benchmarks
+    - docs/model-lab
+    - docs/runs
+    - docs/audits
+    - docs/gates
+    - docs/adr
+    - docs/templates
+    - docs/engineering
+    - docs/research-formulas
+  historical_before: "2026-07-31"
