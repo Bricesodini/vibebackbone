@@ -1,0 +1,4 @@
+CANDIDATE_SHA=58e51eeebfd057a359eb78393ce16d6df4a05cf3
+verdict: PASS
+summary: passes=19 fails=0
+Note: A2 proxy preparation gate only; independent revalidation not executed.

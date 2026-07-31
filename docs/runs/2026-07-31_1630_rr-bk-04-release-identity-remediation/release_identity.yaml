@@ -1,0 +1,36 @@
+release_identity:
+  tuple: "R=(V,S,C,T,P)"
+  candidate_id: "rr-bk-04-v1.1.0-rc.1"
+  V: "1.1.0-rc.1"
+  S: "58e51eeebfd057a359eb78393ce16d6df4a05cf3"
+  C:
+    package_json:
+      path: "package.json"
+      version: "1.1.0-rc.1"
+    changelog:
+      path: "CHANGELOG.md"
+      heading: "## [1.1.0-rc.1] — 2026-07-31"
+    checklist:
+      path: "RELEASE_CHECKLIST.md"
+      version: "1.1.0-rc.1"
+      candidate_sha: "58e51eeebfd057a359eb78393ce16d6df4a05cf3"
+    coherence: "PASS"
+  T:
+    name: "v1.1.0-rc.1"
+    kind: "annotated"
+    message: "Release v1.1.0-rc.1"
+    creation_command: "git tag -a v1.1.0-rc.1 58e51eeebfd057a359eb78393ce16d6df4a05cf3 -m \"Release v1.1.0-rc.1\""
+    required_peeled_commit: "58e51eeebfd057a359eb78393ce16d6df4a05cf3"
+    created: false
+  P:
+    status: "FUTURE_CONTRACT_ONLY"
+    created: false
+    contract: "Separate post-tag evidence-carrier commit records T, tag object SHA, peeled commit, V, S, command and immutable verification output without moving T."
+  subject_evidence_boundary:
+    technical_subject_commit: "58e51eeebfd057a359eb78393ce16d6df4a05cf3"
+    evidence_carrier_commits:
+      - "882c9b1"
+      - "45d271b"
+      - "ced44c5"
+      - "03b2f40"
+    note: "Evidence carriers are not S and are not P; their full content references S after S exists."
