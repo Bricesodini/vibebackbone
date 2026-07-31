@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Deterministic vbb-doc-v1 validator with progressive-scope guidance."""
+
 from __future__ import annotations
 
 import argparse
@@ -15,8 +16,43 @@ except ImportError:  # pragma: no cover
 
 CONTRACT = "vbb-doc-v1"
 VERSION = "1.0"
-TAGS = {"documentation", "governance", "contract", "reference", "template", "review", "run", "audit", "decision", "adr", "migration", "adoption", "public", "internal", "experimental", "deprecated", "frozen", "historical", "release", "architecture", "security", "quality", "distribution"}
-TYPES = {"reference", "governance", "run_artifact", "audit_report", "decision_record", "adr", "template", "adoption", "migration_report", "historical"}
+TAGS = {
+    "documentation",
+    "governance",
+    "contract",
+    "reference",
+    "template",
+    "review",
+    "run",
+    "audit",
+    "decision",
+    "adr",
+    "migration",
+    "adoption",
+    "public",
+    "internal",
+    "experimental",
+    "deprecated",
+    "frozen",
+    "historical",
+    "release",
+    "architecture",
+    "security",
+    "quality",
+    "distribution",
+}
+TYPES = {
+    "reference",
+    "governance",
+    "run_artifact",
+    "audit_report",
+    "decision_record",
+    "adr",
+    "template",
+    "adoption",
+    "migration_report",
+    "historical",
+}
 STATUS = {
     "reference": {"active", "draft", "deprecated", "frozen"},
     "governance": {"active", "draft", "deprecated", "frozen"},
@@ -29,7 +65,15 @@ STATUS = {
     "migration_report": {"ready", "partial", "blocked", "unknown"},
     "historical": {"historical"},
 }
-REQUIRED = {"document_convention", "version", "type", "status", "visibility", "tags", "relations"}
+REQUIRED = {
+    "document_convention",
+    "version",
+    "type",
+    "status",
+    "visibility",
+    "tags",
+    "relations",
+}
 FM_RE = re.compile(r"\A---\n(.*?)\n---\n", re.S)
 
 
@@ -72,7 +116,9 @@ def load_declaration(root: Path):
     data = _yaml(path)
     errors = []
     if data.get("document_convention") != CONTRACT:
-        errors.append("version absent or unknown: document_convention must be vbb-doc-v1")
+        errors.append(
+            "version absent or unknown: document_convention must be vbb-doc-v1"
+        )
     if str(data.get("version")) != VERSION:
         errors.append(f"version absent or unknown: version must be {VERSION}")
     if data.get("adoption") != "adopted":
@@ -81,13 +127,21 @@ def load_declaration(root: Path):
     if not isinstance(scope, dict) or not _list(scope.get("roots")):
         errors.append("scope.roots must contain at least one root")
     for index, waiver in enumerate(data.get("waivers") or []):
-        if not isinstance(waiver, dict) or not waiver.get("path") or not waiver.get("reason"):
+        if (
+            not isinstance(waiver, dict)
+            or not waiver.get("path")
+            or not waiver.get("reason")
+        ):
             errors.append(f"waivers[{index}] requires path and reason")
     return data, errors
 
 
 def _waived(rel, waivers):
-    return any(fnmatch.fnmatch(rel, str(item.get("path", ""))) for item in waivers if isinstance(item, dict))
+    return any(
+        fnmatch.fnmatch(rel, str(item.get("path", "")))
+        for item in waivers
+        if isinstance(item, dict)
+    )
 
 
 def paths(root: Path, declaration: dict):
@@ -97,10 +151,18 @@ def paths(root: Path, declaration: dict):
     result = []
     for item in _list(scope.get("roots")):
         candidate = root / item
-        found = [candidate] if candidate.is_file() else sorted(candidate.rglob("*.md")) if candidate.is_dir() else []
+        found = (
+            [candidate]
+            if candidate.is_file()
+            else sorted(candidate.rglob("*.md"))
+            if candidate.is_dir()
+            else []
+        )
         for path in found:
             rel = path.relative_to(root).as_posix()
-            if not any(fnmatch.fnmatch(rel, pattern) for pattern in excludes) and not _waived(rel, waivers):
+            if not any(
+                fnmatch.fnmatch(rel, pattern) for pattern in excludes
+            ) and not _waived(rel, waivers):
                 result.append(path)
     return sorted(set(result))
 
@@ -118,7 +180,10 @@ def validate(root: Path):
         if fm is None:
             errors.append(f"{rel}: metadata/frontmatter missing")
             continue
-        errors.extend(f"{rel}: metadata mandatory field absent: {key}" for key in sorted(REQUIRED - fm.keys()))
+        errors.extend(
+            f"{rel}: metadata mandatory field absent: {key}"
+            for key in sorted(REQUIRED - fm.keys())
+        )
         if fm.get("document_convention") != CONTRACT:
             errors.append(f"{rel}: version absent or unknown")
         if str(fm.get("version")) != VERSION:
@@ -139,17 +204,30 @@ def validate(root: Path):
         extensions = [extensions] if isinstance(extensions, str) else extensions
         for extension in extensions or []:
             if not str(extension).startswith("project:status:"):
-                errors.append(f"{rel}: invalid status extension {extension!r}; use project:status:<value>")
+                errors.append(
+                    f"{rel}: invalid status extension {extension!r}; use project:status:<value>"
+                )
         relations = fm.get("relations") if isinstance(fm.get("relations"), list) else []
-        if typ == "adoption" and not any("DOCUMENT_CONVENTION.md" in str(item) for item in relations):
+        if typ == "adoption" and not any(
+            "DOCUMENT_CONVENTION.md" in str(item) for item in relations
+        ):
             errors.append(f"{rel}: required relation to DOCUMENT_CONVENTION.md missing")
-        if typ in {"adr", "decision_record", "audit_report", "migration_report"} and not relations:
+        if (
+            typ in {"adr", "decision_record", "audit_report", "migration_report"}
+            and not relations
+        ):
             errors.append(f"{rel}: required evidence relation missing")
         if typ == "run_artifact" and not fm.get("run_id"):
             errors.append(f"{rel}: run_id missing")
-        if typ == "audit_report" and not all(fm.get(key) for key in ("run_id", "route", "subject", "verdict")):
+        if typ == "audit_report" and not all(
+            fm.get(key) for key in ("run_id", "route", "subject", "verdict")
+        ):
             errors.append(f"{rel}: audit report metadata incomplete")
-        if typ == "template" and "_TEMPLATE.md" in path.name and fm.get("status") != "deprecated":
+        if (
+            typ == "template"
+            and "_TEMPLATE.md" in path.name
+            and fm.get("status") != "deprecated"
+        ):
             errors.append(f"{rel}: legacy template used as current template")
         if fm.get("status") == "historical" and typ != "historical":
             errors.append(f"{rel}: active document classified as historical")
@@ -169,16 +247,26 @@ def suggest_scope(root: Path):
         rel = path.relative_to(root).as_posix()
         if rel in adopted or any(fnmatch.fnmatch(rel, pattern) for pattern in excludes):
             continue
-        print(f"- {rel}: {'candidate' if _frontmatter(path) else 'missing frontmatter'}")
+        print(
+            f"- {rel}: {'candidate' if _frontmatter(path) else 'missing frontmatter'}"
+        )
     return []
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Check an adopted repository against vbb-doc-v1.")
+    parser = argparse.ArgumentParser(
+        description="Check an adopted repository against vbb-doc-v1."
+    )
     parser.add_argument("root", nargs="?", default=".")
-    parser.add_argument("--suggest-scope", action="store_true", help="list docs outside declared scope")
+    parser.add_argument(
+        "--suggest-scope", action="store_true", help="list docs outside declared scope"
+    )
     args = parser.parse_args()
-    errors = suggest_scope(Path(args.root).resolve()) if args.suggest_scope else validate(Path(args.root).resolve())
+    errors = (
+        suggest_scope(Path(args.root).resolve())
+        if args.suggest_scope
+        else validate(Path(args.root).resolve())
+    )
     if errors:
         print("VBB-DOC-V1: FAIL")
         for error in errors:

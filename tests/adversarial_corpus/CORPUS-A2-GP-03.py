@@ -10,5 +10,8 @@ from pathlib import Path
 
 
 def test_a2_gp_03_identity_and_state_are_preserved():
-    text = (Path(__file__).parents[2] / "docs/runs/2026-07-31_1137_clean-candidate-reconstruction/evidence/RR-BK-05_HISTORICAL_FINDINGS.md").read_text()
+    text = (
+        Path(__file__).parents[2]
+        / "docs/runs/2026-07-31_1137_clean-candidate-reconstruction/evidence/RR-BK-05_HISTORICAL_FINDINGS.md"
+    ).read_text()
     assert "| A2-GP-03 | A2 | S1 | CONFIRMED | CLASSIFIED |" in text

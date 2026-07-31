@@ -382,7 +382,16 @@ def check_a2_a3_clarification(adv: dict, level: str):
     fails: List[GateResult] = []
     version = str(adv.get("governance_version", "1.1")).strip()
     if version not in SUPPORTED_GOVERNANCE_VERSIONS:
-        fails.append(GateResult("adv-governance-version", "adversarial governance version supported", "FAIL", [version], [f"version must be in {sorted(SUPPORTED_GOVERNANCE_VERSIONS)}"], "S1"))
+        fails.append(
+            GateResult(
+                "adv-governance-version",
+                "adversarial governance version supported",
+                "FAIL",
+                [version],
+                [f"version must be in {sorted(SUPPORTED_GOVERNANCE_VERSIONS)}"],
+                "S1",
+            )
+        )
         return passes, fails
     if version == "1.1":
         return passes, fails
@@ -390,21 +399,70 @@ def check_a2_a3_clarification(adv: dict, level: str):
         return passes, fails
     isolation = adv.get("operational_isolation")
     required = {
-        "session_distinct", "fresh_context", "adversarial_role_explicit",
-        "inputs_preserved", "raw_transcript_preserved", "findings_independent",
-        "declared_scope", "runtime_identity_observed",
+        "session_distinct",
+        "fresh_context",
+        "adversarial_role_explicit",
+        "inputs_preserved",
+        "raw_transcript_preserved",
+        "findings_independent",
+        "declared_scope",
+        "runtime_identity_observed",
     }
-    isolation_ok = isinstance(isolation, dict) and all(isolation.get(key) is True for key in required) and isolation.get("defender_conclusions_exposed") is False
+    isolation_ok = (
+        isinstance(isolation, dict)
+        and all(isolation.get(key) is True for key in required)
+        and isolation.get("defender_conclusions_exposed") is False
+    )
     if not isolation_ok:
-        fails.append(GateResult("adv-a2-operational-isolation", "A2 operational isolation evidence", "FAIL", [f"level={level}", f"governance_version={version}"], [f"all required isolation fields must be true: {sorted(required)}"], "S0"))
+        fails.append(
+            GateResult(
+                "adv-a2-operational-isolation",
+                "A2 operational isolation evidence",
+                "FAIL",
+                [f"level={level}", f"governance_version={version}"],
+                [f"all required isolation fields must be true: {sorted(required)}"],
+                "S0",
+            )
+        )
     else:
-        passes.append(GateResult("adv-a2-operational-isolation", "A2 operational isolation evidence", "PASS", [f"governance_version={version}"], ["session, fresh context, role, evidence preservation, independence and runtime identity observed"]))
+        passes.append(
+            GateResult(
+                "adv-a2-operational-isolation",
+                "A2 operational isolation evidence",
+                "PASS",
+                [f"governance_version={version}"],
+                [
+                    "session, fresh context, role, evidence preservation, independence and runtime identity observed"
+                ],
+            )
+        )
     if level == "A3":
         external = adv.get("external_independence")
-        if not isinstance(external, dict) or external.get("independent_actor") is not True or external.get("producer_control_absent") is not True:
-            fails.append(GateResult("adv-a3-external-independence", "A3 strengthened external independence", "FAIL", [f"governance_version={version}"], ["independent_actor and producer_control_absent must both be true"], "S0"))
+        if (
+            not isinstance(external, dict)
+            or external.get("independent_actor") is not True
+            or external.get("producer_control_absent") is not True
+        ):
+            fails.append(
+                GateResult(
+                    "adv-a3-external-independence",
+                    "A3 strengthened external independence",
+                    "FAIL",
+                    [f"governance_version={version}"],
+                    ["independent_actor and producer_control_absent must both be true"],
+                    "S0",
+                )
+            )
         else:
-            passes.append(GateResult("adv-a3-external-independence", "A3 strengthened external independence", "PASS", [f"independent_actor={external.get('actor_type', 'declared')}"], ["external independence evidence present"]))
+            passes.append(
+                GateResult(
+                    "adv-a3-external-independence",
+                    "A3 strengthened external independence",
+                    "PASS",
+                    [f"independent_actor={external.get('actor_type', 'declared')}"],
+                    ["external independence evidence present"],
+                )
+            )
     return passes, fails
 
 

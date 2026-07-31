@@ -415,7 +415,10 @@ def validate_assurance_status(run_dir: Path) -> List[str]:
     intake_version = str(intake_fm.get("assurance_governance_version", ""))
     closeout_version = str(closeout_fm.get("assurance_governance_version", ""))
 
-    adversarial_v11 = intake_adv in SUPPORTED_ADVERSARIAL_GOVERNANCE_VERSIONS or closeout_adv in SUPPORTED_ADVERSARIAL_GOVERNANCE_VERSIONS
+    adversarial_v11 = (
+        intake_adv in SUPPORTED_ADVERSARIAL_GOVERNANCE_VERSIONS
+        or closeout_adv in SUPPORTED_ADVERSARIAL_GOVERNANCE_VERSIONS
+    )
 
     if intake_path.exists() and not intake_version:
         errors.append(
