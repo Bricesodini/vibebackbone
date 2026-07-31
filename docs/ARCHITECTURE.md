@@ -299,7 +299,7 @@ risks:
     note: Consumer hook assets use a SHA-256 provenance manifest and full-bundle preflight (ADR-0034); project-owned documents remain generated-once and are never part of managed refresh.
   - id: TOOL-005
     level: P1
-    note: Effective readiness conservatively combines documentary truth with local Git, source-integrity and open-risk measurements; strict closure validates declared long-run timing fields (ADR-0046).
+    note: Effective readiness conservatively combines documentary truth with local Git, source-integrity and explicitly parsed open-risk measurements; missing, invalid or contradictory risk sources are UNKNOWN/blocking, and each result exposes the exact repository SHA (ADR-0046, RR-BK-05).
 ```
 
 ## Bloc: Architecture Source
