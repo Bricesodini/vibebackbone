@@ -1,0 +1,133 @@
+diff --git a/docs/ARCHITECTURE.md b/docs/ARCHITECTURE.md
+index 28bdeb9..a90fdea 100644
+--- a/docs/ARCHITECTURE.md
++++ b/docs/ARCHITECTURE.md
+@@ -1,7 +1,17 @@
+ ---
+-context_role: canonical-architecture
+-phase: transverse
++document_convention: vbb-doc-v1
++version: "1.0"
++type: reference
+ status: active
++visibility: internal
++tags:
++  - documentation
++  - architecture
++  - project:role:canonical-architecture
++  - project:phase:transverse
++relations:
++  - docs/CONTEXT.md
++  - docs/RELATIONS.md
+ updated: 2026-07-25
+ ---
+ 
+diff --git a/docs/POC_SYS_001_SYSTEM_HYPOTHESIS.md b/docs/POC_SYS_001_SYSTEM_HYPOTHESIS.md
+index 0bf20c0..3e178b6 100644
+--- a/docs/POC_SYS_001_SYSTEM_HYPOTHESIS.md
++++ b/docs/POC_SYS_001_SYSTEM_HYPOTHESIS.md
+@@ -1,14 +1,24 @@
+ ---
+-kind: poc-report
+-poc_id: POC_SYS_001
+-status: completed_design_only
+-date: 2026-07-16
++document_convention: vbb-doc-v1
++version: "1.0"
++type: run_artifact
++status: blocked
++visibility: experimental
++tags:
++  - run
++  - experimental
++  - project:kind:poc-report
++  - project:poc-id:POC_SYS_001
++  - project:domain:research
++relations:
++  - docs/POC_STRATEGY.md
++run_id: POC_SYS_001
+ route: STRUCTURED
++verdict: blocked
+ authority_change: false
+ implementation: false
+ migration: false
+ t09_human_review: pending
+-verdict: B
+ ---
+ 
+ # POC SYS-001 — Hypothèse `System`
+diff --git a/docs/PRODUCT_BRIEF.md b/docs/PRODUCT_BRIEF.md
+index 5454e66..cd277f3 100644
+--- a/docs/PRODUCT_BRIEF.md
++++ b/docs/PRODUCT_BRIEF.md
+@@ -1,7 +1,14 @@
+ ---
+-context_role: product-brief
+-phase: phase_0
++document_convention: vbb-doc-v1
++version: "1.0"
++type: reference
+ status: active
++visibility: public
++tags:
++  - documentation
++  - project:role:product-brief
++  - project:phase:phase_0
++relations: []
+ updated: 2026-07-16
+ ---
+ 
+diff --git a/docs/RELATIONS.md b/docs/RELATIONS.md
+index 19ae8b4..ea35954 100644
+--- a/docs/RELATIONS.md
++++ b/docs/RELATIONS.md
+@@ -1,8 +1,19 @@
+ ---
+-context_role: architecture-relations
+-phase: transverse
+-status: generated
+-source: ARCHITECTURE.md
++document_convention: vbb-doc-v1
++version: "1.0"
++type: reference
++status: frozen
++visibility: internal
++tags:
++  - documentation
++  - architecture
++  - project:role:architecture-relations
++  - project:source:generated
++  - project:phase:transverse
++relations:
++  - docs/ARCHITECTURE.md
++  - tools/vbb-architecture.py
++source: docs/ARCHITECTURE.md
+ ---
+ 
+ # RELATIONS — Architecture Projection
+diff --git a/docs/VBB_GATE_CONTRACT_V1.md b/docs/VBB_GATE_CONTRACT_V1.md
+index 3ad0e6c..3f9d6ef 100644
+--- a/docs/VBB_GATE_CONTRACT_V1.md
++++ b/docs/VBB_GATE_CONTRACT_V1.md
+@@ -1,7 +1,19 @@
+ ---
++document_convention: vbb-doc-v1
++version: "1.0"
++type: governance
++status: frozen
++visibility: internal
++tags:
++  - contract
++  - governance
++  - project:contract:backbone-know-local-implementation-gate
++  - project:contract-version:v1
++relations:
++  - docs/DOCUMENT_CONVENTION.md
++  - docs/gates/I2_IMPLEMENTATION_GATE.yaml
+ contract: backbone-know-local-implementation-gate
+-version: v1
+-status: ACCEPTED
++contract_version: "v1"
+ ---
+ 
+ # Contrat du gate local Backbone Know v1
