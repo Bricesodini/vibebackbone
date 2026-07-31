@@ -27,7 +27,7 @@ les documents SHA-dépendants peuvent être identifiés comme evidence carrier.
 
 ## Résultat observé
 
-- **Date d’exécution** : 2026-07-31 16:30
+- **Date d’exécution vérifiable** : 2026-07-31 15:47:46+02:00 (premier commit du carrier)
 - **Sortie littérale** : le commit Git est calculé à partir de son contenu;
   un document qui y inscrit son SHA final est donc auto-référentiel.
 - **Métrique mesurée** : frontière technique/evidence carrier identifiable
@@ -53,6 +53,6 @@ hypothesis_validated: true
 metric_observed: "non-circular subject/evidence-carrier boundary"
 metric_threshold: "boundary identified"
 reproducible: true
-verified_at: "2026-07-31T14:30:00Z"
+verified_at: "2026-07-31T13:47:46Z"
 verified_by: "codex/gpt-5"
 ```

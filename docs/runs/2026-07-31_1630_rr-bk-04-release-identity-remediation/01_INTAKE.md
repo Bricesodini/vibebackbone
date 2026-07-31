@@ -8,8 +8,8 @@ knowledge_governance_version: "1.0"
 assurance_governance_version: "1.0"
 adversarial_governance_version: "1.1"
 agent: "codex/gpt-5"
-started_at: "2026-07-31T16:30:00+02:00"
-ended_at: null
+started_at: "2026-07-31T15:47:46+02:00"
+ended_at: "2026-07-31T15:47:46+02:00"
 next_phase: "02_AUDIT"
 artifacts_consumed:
   - "0dd572cce05c60e95a0c0b850041b069e63e366a"
@@ -101,6 +101,6 @@ adversarial_level:
 certification_status:
   declared_status: "PRE_CERTIFICATION"
   transient_reason: "Candidate preparation only; independent revalidation is explicitly not executed."
-  bootstrapped_at: "2026-07-31T14:30:00Z"
+  bootstrapped_at: "2026-07-31T13:47:46Z"
   bootstrapped_by: "codex/gpt-5"
 ```

@@ -5,8 +5,8 @@ voie: "AUDIT"
 route: "AUDIT"
 status: "READY"
 agent: "codex/gpt-5"
-started_at: "2026-07-31T16:40:00+02:00"
-ended_at: "2026-07-31T16:42:00+02:00"
+started_at: "2026-07-31T15:47:46+02:00"
+ended_at: "2026-07-31T15:47:46+02:00"
 next_phase: "04_PLAN"
 artifacts_consumed:
   - "02_AUDIT_REPORT.md"
@@ -44,4 +44,3 @@ to the same SHA but remains intentionally not independently revalidated.
 the exact 40-character `CANDIDATE_SHA`, `V`, tag name, tag object SHA, peeled
 commit SHA, creation command and immutable verification output. It must not
 move or recreate `T`, modify the tagged subject, or be mistaken for `S`.
-

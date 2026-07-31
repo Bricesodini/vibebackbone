@@ -10,8 +10,8 @@ assurance_governance_version: "1.0"
 adversarial_governance_version: "1.1"
 adversarial_level: "A2"
 agent: "codex/gpt-5"
-started_at: "2026-07-31T16:30:00+02:00"
-ended_at: "2026-07-31T17:25:00+02:00"
+started_at: "2026-07-31T15:47:46+02:00"
+ended_at: "2026-07-31T15:54:22+02:00"
 subject_sha: "58e51eeebfd057a359eb78393ce16d6df4a05cf3"
 candidate_sha: "58e51eeebfd057a359eb78393ce16d6df4a05cf3"
 knowledge_harvest: "OBSERVATION_RECORDED"
@@ -50,7 +50,7 @@ ASSURANCE_STATUS:
   adversarial_status: "IN_CAMPAIGN"
   certification_status: "PRE_CERTIFICATION"
   transient_reason: "Preparation only; independent revalidation is not executed."
-  bootstrapped_at: "2026-07-31T14:30:00Z"
+  bootstrapped_at: "2026-07-31T13:47:46Z"
   bootstrapped_by: "codex/gpt-5"
   gate_results:
     - gate_id: "candidate-subject"
@@ -122,8 +122,7 @@ adversarial:
     limitations:
       - "No genuinely distinct human actor participated in this preparation run."
       - "This proxy declaration is not independent revalidation or certification."
-    quarterly_external_review_due: "2026-10-29T00:00:00Z"
-  last_external_review: "2026-07-31T14:30:00Z"
+    quarterly_external_review_due: "2026-10-29T00:00:00Z" # planned deadline, not a completed review
   surfaces_declared:
     - "package.json"
     - "CHANGELOG.md"
@@ -140,7 +139,16 @@ adversarial:
     candidate_id: "rr-bk-04-v1.1.0-rc.1"
     status: "PRE_CERTIFICATION"
     transient_reason: "Preparation only; independent revalidation is explicitly not executed."
-    bootstrapped_at: "2026-07-31T14:30:00Z"
+    bootstrapped_at: "2026-07-31T13:47:46Z"
     bootstrapped_by: "codex/gpt-5"
-    last_external_review: "2026-07-28T00:00:00Z"
+    last_external_review: null
 ```
+
+### External-review evidence resolution
+
+The canonical value is `null`: no external review is evidenced for this run.
+The source proof is `docs/runs/2026-07-31_1137_clean-candidate-reconstruction/07_CLOSEOUT.md`,
+which also records `last_external_review: null`; the M1 decision record only
+requires maintaining the field when applicable and does not provide a review
+event for this run. The previous `2026-07-31T14:30:00Z` and
+`2026-07-28T00:00:00Z` values were unsupported placeholders and are removed.
