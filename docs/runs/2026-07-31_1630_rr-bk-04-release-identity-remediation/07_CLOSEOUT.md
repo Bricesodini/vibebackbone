@@ -73,3 +73,53 @@ not `P`. `T` and `P` remain uncreated.
 | Candidate subject is exact | `CANDIDATE_SHA=58e51eeebfd057a359eb78393ce16d6df4a05cf3` | PASS |
 | Independent revalidation was not executed | `06_REVALIDATION_PACKET.md` | PASS |
 | Tag and post-tag commit were not created | `03_DECISION.md` future contracts | PASS |
+
+## Adversarial block
+
+```yaml
+adversarial:
+  level: "A2"
+  level_reason: "Release identity and exact-SHA certification-boundary work triggers A2."
+  campaign_ref: "2026-07-31_1630_rr-bk-04-release-identity-remediation"
+  corpus_version: "pre-certification-preparation"
+  exploration_performed: true
+  attacker_identity:
+    agent: "codex/gpt-5 proxy"
+    llm: "openai/gpt-5"
+    system_prompt_version: "codex-release-prep-2026-07-31"
+    session: "rr-bk-04-preparation-2026-07-31"
+  defender_identity:
+    agent: "release-subject metadata"
+    llm: "subject-under-test"
+    provider: "repository"
+    system_prompt_version: "not-applicable-subject"
+    session: "N/A"
+  distinct_llm: true
+  distinct_system_prompt: true
+  distinct_provider_or_human: true
+  a2_proxy_mode:
+    enabled: true
+    limitations:
+      - "No genuinely distinct human actor participated in this preparation run."
+      - "This proxy declaration is not independent revalidation or certification."
+    quarterly_external_review_due: "2026-10-29T00:00:00Z"
+  last_external_review: "2026-07-31T14:30:00Z"
+  surfaces_declared:
+    - "package.json"
+    - "CHANGELOG.md"
+    - "RELEASE_CHECKLIST.md"
+    - "RR-BK-06 exact-SHA packet"
+  surfaces_unexplored:
+    - "independent revalidation and remote CI confirmation"
+  residual_uncertainty: "Independent actor has not revalidated the candidate."
+  findings: []
+  verdict: "IN_CAMPAIGN"
+  non_claim: "This A2 proxy block records preparation scope only; it does not claim PASS_ADVERSARIAL, READY certification, or publication fitness."
+  certification:
+    run_id: "2026-07-31_1630_rr-bk-04-release-identity-remediation"
+    candidate_id: "rr-bk-04-v1.1.0-rc.1"
+    status: "PRE_CERTIFICATION"
+    transient_reason: "Preparation only; independent revalidation is explicitly not executed."
+    bootstrapped_at: "2026-07-31T14:30:00Z"
+    bootstrapped_by: "codex/gpt-5"
+```
