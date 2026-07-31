@@ -1,0 +1,11 @@
+document_convention: vbb-doc-v1
+version: "1.0"
+adoption: adopted
+scope:
+  roots:
+    - docs/DOCUMENT_CONVENTION.md
+  excludes:
+    - docs/runs
+    - docs/audits
+    - docs/adr
+    - docs/templates
