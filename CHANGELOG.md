@@ -5,7 +5,18 @@ All notable changes to vibebackbone are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] — 2026-07-13
+## [Unreleased] — 2026-07-31
+
+## [1.1.0-rc.1] — 2026-07-31
+
+### Release candidate
+
+- Establishes the single release candidate identity for the Backbone Know
+  foundation remediation.
+- The candidate commit SHA is recorded in the run evidence carrier after the
+  technical subject commit; it is not self-embedded in that commit.
+- The future annotated tag is `v1.1.0-rc.1`; it must peel to the candidate
+  commit exactly and must not be created before independent revalidation.
 
 ### Added
 

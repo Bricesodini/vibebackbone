@@ -1,77 +1,42 @@
-# v1.0 Release Checklist
+# v1.1.0 Release Candidate Checklist
 
-**Version**: 1.0.0-rc.1  
-**Date**: 2026-06-13  
-**Status**: Release Candidate (with additional post-hardening commits)
+**Version**: `1.1.0-rc.1`
+**Candidate subject**: technical metadata commit; exact SHA is recorded in
+the isolated run evidence carrier after commit
+**Future annotated tag**: `v1.1.0-rc.1`
+**Status**: Candidate preparation — independent revalidation pending
 
----
+This checklist is the release-facing contract for `V=1.1.0-rc.1`. The exact
+40-character candidate SHA is carried by the run evidence artifact once the
+technical subject commit exists; no document in that subject commit may
+contain its own final SHA.
 
-## Pre-release checks
+## Release identity
 
-### Governance & documentation
-- [x] CONTEXT.md reflects current state
-- [x] AUDIT_STATUS.md updated
-- [x] CHANGELOG.md created
-- [x] RELEASE_CHECKLIST.md created
-- [x] 7 governance files coherent (no parallel truth)
-- [x] No stale TODOs in governance files
+- [x] `package.json.version` is exactly `1.1.0-rc.1`
+- [x] `CHANGELOG.md` contains exactly one current `1.1.0-rc.1` release section
+- [x] Candidate subject is the commit containing only the necessary release
+  metadata changes
+- [ ] Evidence carrier records the exact full `CANDIDATE_SHA`
+- [ ] Future tag `v1.1.0-rc.1` is created only after independent READY
+  revalidation and peels exactly to `CANDIDATE_SHA`
+- [ ] Future post-tag commit `P` records the tag object, peeled commit,
+  `CANDIDATE_SHA`, `V`, and immutable tag verification without moving the tag
 
-### Contract & skill integrity
-- [x] 63/64 contracts pass lint (0 errors, t-vbb-llm-healthcheck has no contract yet)
-- [x] 64/64 SKILL.md files exist with standardized frontmatter
-- [x] Agent-facing language is EN (SKILL.md body, CONTRACT.yaml machine-facing fields)
-- [x] Contract runtime dry-run: 44 PASS + 17 PARTIAL + 2 BLOCKED (all expected)
+## Blocking gates
 
-### Test & CI
-- [x] pytest: 81/81 green (including architecture lint)
-- [x] CI local: PASS (6/6, 0 warnings on closed runs)
-- [x] Loop closure: latest run passes
+- [ ] Fresh `git clone --no-local` is detached at the exact candidate SHA
+- [ ] `python tools/vbb-architecture.py lint`
+- [ ] `python tools/vbb-contract-lint.py`
+- [ ] Explicit run closure and adversarial gates use the exact candidate SHA
+- [ ] `python -m pytest tests/adversarial_corpus/ -q`
+- [ ] `python -m pytest tests/ -q`
+- [ ] `bash scripts/vbb-ci-local.sh`
+- [ ] Exact-SHA remote CI is independently confirmed
+- [ ] RR-BK-06 package is rebound to the exact candidate SHA
 
-### Token economy
-- [x] L0 boot context: ~2.5K tokens (87% reduction)
-- [x] L0–L4 architecture documented
-- [x] vbb-index.py builds and searches correctly
+## Prohibited before independent revalidation
 
-### Audit trail
-- [x] 17+ audit reports in docs/audits/
-- [x] No P0/P1 vulnerabilities
-- [x] 92% run closeout rate (37/40)
-
-### Setup & install
-- [x] setup.sh tested on macOS and Ubuntu CI
-- [x] setup.sh installs for Claude Code, Codex, Pi, OpenCode
-- [x] README.md describes installation, usage, and architecture
-
-### Known limitations (documented, not blocking)
-- 10/64 SKILL.md files still have FR body content (Phase 4 UX/UI domain + spec-validator, vibebackbone)
-- 17/33 prompts in FR (by design — human narrative layer)
-- README.md and GUIDE.md in FR (by design)
-- Runtime dry-run includes expected PARTIAL/BLOCKED results from stub outputs and gate chains
-- No Formal Skill executor yet (v2.0 target)
-- DEPLOYMENT.md and RUNBOOK.md aligned with current counts
-- t-vbb-llm-healthcheck has SKILL.md but no CONTRACT.yaml yet
-
----
-
-## Release artifacts
-
-| Artifact | Status |
-|----------|--------|
-| CHANGELOG.md | ✅ Created |
-| RELEASE_CHECKLIST.md | ✅ This file |
-| CONTEXT.md | ✅ Updated |
-| AUDIT_STATUS.md | ✅ Updated |
-| Git tag | ⬜ Not yet (awaiting explicit instruction) |
-
----
-
-## Post-release (v1.1 considerations)
-
-1. Translate remaining 10 SKILL.md files to EN (spec-validator, Phase 4 UX/UI)
-2. Translate 17 prompts to EN (or provide EN alternatives)
-3. Keep DEPLOYMENT.md and RUNBOOK.md current through release
-4. Add JSON Schema for CONTRACT.yaml validation
-5. Add negative tests for contract-runtime and tools
-6. Smaller-model benchmarking (Qwen 27B, etc.)
-7. Design Formal Skill executor prototype (v2.0)
-8. Produce EN README + GUIDE for international adoption
+- create or move `v1.1.0-rc.1`;
+- create `P`;
+- push, merge, publish, or claim certification.
