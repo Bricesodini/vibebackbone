@@ -36,6 +36,33 @@ status: active
 `<run_id>` désigne partout l'identifiant nu du run (`2026-07-29_0840_audit-remediation`),
 jamais un chemin. Les deux outils résolvent le chemin eux-mêmes.
 
+### Liaison exacte pour une preuve de release
+
+Le bloc P.R2 emploie déjà un run explicite. Lorsqu'il sert de preuve pour une
+release ou une certification, le SHA attendu est également obligatoire et doit
+correspondre au `certification.bound_to.commit` du closeout :
+
+```bash
+RUN_ID=<run_id>
+EXPECTED_COMMIT=<full-40-character-git-sha>
+
+python tools/vbb-loop-closure-check.py "$RUN_ID" \
+  --expected-commit "$EXPECTED_COMMIT" --strict && \
+python tools/vbb-adversarial-gate.py "$RUN_ID" \
+  --expected-commit "$EXPECTED_COMMIT" --strict
+```
+
+`--expected-commit` refuse l'auto-sélection et un SHA différent. Sans ces deux
+arguments explicites, une exécution reste un diagnostic ou un contrôle de run ;
+elle ne constitue pas une preuve de release liée à un état Git.
+
+En mode certification, les deux gates imposent la même égalité stricte :
+`--expected-commit == HEAD` évalué. Le closeout doit aussi déclarer le `run_id`
+explicite et un `candidate_id` stable; aucun candidat ne contient son propre
+SHA. La
+résolution d'un commit historique reste consultable par le helper Core mais ne
+peut produire aucun verdict de certification.
+
 ## Bloc shell canonique
 
 ```bash

@@ -67,7 +67,12 @@ def _make_measured_repo(root: Path) -> Path:
     )
     (repo / "docs").mkdir()
     (repo / "AGENTS.md").write_text("# Canonical governance\n")
-    (repo / "docs" / "AUDIT_STATUS.md").write_text("## Global verdict\n\n**`READY`**\n")
+    (repo / "docs" / "AUDIT_STATUS.md").write_text(
+        "## Global verdict\n\n**`READY`**\n\n"
+        "## Active risks\n\n"
+        "| ID | Severity | Status | Description |\n"
+        "|---|---|---|---|\n"
+    )
     subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
     subprocess.run(
         ["git", "-C", str(repo), "commit", "-m", "baseline"],

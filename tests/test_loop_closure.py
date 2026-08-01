@@ -24,6 +24,7 @@ Usage:
     python3 tests/test_loop_closure.py
 """
 
+import os
 import sys
 import subprocess
 import tempfile
@@ -114,8 +115,34 @@ def _run(run_id: str, runs_dir: Path, extra_args=None):
         cmd,
         capture_output=True,
         text=True,
+        env={
+            k: v
+            for k, v in os.environ.items()
+            if k not in {"VBB_RUN_ID", "VBB_EXPECTED_COMMIT", "VBB_CANDIDATE_ID"}
+        },
     )
     return result.returncode, result.stdout, result.stderr
+
+
+def _add_bound_subject(closeout: Path, run_id: str, commit: str) -> None:
+    closeout.write_text(
+        closeout.read_text()
+        + textwrap.dedent(
+            f"""
+
+            ```yaml
+            adversarial:
+              certification:
+                run_id: "{run_id}"
+                candidate_id: "test-candidate"
+                bound_to:
+                  run_id: "{run_id}"
+                  commit: "{commit}"
+                  corpus_version: "1"
+            ```
+            """
+        )
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -145,6 +172,170 @@ def test_structuree_complete():
         rc, out, _ = _run(rid, Path(tmp))
         assert rc == 0, f"Expected exit 0, got {rc}\n{out}"
         assert "PASS" in out
+
+
+def test_path_and_bare_id_resolve_the_same_run():
+    """F9 is fixed only to prevent subject divergence in exact verification."""
+    with tempfile.TemporaryDirectory() as tmp:
+        runs = Path(tmp)
+        d = runs / "2026-01-01_1000_struct"
+        d.mkdir()
+        rid = d.name
+        for phase in ["01_INTAKE", "04_PLAN", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "STRUCTUREE")
+
+        id_result = subprocess.run(
+            [sys.executable, str(TOOL), rid, "--runs-dir", str(runs)],
+            capture_output=True,
+            text=True,
+        )
+        path_result = subprocess.run(
+            [sys.executable, str(TOOL), str(d), "--runs-dir", str(runs)],
+            capture_output=True,
+            text=True,
+        )
+        assert id_result.returncode == path_result.returncode == 0
+        assert f"Run     : {rid}" in id_result.stdout
+        assert f"Run     : {rid}" in path_result.stdout
+
+
+def test_expected_commit_requires_matching_bound_subject():
+    with tempfile.TemporaryDirectory() as tmp:
+        runs = Path(tmp)
+        subprocess.run(["git", "init", str(runs)], check=True, capture_output=True)
+        subprocess.run(
+            ["git", "-C", str(runs), "config", "user.name", "VBB Test"],
+            check=True,
+        )
+        subprocess.run(
+            [
+                "git",
+                "-C",
+                str(runs),
+                "config",
+                "user.email",
+                "vbb@example.invalid",
+            ],
+            check=True,
+        )
+        (runs / "candidate").write_text("candidate\n")
+        subprocess.run(["git", "-C", str(runs), "add", "candidate"], check=True)
+        subprocess.run(
+            ["git", "-C", str(runs), "commit", "-m", "candidate"],
+            check=True,
+            capture_output=True,
+        )
+        d = runs / "2026-01-01_1000_bound"
+        d.mkdir()
+        rid = d.name
+        commit = subprocess.run(
+            ["git", "-C", str(runs), "rev-parse", "HEAD"],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+        for phase in ["01_INTAKE", "04_PLAN", "05_EXECUTION", "07_CLOSEOUT"]:
+            _make_artifact(d / f"{phase}.md", rid, phase, "STRUCTUREE")
+        _add_bound_subject(d / "07_CLOSEOUT.md", rid, commit)
+
+        rc, out, err = _run(
+            rid,
+            runs,
+            extra_args=["--expected-commit", commit, "--strict"],
+        )
+        assert rc == 0, out + err
+        assert "release subject bound" in out
+
+        rc, out, err = _run(
+            rid,
+            runs,
+            extra_args=["--expected-commit", "b" * 40, "--strict"],
+        )
+        assert rc == 2
+        assert "does not match expected commit" in out + err
+
+
+def test_expected_commit_requires_explicit_run():
+    with tempfile.TemporaryDirectory() as tmp:
+        proc = subprocess.run(
+            [
+                sys.executable,
+                str(TOOL),
+                "--runs-dir",
+                tmp,
+                "--expected-commit",
+                "a" * 40,
+                "--strict",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        assert proc.returncode == 64
+        assert "explicit run" in proc.stdout + proc.stderr
+
+
+def test_expected_commit_empty_is_invalid_and_fail_closed():
+    """An explicitly supplied empty SHA must never disable certification."""
+    with tempfile.TemporaryDirectory() as tmp:
+        proc = subprocess.run(
+            [
+                sys.executable,
+                str(TOOL),
+                "2026-07-29_1941_run1-exact-release-measurement",
+                "--runs-dir",
+                tmp,
+                "--expected-commit",
+                "",
+                "--strict",
+                "--json",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        assert proc.returncode != 0
+        assert '"exit_intent": "FAIL"' in proc.stdout
+        assert '"reason": "invalid_or_empty_expected_commit"' in proc.stdout
+
+
+def test_expected_commit_invalid_variants_fail_closed():
+    for value in ("   ", "abc", "g" * 40):
+        with tempfile.TemporaryDirectory() as tmp:
+            proc = subprocess.run(
+                [
+                    sys.executable,
+                    str(TOOL),
+                    "2026-07-29_1941_run1-exact-release-measurement",
+                    "--runs-dir",
+                    tmp,
+                    "--expected-commit",
+                    value,
+                    "--strict",
+                    "--json",
+                ],
+                capture_output=True,
+                text=True,
+            )
+            assert proc.returncode != 0
+            assert "invalid_or_empty_expected_commit" in proc.stdout
+
+    # A full-hex SHA reaches Git object validation and must still fail closed.
+    with tempfile.TemporaryDirectory() as tmp:
+        proc = subprocess.run(
+            [
+                sys.executable,
+                str(TOOL),
+                "2026-07-29_1941_run1-exact-release-measurement",
+                "--runs-dir",
+                tmp,
+                "--expected-commit",
+                "f" * 40,
+                "--strict",
+                "--json",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        assert proc.returncode != 0
 
 
 def test_audit_complete():

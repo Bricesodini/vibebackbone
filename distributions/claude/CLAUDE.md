@@ -58,15 +58,17 @@ rules of §4.3.
 
 When the task touches governance canon, auth, secrets, data integrity,
 published contracts, money, concurrency, deployment, or canon-gating
-work: declare `A2` (or higher trigger) and respect
-`A2_DISTINCT_AGENT_PROXY` (different LLM family or human reviewer).
+work: declare `A2` (or higher trigger) and provide operational-isolation
+evidence. A3 requires strengthened external independence; model/provider
+identity alone does not upgrade A2 to A3.
 
 `certification_status` accepts `PRE_CERTIFICATION` and `MIGRATION`
 post-cutoff (ratified 2026-07-28) for subjects awaiting first
 CERTIFIED or in active transition.
 
 The validator `tools/vbb-adversarial-gate.py` is now part of the
-canonical toolset; the loop-closure tool accepts `adversarial_governance_version: "1.1"`.
+canonical toolset; the loop-closure tool accepts the versioned v1.1/v1.2
+assurance profiles.
 
 ## Typical usage
 

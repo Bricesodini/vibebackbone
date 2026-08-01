@@ -1,0 +1,4 @@
+CANDIDATE_SHA=58e51eeebfd057a359eb78393ce16d6df4a05cf3
+HEAD=58e51eeebfd057a359eb78393ce16d6df4a05cf3
+detached_clean_clone=true
+tag_v1.1.0-rc.1=absent

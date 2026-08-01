@@ -50,11 +50,12 @@ except ImportError:  # pragma: no cover
 # Constants — ADR 0051 + ADVERSARIAL_ASSURANCE_GOVERNANCE.md
 # ---------------------------------------------------------------------------
 
-ADVERSARIAL_GOVERNANCE_VERSION = "1.1"
+ADVERSARIAL_GOVERNANCE_VERSION = "1.2"
+SUPPORTED_GOVERNANCE_VERSIONS = frozenset({"1.1", "1.2", "1.2-proposed"})
 ADVERSARIAL_GOVERNANCE_CUTOVER_KEY = "2026-07-28_1400"
 ADVERSARIAL_GOVERNANCE_CUTOVER_AT = datetime(2026, 7, 28, 14, 0, 0, tzinfo=timezone.utc)
 
-LEVELS = frozenset({"A0", "A1", "A2"})
+LEVELS = frozenset({"A0", "A1", "A2", "A3"})
 SEVERITIES = frozenset({"S0", "S1", "S2", "S3"})
 CONFIDENCES = frozenset({"CONFIRMED", "PLAUSIBLE", "REFUTED"})
 FINDING_STATES = frozenset(
@@ -375,6 +376,96 @@ def _llm_family_distinct(attacker_llm: str, defender_llm: str) -> bool:
     return bool(fam_a) and bool(fam_b) and fam_a != fam_b
 
 
+def check_a2_a3_clarification(adv: dict, level: str):
+    """Enforce the versioned A2 isolation / A3 independence clarification."""
+    passes: List[GateResult] = []
+    fails: List[GateResult] = []
+    version = str(adv.get("governance_version", "1.1")).strip()
+    if version not in SUPPORTED_GOVERNANCE_VERSIONS:
+        fails.append(
+            GateResult(
+                "adv-governance-version",
+                "adversarial governance version supported",
+                "FAIL",
+                [version],
+                [f"version must be in {sorted(SUPPORTED_GOVERNANCE_VERSIONS)}"],
+                "S1",
+            )
+        )
+        return passes, fails
+    if version == "1.1":
+        return passes, fails
+    if level not in {"A2", "A3"}:
+        return passes, fails
+    isolation = adv.get("operational_isolation")
+    required = {
+        "session_distinct",
+        "fresh_context",
+        "adversarial_role_explicit",
+        "inputs_preserved",
+        "raw_transcript_preserved",
+        "findings_independent",
+        "declared_scope",
+        "runtime_identity_observed",
+    }
+    isolation_ok = (
+        isinstance(isolation, dict)
+        and all(isolation.get(key) is True for key in required)
+        and isolation.get("defender_conclusions_exposed") is False
+    )
+    if not isolation_ok:
+        fails.append(
+            GateResult(
+                "adv-a2-operational-isolation",
+                "A2 operational isolation evidence",
+                "FAIL",
+                [f"level={level}", f"governance_version={version}"],
+                [f"all required isolation fields must be true: {sorted(required)}"],
+                "S0",
+            )
+        )
+    else:
+        passes.append(
+            GateResult(
+                "adv-a2-operational-isolation",
+                "A2 operational isolation evidence",
+                "PASS",
+                [f"governance_version={version}"],
+                [
+                    "session, fresh context, role, evidence preservation, independence and runtime identity observed"
+                ],
+            )
+        )
+    if level == "A3":
+        external = adv.get("external_independence")
+        if (
+            not isinstance(external, dict)
+            or external.get("independent_actor") is not True
+            or external.get("producer_control_absent") is not True
+        ):
+            fails.append(
+                GateResult(
+                    "adv-a3-external-independence",
+                    "A3 strengthened external independence",
+                    "FAIL",
+                    [f"governance_version={version}"],
+                    ["independent_actor and producer_control_absent must both be true"],
+                    "S0",
+                )
+            )
+        else:
+            passes.append(
+                GateResult(
+                    "adv-a3-external-independence",
+                    "A3 strengthened external independence",
+                    "PASS",
+                    [f"independent_actor={external.get('actor_type', 'declared')}"],
+                    ["external independence evidence present"],
+                )
+            )
+    return passes, fails
+
+
 def check_adversarial_block(
     closeout_text: str, run_id: str
 ) -> Tuple[List[GateResult], List[GateResult]]:
@@ -438,7 +529,7 @@ def check_adversarial_block(
         fails.append(
             GateResult(
                 gate_id="adv-level-valid",
-                subject="adversarial.level is one of A0/A1/A2",
+                subject="adversarial.level is one of A0/A1/A2/A3",
                 verdict="FAIL",
                 evidence=[f"observed level='{level}'"],
                 reasons=[f"level must be in {sorted(LEVELS)}"],
@@ -449,7 +540,7 @@ def check_adversarial_block(
         passes.append(
             GateResult(
                 gate_id="adv-level-valid",
-                subject="adversarial.level is one of A0/A1/A2",
+                subject="adversarial.level is one of A0/A1/A2/A3",
                 verdict="PASS",
                 evidence=[f"level='{level}'"],
                 reasons=["declared level valid"],
@@ -562,10 +653,15 @@ def check_adversarial_block(
                         )
                     )
 
-        # M3-02: defender_identity distinctness check (M1-02 contract)
-        p, f = check_a2_distinct_identity(adv)
-        passes.extend(p)
-        fails.extend(f)
+        # M3-02 is the v1.1 compatibility profile. Under v1.2, A2 is gated
+        # by operational isolation; model/provider identity is disclosure
+        # metadata and must not reintroduce the obsolete distinct-actor
+        # failure. A3 gets its stronger external-independence check below.
+        governance_version = str(adv.get("governance_version", "1.1")).strip()
+        if governance_version == "1.1":
+            p, f = check_a2_distinct_identity(adv)
+            passes.extend(p)
+            fails.extend(f)
 
     # campaign_ref and corpus_version
     if not non_empty_string(adv.get("campaign_ref")):
@@ -589,6 +685,10 @@ def check_adversarial_block(
                 reasons=["campaign_ref present"],
             )
         )
+
+    p, f = check_a2_a3_clarification(adv, level)
+    passes.extend(p)
+    fails.extend(f)
 
     if not non_empty_string(adv.get("corpus_version")):
         fails.append(
@@ -614,22 +714,22 @@ def check_adversarial_block(
 
     # exploration_performed
     exploration = adv.get("exploration_performed")
-    if level in ("A1", "A2") and exploration is not True:
+    if level in ("A1", "A2", "A3") and exploration is not True:
         fails.append(
             GateResult(
                 gate_id="adv-exploration-performed",
-                subject="exploration_performed: true for A1/A2",
+                subject="exploration_performed: true for A1/A2/A3",
                 verdict="FAIL",
                 evidence=[f"level={level}"],
                 reasons=["exploration_performed must be true at A1/A2"],
                 severity="S1",
             )
         )
-    elif level in ("A1", "A2") and exploration is True:
+    elif level in ("A1", "A2", "A3") and exploration is True:
         passes.append(
             GateResult(
                 gate_id="adv-exploration-performed",
-                subject="exploration_performed: true for A1/A2",
+                subject="exploration_performed: true for A1/A2/A3",
                 verdict="PASS",
                 evidence=[f"level={level}"],
                 reasons=["exploration_performed = true"],
@@ -1195,7 +1295,11 @@ def check_certification_status(
 # ---------------------------------------------------------------------------
 
 
-def validate_run(run_dir: Path) -> Dict[str, Any]:
+def validate_run(
+    run_dir: Path,
+    expected_commit: Optional[str] = None,
+    expected_candidate_id: Optional[str] = None,
+) -> Dict[str, Any]:
     """Run the full adversarial gate validation on a run directory."""
     intake = run_dir / "01_INTAKE.md"
     closeout = run_dir / "07_CLOSEOUT.md"
@@ -1233,6 +1337,22 @@ def validate_run(run_dir: Path) -> Dict[str, Any]:
     passes.extend(p)
     fails.extend(f)
 
+    if expected_commit is not None:
+        subject_ok, subject_reason = _run_resolution.verify_certification_subject(
+            run_dir, expected_commit, expected_candidate_id
+        )
+        result = GateResult(
+            gate_id="release-subject-binding",
+            subject="explicit run_id, candidate_id and expected commit match checkout",
+            verdict="PASS" if subject_ok else "FAIL",
+            evidence=[subject_reason],
+            reasons=[
+                "release subject is explicitly bound" if subject_ok else subject_reason
+            ],
+            severity=None if subject_ok else "S0",
+        )
+        (passes if subject_ok else fails).append(result)
+
     all_gates = passes + fails
     overall = "PASS" if not fails else "FAIL"
     return {
@@ -1264,7 +1384,12 @@ _run_resolution = importlib.util.module_from_spec(_RUN_RES_SPEC)
 _RUN_RES_SPEC.loader.exec_module(_run_resolution)
 
 
-def resolve_run_dir(raw: Optional[Path], use_latest: bool = False) -> Optional[Path]:
+def resolve_run_dir(
+    raw: Optional[Path],
+    use_latest: bool = False,
+    runs_dir: Path = RUNS_DIR,
+    require_canonical_child: bool = False,
+) -> Optional[Path]:
     """Resolve a run argument to an existing run directory.
 
     Accepts three forms so that the canonical block, the CI scripts and manual
@@ -1283,14 +1408,15 @@ def resolve_run_dir(raw: Optional[Path], use_latest: bool = False) -> Optional[P
     instead of silently validating the wrong run.
     """
     if use_latest:
-        latest = _run_resolution.latest_closed_run(RUNS_DIR)
+        latest = _run_resolution.latest_closed_run(runs_dir)
         return latest if latest is not None and latest.is_dir() else None
     if raw is None:
         return None
+    if require_canonical_child:
+        return _run_resolution.resolve_explicit_run(runs_dir, raw)
     if raw.is_dir():
-        return raw
-    candidate = RUNS_DIR / raw.name
-    return candidate if candidate.is_dir() else None
+        return raw.resolve()
+    return _run_resolution.resolve_explicit_run(runs_dir, raw)
 
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -1307,7 +1433,32 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument(
         "--latest",
         action="store_true",
-        help="Validate the most recent run directory (used by CI, which has no run argument)",
+        help=(
+            "Validate the most recent closed run for diagnostics. "
+            "Not valid with --expected-commit."
+        ),
+    )
+    parser.add_argument(
+        "--runs-dir",
+        type=Path,
+        default=RUNS_DIR,
+        help="Override docs/runs for isolated tests.",
+    )
+    parser.add_argument(
+        "--expected-commit",
+        metavar="SHA",
+        help=(
+            "Require the explicit run's carrier expected commit to equal HEAD "
+            "and its non-self-referential certification identity."
+        ),
+    )
+    parser.add_argument(
+        "--candidate-id",
+        metavar="ID",
+        help=(
+            "Require the explicit run's stable certification candidate_id to "
+            "equal this value. Omit to use the candidate declared by the run."
+        ),
     )
     parser.add_argument(
         "--strict",
@@ -1321,14 +1472,37 @@ def main(argv: Optional[List[str]] = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    run_dir = resolve_run_dir(args.run_dir, use_latest=args.latest)
+    if args.expected_commit is not None:
+        valid_expected, expected_reason, _ = _run_resolution.validate_expected_commit(
+            args.expected_commit
+        )
+        if not valid_expected:
+            sys.stderr.write(f"ERROR: {expected_reason}\n")
+            return 2 if args.strict else 1
+
+    if args.expected_commit is not None and (args.latest or args.run_dir is None):
+        sys.stderr.write(
+            "ERROR: --expected-commit requires an explicit run and cannot use --latest\n"
+        )
+        return 3
+
+    run_dir = resolve_run_dir(
+        args.run_dir,
+        use_latest=args.latest,
+        runs_dir=args.runs_dir,
+        require_canonical_child=args.expected_commit is not None,
+    )
     if run_dir is None:
         target = "--latest" if args.latest else args.run_dir
         sys.stderr.write(f"ERROR: cannot resolve a run directory from {target}\n")
         return 3
     args.run_dir = run_dir
 
-    result = validate_run(args.run_dir)
+    result = validate_run(
+        args.run_dir,
+        expected_commit=args.expected_commit,
+        expected_candidate_id=args.candidate_id,
+    )
     if args.json:
         print(json.dumps(result, indent=2, sort_keys=True))
     else:

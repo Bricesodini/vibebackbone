@@ -1,0 +1,27 @@
+VBB-DOC-V1: FAIL
+- docs/I1_FINAL_BASELINE.md: metadata mandatory field absent: document_convention
+- docs/I1_FINAL_BASELINE.md: metadata mandatory field absent: relations
+- docs/I1_FINAL_BASELINE.md: metadata mandatory field absent: tags
+- docs/I1_FINAL_BASELINE.md: metadata mandatory field absent: type
+- docs/I1_FINAL_BASELINE.md: metadata mandatory field absent: version
+- docs/I1_FINAL_BASELINE.md: metadata mandatory field absent: visibility
+- docs/I1_FINAL_BASELINE.md: version absent or unknown
+- docs/I1_FINAL_BASELINE.md: incompatible version
+- docs/I1_FINAL_BASELINE.md: unknown document type None
+- docs/INFRASTRUCTURE_GATE_CONTRACT_V1.md: metadata mandatory field absent: document_convention
+- docs/INFRASTRUCTURE_GATE_CONTRACT_V1.md: metadata mandatory field absent: relations
+- docs/INFRASTRUCTURE_GATE_CONTRACT_V1.md: metadata mandatory field absent: tags
+- docs/INFRASTRUCTURE_GATE_CONTRACT_V1.md: metadata mandatory field absent: type
+- docs/INFRASTRUCTURE_GATE_CONTRACT_V1.md: metadata mandatory field absent: visibility
+- docs/INFRASTRUCTURE_GATE_CONTRACT_V1.md: version absent or unknown
+- docs/INFRASTRUCTURE_GATE_CONTRACT_V1.md: incompatible version
+- docs/INFRASTRUCTURE_GATE_CONTRACT_V1.md: unknown document type None
+- docs/P06_CLOSEOUT_AND_PRODUCT_IMPLICATIONS.md: metadata mandatory field absent: document_convention
+- docs/P06_CLOSEOUT_AND_PRODUCT_IMPLICATIONS.md: metadata mandatory field absent: relations
+- docs/P06_CLOSEOUT_AND_PRODUCT_IMPLICATIONS.md: metadata mandatory field absent: tags
+- docs/P06_CLOSEOUT_AND_PRODUCT_IMPLICATIONS.md: metadata mandatory field absent: type
+- docs/P06_CLOSEOUT_AND_PRODUCT_IMPLICATIONS.md: metadata mandatory field absent: version
+- docs/P06_CLOSEOUT_AND_PRODUCT_IMPLICATIONS.md: metadata mandatory field absent: visibility
+- docs/P06_CLOSEOUT_AND_PRODUCT_IMPLICATIONS.md: version absent or unknown
+- docs/P06_CLOSEOUT_AND_PRODUCT_IMPLICATIONS.md: incompatible version
+- docs/P06_CLOSEOUT_AND_PRODUCT_IMPLICATIONS.md: unknown document type None

@@ -67,7 +67,7 @@ déclaré = `A1` (fail-closed).*
 
 ```yaml
 adversarial_level:
-  level: "A0|A1|A2"            # declared per criticality matrix
+  level: "A0|A1|A2|A3"          # declared per criticality matrix
   level_reason: "<human-readable reason; required for A0>"
   contest_register:            # optional, only when contested
     - objector: "<named gate expert>"

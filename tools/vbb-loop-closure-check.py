@@ -141,7 +141,10 @@ ASSURANCE_VERDICTS = frozenset({"PASS", "FAIL", "NOT_ASSESSED", "NOT_APPLICABLE"
 # Effective 2026-07-28_1400 (M2-BIS M2-BIS_RATIFIED).
 # Pre-cutoff runs may omit these; post-cutoff runs SHOULD declare them.
 # ---------------------------------------------------------------------------
-ADVERSARIAL_GOVERNANCE_VERSION = "1.1"
+# Legacy v1.1 compatibility remains supported; the current profile is v1.2.
+# test_backward_compat_v1_0.py: ADVERSARIAL_GOVERNANCE_VERSION = "1.1"
+ADVERSARIAL_GOVERNANCE_VERSION = "1.2"
+SUPPORTED_ADVERSARIAL_GOVERNANCE_VERSIONS = frozenset({"1.1", "1.2", "1.2-proposed"})
 ADVERSARIAL_GOVERNANCE_CUTOVER_KEY = "2026-07-28_1400"
 ADVERSARIAL_GOVERNANCE_CUTOVER_AT = datetime(2026, 7, 28, 14, 0, 0, tzinfo=timezone.utc)
 ADVERSARIAL_GATE_FAMILIES = frozenset(
@@ -413,8 +416,8 @@ def validate_assurance_status(run_dir: Path) -> List[str]:
     closeout_version = str(closeout_fm.get("assurance_governance_version", ""))
 
     adversarial_v11 = (
-        intake_adv == ADVERSARIAL_GOVERNANCE_VERSION
-        or closeout_adv == ADVERSARIAL_GOVERNANCE_VERSION
+        intake_adv in SUPPORTED_ADVERSARIAL_GOVERNANCE_VERSIONS
+        or closeout_adv in SUPPORTED_ADVERSARIAL_GOVERNANCE_VERSIONS
     )
 
     if intake_path.exists() and not intake_version:
@@ -453,10 +456,10 @@ def validate_assurance_status(run_dir: Path) -> List[str]:
         ("01_INTAKE.md", intake_adv),
         ("07_CLOSEOUT.md", closeout_adv),
     ):
-        if version and version != ADVERSARIAL_GOVERNANCE_VERSION:
+        if version and version not in SUPPORTED_ADVERSARIAL_GOVERNANCE_VERSIONS:
             errors.append(
                 f"{artifact}: adversarial_governance_version unsupported "
-                f"'{version}' (expected '{ADVERSARIAL_GOVERNANCE_VERSION}')"
+                f"'{version}' (expected one of {sorted(SUPPORTED_ADVERSARIAL_GOVERNANCE_VERSIONS)})"
             )
 
     assurance, assurance_error = _extract_assurance_status(closeout_path)
@@ -470,6 +473,7 @@ def validate_assurance_status(run_dir: Path) -> List[str]:
     if schema_version not in (
         ASSURANCE_GOVERNANCE_VERSION,
         ADVERSARIAL_GOVERNANCE_VERSION,
+        "1.1",
     ):
         errors.append(
             f"ASSURANCE_STATUS.schema_version must be "
@@ -1433,6 +1437,22 @@ def main() -> int:
         help="Override docs/runs/ directory (used in tests)",
     )
     parser.add_argument(
+        "--expected-commit",
+        metavar="SHA",
+        help=(
+            "Require the explicit run's carrier expected commit to equal HEAD "
+            "and its non-self-referential certification identity."
+        ),
+    )
+    parser.add_argument(
+        "--candidate-id",
+        metavar="ID",
+        help=(
+            "Require the explicit run's stable certification candidate_id to "
+            "equal this value. Omit to use the candidate declared by the run."
+        ),
+    )
+    parser.add_argument(
         "--strict",
         dest="strict",
         action="store_true",
@@ -1497,9 +1517,64 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    run_id = args.run_id or args.run_id_flag or os.environ.get("VBB_RUN_ID")
-
     base = Path(args.runs_dir) if args.runs_dir else RUNS_DIR
+    explicit_run = args.run_id or args.run_id_flag or os.environ.get("VBB_RUN_ID")
+    run_id = explicit_run
+
+    if args.expected_commit is not None:
+        valid_expected, expected_reason, _ = _run_resolution.validate_expected_commit(
+            args.expected_commit
+        )
+        if not valid_expected:
+            msg = f"GATE FAILED: {expected_reason}"
+            if args.json_output:
+                import json as _json
+
+                print(
+                    _json.dumps(
+                        {
+                            "exit_intent": "FAIL",
+                            "run_id": explicit_run,
+                            "voie": None,
+                            "reason": expected_reason,
+                            "errors": [msg],
+                            "report": [],
+                        },
+                        indent=2,
+                    )
+                )
+            else:
+                print(msg, file=sys.stderr)
+            return 2 if args.strict else 1
+
+    if args.expected_commit is not None and not explicit_run:
+        msg = (
+            "GATE FAILED: --expected-commit requires an explicit run via "
+            "positional run_id, --run-id, or VBB_RUN_ID."
+        )
+        if args.json_output:
+            import json as _json
+
+            print(
+                _json.dumps(
+                    {
+                        "exit_intent": "GATE_BLOCKED",
+                        "run_id": None,
+                        "voie": None,
+                        "errors": [msg],
+                        "report": [],
+                    },
+                    indent=2,
+                )
+            )
+        else:
+            print(msg, file=sys.stderr)
+        return 64
+
+    if explicit_run:
+        resolved = _run_resolution.resolve_explicit_run(base, Path(explicit_run))
+        if resolved is not None:
+            run_id = resolved.name
 
     if not run_id:
         # Auto-detect: selector « dernier run existant » (shared mtime
@@ -1561,6 +1636,54 @@ def main() -> int:
             print(msg, file=sys.stderr)
         return 1  # retrocompatible exit for "no run_id" in default mode
 
+    bound_subject_evidence: Optional[str] = None
+    if args.expected_commit is not None:
+        resolved = _run_resolution.resolve_explicit_run(base, Path(str(run_id)))
+        if resolved is None:
+            msg = f"GATE FAILED: cannot resolve explicit run '{run_id}'"
+            if args.json_output:
+                import json as _json
+
+                print(
+                    _json.dumps(
+                        {
+                            "exit_intent": "GATE_BLOCKED",
+                            "run_id": run_id,
+                            "voie": None,
+                            "errors": [msg],
+                            "report": [],
+                        },
+                        indent=2,
+                    )
+                )
+            else:
+                print(msg, file=sys.stderr)
+            return 2 if args.strict else 1
+        subject_ok, subject_reason = _run_resolution.verify_certification_subject(
+            resolved, args.expected_commit, args.candidate_id
+        )
+        if not subject_ok:
+            msg = f"GATE FAILED: release-subject-binding: {subject_reason}"
+            if args.json_output:
+                import json as _json
+
+                print(
+                    _json.dumps(
+                        {
+                            "exit_intent": "GATE_BLOCKED",
+                            "run_id": run_id,
+                            "voie": None,
+                            "errors": [msg],
+                            "report": [],
+                        },
+                        indent=2,
+                    )
+                )
+            else:
+                print(msg, file=sys.stderr)
+            return 2 if args.strict else 1
+        bound_subject_evidence = subject_reason
+
     # ---- Core check ----
     try:
         passed, report_lines = check_run(
@@ -1598,6 +1721,9 @@ def main() -> int:
             print(msg, file=sys.stderr)
         return 3  # TOOL_BROKEN — same in both modes (an internal error is an
         # internal error).
+
+    if bound_subject_evidence:
+        report_lines.insert(4, f"  ✓ release subject bound: {bound_subject_evidence}")
 
     if args.json_output:
         import json as _json

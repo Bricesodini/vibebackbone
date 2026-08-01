@@ -84,7 +84,7 @@ non certifiée. Le Design PASS reste acquis sauf reclassification substantive.
 
 ```yaml
 adversarial:
-  level: "A0|A1|A2"
+  level: "A0|A1|A2|A3"
   level_reason: "<required when level=A0>"
   campaign_ref: "<run_id of parent campaign>"
   corpus_version: "<version>"

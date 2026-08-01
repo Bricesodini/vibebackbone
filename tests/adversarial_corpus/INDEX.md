@@ -55,3 +55,83 @@ the A2 certification, and §9 required an entry for each of them at that moment.
 If the obligation on S3 findings proves unjustified in use, the way to change it
 is a `CANON_CHANGE_PROPOSAL` amending §9 — not a silent narrowing of the rule to
 match the implementation.
+
+## CORPUS-A2-GP-01
+
+- **Origin**: `docs/runs/2026-07-29_1834_governance-principles/06_INDEPENDENT_REVIEW_A2.md#A2-GP-01`
+- **Severity**: S1
+- **Oracle**: historical identity remains A2/S1/CONFIRMED/CLASSIFIED
+- **Added**: 2026-07-31
+- **State**: BEHAVIOUR_PIN
+
+## CORPUS-A2-GP-02
+
+- **Origin**: `docs/runs/2026-07-29_1834_governance-principles/06_INDEPENDENT_REVIEW_A2.md#A2-GP-02`
+- **Severity**: S1
+- **Oracle**: historical identity remains A2/S1/CONFIRMED/CLASSIFIED
+- **Added**: 2026-07-31
+- **State**: BEHAVIOUR_PIN
+
+## CORPUS-A2-GP-03
+
+- **Origin**: `docs/runs/2026-07-29_1834_governance-principles/06_INDEPENDENT_REVIEW_A2.md#A2-GP-03`
+- **Severity**: S1
+- **Oracle**: historical identity remains A2/S1/CONFIRMED/CLASSIFIED
+- **Added**: 2026-07-31
+- **State**: BEHAVIOUR_PIN
+
+## CORPUS-FIND-RR-BK-05
+
+- **Origin**: `docs/runs/2026-07-31_1530_rr-bk-05-readiness-fidelity/`
+- **Severity**: S1
+- **Oracle**: canonical dashboard risk-header parsing retains RR-BK-03
+- **Added**: 2026-07-31
+- **State**: ACTIVE
+
+## CORPUS-RR-BK-02
+
+- **Origin**: `docs/runs/2026-08-01_1100_release-freeze/INDEPENDENT_RELEASE_REVALIDATION.md#RR-BK-02`
+- **Severity**: S2
+- **Oracle**: loop-closure gate binds to explicit run + explicit full-SHA; short SHA rejected
+- **Added**: 2026-08-01
+- **State**: ACTIVE
+
+## CORPUS-RR-BK-03
+
+- **Origin**: `docs/runs/2026-08-01_1100_release-freeze/INDEPENDENT_RELEASE_REVALIDATION.md#RR-BK-03`
+- **Severity**: S2
+- **Oracle**: dashboard subject SHA is full-length and consistent with release_identity
+- **Added**: 2026-08-01
+- **State**: ACTIVE
+
+## CORPUS-RR-BK-05
+
+- **Origin**: `docs/runs/2026-08-01_1100_release-freeze/INDEPENDENT_RELEASE_REVALIDATION.md#RR-BK-05`
+- **Severity**: S2
+- **Oracle**: shipped corpus contains at least one CORPUS-*RR-BK-05*.py entry
+- **Added**: 2026-08-01
+- **State**: ACTIVE
+
+## CORPUS-RR-BK-06
+
+- **Origin**: `docs/runs/2026-07-31_1800_rr-bk-06-s2-remediation/07_CLOSEOUT.md#F-01`
+- **Severity**: S1
+- **Oracle**: M3-02 distinct check rejects same-family LLM/system_prompt/provider triples
+- **Added**: 2026-08-01
+- **State**: ACTIVE
+
+## CORPUS-F8
+
+- **Origin**: `docs/runs/2026-08-01_1100_release-freeze/evidence/raw/11_F8_temporal.txt`
+- **Severity**: S2
+- **Oracle**: TEMPORAL_PROVENANCE.md updated field is present, parseable, and reasonably current
+- **Added**: 2026-08-01
+- **State**: ACTIVE
+
+## CORPUS-F9
+
+- **Origin**: `docs/runs/2026-08-01_1100_release-freeze/evidence/raw/12_F9_strict_path.txt`
+- **Severity**: S3
+- **Oracle**: loop-closure gate accepts `--runs-dir + --expected-commit <full-SHA> + --strict`; short-SHA rejected
+- **Added**: 2026-08-01
+- **State**: ACTIVE

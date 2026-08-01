@@ -23,9 +23,18 @@ import re
 import subprocess
 from datetime import date
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, cast
 
 REPO_ROOT = Path(__file__).parent.parent.resolve()
+RISK_SOURCE_RELATIVE = "docs/AUDIT_STATUS.md"
+KNOWN_RISK_STATUSES = {
+    "open",
+    "mitigating",
+    "accepted",
+    "deferred",
+    "resolved",
+    "closed",
+}
 
 # --- Shared run resolution (ADR-0027) ---------------------------------------
 # Single source of truth for "latest run" selection, shared with
@@ -341,7 +350,192 @@ def _git_value(repo: Path, *args: str) -> Tuple[bool, str]:
     return result.returncode == 0, result.stdout.strip()
 
 
-def measure_repository_health(repo: Path, risks: List[Dict]) -> Dict:
+def _risk_subject(repo: Path) -> Dict[str, str]:
+    """Return the exact repository subject used for this measurement."""
+    ok, sha = _git_value(repo, "rev-parse", "HEAD")
+    return {"repo": str(repo), "sha": sha if ok else "UNKNOWN"}
+
+
+def _risk_source_text(path: Path) -> Tuple[str, str]:
+    """Read a required risk source without collapsing errors into empty text."""
+    if not path.exists():
+        return "SOURCE_ABSENT", ""
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        return "SOURCE_UNREADABLE", ""
+    if not text.strip():
+        return "SOURCE_INVALID", ""
+    return "OK", text
+
+
+def _risk_status_key(status: str) -> str:
+    status = re.sub(r"[*_`]+", "", status).strip().lower()
+    return status.split()[0] if status else ""
+
+
+def parse_risk_source(
+    text: str, source: str, subject: Dict[str, str]
+) -> Dict[str, object]:
+    """Parse the declared markdown risk table with an explicit outcome state."""
+    risks: List[Dict[str, str]] = []
+    out_of_scope: List[Dict[str, str]] = []
+    columns: Optional[Dict[str, int]] = None
+    table_seen = False
+
+    def clean(cell: str) -> str:
+        return re.sub(r"(?<!\w)[*_`]+|[*_`]+(?!\w)", "", cell).strip()
+
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("|"):
+            columns = None
+            continue
+        cells = [cell.strip() for cell in stripped.strip("|").split("|")]
+        headers = [clean(cell).lower() for cell in cells]
+        aliases = {
+            "id": {"id", "identifier", "identifiant"},
+            "severity": {"severity", "sévérité"},
+            "status": {"status", "statut"},
+            "description": {
+                "description",
+                "constat",
+                "description and reopen trigger",
+                "description et déclencheur de réouverture",
+            },
+        }
+        detected = {
+            name: next((i for i, header in enumerate(headers) if header in names), -1)
+            for name, names in aliases.items()
+        }
+        if all(index >= 0 for index in detected.values()):
+            optional = {
+                key: next((i for i, header in enumerate(headers) if header == key), -1)
+                for key in (
+                    "scope",
+                    "subject",
+                    "sha",
+                    "run",
+                    "tag",
+                    "owner",
+                    "authority",
+                )
+            }
+            columns = {**detected, **{k: v for k, v in optional.items() if v >= 0}}
+            table_seen = True
+            continue
+        if columns is None or all(re.fullmatch(r":?-{3,}:?", cell) for cell in cells):
+            continue
+        if max(columns.values()) >= len(cells):
+            return {"state": "SOURCE_INVALID", "risks": [], "source": source}
+
+        rid = clean(cells[columns["id"]])
+        severity = clean(cells[columns["severity"]])
+        status = clean(cells[columns["status"]])
+        description = clean(cells[columns["description"]])
+        status_key = _risk_status_key(status)
+        if not rid or not severity or status_key not in KNOWN_RISK_STATUSES:
+            return {"state": "SOURCE_INVALID", "risks": [], "source": source}
+
+        record = {
+            "id": rid,
+            "severity": severity,
+            "status": status,
+            "description": description[:160],
+            "source": source,
+            "scope": "repository",
+            "subject": subject["sha"],
+        }
+        for key in ("scope", "subject", "sha", "run", "tag", "owner", "authority"):
+            if key in columns:
+                record[key] = clean(cells[columns[key]])
+        if status_key == "accepted" and not (
+            (record.get("owner") or record.get("authority"))
+            and "scope" in columns
+            and record.get("scope")
+        ):
+            return {"state": "SOURCE_INVALID", "risks": [], "source": source}
+        declared_subject = record.get("subject") or record.get("sha")
+        if declared_subject and declared_subject not in {
+            subject["sha"],
+            "repository",
+            "repo",
+        }:
+            record["scope"] = "out_of_scope"
+            out_of_scope.append(record)
+        else:
+            risks.append(record)
+
+    if not table_seen:
+        return {"state": "SOURCE_INVALID", "risks": [], "source": source}
+
+    by_id: Dict[str, Dict[str, str]] = {}
+    for risk in risks:
+        previous = by_id.get(risk["id"])
+        if previous is not None and any(
+            previous.get(key) != risk.get(key)
+            for key in ("severity", "status", "subject", "scope")
+        ):
+            return {"state": "SOURCE_INVALID", "risks": [], "source": source}
+        by_id[risk["id"]] = risk
+    return {
+        "state": "OK",
+        "risks": list(by_id.values()),
+        "out_of_scope": out_of_scope,
+        "source": source,
+        "subject": subject,
+    }
+
+
+def measure_risk_sources(
+    sources: List[Dict[str, object]], subject: Dict[str, str]
+) -> Dict[str, object]:
+    """Combine explicit source results; contradictory sources are blocking."""
+    if not sources:
+        return {"state": "SOURCE_ABSENT", "risks": [], "subject": subject}
+    invalid = [s for s in sources if s.get("state") != "OK"]
+    if invalid:
+        return {
+            "state": str(invalid[0].get("state", "UNKNOWN")),
+            "risks": [],
+            "subject": subject,
+            "sources": [s.get("source", "UNKNOWN") for s in sources],
+        }
+    merged: Dict[str, Dict[str, str]] = {}
+    for source in sources:
+        for risk in cast(List[Dict[str, str]], source.get("risks", [])):
+            rid = risk["id"]
+            if rid in merged and merged[rid] != risk:
+                return {
+                    "state": "SOURCE_CONTRADICTORY",
+                    "risks": [],
+                    "subject": subject,
+                    "sources": [s.get("source", "UNKNOWN") for s in sources],
+                }
+            merged[rid] = risk
+    return {
+        "state": "OK",
+        "risks": list(merged.values()),
+        "subject": subject,
+        "sources": [s.get("source", "UNKNOWN") for s in sources],
+    }
+
+
+def measure_risk_source(repo: Path) -> Dict[str, object]:
+    """Read the required repository risk source and preserve its identity."""
+    subject = _risk_subject(repo)
+    path = repo / RISK_SOURCE_RELATIVE
+    state, text = _risk_source_text(path)
+    if state != "OK":
+        return {"state": state, "risks": [], "subject": subject, "source": str(path)}
+    parsed = parse_risk_source(text, str(path), subject)
+    parsed["subject"] = subject
+    return parsed
+
+
+def measure_repository_health(
+    repo: Path, risks: List[Dict], risk_measurement: Optional[Dict[str, object]] = None
+) -> Dict:
     """Measure local invariants without trusting the documentary verdict."""
     reasons: List[str] = []
     state: Dict[str, object] = {
@@ -352,6 +546,14 @@ def measure_repository_health(repo: Path, risks: List[Dict]) -> Dict:
         "upstream": None,
         "synchronized": None,
     }
+    risk_measurement = risk_measurement or {
+        "state": "OK",
+        "risks": risks,
+        "subject": _risk_subject(repo),
+    }
+    risk_state = str(risk_measurement.get("state", "UNKNOWN"))
+    if risk_state != "OK":
+        reasons.append(f"risk source measurement is {risk_state}")
 
     agents_content = read_file(repo / "AGENTS.md")
     generated_markers = (
@@ -418,7 +620,7 @@ def measure_repository_health(repo: Path, risks: List[Dict]) -> Dict:
     ):
         reasons.append("an open P1/P2 risk is recorded")
 
-    if not status_ok or not head_ok or not branch_ok:
+    if risk_state != "OK" or not status_ok or not head_ok or not branch_ok:
         measured = "UNKNOWN"
     elif reasons:
         measured = "PARTIAL"
@@ -518,54 +720,15 @@ def get_latest_runs(repo: Path, limit: int = 5) -> List[Dict]:
 
 def get_open_risks(repo: Path) -> List[Dict]:
     """Extract open risks from recognized tables, ordered by severity."""
-    content = read_file(repo / "docs" / "AUDIT_STATUS.md")
-    risks: List[Dict] = []
-    columns: Optional[Dict[str, int]] = None
-
-    def clean(cell: str) -> str:
-        return re.sub(r"(?<!\w)[*_`]+|[*_`]+(?!\w)", "", cell).strip()
-
-    for line in content.split("\n"):
-        stripped = line.strip()
-        if not stripped.startswith("|"):
-            columns = None
-            continue
-
-        cells = [cell.strip() for cell in stripped.strip("|").split("|")]
-        headers = [clean(cell).lower() for cell in cells]
-        aliases = {
-            "id": {"id"},
-            "severity": {"severity", "sévérité"},
-            "status": {"status", "statut"},
-            "description": {"description", "constat"},
-        }
-        detected = {
-            name: next((i for i, header in enumerate(headers) if header in names), -1)
-            for name, names in aliases.items()
-        }
-        if all(index >= 0 for index in detected.values()):
-            columns = detected
-            continue
-
-        if columns is None or all(re.fullmatch(r":?-{3,}:?", cell) for cell in cells):
-            continue
-        if max(columns.values()) >= len(cells):
-            continue
-
-        rid = clean(cells[columns["id"]])
-        severity = clean(cells[columns["severity"]])
-        status = clean(cells[columns["status"]])
-        desc = clean(cells[columns["description"]])
-        status_key = status.lower()
-        if status_key.startswith("open") or status_key.startswith("mitigating"):
-            risks.append(
-                {
-                    "id": rid,
-                    "severity": severity,
-                    "status": status,
-                    "description": desc[:80],
-                }
-            )
+    parsed = measure_risk_source(repo)
+    if parsed.get("state") != "OK":
+        raise ValueError(f"risk source measurement is {parsed.get('state', 'UNKNOWN')}")
+    risks = [
+        risk
+        for risk in cast(List[Dict[str, str]], parsed.get("risks", []))
+        if _risk_status_key(risk.get("status", ""))
+        in {"open", "mitigating", "deferred"}
+    ]
 
     def severity_rank(risk: Dict) -> int:
         severity = risk["severity"].upper()
@@ -638,9 +801,15 @@ def gather_status(repo: Path) -> Dict:
     documented_verdict = extract_verdict(repo)
     next_action = extract_next_action(repo)
     latest_runs = get_latest_runs(repo)
-    open_risks = get_open_risks(repo)
+    risk_measurement = measure_risk_source(repo)
+    open_risks = [
+        risk
+        for risk in cast(List[Dict[str, str]], risk_measurement.get("risks", []))
+        if _risk_status_key(risk.get("status", ""))
+        in {"open", "mitigating", "deferred"}
+    ]
     test_count = count_tests(repo)
-    measured = measure_repository_health(repo, open_risks)
+    measured = measure_repository_health(repo, open_risks, risk_measurement)
     verdict = effective_verdict(documented_verdict, measured["verdict"])
 
     return {
@@ -661,6 +830,7 @@ def gather_status(repo: Path) -> Dict:
         "tests": test_count,
         "latest_runs": latest_runs,
         "risks": open_risks,
+        "risk_measurement": risk_measurement,
         "next_action": next_action,
         "index_present": index_present(repo),
         "temporal_provenance": temporal_provenance_present(repo),
