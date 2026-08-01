@@ -1,0 +1,61 @@
+# Step 2 — Vérification de l'état de départ
+
+## 2.1 — origin/main contient S_rc
+```
+$ git -C /Users/bricesodini/01_ai-stack/vibebackbone merge-base origin/main 3486300f359ff3b51effb007ed950dd48592556f
+3486300f359ff3b51effb007ed950dd48592556f
+```
+✅ **PASS** — S_rc est ancêtre de origin/main.
+
+## 2.2 — v1.1.0-rc.2 pointe sur S_rc
+```
+$ git ls-remote origin 'refs/tags/v1.1.0-rc.2^{}'
+3486300f359ff3b51effb007ed950dd48592556f	refs/tags/v1.1.0-rc.2^{}
+```
+✅ **PASS** — peel distant = S_rc.
+
+## 2.3 — Tag v1.1.0 distant absent
+```
+$ git ls-remote origin refs/tags/v1.1.0
+(empty)
+```
+✅ **PASS** — tag stable distant absent.
+
+## 2.4 — Tag v1.1.0 local absent
+```
+$ git rev-parse --verify refs/tags/v1.1.0
+fatal: Needed a single revision
+```
+✅ **PASS** — tag stable local absent.
+
+## 2.5 — Worktree clean
+```
+$ git status --short
+(empty)
+```
+✅ **PASS** — worktree propre.
+
+## 2.6 — 0 REQUIRES_FIX_BEFORE_STABLE / 0 INVALIDATES_RC
+Verdict du run d'observation 2026-08-01_2100_release-rc-observation :
+```
+| `REQUIRES_FIX_BEFORE_STABLE` | 0 | (aucun) |
+| `INVALIDATES_RC` | 0 | (aucun) |
+```
+✅ **PASS** — aucun finding bloquant.
+
+## 2.7 — HEAD = b4bedbb
+```
+$ git rev-parse HEAD
+b4bedbbd4528e55b6d81d537bc1e6a465f62e157
+```
+✅ **PASS** — HEAD correspond à origin/main.
+
+## 2.8 — Branche chore/v1.1.0-stable-promotion
+```
+$ git rev-parse --abbrev-ref HEAD
+chore/v1.1.0-stable-promotion
+```
+✅ **PASS** — branche créée depuis b4bedbb.
+
+## Synthèse
+8/8 vérifications PASS. **L'état de départ est conforme au protocole.**

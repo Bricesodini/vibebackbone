@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — 2026-08-01
 
+## [1.1.0] — 2026-08-01
+
+### Stable release (promoted from v1.1.0-rc.2)
+
+- **Promotes** `v1.1.0-rc.2` (SHA `3486300f359ff3b51effb007ed950dd48592556f`) to stable `v1.1.0`.
+- The stable release is byte-identical to the RC candidate from a functional
+  standpoint — the diff between S_rc and S_stable is exclusively documentary
+  (version identity, changelog, release checklist, run evidence).
+- Source RC identity `v1.1.0-rc.2` (tag `54561520eedb1632d6257879dbea973f08cb6f99`)
+  is preserved immuable on the remote.
+- See `docs/runs/2026-08-01_2200_v1-1-0-stable-promotion/` for the full
+  promotion contract and governance trace.
+
+### Changed
+
+- `_No functional change since v1.1.0-rc.2._` The corpus entries, the temporal
+  provenance update, and the 6 adversarial regression guards shipped in
+  rc.2 are now part of the stable release.
+
 ## [1.1.0-rc.2] — 2026-08-01
 
 ### Release candidate (rc.2 supersedes rc.1)

@@ -1,0 +1,56 @@
+# Step 3 — Diff du commit stable minimal
+
+## Statistiques
+```
+ CHANGELOG.md         | 19 +++++++++++++
+ RELEASE_CHECKLIST.md | 80 +++++++++++++++++++++++++---------------------------
+ package.json         |  2 +-
+ 3 files changed, 59 insertions(+), 42 deletions(-)
+```
+
+## Diff détaillé — package.json
+```diff
+-  "version": "1.1.0-rc.2",
++  "version": "1.1.0",
+```
+
+**Classification**: VERSION_IDENTITY (semver bump)
+
+## Diff détaillé — CHANGELOG.md
+```diff
++## [1.1.0] — 2026-08-01
++
++### Stable release (promoted from v1.1.0-rc.2)
++
++- **Promotes** `v1.1.0-rc.2` (SHA `3486300...`) to stable `v1.1.0`.
++- The stable release is byte-identical to the RC candidate from a functional
++  standpoint — the diff between S_rc and S_stable is exclusively documentary.
++- Source RC identity `v1.1.0-rc.2` (tag `54561520...`) is preserved immuable.
++...
+```
+
+**Classification**: RELEASE_DOCUMENTATION (additive entry)
+
+## Diff détaillé — RELEASE_CHECKLIST.md
+```diff
+-# v1.1.0 Release Candidate Checklist
++# v1.1.0 Release Checklist
+
+-**Version**: `1.1.0-rc.2`
+-**CANDIDATE_SHA**: <recorded in ...>
++**Version**: `1.1.0`
++**STABLE_SHA**: <recorded in ...>
+```
+
+**Classification**: RELEASE_DOCUMENTATION (rewritten with stable identity)
+
+## Fichiers NON modifiés
+- Validateurs : `tools/vbb-*.py` ✓
+- Schémas : `docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md`, etc. ✓
+- Workflows : `.github/workflows/` ✓
+- Distributions : `distributions/{pi,opencode,codex,claude}/` ✓
+- Contrats fonctionnels : `tests/test_*.py`, `tools/vbb-constants.py` ✓
+- Gouvernance suspendue : (rien touché) ✓
+
+## FUNCTIONAL_CHANGE count
+**0** — toutes les modifications sont VERSION_IDENTITY ou RELEASE_DOCUMENTATION.
