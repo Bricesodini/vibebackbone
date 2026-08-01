@@ -5,11 +5,39 @@ All notable changes to vibebackbone are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] — 2026-07-31
+## [Unreleased] — 2026-08-01
+
+## [1.1.0-rc.2] — 2026-08-01
+
+### Release candidate (rc.2 supersedes rc.1)
+
+- **Supersedes** `v1.1.0-rc.1` (SHA `58e51ee`) for reason of evidence
+  traceability: rc.1's release-freeze run produced a 16/16 PASS CI using six
+  corpus entries that were local to the measurement worktree and not present in
+  the candidate SHA `58e51ee`. The measured content therefore did not strictly
+  correspond to `C(S)`. The candidate was rejected without any technical
+  failure of the code.
+- Establishes `v1.1.0-rc.2` as the new release candidate identity. The candidate
+  commit SHA is recorded in the run evidence carrier after the technical
+  subject commit; it is not self-embedded in that commit.
+- The future annotated tag is `v1.1.0-rc.2`; it must peel to the candidate
+  commit exactly and must not be created before independent revalidation.
+
+### Changed
+
+- **Corpus completeness** (F8 / RR-BK-02 / RR-BK-03 / RR-BK-05 / RR-BK-06 / F9):
+  six new adversarial-corpus entries are integrated in
+  `tests/adversarial_corpus/`, registered in `INDEX.md`, and exercised by the
+  shipped pytest suite. Each entry encodes the rule the original finding
+  named, so the regression guard is real (not a counter-only stub).
+- **Temporal provenance** (F8): `docs/TEMPORAL_PROVENANCE.md` `updated`
+  field re-anchored to `2026-08-01` with `provenance_attribution` to the
+  release owner. The file now resolves the F8 staleness without contradicting
+  the workspace date.
 
 ## [1.1.0-rc.1] — 2026-07-31
 
-### Release candidate
+### Release candidate (superseded by rc.2)
 
 - Establishes the single release candidate identity for the Backbone Know
   foundation remediation.
@@ -17,6 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   technical subject commit; it is not self-embedded in that commit.
 - The future annotated tag is `v1.1.0-rc.1`; it must peel to the candidate
   commit exactly and must not be created before independent revalidation.
+- Superseded by `1.1.0-rc.2` (2026-08-01) for evidence traceability; tag
+  `v1.1.0-rc.1` was never created.
 
 ### Added
 
