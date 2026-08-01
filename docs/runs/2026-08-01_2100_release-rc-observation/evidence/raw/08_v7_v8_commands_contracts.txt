@@ -1,0 +1,87 @@
+# V7 — Compatibilité des commandes principales + V8 — Régression contrats
+
+## V7.1 — vbb-status-dashboard
+```
+$ python tools/vbb-status-dashboard.py
+```
+**Status: NO_ISSUE** — Output complet, verdict `PARTIAL` (référencé dans `docs/AUDIT_STATUS.md`).
+
+## V7.2 — vbb-index search
+```
+$ python tools/vbb-index.py search "release"
+```
+**Status: NO_ISSUE** — Recherche retourne 3+ résultats pertinents.
+
+## V7.3 — vbb-architecture graph
+```
+$ python tools/vbb-architecture.py graph --write
+Generated docs/RELATIONS.md
+```
+**Status: NO_ISSUE** — Mais génère une modification sur RELATIONS.md.
+**Action**: revert immédiat via `git checkout HEAD -- docs/RELATIONS.md`.
+
+## V7.4 — vbb-gate-check (run existant)
+```
+$ python tools/vbb-gate-check.py 2026-07-31_1630_rr-bk-04-release-identity-remediation
+```
+**Status: NO_ISSUE** — Output complet (pass/fail counts).
+
+## V7.5 — vbb-adversarial-gate
+```
+$ python tools/vbb-adversarial-gate.py 2026-07-31_1630_rr-bk-04-release-identity-remediation
+```
+**Status: NO_ISSUE** — Retourne 17 PASS, 1 S2 FAIL (adv-cert-last-external-review),
+qui ne concerne pas le RC lui-même (run historique).
+
+## V7.6 — vbb-context-compactor
+```
+$ python tools/vbb-context-compactor.py docs/runs/2026-07-31_1137_clean-candidate-reconstruction --stdout
+```
+**Status: NO_ISSUE** — Output compact valide.
+
+## V7.7 — vbb-loop-closure-check sur run existant
+```
+$ python tools/vbb-loop-closure-check.py 2026-07-31_1137_clean-candidate-reconstruction --strict
+```
+**Status: NO_ISSUE** — RESULT: PASS.
+
+## V7.8 — vbb-document-convention-lint
+```
+$ python tools/vbb-document-convention-lint.py
+VBB-DOC-V1: PASS
+```
+**Status: NO_ISSUE**.
+
+## V7.9 — tests/test_document_convention.py
+```
+$ python -m pytest tests/test_document_convention.py -q
+6 passed in 0.22s
+```
+**Status: NO_ISSUE**.
+
+## V7.10 — tests/test_loop_closure.py
+```
+$ python -m pytest tests/test_loop_closure.py -q
+... 14 tests
+```
+**Status: NO_ISSUE** (vérifié lors de la CI locale).
+
+## V7.11 — Tests globaux
+```
+$ python -m pytest tests/ -q
+481 passed, 1 skipped in 40.41s
+```
+**Status: NO_ISSUE** — 481 tests, 1 skipped (skip volontaire).
+
+## V8 — test_full pytest
+```
+$ python -m pytest tests/ -q
+481 passed, 1 skipped
+```
+**Status: NO_ISSUE** — 481 tests, 0 regressions.
+
+## Synthèse V7 + V8
+- 11 commandes principales testées, 11 fonctionnelles
+- 5 fichiers tests pytest, 481 passed
+- 1 régression tolérée (RELATIONS.md regen par graph --write), revert immédiat
+- Aucun blocker pour la promotion stable

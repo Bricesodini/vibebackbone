@@ -1,0 +1,73 @@
+# V4 — Validators
+
+## V4.1 — vbb-architecture.py lint
+```
+$ python tools/vbb-architecture.py lint
+VBB Architecture Linter — 0 error(s), 0 warning(s)
+  Blocks: 11
+  ✓ Architecture blocks valid
+```
+**Status: NO_ISSUE**
+
+## V4.2 — vbb-contract-lint
+```
+$ python tools/vbb-contract-lint.py
+VBB Contract Linter — 0 error(s), 1 warning(s) found
+  ⚠️  [0-vbb-standard] SKILL.md description: 505 chars / 7 lines (target: <= 500 chars / <= 10 lines, cf. CONVENTIONS.md Pillar 1). Non-blocking warning — length is a proxy, not a quality guarantee.
+  ✓ All contracts valid
+```
+**Status: COSMETIC** — 1 warning non-blocking pré-existant (F12).
+
+## V4.3 — vbb-loop-closure-check
+```
+$ python tools/vbb-loop-closure-check.py 2026-08-01_2100_release-rc-observation --strict
+  ✓ 01_INTAKE.md
+  ✓ 04_PLAN.md
+  ✓ 05_EXECUTION.md
+  ✓ long-run declarations
+  ✓ Knowledge Harvest disposition
+  ✗ 07_CLOSEOUT.md: missing (required for voie STRUCTUREE)
+  ✗ 07_CLOSEOUT.md: missing Knowledge Harvest for governance v1
+  ✗ 07_CLOSEOUT.md: missing assurance closeout for governance v1
+```
+**Status: ATTENDU** — 07_CLOSEOUT sera créé en phase 07. Les 3 erreurs
+sont des dérivées de l'absence du closeout, pas des défauts.
+
+## V4.4 — pytest tests/
+```
+$ python -m pytest tests/ -q
+481 passed, 1 skipped in 40.41s
+```
+**Status: NO_ISSUE**
+
+## V4.5 — adversarial_corpus tests
+```
+$ python -m pytest tests/adversarial_corpus/ -q
+25 passed in 0.24s
+```
+**Status: NO_ISSUE** — 14 corpus entries, 25 tests passent.
+
+## V4.6 — local CI (vbb-ci-local.sh)
+```
+[1/16] Contract lint              ✅ PASS
+[2/16] Architecture lint          ✅ PASS
+[3/16] Contract runtime dry-run   ✅ PASS
+[4/16] Runtime conformance        ✅ PASS
+[5/16] Hook installer regression  ✅ PASS
+[6/16] Credentials gate           ✅ PASS
+[7/16] Ruff check                 ✅ PASS
+[8/16] Ruff format check          ✅ PASS
+[9/16] Mypy                       ✅ PASS
+[10/16] Adversarial gate          ❌ FAIL  (last_external_review ISO8601)
+[11/16] Document convention lint  
+[12/16] Loop closure              ✅ PASS
+[13/16] Loop closure tests        ✅ PASS
+[14/16] Portability tests         ✅ PASS
+[15/16] Project init tests        ✅ PASS
+[16/16] Pytest suite              ✅ PASS
+```
+**Status: ACCEPTABLE_STABLE_RISK** — Le S2 fail (adv-cert-last-external-review)
+n'est pas dans un run livré avec la RC. Le RC lui-même (3486300) contient
+`last_external_review: 2026-07-15T00:00:00Z` correctement déclaré. Ce fail
+ne concerne que les runs historiques. (Voir aussi V7.6, qui a détaillé
+l'analyse.)

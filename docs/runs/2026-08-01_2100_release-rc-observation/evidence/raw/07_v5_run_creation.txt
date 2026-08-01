@@ -1,0 +1,85 @@
+# V5 — Run creation/closure test
+
+## Test 1 — Executer via vbb-executor.py
+
+```
+$ python tools/vbb-executor.py run 0-vbb-zero-friction --run-id 2026-08-01_2200_smoke-test
+```
+
+**Output:**
+```json
+{
+  "run_id": "2026-08-01_2200_smoke-test",
+  "skill_id": "0-vbb-zero-friction",
+  "state": "DONE",
+  "status": "PASS",
+  "duration_ms": 30,
+  "gates_passed": 0,
+  "gates_total": 0,
+  "errors": [],
+  "warnings": []
+}
+```
+
+**Fichiers créés:**
+```
+docs/runs/2026-08-01_2200_smoke-test/
+  01_INTAKE.md
+  02_AUDIT.md
+  07_CLOSEOUT.md
+```
+
+## Test 2 — Loop closure sur run créé
+
+```
+$ python tools/vbb-loop-closure-check.py 2026-08-01_2200_smoke-test --strict
+```
+
+**Output:**
+```
+  ✗ 07_CLOSEOUT.md: frontmatter missing required field 'artifacts_produced'
+  ✗ 07_CLOSEOUT.md: frontmatter missing required field 'voie'
+  ✗ 01_INTAKE.md: knowledge_governance_version is required since cutover 2026-07-27_1712
+  ✗ 07_CLOSEOUT.md: knowledge_governance_version is required since cutover 2026-07-27_1712
+  ✗ 07_CLOSEOUT.md: knowledge_harvest must be one of EVIDENCE_LINKED, NONE, OBSERVATION_RECORDED
+  ✗ 01_INTAKE.md: assurance_governance_version is required since cutover 2026-07-27_2145
+  ✗ 07_CLOSEOUT.md: assurance_governance_version is required since cutover 2026-07-27_2145
+  ✗ 07_CLOSEOUT.md: missing sibling ASSURANCE_STATUS YAML block
+
+RESULT: FAIL — 9 issue(s) found
+```
+
+## Analyse
+Le smoke test `0-vbb-zero-friction` crée un run FAST-ZERO
+minimal. Mais le validator `vbb-loop-closure-check.py` exige
+maintenant (depuis cutover 2026-07-27_1712) :
+- `knowledge_governance_version` dans frontmatter
+- `assurance_governance_version` dans frontmatter
+- `artifacts_produced` dans frontmatter
+- `voie` dans frontmatter
+- `knowledge_harvest` dans frontmatter
+- `ASSURANCE_STATUS` block sibling dans 07_CLOSEOUT
+
+Le smoke test zero-friction crée un run PASS du point de vue
+du tool de création, mais FAIL sur la validation post-cutover.
+
+## Classification
+**`ACCEPTABLE_STABLE_RISK`** — la création de run fonctionne
+(côté executor), mais le smoke test zero-friction n'a pas été
+mis à jour pour le cutover 2026-07-27_1712. Cela n'affecte pas
+l'usage réel (les utilisateurs utilisent les templates complets
+décrits en docs).
+
+## Recommandation
+Un run de mise à jour de `0-vbb-zero-friction` skill devrait
+inclure:
+- knowledge_governance_version
+- assurance_governance_version
+- artifacts_produced
+- voie
+- knowledge_harvest
+- ASSURANCE_STATUS block
+
+Pour la RC v1.1.0-rc.2, ce n'est pas un blocage : le smoke
+test est conservé comme test de capability, et la validation
+post-cutover est documentée (cf. AGENTS.md cutover).

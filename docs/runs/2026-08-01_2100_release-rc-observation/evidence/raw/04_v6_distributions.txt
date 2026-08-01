@@ -1,0 +1,39 @@
+# V6 — Comportement des quatre distributions
+
+## État des dossiers distributions/
+```
+pi/        AGENTS.md absent, SYSTEM.md présent, setup.sh, README.md, overrides.template.json
+opencode/  AGENTS.md absent, SYSTEM.md absent, setup.sh, README.md
+codex/     AGENTS.md absent, SYSTEM.md absent, setup.sh, README.md
+claude/    AGENTS.md absent, SYSTEM.md absent, CLAUDE.md présent, setup.sh, README.md
+```
+
+## Analyse
+- **pi** a SYSTEM.md pour la posture runtime (mode transverse)
+- **claude** a CLAUDE.md (fichier dédié Claude Code)
+- **codex** compile AGENTS.md dynamiquement (cf. codex_compile_agents_md)
+- **opencode** injecte dans opencode.json
+
+Les AGENTS.md manquants localement dans les dossiers distributions/
+sont **normaux** : ils sont générés/symlinkés par setup.sh à l'installation
+vers `~/.claude/`, `~/.codex/`, `~/.pi/`, `~/.config/opencode/`.
+
+Vérification dans setup.sh :
+- pi: `pi_install_agents_symlink` crée `~/.pi/agent/AGENTS.md` symlink
+- codex: `codex_compile_agents_md` compile vers destination
+- claude: `claude_install_claude_md_block` injecte dans CLAUDE.md
+- opencode: hérite via AGENTS.md
+
+## Test exécution setup.sh
+```
+$ for d in pi opencode codex claude; do echo "--- $d ---"; bash -n distributions/$d/setup.sh && echo "syntax OK"; done
+--- pi --- syntax OK
+--- opencode --- syntax OK
+--- codex --- syntax OK
+--- claude --- syntax OK
+```
+
+## Status: NO_ISSUE**
+Les 4 distributions ont leurs fichiers runtime présents (SYSTEM.md pour
+pi, CLAUDE.md pour claude, setup.sh pour tous). Le test `bash -n` passe
+pour tous les setup.sh.

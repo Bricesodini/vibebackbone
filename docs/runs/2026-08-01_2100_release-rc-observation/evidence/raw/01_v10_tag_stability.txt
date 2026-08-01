@@ -1,0 +1,33 @@
+# V10 — Tag stability — three independent verifications
+
+## Verification 1: Remote tag
+```
+$ git ls-remote origin refs/tags/v1.1.0-rc.2
+54561520eedb1632d6257879dbea973f08cb6f99	refs/tags/v1.1.0-rc.2
+
+$ git ls-remote origin 'refs/tags/v1.1.0-rc.2^{}'
+3486300f359ff3b51effb007ed950dd48592556f	refs/tags/v1.1.0-rc.2^{}
+```
+
+## Verification 2: Local tag (worktree)
+```
+$ git rev-parse --verify refs/tags/v1.1.0-rc.2
+54561520eedb1632d6257879dbea973f08cb6f99
+
+$ git rev-parse --verify 'refs/tags/v1.1.0-rc.2^{}'
+3486300f359ff3b51effb007ed950dd48592556f
+```
+
+## Verification 3: Hash compare
+- Expected peel: `3486300f359ff3b51effb007ed950dd48592556f`
+- Remote peel:  `3486300f359ff3b51effb007ed950dd48592556f`
+- Local peel:   `3486300f359ff3b51effb007ed950dd48592556f`
+- Match: **YES** (3/3)
+
+Tag object SHA `54561520eedb1632d6257879dbea973f08cb6f99` also unchanged
+across all three sources.
+
+**Status: NO_ISSUE**
+
+Tag immuable observé. Stabilité parfaite après la fenêtre
+d'observation.

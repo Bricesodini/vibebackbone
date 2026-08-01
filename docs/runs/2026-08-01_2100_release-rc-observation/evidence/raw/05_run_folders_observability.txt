@@ -1,0 +1,61 @@
+# OBSERVATION KEY — Run folders traceability in main
+
+## Découverte
+Les dossiers de run pour le cycle rc.2 (2026-08-01_*) **ne sont
+pas dans origin/main** après le merge `b4bedbb`.
+
+Investigation:
+- `git diff --name-only 6b0daf4 b4bedbb` retourne 92 fichiers
+- **Aucun** de ces fichiers n'est sous `docs/runs/2026-08-01_*`
+- La comparaison `git ls-tree -r origin/main docs/runs/ | grep 2026-08-01` retourne 0
+
+## Cause
+Le merge `b4bedbb` (parents=[6b0daf4, b5e2828]) n'a inclus que:
+- Le commit candidat `3486300` (chore(release): prepare v1.1.0-rc.2 candidate)
+- Le commit intégration `b5e2828` (docs(runs): remediate external pilot)
+
+Les 17 commits antérieurs du branch étaient des commits déjà présents
+sur d'autres branches (bd8f3fa, c11f5c1, ..., 0d4d683). Les dossiers
+runs 2026-08-01_* ont été créés sur le filesystem mais **jamais
+committés** à la branche.
+
+## Récupérabilité
+Les fichiers sont **préservés dans le stash** `stash@{0}` :
+```
+$ git stash show 0 --include-untracked --name-only | grep -E "2026-08-01" | wc -l
+104
+```
+
+Donc :
+- 104 chemins de fichiers 2026-08-01 sont dans le stash
+- Incluant les runs 0700, 0752, 0800, 0815, 0900, 1000, 1100, 1200
+- Le dossier 0815_release-freeze-integration a les 6 fichiers (01..07)
+- Ils sont récupérables par `git stash pop` (mais cela mélangerait
+  avec l'état actuel)
+
+## Statut du point de vue release
+- **Release artifacts** (CHANGELOG, RELEASE_CHECKLIST, package.json, docs/TEMPORAL_PROVENANCE.md) : **INTACTS** dans main
+- **Identité RC** (V/S/T) : **INTACTE** (tag toujours sur S=3486300)
+- **Trace gouvernance** (dossiers runs février 2026-08-01) : **MANQUANTE de main**, **PRÉSERVÉE dans stash**
+
+## Impact sur la RC
+- Aucun impact direct sur la RC elle-même
+- Aucun impact sur l'installation, l'init, l'usage
+- Aucun impact sur les validateurs
+- Aucun impact sur l'identité de la RC
+
+## Classification
+**`ACCEPTABLE_STABLE_RISK`** — la trace gouvernance est préservable
+via stash. Le release fonctionne entièrement sans. Mais pour la
+transparence et la traçabilité governance complète, il faudrait
+un run dédié pour consolider la trace (par exemple: créer un commit
+de "traceback" qui récupère les dossiers du stash vers une branche
+archive, sans modifier le tag ni main).
+
+## Action recommandée post-observation
+1. **Court terme**: aucune action bloquante pour la promotion stable
+2. **Run dédié**: créer `2026-08-01_XXXX_traceback-runs/` pour
+   récupérer les dossiers runs depuis stash vers une branche
+   `archive/2026-08-01-runs-preservation` (sans toucher main, sans
+   toucher le tag)
+3. **Documenter**: ajouter finding à AUDIT_STATUS.md pour traçabilité

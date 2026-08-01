@@ -1,0 +1,59 @@
+# V9 — Cohérence des artefacts de release
+
+## V9.1 — package.json
+```
+$ python -c "import json; p = json.load(open('package.json')); print(p['version'])"
+1.1.0-rc.2
+```
+**Status: NO_ISSUE**
+
+## V9.2 — CHANGELOG.md — entries rc.2
+```
+## [1.1.0-rc.2] — 2026-08-01
+
+### Release candidate (rc.2 supersedes rc.1)
+
+- **Supersedes** `v1.1.0-rc.1` (SHA `58e51ee`) for reason of evidence
+  traceability: rc.1's release-freeze run produced a 16/16 PASS CI using six
+  corpus entries that were local to the measurement worktree and not present in
+  the candidate SHA `58e51ee`.
+- Establishes `v1.1.0-rc.2` as the new release candidate identity.
+- The future annotated tag is `v1.1.0-rc.2`; it must peel to the candidate
+  commit exactly and must not be created before independent revalidation.
+
+### Changed
+
+- **Corpus completeness** (F8 / RR-BK-02 / 03 / 05 / 06 / F9):
+  six new adversarial-corpus entries are integrated in
+  `tests/adversarial_corpus/`, registered in `INDEX.md`, and exercised by the
+  shipped pytest suite.
+- **Temporal provenance** (F8): `docs/TEMPORAL_PROVENANCE.md` `updated`
+  field re-anchored to `2026-08-01`.
+```
+**Status: NO_ISSUE**
+
+## V9.3 — RELEASE_CHECKLIST.md
+```
+# v1.1.0 Release Candidate Checklist
+
+**Version**: `1.1.0-rc.2`
+**CANDIDATE_SHA**: 3486300f359ff3b51effb007ed950dd48592556f
+**Future annotated tag**: `v1.1.0-rc.2`
+**Status**: Candidate preparation — independent revalidation pending
+**Supersedes**: `v1.1.0-rc.1` (SHA `58e51ee`)
+```
+**Status: NO_ISSUE**
+
+## V9.4 — docs/TEMPORAL_PROVENANCE.md
+```
+updated: 2026-08-01
+provenance_attribution: "Brice Sodini <brice07@me.com> — release-freeze run 2026-08-01_1100 → rc.2 candidate"
+known_skew_resolution: "F8 stale TEMPORAL_PROVENANCE.md resolved by this update as part of v1.1.0-rc.2 candidate preparation."
+```
+**Status: NO_ISSUE** (F8 résolu dans rc.2)
+
+## Synthèse V9
+- `package.json` version = `1.1.0-rc.2` ✓
+- `CHANGELOG.md` rc.2 entry présente ✓
+- `RELEASE_CHECKLIST.md` complet ✓
+- `docs/TEMPORAL_PROVENANCE.md` ré-ancré à 2026-08-01 ✓
