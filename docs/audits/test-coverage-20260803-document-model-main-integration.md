@@ -26,7 +26,7 @@ runtime, distributions other than the edited source, or canonical adoption.
 
 ## Priority gaps
 
-1. F-05 `docs/CONTEXT.md` still needs a separate fact-based update and test.
+1. F-05 `docs/CONTEXT.md` was updated and its parseability test passes.
 2. Full propagation across all distributions is not part of this lot.
 3. Runtime Pi conformance remains unverified and is explicitly deferred.
 
@@ -41,4 +41,3 @@ runtime, distributions other than the edited source, or canonical adoption.
 
 No runtime, publication, tag, merge or multi-deposit state was inspected as
 part of this audit. The report is evidence for this integration run only.
-
