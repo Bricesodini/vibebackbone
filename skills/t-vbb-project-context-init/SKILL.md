@@ -6,7 +6,7 @@ description: |
   docs/audits/, docs/adr/, docs/templates/ (7 phase templates) and updates
   .gitignore. Optionally installs a VBB-managed canonical hook bundle with
   provenance checks. Project-owned documents are generated once by default.
-version: "1.0"
+version: "1.1"
 phase: transverse
 token_budget: low
 subagent_eligible: true
@@ -36,6 +36,13 @@ Absolute rules:
 - Existing Git hooks require `--overwrite-hook`; customized managed assets
   require the separate `--overwrite-managed` flag.
 - Evidence required: clearly report files created, skipped, or in error.
+- Negotiate the documentary contract through the C0-C5 validator before
+  claiming conformity. Never infer authority from a path, date or filename.
+- A missing contract is `UNKNOWN`; an old compatible contract is reported
+  explicitly; a migration-required contract becomes a finding and awaits
+  `OUI`, `NON` or `PLUS_TARD`.
+- A fresh initialization declares a target contract only; it does not claim
+  that existing artefacts already conform.
 
 ## INPUT CONTRACT
 
@@ -88,30 +95,37 @@ Absolute rules:
 1. Verify that `tools/vbb-project-init.py` is accessible.
 2. Check whether the project is already on VBB rails:
    - `ls docs/PROJECT_MODE.md docs/CONTEXT.md docs/AUDIT_STATUS.md` → if all exist → PARTIAL (partial update possible).
-3. Run dry-run to preview:
+3. Run the C0-C5 documentary-contract check in read-only mode. Record the
+   observed contract version, identity/representation evidence, ontology,
+   relations, compatibility and confidence. Keep missing or incomplete values
+   `UNKNOWN`.
+4. Run dry-run to preview:
    ```bash
    python3 tools/vbb-project-init.py --target-dir <path> --dry-run
    ```
-4. Present the summary to the user (files that would be created / skipped).
-5. If user confirms, run actual initialization:
+5. Present the contract findings and the file summary to the user. Ask
+   explicitly for `OUI`, `NON` or `PLUS_TARD`; no finding response writes an
+   artefact by itself.
+6. If user confirms and the route is authorized, run actual initialization:
    ```bash
    python3 tools/vbb-project-init.py \
      --target-dir <path> \
      --project-name "<Project Name>" \
      --mode DEV
    ```
-6. Verify created files and report skips.
-7. Guide the user to complete `docs/CONTEXT.md`:
+7. Verify created files and report skips; do not claim existing-artefact
+   conformity unless the validator evidence supports it.
+8. Guide the user to complete `docs/CONTEXT.md`:
    - Project description
    - Main stack
    - Expected operating mode
-8. Report that the canonical hooks can be installed from the VBB checkout:
+9. Report that the canonical hooks can be installed from the VBB checkout:
    ```bash
    python3 tools/vbb-project-init.py --target-dir <path> --install-hook
    ```
    On refresh, never combine permissions implicitly: `--overwrite-hook` replaces
    generated Git hooks; `--overwrite-managed` adopts customized runtime assets.
-9. Produce the `07_CLOSEOUT.md` of the initialization run.
+10. Produce the `07_CLOSEOUT.md` of the initialization run.
 
 ## OUTPUT CONTRACT
 

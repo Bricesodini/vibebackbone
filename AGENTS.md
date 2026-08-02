@@ -73,6 +73,15 @@ by every agent profile. Reference-only content is cited by path, not duplicated.
     `ASSURANCE_STATUS` are orthogonal. Implementation authorization is explicit
     and fail-closed; Knowledge Harvest remains a closeout control. Canon:
     `docs/GATE_ASSURANCE_GOVERNANCE.md`.
+16. **Governed artifact drift:** when an agent detects that a governed artifact
+    is no longer aligned with the applicable authority, it qualifies the drift,
+    never modifies the artifact automatically, and explicitly requests a human
+    decision: `OUI`, `NON`, or `PLUS TARD`. Only after `OUI` does the agent
+    determine the remediation procedure appropriate to the artifact. After
+    `NON`, it keeps the current state and records the human decision. After
+    `PLUS TARD`, it records
+    deferred documentary debt. A `CANON_CHANGE_PROPOSAL` is required only when
+    the remediation actually changes the canon.
 
 ## Runtime Behavior
 

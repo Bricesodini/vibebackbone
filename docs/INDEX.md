@@ -51,6 +51,20 @@ updated: 2026-07-14
 | Templates d'artefacts | [`templates/`](templates/) |
 | Artefacts de run produits | [`runs/`](runs/) |
 
+## Documentary Contract v1.0
+
+| Responsabilité | Autorité canonique |
+|---|---|
+| Identité documentaire | [`document-model/DOCUMENT_IDENTITY_MODEL.md`](document-model/DOCUMENT_IDENTITY_MODEL.md) |
+| Ontologie documentaire | [`document-model/DOCUMENT_ONTOLOGY.md`](document-model/DOCUMENT_ONTOLOGY.md) |
+| Relations documentaires | [`document-model/DOCUMENT_GRAPH_MODEL.md`](document-model/DOCUMENT_GRAPH_MODEL.md) |
+| Tags documentaires | [`document-model/DOCUMENT_TAG_SPECIFICATION.md`](document-model/DOCUMENT_TAG_SPECIFICATION.md) |
+| Transitions documentaires | [`document-model/DOCUMENT_TRANSITION_PROTOCOL.md`](document-model/DOCUMENT_TRANSITION_PROTOCOL.md) |
+| Architecture de référence | [`document-model/DOCUMENT_MODEL_REFERENCE_ARCHITECTURE.md`](document-model/DOCUMENT_MODEL_REFERENCE_ARCHITECTURE.md) |
+
+L'adoption est déclarée par [`.vbb/document-convention.yaml`](../.vbb/document-convention.yaml).
+Les artefacts non qualifiés restent `UNKNOWN`.
+
 ## Gouvernance racine
 
 | Sujet | Fichier |

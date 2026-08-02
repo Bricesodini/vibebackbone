@@ -5,7 +5,7 @@ description: |
   Inventories code and docs, classifies gaps, follows repository conventions,
   and emits a gap report. Use for evidence-grounded code→doc integration in
   COMPLETE or DELEGATED mode; never modifies code or deletes files.
-version: "2.1"
+version: "2.2"
 phase: 02_AUDIT
 token_budget: medium
 subagent_eligible: true
@@ -30,6 +30,15 @@ Rules:
 - Route harmonization to `1-vbb-doc-harmonizer`, debt to `1-vbb-tech-debt`,
   dependency mapping to `t-vbb-dependency-mapper`, and impact analysis to
   `t-vbb-impact-analyzer`.
+- Consume the C0-C5 document-model validator for identity, ontology, relations
+  and documentary compatibility.
+- A detected gap is a finding only. Ask explicitly for `OUI`, `NON` or
+  `PLUS_TARD`; do not create a document or identity after detection alone.
+- After `OUI`, distinguish a new representation of an existing identity, a
+  proposal for a new identity, and a correction of an incomplete
+  representation. The skill can never create a canonical authority alone.
+- Never infer authority from path, date or filename; preserve `UNKNOWN` when
+  the evidence is insufficient.
 
 ## INPUT CONTRACT
 
@@ -85,12 +94,14 @@ Execute in order:
 
 1. Inventory documentable units in the requested scope.
 2. Inventory `docs/` and root Markdown; infer the documentation convention.
-3. Cross-reference code↔doc, classify `GAP`/`ORPHAN`/`COVERED`, assign severity,
-   and retain gaps at the configured threshold.
-4. For each retained gap, choose the path from the detected convention; otherwise
-   use `docs/features/{name}.md` when that directory exists, else
-   `docs/{name}.md`. Write from observed code only.
-5. List LOW gaps and orphans in the report without creating, deleting, or moving
+3. Cross-reference code↔doc, pass each observation through C0-C5, and classify
+   `GAP`/`ORPHAN`/`COVERED` with identity, authority, ontology, compatibility,
+   severity, evidence and confidence.
+4. Present retained gaps as findings and request `OUI`, `NON` or `PLUS_TARD`.
+   Keep `UNKNOWN` when the identity or authority cannot be established.
+5. Only after `OUI`, select the representation/identity action; any document
+   creation remains a proposed route and is not automatic in this skill run.
+6. List LOW gaps and orphans in the report without creating, deleting or moving
    their files. Write the report and update audit status.
 
 ## DOCUMENT TEMPLATE
@@ -150,4 +161,5 @@ The report must contain:
 Support full or targeted code→doc gap detection, HIGH/MEDIUM documentation
 creation, orphan reporting, and authorized delegated writing. Refuse code
 changes, deletion/moves, harmonization, debt audit, dependency mapping, and
-impact analysis.
+impact analysis. A gap finding, `OUI` response or route proposal never creates
+an artefact without a separately authorized remediation run.

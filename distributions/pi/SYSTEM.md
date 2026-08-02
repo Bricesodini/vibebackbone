@@ -3,7 +3,7 @@ load_policy: always
 context_role: pi-runtime-behavior
 phase: transverse
 status: active
-updated: 2026-07-13
+updated: 2026-07-31
 ---
 
 # SYSTEM.md — Runtime behavior (Pi / OpenCode)
@@ -76,10 +76,15 @@ result is canonical or best-effort.
 - Do not rewrite governance documents unless the task explicitly requires it.
 - Do not claim certainty when inferring.
 
-## Adversarial dimension (post-cutoff, ADR 0051)
+## Adversarial dimension (v1.2 clarification, ADR 0053)
 
-Post-cutoff runs (declared `adversarial_governance_version: "1.1"`,
-cutoff `2026-07-28_1400`) require:
+Post-cutoff runs use the versioned adversarial governance contract. New runs
+that use the current contract declare `adversarial_governance_version: "1.2"`.
+Runs declared under v1.1 retain their historical v1.1 semantics and are not
+reinterpreted retroactively. The v1.2 alignment is defined by ADR 0053; ADR
+0051 remains the historical foundational decision.
+
+Current runs require:
 
 - **Adversarial level declaration** at intake. Default undeclared = `A1`
   (fail-closed). See `docs/ADVERSARIAL_ASSURANCE_GOVERNANCE.md` §1.2
@@ -88,19 +93,17 @@ cutoff `2026-07-28_1400`) require:
   is mandatory in the more prudent direction.
 - **A2** requires verifiable operational isolation; model/provider are
   transparency metadata. **A3** adds strengthened external independence.
-  When no genuinely distinct human actor is available, A2 proxy mode
-  publishes the three identity disclosures and respects quarterly external
-  review (≤ 90 days). See the versioned v1.2 authority.
+  See the versioned v1.2 authority for the required evidence.
 - **PRE_CERTIFICATION / MIGRATION** are valid `certification_status`
   values post-cutoff (introduced by REM-01, ratified 2026-07-28).
-- **adversarial validator** (`tools/vbb-adversarial-gate.py`) is now
-  part of the canonical toolset. It validates the adversarial block
-  in `07_CLOSEOUT.md` against the versioned v1.1/v1.2 contract.
+- **adversarial validator** (`tools/vbb-adversarial-gate.py`) validates the
+  adversarial block in `07_CLOSEOUT.md` against the applicable versioned
+  contract.
 
 When the task involves governance canon, auth, secrets, data integrity,
 published contracts, money, concurrency, deployment, or canon-gating
-work: declare `A2` (or higher trigger) and respect the proxy contract
-or surface the absence of a distinct actor.
+work: declare `A2` (or higher trigger) and record the operational-isolation
+evidence required by the applicable versioned contract.
 
 ## Communication style
 

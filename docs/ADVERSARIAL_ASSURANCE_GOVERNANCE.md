@@ -4,7 +4,7 @@ context_role: adversarial-assurance-domain
 phase: transverse
 status: active
 version: "1.2"
-adr: "0051"
+adr: "0053"
 canonical: true
 referenced_by:
   - "docs/GATE_ASSURANCE_GOVERNANCE.md §Schema 1.1 (schema authority)"
@@ -20,7 +20,9 @@ referenced_by:
 This clarification is adopted by ADR 0053 and applies only to runs that
 declare `adversarial_governance_version: "1.2"` (or the explicitly marked
 `1.2-proposed` transition profile). Runs governed by v1.1 retain their
-original meaning and are never reinterpreted retroactively.
+original meaning and are never reinterpreted retroactively. ADR 0051 remains
+the historical foundational decision for the adversarial assurance dimension;
+ADR 0053 records the v1.2 alignment and does not rewrite ADR 0051.
 
 - `A1` is bounded internal self-adversarial review.
 - `A2` is adversarial review with verifiable operational isolation. At
@@ -343,8 +345,10 @@ conditions, or the sufficiency of the contracts themselves.
 7. Every remediated finding carries a non-regression lock with
    `fails_before: true` and `passes_after: true`.
 8. Every remediated finding has a `COUNTER_PROOF` gate result with
-   verdict `PASS`, produced after the remediation and, at `A2`, by a
-   distinct actor.
+   verdict `PASS`, produced after the remediation. For v1.2 `A2`, the
+   counter-proof must satisfy the declared operational-isolation evidence;
+   v1.1 runs retain the historical distinct-actor profile, and `A3` requires
+   strengthened external independence.
 9. `surfaces_unexplored` is declared and non-omitted. An empty list is
    legal only with explicit justification that the declared surface was
    exhaustively covered.

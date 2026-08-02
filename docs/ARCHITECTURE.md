@@ -74,6 +74,45 @@ risks:
     note: Governance duplication can create conflicting operational truth.
 ```
 
+## Bloc: Documentary Contract
+
+```yaml
+id: documentary-contract
+type: governance
+status: active
+role: Canonical documentary model for identity, qualification, relations, transition and contract observability.
+responsibilities:
+  - Define stable documentary identity independently of path or representation
+  - Qualify artefacts on orthogonal ontology dimensions
+  - Record provenance and competing documentary relations
+  - Route documentary findings through human decision before remediation
+  - Expose documentary contract compatibility without granting authority
+depends_on:
+  - governance-core
+impacts:
+  - document authority
+  - documentary transitions
+  - agent startup and routing
+  - source and projection provenance
+files:
+  - docs/document-model/DOCUMENT_IDENTITY_MODEL.md
+  - docs/document-model/DOCUMENT_ONTOLOGY.md
+  - docs/document-model/DOCUMENT_GRAPH_MODEL.md
+  - docs/document-model/DOCUMENT_TAG_SPECIFICATION.md
+  - docs/document-model/DOCUMENT_TRANSITION_PROTOCOL.md
+  - docs/document-model/DOCUMENT_MODEL_REFERENCE_ARCHITECTURE.md
+  - .vbb/document-convention.yaml
+contracts:
+  - vbb-doc-v1
+tests:
+  - tests/test_document_model_validation_pilot.py
+  - tests/test_documentary_skills_dtp_alignment.py
+risks:
+  - id: DOC-001
+    level: P1
+    note: Unqualified artefacts must remain UNKNOWN and historical evidence must not become current authority.
+```
+
 ## Bloc: Engineering Knowledge Governance
 
 ```yaml
