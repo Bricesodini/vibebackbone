@@ -21,20 +21,20 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 ## Active state
 
-- **Route**: STRUCTURED — controlled document-model integration toward `main`.
+- **Route**: STRUCTURED — local adoption of Documentary Contract v1.0 before publication.
 - **Published anchor**: `origin/main@067b8ea6e9a7d9bea65a29340bdc38da1361f039`.
 - **Local revision**: branch `codex/document-model-main-integration`; the
   technical C0–C5 and skills lots plus F-02/F-03 are locally committed.
 - **Active run**:
-  [`2026-08-03_document-model-main-integration`](runs/2026-08-03_document-model-main-integration/).
+  [`2026-08-03_document-model-canon-adoption`](runs/2026-08-03_document-model-canon-adoption/).
 - **Runtime status**: the deployed Pi runtime is not observable from this
   repository state and is not certified by this integration.
-- **Audit truth and remaining scope**: F-05 and integrated validation remain
-  bounded to this run; F-04, F-06 and canonical adoption are deferred.
+- **Audit truth and remaining scope**: adoption is local and bounded; F-04,
+  F-06 and runtime Pi certification remain deferred.
 - **Measured health**: run `python tools/vbb-status-dashboard.py`; do not copy
   test, contract, prompt, or runtime counters into this router
-- **Next action**: complete F-05 validation, then run integrated validation and
-  final closeout for the bounded technical integration.
+- **Next action**: complete the A2 adoption review and close the local
+  Documentary Contract v1.0 run, then await the human publication decision.
 - **Architecture**: [ARCHITECTURE.md](ARCHITECTURE.md) is canonical;
   [RELATIONS.md](RELATIONS.md) is generated
 - **Quality**: [CONVENTIONS.md](CONVENTIONS.md), pillars P1–P5 and P.R1–P.R8
@@ -67,4 +67,5 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 | Technical debt | [TECH_DEBT.md](TECH_DEBT.md) |
 | Architecture | [ARCHITECTURE.md](ARCHITECTURE.md) |
 | Documentation index | [INDEX.md](INDEX.md) |
+| Documentary Contract | [document-model/](document-model/) |
 | Runs and closeouts | `docs/runs/*/07_CLOSEOUT.md` |

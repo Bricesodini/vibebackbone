@@ -15,6 +15,7 @@ source: ARCHITECTURE.md
 ```mermaid
 graph TD
   governance-core["Governance Core<br/>governance · active"]
+  documentary-contract["Documentary Contract<br/>governance · active"]
   engineering-knowledge-governance["Engineering Knowledge Governance<br/>governance · active"]
   gate-assurance-governance["Gate Assurance Governance<br/>governance · active"]
   skills-catalog["Skills Catalog<br/>distribution · active"]
@@ -25,6 +26,7 @@ graph TD
   quality-conventions["Quality Conventions<br/>governance · active"]
   audit-memory["Audit Memory<br/>data · active"]
   external-dependencies["External Dependencies<br/>external · active"]
+  documentary-contract --> governance-core
   engineering-knowledge-governance --> governance-core
   gate-assurance-governance --> governance-core
   gate-assurance-governance --> engineering-knowledge-governance
@@ -53,6 +55,7 @@ graph TD
 
 | Block | Risks |
 |-------|-------|
+| `documentary-contract` | DOC-001: Unqualified artefacts must remain UNKNOWN and historical evidence must not become current authority. |
 | `engineering-knowledge-governance` | KNO-001: A candidate, playbook or run can create parallel truth if treated as authority.; KNO-002: Scope inflation can promote evidence beyond the independence it demonstrates. |
 | `gate-assurance-governance` | ASR-001: Misclassifying a behavioral contradiction as Certification can preserve a false Design PASS.; ASR-002: Inferring authorization from PASS verdicts can bypass required gates. |
 | `skills-catalog` | SKILL-001: Contract index drift reduces route and runtime coverage. |
@@ -65,6 +68,7 @@ graph TD
 | Block | Depends on | Impacts | Files |
 |-------|------------|---------|-------|
 | `governance-core` | - | task triage, audit routing, session startup, session closeout, engineering knowledge promotion | `AGENTS.md`, `SYSTEM.md`, `docs/CONTEXT.md`, `docs/PILOTAGE.md`, `docs/PROJECT_MODE.md`, `docs/SESSION_RULES.md`, `docs/CONVENTIONS.md`, `skills/vibebackbone/**` |
+| `documentary-contract` | `governance-core` | document authority, documentary transitions, agent startup and routing, source and projection provenance | `docs/document-model/DOCUMENT_IDENTITY_MODEL.md`, `docs/document-model/DOCUMENT_ONTOLOGY.md`, `docs/document-model/DOCUMENT_GRAPH_MODEL.md`, `docs/document-model/DOCUMENT_TAG_SPECIFICATION.md`, `docs/document-model/DOCUMENT_TRANSITION_PROTOCOL.md`, `docs/document-model/DOCUMENT_MODEL_REFERENCE_ARCHITECTURE.md`, `.vbb/document-convention.yaml` |
 | `engineering-knowledge-governance` | `governance-core` | audit routing, decision authority, independent review, session closeout, canonical change integration, knowledge record lifecycle | `docs/ENGINEERING_KNOWLEDGE_GOVERNANCE.md`, `docs/templates/KNOWLEDGE_RECORD.md.template` |
 | `gate-assurance-governance` | `governance-core`, `engineering-knowledge-governance` | pre-implementation gates, independent review, implementation authorization, closeout, four-distribution governance | `docs/GATE_ASSURANCE_GOVERNANCE.md`, `docs/templates/01_INTAKE.md.template`, `docs/templates/04_PLAN.md.template`, `docs/templates/06_REVIEW.md.template`, `docs/templates/07_CLOSEOUT.md.template`, `prompts/canonical/06-p-vbb-review.md`, `prompts/canonical/07-p-vbb-closeout.md`, `tools/vbb-loop-closure-check.py` |
 | `skills-catalog` | `governance-core` | route execution, audit skills, structured task support | `skills/*/SKILL.md`, `skills/*/CONTRACT.yaml`, `skills/INDEX.yaml`, `docs/REFERENCE/scoped-audit-protocol.md` |
