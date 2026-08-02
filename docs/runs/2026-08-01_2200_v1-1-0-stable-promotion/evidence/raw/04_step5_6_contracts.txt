@@ -1,0 +1,60 @@
+# Step 5 — Validations sur S_stable
+
+## Environnement
+- Worktree: `/tmp/vbb-stable-measure` (détaché sur S_stable)
+- HEAD: `85b9db2c7035d7bf24b41237e188d4f57a7c3e1e`
+- Aucun fichier modifié pendant les mesures
+
+## Validations
+
+| # | Outil | Résultat |
+|---|---|---|
+| 5.1 | `python -c "import json; print(json.load(open('package.json'))['version'])"` | `1.1.0` ✅ |
+| 5.2 | `git rev-parse --verify refs/tags/v1.1.0-rc.2` | `54561520eedb1632d6257879dbea973f08cb6f99` ✅ |
+| 5.3 | `git rev-parse --verify refs/tags/v1.1.0` | "fatal: Needed a single revision" ✅ (absent) |
+| 5.4 | `vbb-architecture.py lint` | 0 errors, 0 warnings ✅ |
+| 5.5 | `vbb-contract-lint` | 0 errors, 1 warning non-blocking ✅ |
+| 5.6 | `pytest tests/adversarial_corpus/` | 25 passed ✅ |
+| 5.7 | `pytest tests/` | 481 passed, 1 skipped ✅ |
+| 5.8 | `vbb-loop-closure-check 2026-08-01_2200_v1-1-0-stable-promotion --strict` | PASS ✅ |
+| 5.9 | `vbb-adversarial-gate 2026-08-01_2200_v1-1-0-stable-promotion --strict` | 19/19 PASS, 0 fails ✅ |
+| 5.10 | `bash scripts/vbb-ci-local.sh` | 16/16 PASS ✅ |
+| 5.11 | `bash -n distributions/{pi,opencode,codex,claude}/setup.sh` | 4/4 OK ✅ |
+| 5.12 | `vbb-project-init --target-dir /tmp/vbb-smoke-stable` | 24 fichiers créés ✅ |
+| 5.13 | `vbb-status-dashboard.py` | Verdict PARTIAL (audit risks pré-existants) ✅ |
+| 5.14 | packaging | `pyproject.toml` + `requirements.txt` présents ✅ |
+| 5.15 | `vbb-gate-check 2026-08-01_2200_v1-1-0-stable-promotion` | PASS ✅ |
+
+## Synthèse
+
+**15/15 vérifications PASS** sur S_stable. Aucune correction requise.
+Le commit stable est techniquement valide.
+
+## Étape 6 — Contrat stable R_stable_pre
+
+```yaml
+R_stable_pre:
+  V: "1.1.0"
+  S_rc: "3486300f359ff3b51effb007ed950dd48592556f"
+  S_stable: "85b9db2c7035d7bf24b41237e188d4f57a7c3e1e"
+  delta_from_rc:
+    functional_changes: 0
+    allowed_changes:
+      - "version identity"
+      - "changelog"
+      - "release checklist"
+      - "release documentation"
+      - "run evidence"
+  T_rc: "v1.1.0-rc.2 -> 3486300f359ff3b51effb007ed950dd48592556f"
+  T_stable: "v1.1.0 absent, réservé"
+  P: "NOT_REQUIRED"
+```
+
+**R_stable_pre_sha256**: `26bd81bd4658e90321ad6217dba542b35ac68ac001e0dbb871a434536b7420a1`
+
+## Verdict étape 7
+
+`READY_FOR_STABLE_PUBLICATION` — tout est prêt.
+
+**STOP** — Attente de la décision Brice `APPROVE_STABLE_PUBLICATION`
+avant de créer le tag stable v1.1.0 et de le pousser.

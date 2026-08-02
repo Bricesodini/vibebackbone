@@ -1,56 +1,54 @@
-# v1.1.0 Release Candidate Checklist
+# v1.1.0 Release Checklist
 
-**Version**: `1.1.0-rc.2`
-**Candidate subject**: technical metadata commit; exact SHA is recorded in
-the isolated run evidence carrier after commit
-**CANDIDATE_SHA**: <recorded in `docs/runs/2026-08-01_1200_rc2-candidate/evidence/raw/00_candidate_sha.txt` after the candidate commit exists>
-**Future annotated tag**: `v1.1.0-rc.2`
-**Status**: Candidate preparation — independent revalidation pending
-**Supersedes**: `v1.1.0-rc.1` (SHA `58e51ee`) for evidence traceability (see CHANGELOG §1.1.0-rc.2)
+**Version**: `1.1.0`
+**Stable source**: `v1.1.0-rc.2` (SHA `3486300f359ff3b51effb007ed950dd48592556f`)
+**STABLE_SHA**: <recorded in `docs/runs/2026-08-01_2200_v1-1-0-stable-promotion/evidence/raw/00_stable_sha.txt` after the stable commit exists>
+**Future annotated tag**: `v1.1.0`
+**Status**: Stable preparation — publishing pending independent approval
+**Predecessor**: `v1.1.0-rc.2` (SHA `3486300f359ff3b51effb007ed950dd48592556f`)
 
-This checklist is the release-facing contract for `V=1.1.0-rc.2`. The exact
-40-character candidate SHA is carried by the run evidence artifact once the
-technical subject commit exists; no document in that subject commit may
-contain its own final SHA.
+This checklist is the release-facing contract for `V=1.1.0`. The exact
+40-character stable SHA is carried by the run evidence artifact once the
+stable commit exists; the diff between S_rc and S_stable is exclusively
+documentary (version identity, changelog, release checklist, run evidence).
 
 ## Release identity
 
-- [x] `package.json.version` is exactly `1.1.0-rc.2`
-- [x] `CHANGELOG.md` contains exactly one current `1.1.0-rc.2` release section
-  (and one `[1.1.0-rc.1]` section marked superseded)
-- [x] Candidate subject is the commit containing only the necessary release
-  metadata changes (6 corpus entries + temporal provenance update + version
-  bump + changelog + checklist)
-- [ ] Evidence carrier records the exact full `CANDIDATE_SHA`
-- [ ] Future tag `v1.1.0-rc.2` is created only after independent READY
-  revalidation and peels exactly to `CANDIDATE_SHA`
-- [ ] Future post-tag commit `P` records the tag object, peeled commit,
-  `CANDIDATE_SHA`, `V`, and immutable tag verification without moving the tag
+- [x] `package.json.version` is exactly `1.1.0`
+- [x] `CHANGELOG.md` contains a current `1.1.0` release section (above the
+  `1.1.0-rc.2` and `1.1.0-rc.1` sections)
+- [x] Source: `v1.1.0-rc.2` (SHA `3486300f359ff3b51effb007ed950dd48592556f`)
+- [ ] Evidence carrier records the exact full `STABLE_SHA`
+- [ ] Future tag `v1.1.0` is created only after independent APPROVE
+  decision and peels exactly to `STABLE_SHA`
+- [ ] RC tag `v1.1.0-rc.2` remains immuable on the remote
 
-## Blocking gates
+## Stable gates (replayed on S_stable)
 
-- [ ] Fresh `git clone --no-local` is detached at the exact candidate SHA
 - [ ] `python tools/vbb-architecture.py lint`
 - [ ] `python tools/vbb-contract-lint.py`
-- [ ] Explicit run closure and adversarial gates use the exact candidate SHA
+- [ ] `python tools/vbb-loop-closure-check.py <run_id> --strict`
+- [ ] `python tools/vbb-adversarial-gate.py <run_id> --strict`
 - [ ] `python -m pytest tests/adversarial_corpus/ -q`
 - [ ] `python -m pytest tests/ -q`
 - [ ] `bash scripts/vbb-ci-local.sh`
-- [ ] Exact-SHA remote CI is independently confirmed
-- [ ] RR-BK-06 package is rebound to the exact candidate SHA (and resolved by
-  a genuinely distinct actor — see `04_DECISION_REGISTRY.md` §brice_decision)
+- [ ] Diff `S_rc..S_stable` contains 0 `FUNCTIONAL_CHANGE` files
+- [ ] Tag `v1.1.0` absent locally and on remote before publication
+- [ ] Installation from S_stable functional
+- [ ] All 4 distributions syntax-checked
 
-## Prohibited before independent revalidation
+## Prohibited before publishing decision
 
-- create or move `v1.1.0-rc.2`;
-- create `P`;
-- push, merge, publish, or claim certification.
+- create or move `v1.1.0`;
+- move or delete `v1.1.0-rc.2`;
+- push the stable commit without independent approval;
+- force-push anything.
 
 ## Provenance notes
 
-- The `docs/TEMPORAL_PROVENANCE.md` `updated` field has been re-anchored to
-  `2026-08-01` in this candidate to resolve F8.
-- The 6 adversarial-corpus entries (RR-BK-02, RR-BK-03, RR-BK-05, RR-BK-06,
-  F8, F9) are part of the candidate commit, not local-only files.
-- No governance artefacts (REVISE-C v3, CC-11 refactor v2) have been modified
-  in this candidate.
+- The stable commit `S_stable` is committed on branch
+  `chore/v1.1.0-stable-promotion` (no rebase, no force-push).
+- The diff between S_rc and S_stable MUST be classified as
+  `VERSION_IDENTITY`, `RELEASE_DOCUMENTATION`, `RUN_EVIDENCE` —
+  never `FUNCTIONAL_CHANGE`.
+- Promotion run governance trace: `docs/runs/2026-08-01_2200_v1-1-0-stable-promotion/`.

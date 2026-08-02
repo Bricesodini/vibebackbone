@@ -1,0 +1,66 @@
+# Step 4 — Équivalence fonctionnelle RC → stable
+
+## Objectif
+Démontrer que S_rc → S_stable diffère exclusivement par
+l'identité de version et la documentation, **jamais** par
+un changement de comportement.
+
+## Méthode
+```
+$ git diff --name-only S_rc..S_stable
+CHANGELOG.md
+RELEASE_CHECKLIST.md
+package.json
+```
+
+3 fichiers modifiés. Détail ligne par ligne :
+
+## Fichier 1 — package.json
+
+| Avant | Après | Classification |
+|---|---|---|
+| `1.1.0-rc.2` | `1.1.0` | VERSION_IDENTITY |
+
+Justification : bump semver du release. Aucun comportement
+changé. Aucun fichier de configuration non versionné (lockfile
+absent — git-only).
+
+## Fichier 2 — CHANGELOG.md
+
+| Type | Description |
+|---|---|
+| RELEASE_DOCUMENTATION | Nouvelle entrée `## [1.1.0] — 2026-08-01` |
+
+Justification : entrée purement documentaire. La section
+rc.2 reste en place, marquée comme superseded. Aucun
+comportement modifié.
+
+## Fichier 3 — RELEASE_CHECKLIST.md
+
+| Type | Description |
+|---|---|
+| RELEASE_DOCUMENTATION | Rewrite identity from RC to stable |
+
+Justification : checklist est une description du processus
+de release, pas un comportement. Aucun code modifié.
+
+## Synthèse
+
+| Catégorie | Count | Fichiers |
+|---|---|---|
+| VERSION_IDENTITY | 1 | package.json |
+| RELEASE_DOCUMENTATION | 2 | CHANGELOG.md, RELEASE_CHECKLIST.md |
+| RUN_EVIDENCE | 0 | (sera ajouté en 07_CLOSEOUT) |
+| FUNCTIONAL_CHANGE | **0** | (aucun) |
+
+## Conclusion
+
+**FUNCTIONAL_CHANGE = 0** ✅
+
+Le protocole permet la transition RC → stable. Aucune
+correction fonctionnelle n'est nécessaire. Aucune nouvelle RC
+n'est requise.
+
+## Décision
+- Si FUNCTIONAL_CHANGE > 0 → REVISE_BEFORE_STABLE_RELEASE
+- Si FUNCTIONAL_CHANGE = 0 → continuer l'étape 5
