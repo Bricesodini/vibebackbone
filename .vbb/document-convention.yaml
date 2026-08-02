@@ -1,6 +1,20 @@
 document_convention: vbb-doc-v1
 version: "1.0"
 adoption: adopted
+# Documentary Contract v1.0 declaration; this does not qualify other artefacts.
+documentary_contract:
+  version: "1.0"
+  adoption: adopted
+  authorities:
+    - docs/document-model/DOCUMENT_IDENTITY_MODEL.md
+    - docs/document-model/DOCUMENT_ONTOLOGY.md
+    - docs/document-model/DOCUMENT_GRAPH_MODEL.md
+    - docs/document-model/DOCUMENT_TAG_SPECIFICATION.md
+    - docs/document-model/DOCUMENT_TRANSITION_PROTOCOL.md
+    - docs/document-model/DOCUMENT_MODEL_REFERENCE_ARCHITECTURE.md
+  unqualified_artifacts: UNKNOWN
+  tags_create_identity_authority_or_compliance: false
+  runtime_pi: NOT_ASSESSED
 scope:
   roots:
     - docs/DOCUMENT_CONVENTION.md
