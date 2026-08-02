@@ -5,7 +5,7 @@ description: |
   surfaces, cross-references them bidirectionally, and detects missing,
   obsolete, stale, redundant, and orphaned documentation. Use for post-change
   drift analysis and prioritized remediation; read-only, never writes fixes.
-version: "1.1"
+version: "1.2"
 phase: 02_AUDIT
 token_budget: medium
 subagent_eligible: true
@@ -30,6 +30,14 @@ Rules:
 - Route gap filling to `1-vbb-code-doc-gap-integrator`, doc harmonization to
   `1-vbb-doc-harmonizer`, debt analysis to `1-vbb-tech-debt`, dependency mapping
   to `t-vbb-dependency-mapper`, and change impact to `t-vbb-impact-analyzer`.
+- Consume the C0-C5 document-model validator for identity, representation,
+  ontology, relations and documentary compatibility.
+- Enrich every discrepancy finding with identity, applicable authority,
+  code-document relation, ontology tuple, compatibility and confidence.
+- Ask for `OUI`, `NON` or `PLUS_TARD` before any remediation; route only after
+  `OUI` and never write a fix automatically.
+- Never infer authority from path, date or filename. Preserve `UNKNOWN` when
+  identity, provenance or compatibility cannot be established.
 
 ## INPUT CONTRACT
 
@@ -85,9 +93,12 @@ Execute in order:
    - for each code-linked doc, resolve references and classify missing targets or
      content drift;
    - group documents by subject and flag overlap above 50%.
-4. Assign category/severity, identify healthy pairs and uncertainty, recommend
-   actions without applying them.
-5. Write the report and update audit status.
+4. Pass each observed discrepancy through the C0-C5 validator and attach its
+   identity, authority, code-document relation, ontology qualification,
+   compatibility, evidence and confidence.
+5. Assign category/severity, identify healthy pairs and uncertainty, then
+   request the human decision before proposing a DTP route. Apply no fix.
+6. Write the report and update audit status.
 
 ## OUTPUT CONTRACT
 
@@ -120,4 +131,4 @@ The report must contain:
 Support full or targeted, post-refactoring bidirectional coherence audits,
 five-category drift detection, priority-zone analysis, and remediation routing.
 Refuse all code/doc modifications, deletion/moves, harmonization, debt audit,
-dependency mapping, and impact analysis.
+dependency mapping, and impact analysis. A route proposal is not execution.
