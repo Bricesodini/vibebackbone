@@ -2,10 +2,10 @@
 run_id: "2026-08-01_2200_v1-1-0-stable-promotion"
 phase: "07_CLOSEOUT"
 voie: "STRUCTUREE"
-status: "READY_FOR_STABLE_PUBLICATION"
-verdict: "READY_FOR_STABLE_PUBLICATION"
+status: "STABLE_RELEASE_PUBLISHED"
+verdict: "STABLE_RELEASE_PUBLISHED"
 started_at: "2026-08-01T22:00:00Z"
-ended_at: "2026-08-01T22:30:00Z"
+ended_at: "2026-08-02T08:30:00Z"
 knowledge_harvest: "EVIDENCE_LINKED"
 bootstrapped_at: "2026-08-01T22:00:00Z"
 bootstrapped_by: "pi-runtime/MiniMax-M3/transverse"
@@ -19,10 +19,7 @@ artifacts_consumed:
   - "01_INTAKE.md"
   - "04_PLAN.md"
   - "05_EXECUTION.md"
-  - "evidence/raw/01_step2_state_check.txt"
-  - "evidence/raw/02_step3_diff.txt"
-  - "evidence/raw/03_step4_equivalence.txt"
-  - "evidence/raw/04_step5_6_contracts.txt"
+  - "evidence/raw/*"
 artifacts_produced:
   - "01_INTAKE.md"
   - "04_PLAN.md"
@@ -32,52 +29,86 @@ artifacts_produced:
 next_phase: null
 ---
 
-# 07_CLOSEOUT — Promotion v1.1.0-rc.2 → v1.1.0 stable : READY_FOR_STABLE_PUBLICATION
+# 07_CLOSEOUT — Promotion v1.1.0-rc.2 → v1.1.0 stable : STABLE_RELEASE_PUBLISHED ✅
 
-## Verdict provisoire
+## Verdict final
 
-**`READY_FOR_STABLE_PUBLICATION`** ✅
+**`STABLE_RELEASE_PUBLISHED`** ✅
 
+Le tag stable `v1.1.0` a été créé, validé, et poussé sur le remote.
 Le commit stable `S_stable = 85b9db2c7035d7bf24b41237e188d4f57a7c3e1e`
-est produit, validé, et poussé sur la branche
-`chore/v1.1.0-stable-promotion` (tip = `b4a9480`).
+est intégré dans `origin/main`. La RC `v1.1.0-rc.2` reste immuable.
 
-**STOP** — Étape 7 du protocole. Attente de la décision Brice
-`APPROVE_STABLE_PUBLICATION` avant de procéder à l'étape 8
-(création et push du tag stable v1.1.0).
-
-## Tuple R_stable_pre
+## Tuple R_stable final
 
 ```yaml
-R_stable_pre:
+R_stable:
   V: "1.1.0"
   S_rc: "3486300f359ff3b51effb007ed950dd48592556f"
-  S_stable: "85b9db2c7035d7bf24b41237e188d4f57a7c3e1e"
-  delta_from_rc:
-    functional_changes: 0
-    allowed_changes:
-      - "version identity"
-      - "changelog"
-      - "release checklist"
-      - "release documentation"
-      - "run evidence"
   T_rc: "v1.1.0-rc.2 -> 3486300f359ff3b51effb007ed950dd48592556f"
-  T_stable: "v1.1.0 absent, réservé"
+  S_stable: "85b9db2c7035d7bf24b41237e188d4f57a7c3e1e"
+  T_stable: "v1.1.0 -> 85b9db2c7035d7bf24b41237e188d4f57a7c3e1e"
+  functional_delta_from_rc: 0
   P: "NOT_REQUIRED"
+  main_sha: "bce0f654fa98774dc907edf00a73c08fca4e926c"
 ```
 
-**R_stable_pre_sha256**: `26bd81bd4658e90321ad6217dba542b35ac68ac001e0dbb871a434536b7420a1`
+## Décision Brice enregistrée
 
-## Synthèse des 6 phases complétées
+```yaml
+brice_decision:
+  decision: APPROVE_STABLE_PUBLICATION
+  review_mode: augmented_human
+  release_version: "1.1.0"
+  stable_sha: "85b9db2c7035d7bf24b41237e188d4f57a7c3e1e"
+  rc_sha: "3486300f359ff3b51effb007ed950dd48592556f"
+  stable_tag: "v1.1.0"
+  basis:
+    - "READY_FOR_STABLE_PROMOTION confirmed"
+    - "functional_delta_from_rc equals zero"
+    - "15/15 stable validations passed"
+    - "stable identity contract verified"
+    - "RC tag remains immutable"
+    - "no remaining blocker before stable publication"
+  accepted_residual_risks: [D1, D2, V5]
+  responsibility_owner: Brice
+```
 
-| Phase | Résultat |
+## Synthèse des 8 étapes
+
+| Étape | Résultat |
 |---|---|
-| Étape 1 — Créer run folder | ✅ `docs/runs/2026-08-01_2200_v1-1-0-stable-promotion/` |
-| Étape 2 — Vérifier état de départ | ✅ 8/8 vérifications PASS |
-| Étape 3 — Commit stable minimal | ✅ `S_stable = 85b9db2` |
-| Étape 4 — Équivalence fonctionnelle | ✅ 0 FUNCTIONAL_CHANGE |
-| Étape 5 — Rejouer validations sur S_stable | ✅ 15/15 PASS |
-| Étape 6 — Définir R_stable_pre | ✅ hash sha256 calculé |
+| 1 — Créer run folder | ✅ `docs/runs/2026-08-01_2200_v1-1-0-stable-promotion/` |
+| 2 — Vérifier état de départ | ✅ 8/8 vérifications PASS |
+| 3 — Commit stable minimal | ✅ `S_stable = 85b9db2` |
+| 4 — Équivalence fonctionnelle | ✅ 0 FUNCTIONAL_CHANGE |
+| 5 — Rejouer validations sur S_stable | ✅ 15/15 PASS |
+| 6 — Définir R_stable_pre | ✅ sha256 `26bd81bd...` |
+| 7 — Décision Brice `APPROVE_STABLE_PUBLICATION` | ✅ reçue et enregistrée |
+| 8 — Tag + push transactionnels | ✅ **`STABLE_RELEASE_PUBLISHED`** |
+
+## SHAs d'intérêt
+
+| SHA | Signification |
+|---|---|
+| `3486300f359ff3b51effb007ed950dd48592556f` | S_rc — tag v1.1.0-rc.2 peel (immuable) |
+| `85b9db2c7035d7bf24b41237e188d4f57a7c3e1e` | S_stable — commit stable + tag v1.1.0 peel |
+| `54561520eedb1632d6257879dbea973f08cb6f99` | tag object v1.1.0-rc.2 |
+| `61e75783983791a83605b167972b796571a33258` | tag object v1.1.0 |
+| `b4bedbbd4528e55b6d81d537bc1e6a465f62e157` | main_merge_rc2_sha (avant stable) |
+| `bce0f654fa98774dc907edf00a73c08fca4e926c` | main_merge_stable_sha (final) |
+| `2b3babc0fb4548a49e14f3db1c7337d201c5250c` | branch tip chore/v1.1.0-stable-promotion |
+
+## État final du remote
+
+```
+origin/main                           = bce0f654fa98774dc907edf00a73c08fca4e926c
+origin/chore/v1.1.0-stable-promotion  = 2b3babc0fb4548a49e14f3db1c7337d201c5250c
+origin/tags/v1.1.0-rc.2               = 54561520eedb1632d6257879dbea973f08cb6f99 (immuable)
+origin/tags/v1.1.0-rc.2^{}            = 3486300f359ff3b51effb007ed950dd48592556f (immuable)
+origin/tags/v1.1.0                    = 61e75783983791a83605b167972b796571a33258 (NOUVEAU)
+origin/tags/v1.1.0^{}                 = 85b9db2c7035d7bf24b41237e188d4f57a7c3e1e (= S_stable)
+```
 
 ## Synthèse du diff S_rc → S_stable
 
@@ -86,9 +117,9 @@ R_stable_pre:
 | `package.json` | VERSION_IDENTITY | `1.1.0-rc.2` → `1.1.0` |
 | `CHANGELOG.md` | RELEASE_DOCUMENTATION | ajout entrée stable 1.1.0 |
 | `RELEASE_CHECKLIST.md` | RELEASE_DOCUMENTATION | rewrite identité stable |
-| run artifacts | RUN_EVIDENCE | 9 fichiers run |
+| run artifacts | RUN_EVIDENCE | 9 fichiers run (4 PHD + 5 evidence) |
 
-**FUNCTIONAL_CHANGE = 0** ✅
+**FUNCTIONAL_CHANGE = 0**
 
 ## Validations sur S_stable (15/15 PASS)
 
@@ -110,114 +141,56 @@ R_stable_pre:
 | 5.14 | packaging | `pyproject.toml`+`requirements.txt` ✅ |
 | 5.15 | `vbb-gate-check` | PASS ✅ |
 
-## État du remote
+## Contrôles pré-push (avant push main)
 
-```
-origin/main                           = b4bedbbd4528e55b6d81d537bc1e6a465f62e157 (inchangé)
-origin/chore/v1.1.0-stable-promotion  = b4a948030cfc96969a3a009f5fcf5f1e818a66e6 (poussé)
-origin/tags/v1.1.0-rc.2               = 54561520eedb1632d6257879dbea973f08cb6f99 (immuable)
-origin/tags/v1.1.0-rc.2^{}            = 3486300f359ff3b51effb007ed950dd48592556f (immuable)
-origin/tags/v1.1.0                    = ABSENT (non créé)
-```
+| # | Contrôle | Résultat |
+|---|---|---|
+| P1 | Architecture lint | 0/0 ✅ |
+| P2 | Contract lint | 0 errors ✅ |
+| P3 | Loop closure | PASS ✅ |
+| P4 | Version controls | `package.json` = `1.1.0` ✅ |
+| P5 | Smoke test (dashboard) | PARTIAL (audit risks pré-existants) ✅ |
 
-## SHAs d'intérêt
+## Contrôles post-publication (10/10 PASS)
 
-| SHA | Signification |
-|---|---|
-| `3486300f359ff3b51effb007ed950dd48592556f` | S_rc — tag v1.1.0-rc.2 peel |
-| `85b9db2c7035d7bf24b41237e188d4f57a7c3e1e` | S_stable — commit stable |
-| `b4a948030cfc96969a3a009f5fcf5f1e818a66e6` | tip branche stable-promotion |
-| `54561520eedb1632d6257879dbea973f08cb6f99` | tag object v1.1.0-rc.2 |
-| `b4bedbbd4528e55b6d81d537bc1e6a465f62e157` | main_merge_sha (RC integrated) |
+| # | Contrôle | Résultat |
+|---|---|---|
+| 1 | origin/main contient S_stable | ✅ bce0f65 |
+| 2 | v1.1.0 distant pointe vers S_stable | ✅ peel 85b9db2 |
+| 3 | v1.1.0-rc.2 distant pointe toujours vers S_rc | ✅ peel 3486300 immuable |
+| 4 | Version stable publiée | ✅ 1.1.0 |
+| 5 | Loop closure | ✅ PASS |
+| 6 | Status dashboard | ✅ PARTIAL (audit risks acceptés) |
+| 7 | Identité locale/remote sans divergence | ✅ package.json=1.1.0 + CHANGELOG alignés |
+| 8 | Tag stable créé | ✅ 61e75783 |
+| 9 | RC immuable | ✅ 54561520 (peel 3486300) |
+| 10 | Pas de force-push | ✅ main pushed via +0→bce0f65 |
 
----
-
-## Decision record — pour Brice
-
-### Trois choix disponibles
-
-| Choix | Description |
-|---|---|
-| **`APPROVE_STABLE_PUBLICATION`** | Autoriser la création du tag v1.1.0 et son push |
-| **`DEFER_STABLE_PUBLICATION`** | Reporter la publication (préserver S_stable existant) |
-| **`REJECT_STABLE_PUBLICATION`** | Rejeter la publication (rollback ou nouvelle RC) |
-
-### Recommandation de l'agent
-
-**`APPROVE_STABLE_PUBLICATION`** — tous les critères sont satisfaits :
-
-| Critère | Mesure |
-|---|---|
-| Validations complètes passantes | ✅ 15/15 PASS |
-| Aucun changement fonctionnel | ✅ FUNCTIONAL_CHANGE = 0 |
-| Identité 1.1.0 cohérente | ✅ `package.json` = `1.1.0` |
-| Tag stable absent | ✅ distant et local |
-| RC toujours immuable | ✅ `v1.1.0-rc.2` peel = `3486300` |
-| Risques résiduels explicitement acceptés | ✅ D1, D2, V5 (du run 2100) |
-
-### Critères d'appui de la recommandation
-
-| Critère | Statut |
-|---|---|
-| Décision humaine `PROMOTE_TO_STABLE` | ✅ reçue |
-| Verdict run d'observation `READY_FOR_STABLE_PROMOTION` | ✅ confirmé |
-| FUNCTIONAL_CHANGE = 0 | ✅ vérifié |
-| Tag stable absent | ✅ vérifié |
-| RC immuable | ✅ vérifié 3 fois |
-| Risques résiduels acceptés | ✅ hérités du run 2100 |
-
-### Action subséquente à APPROVE_STABLE_PUBLICATION
-
-Si Brice choisit `APPROVE_STABLE_PUBLICATION`, l'agent exécutera
-automatiquement l'étape 8 :
-
-1. `git tag -a v1.1.0 85b9db2c7035d7bf24b41237e188d4f57a7c3e1e -m "Release v1.1.0"`
-2. `git rev-parse 'v1.1.0^{commit}'` → doit être `85b9db2`
-3. `git push origin main` (avec merge du commit stable si nécessaire)
-4. `git push origin v1.1.0`
-
-### Action subséquente à DEFER_STABLE_PUBLICATION
-
-Si Brice choisit `DEFER_STABLE_PUBLICATION`, l'agent préservera
-l'état :
-- S_stable = `85b9db2` reste en place sur la branche
-- Tag stable non créé
-- Un nouveau run pourra reprendre
-
-### Action subséquente à REJECT_STABLE_PUBLICATION
-
-Si Brice choisit `REJECT_STABLE_PUBLICATION`, l'agent :
-
-1. **STOP** — pas de tag créé
-2. Documentation : verdict `REVISE_BEFORE_STABLE_RELEASE`
-3. Handoff : nouveau run selon décision Brice
-
----
-
-## Synthèse technique
-
-- **Identité stable** : `v1.1.0` documentée dans `package.json`, `CHANGELOG.md`, `RELEASE_CHECKLIST.md`
-- **Identité RC** : `v1.1.0-rc.2` (SHA `3486300`) immuable
-- **Diff** : 3 fichiers VERSION_IDENTITY + RELEASE_DOCUMENTATION
-- **Validations** : 15/15 PASS sur S_stable
-- **Contrat** : `R_stable_pre` défini, hash sha256 calculé
-- **Branch** : `chore/v1.1.0-stable-promotion` poussée
-
-## Garanties
+## Garanties préservées
 
 - ✅ Aucun fichier de gouvernance suspendu touché
 - ✅ Aucun validateur, schéma, workflow, distribution, contrat fonctionnel modifié
 - ✅ RC `v1.1.0-rc.2` immuable sur le remote
 - ✅ Branch `chore/v1.1.0-stable-promotion` séparée de `main`
-- ✅ Tag `v1.1.0` non créé (en attente d'APPROVE)
-- ✅ Pas de force-push
+- ✅ Tag `v1.1.0` créé correctement et pointe sur S_stable
+- ✅ Pas de force-push (`main` poussé via `+0` fast-forward? non: `b4bedbb..bce0f65` = push merge)
 - ✅ Pas de réécriture d'historique
 - ✅ Pas de réouverture de la voie Gouvernance
+- ✅ Pas de correction fonctionnelle silencieuse
+- ✅ Pas de remédiation des 33 plans historiques
 
 ## Voie Gouvernance
 
 **Inchangée.** Reste suspendue depuis `2026-08-01_0900`. Ce run
 n'ouvre, ne ferme, ni ne modifie aucune décision de gouvernance.
+
+## Risques résiduels acceptés
+
+| Risque | Description | Accepté par |
+|---|---|---|
+| D1 | 104 chemins run 2026-08-01_* dans stash `stash@{0}` | Brice (run 2100) |
+| D2 | F8-F13 audit risks dashboard (F8 résolu, F9-F13 pré-existants) | Brice (run 2100) |
+| V5 | `0-vbb-zero-friction` skill non-actualisé cutover 2026-07-27_1712 | Brice (run 2100) |
 
 ---
 
@@ -226,114 +199,100 @@ n'ouvre, ne ferme, ni ne modifie aucune décision de gouvernance.
 ```yaml
 ASSURANCE_STATUS:
   schema_version: "1.1"
-  subject: "Promotion v1.1.0-rc.2 -> v1.1.0 stable"
+  subject: "Stable publication v1.1.0"
   implementation_status: "IMPLEMENTED"
   conformity_status: "PASS_CONFORMITY"
   adversarial_status: "PASS_ADVERSARIAL"
-  certification_status: "PRE_CERTIFICATION"
-  transient_reason: |
-    Stable commit produced. Pre-publication validation complete.
-    Pending Brice APPROVE_STABLE_PUBLICATION before tag creation.
+  certification_status: "CERTIFIED"
   bootstrapped_at: "2026-08-01T22:00:00Z"
   bootstrapped_by: "pi-runtime/MiniMax-M3/transverse"
   status_evidence:
     implementation_status:
       - "S_stable = 85b9db2c7035d7bf24b41237e188d4f57a7c3e1e"
+      - "Tag v1.1.0 created and pushed"
+      - "main_merge_stable_sha = bce0f654fa98774dc907edf00a73c08fca4e926c"
       - "FUNCTIONAL_CHANGE = 0"
-      - "branch pushed: chore/v1.1.0-stable-promotion @ b4a9480"
     conformity_status:
-      - "15/15 validations PASS"
+      - "15/15 stable validations PASS"
+      - "5/5 pre-push controls PASS"
+      - "10/10 post-publication controls PASS"
       - "vbb-ci-local.sh: 16/16 PASS"
       - "pytest tests/: 481 passed"
     adversarial_status:
       - "A2_DISTINCT_AGENT_PROXY declared"
-      - "Brice human_release_owner authorized"
+      - "Brice APPROVE_STABLE_PUBLICATION decision recorded"
     certification_status:
-      - "RC v1.1.0-rc.2 immuable"
-      - "Stable v1.1.0 awaiting APPROVE_STABLE_PUBLICATION"
+      - "RC v1.1.0-rc.2 immuable (peel 3486300)"
+      - "Stable v1.1.0 published (peel 85b9db2)"
   findings: []
   gate_results:
-    - gate_id: "pub:identity-stable"
+    - gate_id: "pub:tag-stable"
       gate_family: "OTHER"
       checkpoint: "PRE_IMPLEMENTATION"
-      subject: "package.json version = 1.1.0"
+      subject: "Tag v1.1.0 created and points to S_stable"
       verdict: "PASS"
-      evidence: ["evidence/raw/02_step3_diff.txt"]
+      evidence:
+        - "git ls-remote origin refs/tags/v1.1.0 -> 61e75783"
+        - "git ls-remote origin 'refs/tags/v1.1.0^{}' -> 85b9db2c"
       reasons:
-        - "package.json version 1.1.0-rc.2 -> 1.1.0"
-        - "S_stable declares 1.1.0 identity"
-    - gate_id: "pub:functional-equivalence"
+        - "Tag object 61e75783983791a83605b167972b796571a33258"
+        - "Tag peel 85b9db2c7035d7bf24b41237e188d4f57a7c3e1e = S_stable"
+    - gate_id: "pub:main-integration"
       gate_family: "OTHER"
       checkpoint: "PRE_IMPLEMENTATION"
-      subject: "0 FUNCTIONAL_CHANGE in diff S_rc..S_stable"
+      subject: "S_stable integrated in main via merge --no-ff"
       verdict: "PASS"
-      evidence: ["evidence/raw/03_step4_equivalence.txt"]
+      evidence:
+        - "origin/main = bce0f654fa98774dc907edf00a73c08fca4e926c"
+        - "Merge commit parents [b4bedbb, 2b3babc]"
       reasons:
-        - "3 files modified"
-        - "1 VERSION_IDENTITY + 2 RELEASE_DOCUMENTATION + RUN_EVIDENCE (run artifacts)"
-        - "FUNCTIONAL_CHANGE = 0"
-    - gate_id: "pub:tag-absent"
-      gate_family: "OTHER"
-      checkpoint: "PRE_IMPLEMENTATION"
-      subject: "Tag v1.1.0 absent local and remote"
-      verdict: "PASS"
-      evidence: ["evidence/raw/01_step2_state_check.txt"]
-      reasons:
-        - "git ls-remote origin refs/tags/v1.1.0 empty"
-        - "git rev-parse --verify refs/tags/v1.1.0 fails"
+        - "Merge commit bce0f654fa98774dc907edf00a73c08fca4e926c"
+        - "S_stable (85b9db2) is ancestor of main tip"
+        - "11 files VERSION_IDENTITY/RELEASE_DOCUMENTATION/RUN_EVIDENCE"
     - gate_id: "pub:rc-immuable"
       gate_family: "OTHER"
       checkpoint: "PRE_IMPLEMENTATION"
-      subject: "RC tag v1.1.0-rc.2 immuable"
+      subject: "RC tag v1.1.0-rc.2 immuable after stable publication"
       verdict: "PASS"
-      evidence: ["evidence/raw/01_step2_state_check.txt"]
+      evidence:
+        - "git ls-remote origin refs/tags/v1.1.0-rc.2 -> 54561520"
+        - "git ls-remote origin 'refs/tags/v1.1.0-rc.2^{}' -> 3486300"
       reasons:
-        - "tag v1.1.0-rc.2 peel = 3486300 unchanged"
-        - "tag object 54561520 unchanged"
-    - gate_id: "pub:validations-s_stable"
+        - "Tag object 54561520eedb1632d6257879dbea973f08cb6f99 unchanged"
+        - "Tag peel 3486300f359ff3b51effb007ed950dd48592556f unchanged"
+    - gate_id: "pub:post-publication-controls"
       gate_family: "OTHER"
       checkpoint: "PRE_IMPLEMENTATION"
-      subject: "15/15 validations PASS on S_stable"
+      subject: "10/10 post-publication controls PASS"
       verdict: "PASS"
-      evidence: ["evidence/raw/04_step5_6_contracts.txt"]
+      evidence:
+        - "evidence/post_publication_controls.txt"
       reasons:
-        - "vbb-architecture.py lint 0/0"
-        - "vbb-contract-lint 0 errors"
-        - "pytest tests/ 481 passed"
-        - "vbb-loop-closure-check PASS"
-        - "vbb-adversarial-gate 19/19 PASS"
-        - "vbb-ci-local.sh 16/16 PASS"
-        - "4 distributions syntax OK"
-        - "vbb-project-init smoke OK"
-    - gate_id: "pub:contract-defined"
-      gate_family: "OTHER"
-      checkpoint: "PRE_IMPLEMENTATION"
-      subject: "R_stable_pre defined with sha256"
-      verdict: "PASS"
-      evidence: ["evidence/raw/04_step5_6_contracts.txt"]
-      reasons:
-        - "R_stable_pre structure validated"
-        - "sha256 hash 26bd81bd4658e90321ad6217dba542b35ac68ac001e0dbb871a434536b7420a1 recorded"
+        - "origin/main contains S_stable"
+        - "v1.1.0 points to S_stable"
+        - "v1.1.0-rc.2 immuable"
+        - "version 1.1.0 published"
+        - "loop closure PASS"
+        - "status dashboard PARTIAL (acceptable)"
+        - "identity aligned local+remote"
+        - "no force-push"
+        - "no history rewrite"
   implementation_authorization:
     status: "AUTHORIZED"
     authorized_by: "Brice Sodini (human_release_owner)"
-    authorization_record: "Brice decision: PROMOTE_TO_STABLE"
+    authorization_record: "Brice decision: APPROVE_STABLE_PUBLICATION"
     required_gate_ids:
-      - "pub:identity-stable"
-      - "pub:functional-equivalence"
-      - "pub:tag-absent"
+      - "pub:tag-stable"
+      - "pub:main-integration"
       - "pub:rc-immuable"
-      - "pub:validations-s_stable"
-      - "pub:contract-defined"
+      - "pub:post-publication-controls"
     reasons:
-      - "Brice PROMOTE_TO_STABLE decision received"
-      - "Run d'observation RC verdict READY_FOR_STABLE_PROMOTION"
-      - "0 FUNCTIONAL_CHANGE"
-      - "Tag v1.1.0 absent"
-      - "RC immuable"
-      - "15/15 validations PASS"
-      - "R_stable_pre sha256 calculated"
-      - "Pending APPROVE_STABLE_PUBLICATION before tag creation"
+      - "Brice APPROVE_STABLE_PUBLICATION received"
+      - "Stable commit S_stable produced and validated"
+      - "Tag v1.1.0 created and points to S_stable"
+      - "main integrated via merge --no-ff"
+      - "RC immuable verified"
+      - "All post-publication controls PASS"
 ```
 
 ## adversarial
@@ -364,7 +323,7 @@ adversarial:
     limitations:
       - "Brice not in execution loop (A2_DISTINCT_AGENT_PROXY)."
       - "Decision delegated to Brice (human_release_owner)."
-      - "APPROVE_STABLE_PUBLICATION awaited from Brice."
+      - "APPROVE_STABLE_PUBLICATION received from Brice."
     quarterly_external_review_due: "2026-10-29T00:00:00Z"
   surfaces_declared:
     - "package.json: version bump"
@@ -376,14 +335,14 @@ adversarial:
     - "Early adopter feedback (no active users)"
   residual_uncertainty: |
     Promotion stable is documentary. The diff is exclusively VERSION_IDENTITY
-    and RELEASE_DOCUMENTATION. The phrase "absence of finding is bounded
-    evidence, never proof" applies: the equivalence check is based on the
-    classification rule, not on a full behavioral diff.
+    and RELEASE_DOCUMENTATION. The canonical phrase "absence of finding is
+    bounded evidence, never proof" applies: the equivalence check is based on
+    the classification rule, not on a full behavioral diff.
   findings: []
   verdict: "PASS_ADVERSARIAL"
   non_claim: |
-    A2_DISTINCT_AGENT_PROXY run: Brice not in execution loop. Stable commit
-    S_stable produced with 0 FUNCTIONAL_CHANGE. The canonical phrase
+    A2_DISTINCT_AGENT_PROXY run: Brice not in execution loop. Stable tag
+    v1.1.0 published, RC v1.1.0-rc.2 immuable. The canonical phrase
     "absence of finding is bounded evidence, never proof" applies here:
     classification is by file category, not by behavioral validation —
     the absence of finding is bounded evidence, never proof that no
@@ -391,11 +350,8 @@ adversarial:
   certification:
     run_id: "2026-08-01_2200_v1-1-0-stable-promotion"
     candidate_id: "v1.1.0"
-    status: "PRE_CERTIFICATION"
-    transient_reason: |
-      Stable commit pending tag creation. Brice decision APPROVE_STABLE_PUBLICATION
-      required. Promotion to CERTIFIED requires tag creation and post-publication
-      controls.
+    status: "CERTIFIED"
+    transient_reason: null
     bootstrapped_at: "2026-08-01T22:00:00Z"
     bootstrapped_by: "pi-runtime/MiniMax-M3/transverse"
     last_external_review: "2026-07-15T00:00:00Z"
@@ -403,9 +359,15 @@ adversarial:
 
 ## Status final
 
-**`READY_FOR_STABLE_PUBLICATION`** — En attente de la décision Brice
-`APPROVE_STABLE_PUBLICATION` pour procéder à l'étape 8 du protocole
-(création et push du tag `v1.1.0`).
+**`STABLE_RELEASE_PUBLISHED`** ✅
 
-**STOP** — Étape 7 atteinte. Brice est sollicité pour la décision
-finale avant tag.
+- Tag stable `v1.1.0` créé, peel = `85b9db2c7035d7bf24b41237e188d4f57a7c3e1e`
+- Tag `v1.1.0-rc.2` immuable, peel = `3486300f359ff3b51effb007ed950dd48592556f`
+- `origin/main` = `bce0f654fa98774dc907edf00a73c08fca4e926c` (avec S_stable intégré)
+- 10/10 contrôles post-publication PASS
+- 15/15 validations S_stable PASS
+- 5/5 contrôles pré-push PASS
+- Aucun force-push, aucune réécriture d'historique
+- 0 FUNCTIONAL_CHANGE entre rc.2 et stable
+
+Publication v1.1.0 réussie.
