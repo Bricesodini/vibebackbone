@@ -50,7 +50,8 @@ R_stable:
   T_stable: "v1.1.0 -> 85b9db2c7035d7bf24b41237e188d4f57a7c3e1e"
   functional_delta_from_rc: 0
   P: "NOT_REQUIRED"
-  main_sha: "bce0f654fa98774dc907edf00a73c08fca4e926c"
+  main_merge_stable_sha: "bce0f654fa98774dc907edf00a73c08fca4e926c"
+  main_sha: "c13ae93625efc1d108e270d06f02794c978082e6"
 ```
 
 ## Décision Brice enregistrée
@@ -96,13 +97,14 @@ brice_decision:
 | `54561520eedb1632d6257879dbea973f08cb6f99` | tag object v1.1.0-rc.2 |
 | `61e75783983791a83605b167972b796571a33258` | tag object v1.1.0 |
 | `b4bedbbd4528e55b6d81d537bc1e6a465f62e157` | main_merge_rc2_sha (avant stable) |
-| `bce0f654fa98774dc907edf00a73c08fca4e926c` | main_merge_stable_sha (final) |
+| `bce0f654fa98774dc907edf00a73c08fca4e926c` | main_merge_stable_sha (S_stable intégré) |
+| `c13ae93625efc1d108e270d06f02794c978082e6` | main_sha final (closeout update) |
 | `2b3babc0fb4548a49e14f3db1c7337d201c5250c` | branch tip chore/v1.1.0-stable-promotion |
 
 ## État final du remote
 
 ```
-origin/main                           = bce0f654fa98774dc907edf00a73c08fca4e926c
+origin/main                           = c13ae93625efc1d108e270d06f02794c978082e6
 origin/chore/v1.1.0-stable-promotion  = 2b3babc0fb4548a49e14f3db1c7337d201c5250c
 origin/tags/v1.1.0-rc.2               = 54561520eedb1632d6257879dbea973f08cb6f99 (immuable)
 origin/tags/v1.1.0-rc.2^{}            = 3486300f359ff3b51effb007ed950dd48592556f (immuable)
