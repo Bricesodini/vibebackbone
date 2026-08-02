@@ -12,6 +12,10 @@ FIXTURES_PATH = (
     ROOT
     / "docs/runs/2026-08-02_document-model-validation-pilot/fixtures/poa_fixtures.json"
 )
+C3_C4_FIXTURES_PATH = (
+    ROOT
+    / "docs/runs/2026-08-02_document-model-validation-pilot/fixtures/c3_c4_fixtures.json"
+)
 
 
 spec = importlib.util.spec_from_file_location("document_model_validation", MODULE_PATH)
@@ -23,6 +27,13 @@ spec.loader.exec_module(validation)
 
 def records():
     return [validation.ValidationInput.from_mapping(item) for item in json.loads(FIXTURES_PATH.read_text())]
+
+
+def c3_c4_records():
+    return [
+        validation.ValidationInput.from_mapping(item)
+        for item in json.loads(C3_C4_FIXTURES_PATH.read_text())
+    ]
 
 
 def test_c0_result_contract_uses_only_authorized_verdicts():
@@ -41,8 +52,10 @@ def test_c0_result_contract_uses_only_authorized_verdicts():
         "findings",
         "evidence",
         "confidence",
+        "compatibility",
     }
     assert result.verdict in {"PASS", "FAIL", "UNKNOWN", "NOT_APPLICABLE"}
+    assert result.compatibility == "UNKNOWN"
 
 
 def test_dim_accepts_identity_representation_revision_and_location():
@@ -205,3 +218,111 @@ def test_all_poa_fixtures_validate_without_writes():
     assert results[9]["DIM"].verdict == "UNKNOWN"
     assert results[10]["ONTOLOGY"].verdict == "PASS"
     assert before == after
+
+
+def test_dts_covers_all_required_compatibility_results():
+    results = {record.artifact: validation.validate_dts(record) for record in c3_c4_records()}
+
+    assert results["fixtures/dts-contract-missing"].compatibility == "UNKNOWN"
+    assert results["fixtures/dts-artifact-without-tag"].compatibility == "UNKNOWN"
+    assert results["fixtures/dts-old-compatible"].compatibility == "COMPATIBLE"
+    assert results["fixtures/dts-migration-required"].compatibility == "MIGRATION_REQUIRED"
+    assert results["fixtures/dts-unknown-dimension"].compatibility == "UNKNOWN"
+    assert results["docs/ARCHITECTURE.md"].compatibility == "COMPATIBLE"
+    assert results["docs/RELATIONS.md"].compatibility == "COMPATIBLE"
+    assert results["fixtures/dts-projection-orphan"].compatibility == "INCOMPATIBLE"
+    assert results["fixtures/dts-runtime-other-state"].compatibility == "MIGRATION_REQUIRED"
+
+
+def test_dts_unknowns_are_not_silently_compatible():
+    for record in c3_c4_records()[:2] + [c3_c4_records()[4]]:
+        result = validation.validate_dts(record)
+        assert result.compatibility == "UNKNOWN"
+        assert result.verdict == "UNKNOWN"
+
+
+def test_dts_projection_requires_a_traceable_source():
+    valid = validation.validate_dts(c3_c4_records()[6])
+    orphan = validation.validate_dts(c3_c4_records()[8])
+
+    assert valid.compatibility == "COMPATIBLE"
+    assert orphan.compatibility == "INCOMPATIBLE"
+    assert "DERIVED_SOURCE_ORPHAN" in orphan.findings
+
+
+def test_dts_runtime_from_another_documentary_state_requires_migration():
+    result = validation.validate_dts(c3_c4_records()[9])
+
+    assert result.compatibility == "MIGRATION_REQUIRED"
+    assert "RUNTIME_OR_DISTRIBUTION_REVISION_DIVERGENT" in result.findings
+
+
+def test_dgm_accepts_architecture_projection_and_system_location_relations():
+    records_by_name = {record.artifact: record for record in c3_c4_records()}
+
+    architecture = validation.validate_dgm(records_by_name["docs/ARCHITECTURE.md"])
+    projection = validation.validate_dgm(records_by_name["docs/RELATIONS.md"])
+    system = validation.validate_dgm(records_by_name["SYSTEM.md"])
+
+    assert architecture.verdict == "PASS"
+    assert projection.verdict == "PASS"
+    assert system.verdict == "PASS"
+
+
+def test_dgm_detects_representation_and_revision_misattachments():
+    records_by_name = {record.artifact: record for record in c3_c4_records()}
+
+    orphan = validation.validate_dgm(records_by_name["fixtures/dgm-representation-orphan"])
+    wrong_revision = validation.validate_dgm(
+        records_by_name["fixtures/dgm-revision-wrong-representation"]
+    )
+
+    assert orphan.verdict == "FAIL"
+    assert "REPRESENTATION_WITHOUT_IDENTITY" in orphan.findings
+    assert wrong_revision.verdict == "FAIL"
+    assert "REVISION_OF_TARGET_MISMATCH" in wrong_revision.findings
+
+
+def test_dgm_keeps_missing_source_and_decision_unknown():
+    records_by_name = {record.artifact: record for record in c3_c4_records()}
+
+    projection = validation.validate_dgm(records_by_name["fixtures/dgm-projection-no-source"])
+    authority = validation.validate_dgm(records_by_name["fixtures/dgm-authority-no-decision"])
+    evidence = validation.validate_dgm(records_by_name["fixtures/dgm-evidence-unattached"])
+    provenance = validation.validate_dgm(records_by_name["fixtures/dgm-broken-provenance"])
+
+    assert projection.verdict == "UNKNOWN"
+    assert authority.verdict == "UNKNOWN"
+    assert evidence.verdict == "UNKNOWN"
+    assert provenance.verdict == "UNKNOWN"
+
+
+def test_dgm_detects_conflict_superseded_reference_and_distribution_divergence():
+    records_by_name = {record.artifact: record for record in c3_c4_records()}
+
+    conflict = validation.validate_dgm(records_by_name["fixtures/dgm-authority-conflict"])
+    superseded = validation.validate_dgm(
+        records_by_name["fixtures/dgm-active-reference-superseded"]
+    )
+    distribution = validation.validate_dgm(
+        records_by_name["fixtures/dgm-distribution-divergent"]
+    )
+
+    assert conflict.verdict == "FAIL"
+    assert "AUTHORITY_CONFLICT_SAME_SCOPE" in conflict.findings
+    assert superseded.verdict == "FAIL"
+    assert "ACTIVE_REFERENCE_TO_SUPERSEDED_REVISION" in superseded.findings
+    assert distribution.verdict == "FAIL"
+    assert "DISTRIBUTION_SOURCE_DIVERGENT" in distribution.findings
+
+
+def test_dgm_allows_only_the_declared_relation_vocabulary():
+    record = c3_c4_records()[5]
+    invalid = validation.ValidationInput(
+        **{**record.__dict__, "relations": ({"type": "INVENTED_RELATION"},)}
+    )
+
+    result = validation.validate_dgm(invalid)
+
+    assert result.verdict == "FAIL"
+    assert "RELATION_TYPE_INVALID" in result.findings

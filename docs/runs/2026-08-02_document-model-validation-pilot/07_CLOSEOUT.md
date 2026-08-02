@@ -121,8 +121,8 @@ Evidence: each item is explicitly marked not executed or not applicable.
    repository contract.
 3. The pilot validates fixture representations, not native tags in the source
    documents.
-4. DTS, DGM and DTP remain unimplemented and must not be inferred from these
-   C0-C2 results.
+4. DTP remains unimplemented; the later C3-C4 extension is limited to DTS
+   compatibility and DGM relation observation.
 5. The pre-existing contract-linter warning is unchanged and non-blocking.
 
 Evidence: `python tools/vbb-contract-lint.py` returned 0 errors and one
@@ -175,7 +175,46 @@ ASSURANCE_STATUS:
 | Canonical validators remain valid | Architecture lint, contract lint and convention lint outputs | PASS |
 | No source artefact was modified | Pilot read-only test and `git diff --check` | PASS |
 
-The bounded C0-C2 pilot is ready: the PoA distinctions are testable, unknowns
-remain fail-closed as `UNKNOWN`, and no source artefact is modified. The run
-stops before C3/DTS, C4/DGM, DTP migration, skills, distributions and
-documentary cleanup.
+## C3-C4 extension
+
+The same C0 result interface now carries `compatibility` for DTS while keeping
+the existing verdicts, findings, evidence and confidence fields. No second
+result interface was introduced.
+
+C3 validates the four allowed compatibility results and covers:
+
+- missing repository contract version;
+- untagged artefact in a versioned repository;
+- compatible old tag;
+- migration-required tag;
+- unknown dimension;
+- valid and orphaned projection sources;
+- runtime from another documentary state.
+
+C4 validates the declared DGM relation vocabulary and covers:
+
+- `ARCHITECTURE.md` / `RELATIONS.md` source-projection relations;
+- `SYSTEM.md` identity, representation and location relations;
+- orphan representation;
+- missing projection source or authority decision as `UNKNOWN`;
+- wrong revision representation;
+- authority conflict on one scope;
+- active reference to superseded revision;
+- divergent distribution;
+- unattached evidence and broken provenance as `UNKNOWN`.
+
+Evidence: `python -m pytest tests/test_document_model_validation_pilot.py -q`
+returned 23 passed tests, including all C0-C2 tests and the C3-C4 variants.
+
+The C3-C4 extension remains in the working tree after the C0-C2 commit. DTS
+compatibility does not execute migration, and DGM findings do not trigger DTP
+or modify any repository artefact.
+
+## C3-C4 verdict
+
+`DOCUMENT_MODEL_RELATION_AND_TAG_PILOT_READY`
+
+The C3-C4 pilot is ready for review: all required compatibility outcomes,
+relation findings and `UNKNOWN` cases are covered on experimental fixtures.
+The run stops before DTP adaptation, documentary skills, distributions and
+cleanup.

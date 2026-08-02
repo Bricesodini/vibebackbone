@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Experimental, read-only C0-C2 document model validation pilot.
+"""Experimental, read-only C0-C4 document model validation pilot.
 
 This module deliberately validates fixture records, not repository files. It
 does not write tags, frontmatter, projections, or source artefacts.
@@ -13,6 +13,26 @@ from typing import Any, Mapping
 
 VERDICTS = {"PASS", "FAIL", "UNKNOWN", "NOT_APPLICABLE"}
 UNKNOWN = "UNKNOWN"
+COMPATIBILITY_VERDICTS = {
+    "COMPATIBLE",
+    "MIGRATION_REQUIRED",
+    "INCOMPATIBLE",
+    "UNKNOWN",
+}
+DGM_RELATIONS = {
+    "REPRESENTED_BY",
+    "REVISION_OF",
+    "LOCATED_AT",
+    "GENERATED_FROM",
+    "PROJECTS",
+    "DISTRIBUTED_TO",
+    "REFERENCES",
+    "GOVERNS",
+    "ESTABLISHED_BY",
+    "SUPPORTED_BY",
+    "SUPERSEDES",
+    "CONFLICTS_WITH",
+}
 
 AUTHORITIES = {
     "CANONICAL",
@@ -36,7 +56,7 @@ LOAD_POLICIES = {"ALWAYS", "ON_ROUTE", "ON_DEMAND", "NEVER_BY_DEFAULT"}
 
 @dataclass(frozen=True)
 class ValidationInput:
-    """Common experimental input/output boundary for C0-C2."""
+    """Common experimental input/output boundary for C0-C4."""
 
     artifact: str
     identity: str | None
@@ -49,6 +69,9 @@ class ValidationInput:
     critical_relations: tuple[str, ...] = ()
     evidence: tuple[str, ...] = ()
     confidence: str = "UNKNOWN"
+    tag: Mapping[str, Any] | None = None
+    repository_contract: Mapping[str, Any] | None = None
+    relations: tuple[Mapping[str, Any], ...] = ()
 
     @classmethod
     def from_mapping(cls, value: Mapping[str, Any]) -> "ValidationInput":
@@ -64,6 +87,9 @@ class ValidationInput:
             critical_relations=tuple(value.get("critical_relations", ())),
             evidence=tuple(value.get("evidence", ())),
             confidence=str(value.get("confidence", "UNKNOWN")),
+            tag=value.get("tag"),
+            repository_contract=value.get("repository_contract"),
+            relations=tuple(value.get("relations", ())),
         )
 
 
@@ -80,10 +106,13 @@ class ValidationResult:
     findings: tuple[str, ...] = ()
     evidence: tuple[str, ...] = ()
     confidence: str = "UNKNOWN"
+    compatibility: str = UNKNOWN
 
     def __post_init__(self) -> None:
         if self.verdict not in VERDICTS:
             raise ValueError(f"unsupported verdict: {self.verdict}")
+        if self.compatibility not in COMPATIBILITY_VERDICTS:
+            raise ValueError(f"unsupported compatibility: {self.compatibility}")
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -210,10 +239,201 @@ def validate_ontology(record: ValidationInput) -> ValidationResult:
     return _base_result(record, verdict, findings)
 
 
+def _with_compatibility(result: ValidationResult, compatibility: str) -> ValidationResult:
+    return ValidationResult(
+        **{**result.as_dict(), "compatibility": compatibility}
+    )
+
+
+def _tag_ontology_record(record: ValidationInput, tag: Mapping[str, Any]) -> ValidationInput:
+    return ValidationInput(
+        **{
+            **record.__dict__,
+            "ontology": tag.get("ontology", {}),
+        }
+    )
+
+
+def validate_dts(record: ValidationInput) -> ValidationResult:
+    """Compare one conceptual tag with the repository documentary contract."""
+
+    contract = record.repository_contract
+    tag = record.tag
+    findings: list[str] = []
+
+    if not contract or not contract.get("version"):
+        findings.append("CONTRACT_VERSION_UNKNOWN")
+        return _with_compatibility(
+            _base_result(record, "UNKNOWN", findings), "UNKNOWN"
+        )
+    if not tag:
+        findings.append("ARTIFACT_TAG_ABSENT")
+        return _with_compatibility(
+            _base_result(record, "UNKNOWN", findings), "UNKNOWN"
+        )
+
+    if not tag.get("identity") or not tag.get("representation"):
+        findings.append("TAG_IDENTITY_OR_REPRESENTATION_UNKNOWN")
+    elif tag["identity"] != record.identity or tag["representation"] != record.representation:
+        findings.append("TAG_IDENTITY_OR_REPRESENTATION_MISMATCH")
+
+    tag_contract = tag.get("contract_version")
+    if not tag_contract:
+        findings.append("TAG_CONTRACT_VERSION_UNKNOWN")
+    else:
+        current = contract["version"]
+        compatible = set(contract.get("compatible_versions", ()))
+        migration = set(contract.get("migration_required_versions", ()))
+        if tag_contract not in {current, *compatible, *migration}:
+            findings.append("TAG_CONTRACT_VERSION_INCOMPATIBLE")
+
+    tag_record = _tag_ontology_record(record, tag)
+    ontology_result = validate_ontology(tag_record)
+    findings.extend(f"TAG_{finding}" for finding in ontology_result.findings)
+
+    kind = tag.get("kind")
+    if kind in {"PROJECTION", "DISTRIBUTION", "RUNTIME_ARTIFACT"}:
+        if not tag.get("source"):
+            findings.append("DERIVED_SOURCE_UNKNOWN")
+        elif tag.get("source_exists") is False:
+            findings.append("DERIVED_SOURCE_ORPHAN")
+        elif tag.get("source_exists") is None:
+            findings.append("DERIVED_SOURCE_UNKNOWN")
+
+    inherited_from = tag.get("inherited_from")
+    if inherited_from is not None and not isinstance(inherited_from, str):
+        findings.append("INHERITANCE_NOT_TRACEABLE")
+
+    source_revision = tag.get("source_revision")
+    if source_revision is not None and tag.get("revision") != source_revision:
+        findings.append("RUNTIME_OR_DISTRIBUTION_REVISION_DIVERGENT")
+
+    runtime_divergent = "RUNTIME_OR_DISTRIBUTION_REVISION_DIVERGENT" in findings
+    hard = [
+        finding
+        for finding in findings
+        if not finding.endswith("UNKNOWN")
+        and finding != "TAG_REVISION_UNKNOWN"
+        and finding != "RUNTIME_OR_DISTRIBUTION_REVISION_DIVERGENT"
+    ]
+    unknown = any(finding.endswith("UNKNOWN") for finding in findings)
+    if hard:
+        compatibility = "INCOMPATIBLE"
+    elif runtime_divergent or tag_contract in set(contract.get("migration_required_versions", ())):
+        compatibility = "MIGRATION_REQUIRED"
+    elif unknown:
+        compatibility = "UNKNOWN"
+    else:
+        compatibility = "COMPATIBLE"
+
+    verdict = "FAIL" if hard else ("UNKNOWN" if unknown else "PASS")
+    return _with_compatibility(
+        _base_result(record, verdict, findings), compatibility
+    )
+
+
+def _relations_of(record: ValidationInput, relation_type: str) -> list[Mapping[str, Any]]:
+    return [relation for relation in record.relations if relation.get("type") == relation_type]
+
+
+def validate_dgm(record: ValidationInput) -> ValidationResult:
+    """Validate the bounded set of DGM relations used by the pilot."""
+
+    findings: list[str] = []
+    unknown = False
+    relations = record.relations
+
+    for relation in relations:
+        if relation.get("type") not in DGM_RELATIONS:
+            findings.append("RELATION_TYPE_INVALID")
+
+    if record.representation and not record.identity:
+        findings.append("REPRESENTATION_WITHOUT_IDENTITY")
+
+    represented = _relations_of(record, "REPRESENTED_BY")
+    if record.identity and record.representation:
+        if not represented:
+            unknown = True
+            findings.append("REPRESENTED_BY_UNKNOWN")
+        elif any(relation.get("target") != record.representation for relation in represented):
+            findings.append("REPRESENTED_BY_TARGET_MISMATCH")
+
+    revisions = _relations_of(record, "REVISION_OF")
+    if record.revision and record.revision != UNKNOWN:
+        if not revisions:
+            unknown = True
+            findings.append("REVISION_OF_UNKNOWN")
+        elif any(relation.get("target") != record.representation for relation in revisions):
+            findings.append("REVISION_OF_TARGET_MISMATCH")
+
+    locations = _relations_of(record, "LOCATED_AT")
+    if record.location:
+        if not locations:
+            unknown = True
+            findings.append("LOCATED_AT_UNKNOWN")
+        elif any(relation.get("target") != record.location for relation in locations):
+            findings.append("LOCATED_AT_TARGET_MISMATCH")
+
+    kind = (record.tag or {}).get("kind")
+    source_relations = _relations_of(record, "GENERATED_FROM") + _relations_of(record, "PROJECTS")
+    if kind in {"PROJECTION", "GENERATED"}:
+        if not source_relations:
+            unknown = True
+            findings.append("PROJECTION_SOURCE_UNKNOWN")
+        elif any(not relation.get("target") for relation in source_relations):
+            findings.append("PROJECTION_SOURCE_ORPHAN")
+
+    if record.ontology.get("authority") in {"CANONICAL", "SCOPED_AUTHORITY"}:
+        established = _relations_of(record, "ESTABLISHED_BY")
+        if not established:
+            unknown = True
+            findings.append("AUTHORITY_DECISION_UNKNOWN")
+        elif any(not relation.get("target") for relation in established):
+            findings.append("AUTHORITY_DECISION_ORPHAN")
+
+    for relation in _relations_of(record, "CONFLICTS_WITH"):
+        if relation.get("same_scope") is True:
+            findings.append("AUTHORITY_CONFLICT_SAME_SCOPE")
+
+    if record.ontology.get("lifecycle") == "ACTIVE":
+        for relation in _relations_of(record, "REFERENCES"):
+            if relation.get("target_lifecycle") == "SUPERSEDED":
+                findings.append("ACTIVE_REFERENCE_TO_SUPERSEDED_REVISION")
+
+    for relation in _relations_of(record, "DISTRIBUTED_TO"):
+        if not relation.get("target_revision"):
+            unknown = True
+            findings.append("DISTRIBUTION_REVISION_UNKNOWN")
+        elif record.revision and relation["target_revision"] != record.revision:
+            findings.append("DISTRIBUTION_SOURCE_DIVERGENT")
+
+    if record.ontology.get("primary_function") == "EVIDENCE" or "EVIDENCE" in record.ontology.get("secondary_functions", []):
+        supported = _relations_of(record, "SUPPORTED_BY")
+        if not supported:
+            unknown = True
+            findings.append("EVIDENCE_ATTACHMENT_UNKNOWN")
+        elif any(not relation.get("target") for relation in supported):
+            findings.append("EVIDENCE_ATTACHMENT_ORPHAN")
+
+    if kind in {"DISTRIBUTION", "RUNTIME_ARTIFACT"} and not (
+        source_relations or _relations_of(record, "DISTRIBUTED_TO")
+    ):
+        unknown = True
+        findings.append("PROVENANCE_UNKNOWN")
+
+    verdict = _verdict(findings, unknown)
+    return _base_result(record, verdict, findings)
+
+
 def validate(record: ValidationInput) -> dict[str, ValidationResult]:
     """Run the pilot validators without touching the represented artefact."""
 
-    return {"DIM": validate_dim(record), "ONTOLOGY": validate_ontology(record)}
+    return {
+        "DIM": validate_dim(record),
+        "ONTOLOGY": validate_ontology(record),
+        "DTS": validate_dts(record),
+        "DGM": validate_dgm(record),
+    }
 
 
 def result_json(record: ValidationInput) -> dict[str, Any]:
