@@ -12,7 +12,9 @@ ended_at: null
 next_phase: "04_PLAN"
 artifacts_consumed:
   - "origin/main@067b8ea6e9a7d9bea65a29340bdc38da1361f039"
-  - "docs/runs/2026-08-02_document-model-canon-adoption/candidate/*"
+  - "docs/document-model/*"
+  - "docs/runs/2026-08-03_document-model-canon-adoption/05_TRACEABILITY_MATRIX.md"
+  - "6983006 docs(document-model): adopt documentary contract v1 foundations"
   - "docs/runs/2026-08-03_document-model-main-integration/07_CLOSEOUT.md"
   - "AGENTS.md"
   - "SYSTEM.md"
