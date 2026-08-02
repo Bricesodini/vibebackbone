@@ -158,7 +158,10 @@ class DocumentFinding:
             )
         if self.proposed_route not in ROUTES | {None}:
             raise ValueError(f"unsupported route: {self.proposed_route}")
-        if self.canon_change_proposal_required and self.proposed_route != "CANON_CHANGE":
+        if (
+            self.canon_change_proposal_required
+            and self.proposed_route != "CANON_CHANGE"
+        ):
             raise ValueError("canon change proposal requires CANON_CHANGE route")
 
     def as_dict(self) -> dict[str, Any]:
@@ -172,13 +175,17 @@ def _display(value: str | None) -> str:
 def _verdict(findings: list[str], unknown: bool, *, applicable: bool = True) -> str:
     if not applicable:
         return "NOT_APPLICABLE"
-    hard_findings = [finding for finding in findings if not finding.endswith("_UNKNOWN")]
+    hard_findings = [
+        finding for finding in findings if not finding.endswith("_UNKNOWN")
+    ]
     if hard_findings:
         return "FAIL"
     return "UNKNOWN" if unknown else "PASS"
 
 
-def _base_result(record: ValidationInput, verdict: str, findings: list[str]) -> ValidationResult:
+def _base_result(
+    record: ValidationInput, verdict: str, findings: list[str]
+) -> ValidationResult:
     return ValidationResult(
         artifact=record.artifact,
         identity=_display(record.identity),
@@ -286,13 +293,15 @@ def validate_ontology(record: ValidationInput) -> ValidationResult:
     return _base_result(record, verdict, findings)
 
 
-def _with_compatibility(result: ValidationResult, compatibility: str) -> ValidationResult:
-    return ValidationResult(
-        **{**result.as_dict(), "compatibility": compatibility}
-    )
+def _with_compatibility(
+    result: ValidationResult, compatibility: str
+) -> ValidationResult:
+    return ValidationResult(**{**result.as_dict(), "compatibility": compatibility})
 
 
-def _tag_ontology_record(record: ValidationInput, tag: Mapping[str, Any]) -> ValidationInput:
+def _tag_ontology_record(
+    record: ValidationInput, tag: Mapping[str, Any]
+) -> ValidationInput:
     return ValidationInput(
         **{
             **record.__dict__,
@@ -310,18 +319,17 @@ def validate_dts(record: ValidationInput) -> ValidationResult:
 
     if not contract or not contract.get("version"):
         findings.append("CONTRACT_VERSION_UNKNOWN")
-        return _with_compatibility(
-            _base_result(record, "UNKNOWN", findings), "UNKNOWN"
-        )
+        return _with_compatibility(_base_result(record, "UNKNOWN", findings), "UNKNOWN")
     if not tag:
         findings.append("ARTIFACT_TAG_ABSENT")
-        return _with_compatibility(
-            _base_result(record, "UNKNOWN", findings), "UNKNOWN"
-        )
+        return _with_compatibility(_base_result(record, "UNKNOWN", findings), "UNKNOWN")
 
     if not tag.get("identity") or not tag.get("representation"):
         findings.append("TAG_IDENTITY_OR_REPRESENTATION_UNKNOWN")
-    elif tag["identity"] != record.identity or tag["representation"] != record.representation:
+    elif (
+        tag["identity"] != record.identity
+        or tag["representation"] != record.representation
+    ):
         findings.append("TAG_IDENTITY_OR_REPRESENTATION_MISMATCH")
 
     tag_contract = tag.get("contract_version")
@@ -366,7 +374,9 @@ def validate_dts(record: ValidationInput) -> ValidationResult:
     unknown = any(finding.endswith("UNKNOWN") for finding in findings)
     if hard:
         compatibility = "INCOMPATIBLE"
-    elif runtime_divergent or tag_contract in set(contract.get("migration_required_versions", ())):
+    elif runtime_divergent or tag_contract in set(
+        contract.get("migration_required_versions", ())
+    ):
         compatibility = "MIGRATION_REQUIRED"
     elif unknown:
         compatibility = "UNKNOWN"
@@ -374,13 +384,17 @@ def validate_dts(record: ValidationInput) -> ValidationResult:
         compatibility = "COMPATIBLE"
 
     verdict = "FAIL" if hard else ("UNKNOWN" if unknown else "PASS")
-    return _with_compatibility(
-        _base_result(record, verdict, findings), compatibility
-    )
+    return _with_compatibility(_base_result(record, verdict, findings), compatibility)
 
 
-def _relations_of(record: ValidationInput, relation_type: str) -> list[Mapping[str, Any]]:
-    return [relation for relation in record.relations if relation.get("type") == relation_type]
+def _relations_of(
+    record: ValidationInput, relation_type: str
+) -> list[Mapping[str, Any]]:
+    return [
+        relation
+        for relation in record.relations
+        if relation.get("type") == relation_type
+    ]
 
 
 def validate_dgm(record: ValidationInput) -> ValidationResult:
@@ -402,7 +416,9 @@ def validate_dgm(record: ValidationInput) -> ValidationResult:
         if not represented:
             unknown = True
             findings.append("REPRESENTED_BY_UNKNOWN")
-        elif any(relation.get("target") != record.representation for relation in represented):
+        elif any(
+            relation.get("target") != record.representation for relation in represented
+        ):
             findings.append("REPRESENTED_BY_TARGET_MISMATCH")
 
     revisions = _relations_of(record, "REVISION_OF")
@@ -410,7 +426,9 @@ def validate_dgm(record: ValidationInput) -> ValidationResult:
         if not revisions:
             unknown = True
             findings.append("REVISION_OF_UNKNOWN")
-        elif any(relation.get("target") != record.representation for relation in revisions):
+        elif any(
+            relation.get("target") != record.representation for relation in revisions
+        ):
             findings.append("REVISION_OF_TARGET_MISMATCH")
 
     locations = _relations_of(record, "LOCATED_AT")
@@ -422,7 +440,9 @@ def validate_dgm(record: ValidationInput) -> ValidationResult:
             findings.append("LOCATED_AT_TARGET_MISMATCH")
 
     kind = (record.tag or {}).get("kind")
-    source_relations = _relations_of(record, "GENERATED_FROM") + _relations_of(record, "PROJECTS")
+    source_relations = _relations_of(record, "GENERATED_FROM") + _relations_of(
+        record, "PROJECTS"
+    )
     if kind in {"PROJECTION", "GENERATED"}:
         if not source_relations:
             unknown = True
@@ -454,7 +474,9 @@ def validate_dgm(record: ValidationInput) -> ValidationResult:
         elif record.revision and relation["target_revision"] != record.revision:
             findings.append("DISTRIBUTION_SOURCE_DIVERGENT")
 
-    if record.ontology.get("primary_function") == "EVIDENCE" or "EVIDENCE" in record.ontology.get("secondary_functions", []):
+    if record.ontology.get(
+        "primary_function"
+    ) == "EVIDENCE" or "EVIDENCE" in record.ontology.get("secondary_functions", []):
         supported = _relations_of(record, "SUPPORTED_BY")
         if not supported:
             unknown = True
@@ -558,18 +580,34 @@ def _proposed_route(finding: DocumentFinding) -> tuple[str | None, bool, str]:
             "current reasoning references a superseded revision",
         )
     if "ORPHAN" in discrepancy:
-        return "ARCHIVE", False, "orphaned artefact has no demonstrated active provenance"
-    if discrepancy in {
-        "ARTIFACT_TAG_ABSENT",
-        "TAG_IDENTITY_OR_REPRESENTATION_UNKNOWN",
-        "TAG_IDENTITY_OR_REPRESENTATION_MISMATCH",
-        "TAG_CONTRACT_VERSION_INCOMPATIBLE",
-        "RUNTIME_OR_DISTRIBUTION_REVISION_DIVERGENT",
-        "DISTRIBUTION_SOURCE_DIVERGENT",
-    } or finding.source_validator == "ONTOLOGY":
-        return "DOCUMENTARY_CORRECTION", False, "alignment can be reviewed without changing canon"
+        return (
+            "ARCHIVE",
+            False,
+            "orphaned artefact has no demonstrated active provenance",
+        )
+    if (
+        discrepancy
+        in {
+            "ARTIFACT_TAG_ABSENT",
+            "TAG_IDENTITY_OR_REPRESENTATION_UNKNOWN",
+            "TAG_IDENTITY_OR_REPRESENTATION_MISMATCH",
+            "TAG_CONTRACT_VERSION_INCOMPATIBLE",
+            "RUNTIME_OR_DISTRIBUTION_REVISION_DIVERGENT",
+            "DISTRIBUTION_SOURCE_DIVERGENT",
+        }
+        or finding.source_validator == "ONTOLOGY"
+    ):
+        return (
+            "DOCUMENTARY_CORRECTION",
+            False,
+            "alignment can be reviewed without changing canon",
+        )
     if finding.source_validator == "DTS" and "INCOMPATIBLE" in discrepancy:
-        return "DELETE", False, "incompatible artefact requires explicit removal decision"
+        return (
+            "DELETE",
+            False,
+            "incompatible artefact requires explicit removal decision",
+        )
     return None, False, "NO_SAFE_PROCEDURE_INFERRED"
 
 

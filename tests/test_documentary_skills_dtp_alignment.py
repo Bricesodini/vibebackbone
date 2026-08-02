@@ -61,7 +61,9 @@ def test_coherence_findings_include_document_model_fields(skill_texts):
     assert "never write a fix automatically" in text
 
 
-def test_gap_integrator_requires_decision_before_identity_or_document_creation(skill_texts):
+def test_gap_integrator_requires_decision_before_identity_or_document_creation(
+    skill_texts,
+):
     text = skill_texts["gap"]
 
     assert "do not create a document or identity after detection alone" in text
