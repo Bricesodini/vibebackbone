@@ -206,9 +206,9 @@ C4 validates the declared DGM relation vocabulary and covers:
 Evidence: `python -m pytest tests/test_document_model_validation_pilot.py -q`
 returned 23 passed tests, including all C0-C2 tests and the C3-C4 variants.
 
-The C3-C4 extension remains in the working tree after the C0-C2 commit. DTS
-compatibility does not execute migration, and DGM findings do not trigger DTP
-or modify any repository artefact.
+The C3-C4 extension was committed locally as `6beae84`. DTS compatibility does
+not execute migration, and DGM findings do not trigger DTP or modify any
+repository artefact.
 
 ## C3-C4 verdict
 
@@ -218,3 +218,67 @@ The C3-C4 pilot is ready for review: all required compatibility outcomes,
 relation findings and `UNKNOWN` cases are covered on experimental fixtures.
 The run stops before DTP adaptation, documentary skills, distributions and
 cleanup.
+
+## C5 finding and transition-routing pilot
+
+C5 normalizes C1-C4 observations into decision-ready findings while reusing
+the existing C0 result interface. Each finding records a stable run-local
+identifier, artefact, observed identity, applicable authority, source
+validator, discrepancy, evidence, potential impact, confidence and a human
+decision status. The only decision statuses are
+`AWAITING_HUMAN_DECISION`, `APPROVED_FOR_ROUTING`, `DECLINED` and `DEFERRED`.
+
+The three human responses are read-only:
+
+- `OUI` changes only the finding status and proposes a procedure;
+- `NON` records the decision and leaves the artefact unchanged;
+- `PLUS_TARD` records deferred documentary debt and leaves the artefact
+  unchanged.
+
+An `OUI` response never executes a procedure. Findings with insufficient
+evidence remain without a route proposal. A canon-change proposal is marked
+only for an authority conflict that explicitly requires canon review; ordinary
+alignment findings receive a documentary-correction proposal instead.
+
+C5 fixtures cover orphan projections, untagged artefacts, authority conflict,
+historical authority used in current reasoning, runtime divergence, invalid
+ontology, insufficient evidence, all three human responses, no-write routing,
+and separate canon-change versus ordinary correction proposals.
+
+Evidence: `python -m pytest tests/test_document_model_validation_pilot.py -q`
+returned 29 passed tests.
+
+### C5 validation results
+
+Executed and passing:
+
+- C0-C5 pilot tests: 29 passed.
+- Full suite: 510 passed, 1 skipped.
+- Ruff on the pilot module and tests: PASS.
+- Python compilation: PASS.
+- `python tools/vbb-architecture.py lint`: PASS, 0 errors, 0 warnings.
+- `python tools/vbb-contract-lint.py`: PASS, 0 errors, 1 pre-existing
+  non-blocking warning.
+- `python tools/vbb-document-convention-lint.py .`: PASS.
+- `git diff --check`: PASS.
+
+Not executed or not applicable:
+
+- DTP remediation execution: not executed; C5 only proposes routes.
+- Skill, distribution, template and workflow validation: not applicable; none
+  changed.
+- Real documentary cleanup, archive, deletion or migration: not executed.
+- Push, tag and merge: not executed.
+
+The non-executed items are not reported as PASS.
+
+The C5 implementation and fixtures remain uncommitted in the working tree.
+No remediation, migration, frontmatter/tag write, skill/distribution change,
+cleanup, push, tag or merge was performed.
+
+## C5 verdict
+
+`DOCUMENT_TRANSITION_ROUTING_PILOT_READY`
+
+The C5 pilot is ready for review. It stops before DTP execution, skill
+adaptation and real documentary cleanup.

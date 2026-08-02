@@ -1,0 +1,66 @@
+[
+  {
+    "artifact": "fixtures/c5-historical-authority-use",
+    "identity": "Historical authority reference",
+    "representation": "fixture-historical-authority",
+    "location": "fixture",
+    "revision": "fixture-revision",
+    "revision_basis": "explicit",
+    "ontology": {
+      "authority": "NON_AUTHORITATIVE",
+      "lifecycle": "ACTIVE",
+      "temporality": "PAST",
+      "primary_function": "REFERENCE",
+      "secondary_functions": [],
+      "load_policy": "ON_DEMAND"
+    },
+    "contract_version": "v1.1",
+    "tag": {
+      "identity": "Historical authority reference",
+      "representation": "fixture-historical-authority",
+      "revision": "fixture-revision",
+      "contract_version": "v1.1",
+      "kind": "DOCUMENT",
+      "ontology": {
+        "authority": "NON_AUTHORITATIVE",
+        "lifecycle": "ACTIVE",
+        "temporality": "PAST",
+        "primary_function": "REFERENCE",
+        "secondary_functions": [],
+        "load_policy": "ON_DEMAND"
+      }
+    },
+    "repository_contract": {"version": "v1.1"},
+    "relations": [
+      {
+        "type": "REFERENCES",
+        "source": "fixture-historical-authority",
+        "target": "old-authority",
+        "target_lifecycle": "SUPERSEDED"
+      }
+    ],
+    "evidence": ["fixture: historical authority used in current reasoning"],
+    "confidence": "HIGH"
+  },
+  {
+    "artifact": "fixtures/c5-unknown-routing",
+    "identity": "Insufficient evidence case",
+    "representation": "fixture-unknown",
+    "location": null,
+    "revision": null,
+    "revision_basis": null,
+    "ontology": {
+      "authority": "UNASSESSED",
+      "lifecycle": "ACTIVE",
+      "temporality": "UNDATED",
+      "primary_function": "REFERENCE",
+      "secondary_functions": [],
+      "load_policy": "ON_DEMAND"
+    },
+    "contract_version": null,
+    "repository_contract": {},
+    "relations": [],
+    "evidence": ["fixture: missing revision and repository contract"],
+    "confidence": "LOW"
+  }
+]

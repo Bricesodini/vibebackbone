@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Experimental, read-only C0-C4 document model validation pilot.
+"""Experimental, read-only C0-C5 document model validation pilot.
 
 This module deliberately validates fixture records, not repository files. It
 does not write tags, frontmatter, projections, or source artefacts.
@@ -8,6 +8,7 @@ does not write tags, frontmatter, projections, or source artefacts.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+import hashlib
 from typing import Any, Mapping
 
 
@@ -52,6 +53,20 @@ FUNCTIONS = {
     "NAVIGATION",
 }
 LOAD_POLICIES = {"ALWAYS", "ON_ROUTE", "ON_DEMAND", "NEVER_BY_DEFAULT"}
+FINDING_STATUSES = {
+    "AWAITING_HUMAN_DECISION",
+    "APPROVED_FOR_ROUTING",
+    "DECLINED",
+    "DEFERRED",
+}
+HUMAN_DECISIONS = {"OUI", "NON", "PLUS_TARD"}
+ROUTES = {
+    "DOCUMENTARY_CORRECTION",
+    "CANON_CHANGE",
+    "HISTORICAL_CLASSIFICATION",
+    "ARCHIVE",
+    "DELETE",
+}
 
 
 @dataclass(frozen=True)
@@ -113,6 +128,38 @@ class ValidationResult:
             raise ValueError(f"unsupported verdict: {self.verdict}")
         if self.compatibility not in COMPATIBILITY_VERDICTS:
             raise ValueError(f"unsupported compatibility: {self.compatibility}")
+
+    def as_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class DocumentFinding:
+    """Normalized C5 finding; routing is a proposal and never a mutation."""
+
+    finding_id: str
+    artifact: str
+    identity: str
+    applicable_authority: str
+    source_validator: str
+    discrepancy: str
+    evidence: tuple[str, ...]
+    potential_impact: str
+    confidence: str
+    human_decision_status: str = "AWAITING_HUMAN_DECISION"
+    proposed_route: str | None = None
+    canon_change_proposal_required: bool = False
+    route_reason: str | None = None
+
+    def __post_init__(self) -> None:
+        if self.human_decision_status not in FINDING_STATUSES:
+            raise ValueError(
+                f"unsupported finding status: {self.human_decision_status}"
+            )
+        if self.proposed_route not in ROUTES | {None}:
+            raise ValueError(f"unsupported route: {self.proposed_route}")
+        if self.canon_change_proposal_required and self.proposed_route != "CANON_CHANGE":
+            raise ValueError("canon change proposal requires CANON_CHANGE route")
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -434,6 +481,136 @@ def validate(record: ValidationInput) -> dict[str, ValidationResult]:
         "DTS": validate_dts(record),
         "DGM": validate_dgm(record),
     }
+
+
+def _stable_finding_id(
+    run_id: str, record: ValidationInput, source_validator: str, discrepancy: str
+) -> str:
+    seed = "|".join((run_id, source_validator, record.artifact, discrepancy))
+    digest = hashlib.sha256(seed.encode("utf-8")).hexdigest()[:12]
+    return f"{run_id}/{source_validator.lower()}/{digest}"
+
+
+def _finding_impact(source_validator: str, discrepancy: str) -> str:
+    if "CONFLICT" in discrepancy:
+        return "may create competing authority for one documentary scope"
+    if "SUPERSEDED" in discrepancy:
+        return "may cause current reasoning to rely on a superseded revision"
+    if "ORPHAN" in discrepancy or "PROVENANCE" in discrepancy:
+        return "may break provenance between an artefact and its source"
+    if discrepancy.endswith("UNKNOWN") or "UNKNOWN" in discrepancy:
+        return "current impact cannot be determined from the available evidence"
+    if source_validator == "ONTOLOGY":
+        return "may make the artefact's governed interpretation ambiguous"
+    return "may leave the documentary state inconsistent with its applicable contract"
+
+
+def normalize_finding(
+    run_id: str,
+    record: ValidationInput,
+    source_validator: str,
+    discrepancy: str,
+    result: ValidationResult,
+) -> DocumentFinding:
+    """Convert one validator observation into a decision-ready finding."""
+
+    if source_validator not in {"DIM", "ONTOLOGY", "DTS", "DGM"}:
+        raise ValueError(f"unsupported finding source: {source_validator}")
+    return DocumentFinding(
+        finding_id=_stable_finding_id(run_id, record, source_validator, discrepancy),
+        artifact=record.artifact,
+        identity=_display(record.identity),
+        applicable_authority=_display(record.ontology.get("authority")),
+        source_validator=source_validator,
+        discrepancy=discrepancy,
+        evidence=result.evidence or record.evidence,
+        potential_impact=_finding_impact(source_validator, discrepancy),
+        confidence=result.confidence,
+    )
+
+
+def findings_for_record(
+    run_id: str, record: ValidationInput
+) -> tuple[DocumentFinding, ...]:
+    """Normalize every C1-C4 observation without deciding or routing it."""
+
+    findings: list[DocumentFinding] = []
+    for source_validator, result in validate(record).items():
+        findings.extend(
+            normalize_finding(run_id, record, source_validator, discrepancy, result)
+            for discrepancy in result.findings
+        )
+    return tuple(findings)
+
+
+def _proposed_route(finding: DocumentFinding) -> tuple[str | None, bool, str]:
+    """Suggest a procedure only when the observation is sufficient to do so."""
+
+    discrepancy = finding.discrepancy
+    if discrepancy.endswith("UNKNOWN") or "UNKNOWN" in discrepancy:
+        return None, False, "INSUFFICIENT_EVIDENCE"
+    if "AUTHORITY_CONFLICT" in discrepancy:
+        return "CANON_CHANGE", True, "authority scope conflict requires canon review"
+    if "SUPERSEDED" in discrepancy:
+        return (
+            "HISTORICAL_CLASSIFICATION",
+            False,
+            "current reasoning references a superseded revision",
+        )
+    if "ORPHAN" in discrepancy:
+        return "ARCHIVE", False, "orphaned artefact has no demonstrated active provenance"
+    if discrepancy in {
+        "ARTIFACT_TAG_ABSENT",
+        "TAG_IDENTITY_OR_REPRESENTATION_UNKNOWN",
+        "TAG_IDENTITY_OR_REPRESENTATION_MISMATCH",
+        "TAG_CONTRACT_VERSION_INCOMPATIBLE",
+        "RUNTIME_OR_DISTRIBUTION_REVISION_DIVERGENT",
+        "DISTRIBUTION_SOURCE_DIVERGENT",
+    } or finding.source_validator == "ONTOLOGY":
+        return "DOCUMENTARY_CORRECTION", False, "alignment can be reviewed without changing canon"
+    if finding.source_validator == "DTS" and "INCOMPATIBLE" in discrepancy:
+        return "DELETE", False, "incompatible artefact requires explicit removal decision"
+    return None, False, "NO_SAFE_PROCEDURE_INFERRED"
+
+
+def decide_finding(finding: DocumentFinding, response: str) -> DocumentFinding:
+    """Record OUI/NON/PLUS_TARD; OUI only creates a route proposal."""
+
+    if response not in HUMAN_DECISIONS:
+        raise ValueError(f"unsupported human decision: {response}")
+    if response == "NON":
+        return DocumentFinding(
+            **{
+                **finding.as_dict(),
+                "human_decision_status": "DECLINED",
+                "route_reason": "human decision recorded; artefact remains unchanged",
+            }
+        )
+    if response == "PLUS_TARD":
+        return DocumentFinding(
+            **{
+                **finding.as_dict(),
+                "human_decision_status": "DEFERRED",
+                "route_reason": "documentary debt recorded for later decision",
+            }
+        )
+
+    route, requires_canon, reason = _proposed_route(finding)
+    return DocumentFinding(
+        **{
+            **finding.as_dict(),
+            "human_decision_status": "APPROVED_FOR_ROUTING",
+            "proposed_route": route,
+            "canon_change_proposal_required": requires_canon,
+            "route_reason": reason,
+        }
+    )
+
+
+def finding_json(run_id: str, record: ValidationInput) -> list[dict[str, Any]]:
+    """Serialize C5 findings without writing to the represented artefact."""
+
+    return [finding.as_dict() for finding in findings_for_record(run_id, record)]
 
 
 def result_json(record: ValidationInput) -> dict[str, Any]:
