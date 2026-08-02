@@ -38,5 +38,14 @@ artifacts_produced:
 - `git diff --check`: PASS.
 
 The next action is to validate and commit this atomic F-02/F-03 lot. F-05 is
-not included in this lot.
+not included in that lot.
 
+## F-05 reconstruction
+
+| Claim | Evidence | Status |
+|---|---|---|
+| `docs/CONTEXT.md` reflects the actual integration state | F-05 diff and dashboard next-action test | PASS |
+| F-05 copies the canon or historical reports | Navigation, anchor and deferred-scope wording only | PASS |
+
+F-05 is committed separately from F-02/F-03. Integrated validation and final
+closeout remain open.

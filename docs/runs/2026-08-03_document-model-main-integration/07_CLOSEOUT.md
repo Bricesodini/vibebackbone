@@ -24,6 +24,7 @@ complete.
 
 - technical lots C0–C5 and the four skills were ported and validated;
 - F-02 and F-03 were reconstructed in a separate atomic source lot;
+- F-05 was reconstructed in its own context-navigation lot;
 - no conceptual foundation was adopted canonically.
 
 ## Remaining scope
@@ -35,7 +36,7 @@ open. No push, tag, merge, publication or runtime certification occurred.
 |---|---|---|
 | C0–C5 and skills are ported in order | `05_EXECUTION.md` and resulting SHAs | PASS |
 | F-02/F-03 are limited to the authorized files | staged diff and targeted tests | PASS |
-| Integration is complete | F-05 and integrated validation remain open | NOT_YET_ASSESSED |
+| Integration is complete | Integrated validation remains open | NOT_YET_ASSESSED |
 
 ```yaml
 ASSURANCE_STATUS:
