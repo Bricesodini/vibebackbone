@@ -14,6 +14,10 @@ Your role in this phase is limited to:
 Instructions:
 
 - `docs/PILOTAGE.md` is the routing source of truth.
+- Before reading project state, check `$PWD/AGENTS.md`, otherwise `AGENTS.md`
+  at the effective Git root. Read the one contract found and report its Git
+  state. It supplies operational context only and cannot change VBB routing or
+  gates.
 - Read these files first, when present:
   - `docs/CONTEXT.md`
   - `docs/SESSION.md`

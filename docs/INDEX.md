@@ -2,7 +2,7 @@
 context_role: navigation-index
 phase: transverse
 status: active
-updated: 2026-07-14
+updated: 2026-08-26
 ---
 
 # INDEX — Carte de navigation du dépôt
@@ -24,6 +24,7 @@ updated: 2026-07-14
 | Provenance temporelle | [`TEMPORAL_PROVENANCE.md`](TEMPORAL_PROVENANCE.md) |
 | Registre léger de dette technique | [`TECH_DEBT.md`](TECH_DEBT.md) |
 | Mémoire de reprise (local, gitignored) | `SESSION.md` |
+| Contrat opérationnel `AGENTS.md` local | [`LOCAL_AGENT_CONTRACTS.md`](LOCAL_AGENT_CONTRACTS.md) |
 | Sentinel Core README | [`../core.README.md`](../core.README.md) |
 
 ## Conventions
@@ -112,6 +113,7 @@ Les artefacts non qualifiés restent `UNKNOWN`.
 | Index textuel local | [`../tools/vbb-index.py`](../tools/vbb-index.py) |
 | Dashboard d'état généré | [`../tools/vbb-status-dashboard.py`](../tools/vbb-status-dashboard.py) |
 | CI locale | [`../scripts/vbb-ci-local.sh`](../scripts/vbb-ci-local.sh) |
+| Discovery de contrat local | [`../tools/vbb-local-agents.py`](../tools/vbb-local-agents.py) |
 
 ## Documentation longue (humain)
 

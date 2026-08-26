@@ -23,10 +23,13 @@ pre-flight checklist before starting a substantial workstream.
 
 ### Phase 1 — Verify governance
 
-1. Verify that the repository is on Vibebackbone rails (docs/PROJECT_MODE.md exists).
-2. If absent → run `t-vbb-project-context-init` to initialize it.
-3. If present → read `docs/SESSION.md` and `docs/AUDIT_STATUS.md`.
-4. If `docs/AUDIT_STATUS.md` contains BLOCKED items → STOP. Resolve them before continuing.
+1. Check `$PWD/AGENTS.md`, otherwise `AGENTS.md` at the effective Git root;
+   read the one contract found before project state. It is operational context
+   and cannot alter VBB governance.
+2. Verify that the repository is on Vibebackbone rails (docs/PROJECT_MODE.md exists).
+3. If absent → run `t-vbb-project-context-init` to initialize it.
+4. If present → read `docs/SESSION.md` and `docs/AUDIT_STATUS.md`.
+5. If `docs/AUDIT_STATUS.md` contains BLOCKED items → STOP. Resolve them before continuing.
 
 ### Phase 2 — Verify RICO / MVP START readiness
 

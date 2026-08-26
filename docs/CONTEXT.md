@@ -9,8 +9,9 @@ temporal_provenance: TEMPORAL_PROVENANCE.md
 
 # CONTEXT — persistent router
 
-> Read first at startup. This file points to current truth; it does not retain
-> session history or duplicate measured counters.
+> First project-state source after the VBB Core and any applicable local
+> operational `AGENTS.md` contract. This file points to current truth; it does
+> not retain session history or duplicate measured counters.
 
 ## Identity
 

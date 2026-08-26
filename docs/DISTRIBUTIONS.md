@@ -910,6 +910,24 @@ installation ou configuration provider ne change.
 
 **Author**: Brice (demande explicite), Codex — ADR 0048
 
+### 2026-08-26 — Local AGENTS.md operational bootstrap promoted to Core
+
+**Decision**: Keep repository-local contract discovery, provenance reporting,
+and bootstrap precedence in Core. The contract is operational context only; it
+cannot change VBB governance.
+
+**Reason**: The discovery rule is generic across consumer repositories. Putting
+it in one provider adapter would create inconsistent startup behavior and four
+competing implementations.
+
+**Impact**: Pi receives the rule through the Core AGENTS symlink; Codex through
+its compiled Core block; Claude through `@AGENTS.md`; OpenCode through its Core
+instructions. No provider-specific path, installer behavior, or external
+runtime state changes. All four must refresh their normal VBB governance source
+to receive the updated Core text.
+
+**Author**: Brice (explicit authorization), Codex (implementation) — ADR 0055
+
 ## 9. References
 
 - `README.md` — entry point; "VBB Core vs Distributions" anchors the

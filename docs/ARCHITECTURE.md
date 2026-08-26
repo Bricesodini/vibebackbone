@@ -2,7 +2,7 @@
 context_role: canonical-architecture
 phase: transverse
 status: active
-updated: 2026-05-29
+updated: 2026-08-26
 ---
 
 # ARCHITECTURE — Canonical Structured Source
@@ -45,6 +45,7 @@ responsibilities:
   - Prevent parallel truth between governance, sessions and code
   - Require governed capitalization after qualified implementation
   - Keep AGENTS.md as a compact source file, not a recursively generated artifact
+  - Load one bounded repository-local operational contract before project state
 depends_on: []
 impacts:
   - task triage
@@ -60,6 +61,8 @@ files:
   - docs/PROJECT_MODE.md
   - docs/SESSION_RULES.md
   - docs/CONVENTIONS.md
+  - docs/LOCAL_AGENT_CONTRACTS.md
+  - tools/vbb-local-agents.py
   - skills/vibebackbone/**
 contracts:
   - vibebackbone
@@ -68,10 +71,14 @@ contracts:
 tests:
   - tests/test_loop_closure.py
   - tests/test_status_dashboard.py
+  - tests/test_local_agents_bootstrap.py
 risks:
   - id: GOV-001
     level: P2
     note: Governance duplication can create conflicting operational truth.
+  - id: GOV-002
+    level: P2
+    note: A local operational contract must not alter VBB governance or escape its Git-root boundary.
 ```
 
 ## Bloc: Documentary Contract
