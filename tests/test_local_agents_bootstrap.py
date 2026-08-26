@@ -115,6 +115,40 @@ def test_external_symlink_stops_bootstrap():
         assert result["local_agent_contract_status"] == "EXTERNAL_SYMLINK"
 
 
+def test_external_non_utf8_symlink_is_rejected_before_content_read():
+    with (
+        tempfile.TemporaryDirectory() as tmp,
+        tempfile.TemporaryDirectory() as outside_tmp,
+    ):
+        repo = Path(tmp)
+        _init_repo(repo)
+        outside = Path(outside_tmp) / "AGENTS.md"
+        outside.write_bytes(b"\xff")
+        os.symlink(outside, repo / "AGENTS.md")
+        code, result = _discover(repo)
+        assert code == 1
+        assert result["local_agent_contract_status"] == "EXTERNAL_SYMLINK"
+        assert result["detail"] == "contract target is outside the effective Git root"
+
+
+def test_untracked_symlink_reports_entry_provenance_separately_from_target():
+    with tempfile.TemporaryDirectory() as tmp:
+        repo = Path(tmp)
+        _init_repo(repo)
+        target = repo / "policy.md"
+        target.write_text("# policy\n", encoding="utf-8")
+        _git(repo, "add", "policy.md")
+        _git(repo, "commit", "-qm", "add policy")
+        entry = repo / "AGENTS.md"
+        os.symlink("policy.md", entry)
+
+        code, result = _discover(repo)
+        assert code == 0
+        assert result["local_agent_contract"] == str(repo.resolve() / "AGENTS.md")
+        assert result["resolved_local_agent_contract"] == str(target.resolve())
+        assert result["agents_md_git_state"] == "UNTRACKED"
+
+
 def test_local_contract_is_operational_and_entrypoints_load_it_before_session():
     contract = (REPO / "docs" / "LOCAL_AGENT_CONTRACTS.md").read_text(encoding="utf-8")
     session_prompt = (REPO / "prompts" / "t-p-vbb-start-session.md").read_text(

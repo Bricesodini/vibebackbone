@@ -75,7 +75,6 @@ def discover(cwd: Path) -> dict:
             return _result(launch_dir, root, candidate, "INVALID_PATH", "UNKNOWN")
         try:
             resolved = candidate.resolve(strict=True)
-            resolved.read_text(encoding="utf-8")
         except (OSError, RuntimeError, UnicodeDecodeError) as exc:
             return _result(
                 launch_dir, root, candidate, "UNREADABLE", "UNKNOWN", str(exc)
@@ -89,7 +88,25 @@ def discover(cwd: Path) -> dict:
                 "UNKNOWN",
                 "contract target is outside the effective Git root",
             )
-        return _result(launch_dir, root, resolved, "READY", _git_state(resolved, root))
+        try:
+            resolved.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError) as exc:
+            return _result(
+                launch_dir,
+                root,
+                candidate,
+                "UNREADABLE",
+                _git_state(candidate, root),
+                str(exc),
+            )
+        return _result(
+            launch_dir,
+            root,
+            candidate,
+            "READY",
+            _git_state(candidate, root),
+            resolved_contract=resolved,
+        )
     return _result(launch_dir, root, None, "NONE", "UNKNOWN")
 
 
@@ -100,12 +117,16 @@ def _result(
     status: str,
     git_state: str,
     detail: Optional[str] = None,
+    resolved_contract: Optional[Path] = None,
 ) -> dict:
     return {
         "launch_directory": str(launch_dir),
         "repository_root": str(root) if root else None,
         "local_agent_contract": str(contract) if contract else "NONE",
         "local_agent_contract_status": status,
+        "resolved_local_agent_contract": str(resolved_contract)
+        if resolved_contract
+        else None,
         "agents_md_git_state": git_state,
         "detail": detail,
     }

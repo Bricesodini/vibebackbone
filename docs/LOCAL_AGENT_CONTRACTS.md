@@ -30,10 +30,12 @@ python tools/vbb-local-agents.py --cwd "$TARGET_REPOSITORY"
 ```
 
 When the verifier is available, `local_agent_contract_status: READY` identifies
-the file to read and its Git state. Provider bootstraps need not depend on that
-script: they perform the same two-step discovery below. `NONE` preserves the
-historical VBB bootstrap. An unsafe or unreadable result stops bootstrap until
-the path issue is fixed.
+the selected entry to read and its Git state. `resolved_local_agent_contract`
+is an informational resolved target. `agents_md_git_state` always describes
+the selected `AGENTS.md` entry, not its target. Provider bootstraps need not
+depend on that script: they perform the same two-step discovery below. `NONE`
+preserves the historical VBB bootstrap. An unsafe or unreadable result stops
+bootstrap until the path issue is fixed.
 
 ## Discovery and provenance
 
@@ -42,7 +44,8 @@ The selection is deterministic and bounded:
 1. `<launch-directory>/AGENTS.md`;
 2. otherwise `<effective-git-root>/AGENTS.md`.
 
-Only one contract is selected. VBB never recursively walks parent directories,
+Only one contract is selected. Its resolved path is validated inside the Git
+root before its content is read. VBB never recursively walks parent directories,
 superprojects or the filesystem. A nested Git repository therefore selects its
 own contract, not a parent's. The target must resolve inside the effective Git
 root; external symlinks are refused.
