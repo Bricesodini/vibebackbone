@@ -1,0 +1,5 @@
+canon: 0 artifact(s) | vault: 2 entry(ies)
+  PROJECTION_WITHOUT_SOURCE          vbbk_p_api_design      source dec_B absent from canon
+  PROJECTION_WITHOUT_SOURCE          vbbk_p_db              source dec_db absent from canon
+
+VERDICT: FAIL

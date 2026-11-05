@@ -1,0 +1,17 @@
+[
+  {
+    "id": "vbbk_p_db",
+    "class": "projection",
+    "source": "dec_db",
+    "subject_key": "database",
+    "value": "postgresql",
+    "projected": {
+      "status": "active",
+      "final_status": "PASS",
+      "assurance_status": "DESIGN",
+      "certification_status": "NOT_CERTIFIED",
+      "lifecycle": "canonical"
+    },
+    "provenance": {"captured_from": "repo", "run": "post_rebuild"}
+  }
+]

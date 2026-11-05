@@ -1,0 +1,17 @@
+[
+  {"id":"p1","class":"projection","source":"art_db_choice","subject_key":"database","value":"postgresql",
+   "projected":{"status":"active","final_status":"PASS","assurance_status":"DESIGN","certification_status":"NOT_CERTIFIED","lifecycle":"canonical"},
+   "provenance":{"captured_from":"repo","run":"2026-08-26_2105"}},
+  {"id":"p2","class":"projection","source":"art_export_v2","subject_key":"export","value":"bidirectional",
+   "projected":{"status":"active","final_status":"PASS","assurance_status":"CERTIFICATION","certification_status":"PRE_CERTIFICATION","lifecycle":"canonical"},
+   "provenance":{"captured_from":"repo","run":"2026-08-26_2105"}},
+  {"id":"p3","class":"projection","source":"art_ui_stack","subject_key":"ui_stack","value":"swiftui",
+   "projected":{"status":"active","final_status":"PASS","assurance_status":"DESIGN","certification_status":"NOT_CERTIFIED","lifecycle":"canonical"},
+   "provenance":{"captured_from":"repo","run":"2026-08-26_2105"}},
+  {"id":"p4","class":"projection","source":"art_shopping_list","subject_key":"shopping_list","value":"included_in_mvp",
+   "projected":{"status":"active","final_status":"PASS","assurance_status":"DESIGN","certification_status":"NOT_CERTIFIED","lifecycle":"canonical"},
+   "provenance":{"captured_from":"repo","run":"2026-08-26_2105"}},
+  {"id":"p0","class":"projection","source":"art_export_v1","subject_key":"export","value":"unidirectional",
+   "projected":{"status":"superseded","final_status":"PASS","assurance_status":"DESIGN","certification_status":"NOT_CERTIFIED","lifecycle":"canonical"},
+   "provenance":{"captured_from":"repo","run":"2026-08-20_old"}}
+]

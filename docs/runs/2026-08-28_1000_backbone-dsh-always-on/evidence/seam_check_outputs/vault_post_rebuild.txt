@@ -1,0 +1,4 @@
+canon: 3 artifact(s) | vault: 1 entry(ies)
+  REBUILD_DIVERGENCE                 dec_B                  canon artifact has no projection
+
+VERDICT: FAIL

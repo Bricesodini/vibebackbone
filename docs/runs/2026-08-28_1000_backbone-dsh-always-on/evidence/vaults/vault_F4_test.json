@@ -1,0 +1,24 @@
+[
+  {
+    "id": "vbbk_p_db_choice",
+    "class": "projection",
+    "source": "dec_db",
+    "subject_key": "database",
+    "value": "postgresql",
+    "projected": {
+      "status": "active",
+      "final_status": "PASS",
+      "assurance_status": "DESIGN",
+      "certification_status": "NOT_CERTIFIED",
+      "lifecycle": "canonical"
+    },
+    "provenance": {"captured_from": "repo", "run": "rebuild"}
+  },
+  {
+    "id": "vbbk_c_db_mongo",
+    "class": "candidate",
+    "subject_key": "database",
+    "value": "mongodb",
+    "provenance": {"captured_from": "experimental_session"}
+  }
+]

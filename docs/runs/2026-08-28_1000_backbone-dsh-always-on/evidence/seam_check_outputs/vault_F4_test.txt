@@ -1,0 +1,5 @@
+canon: 3 artifact(s) | vault: 2 entry(ies)
+  CANDIDATE_CONTRADICTION_UNFLAGGED  vbbk_c_db_mongo        subject database: candidate='mongodb' canon='postgresql'
+  REBUILD_DIVERGENCE                 dec_B                  canon artifact has no projection
+
+VERDICT: FAIL

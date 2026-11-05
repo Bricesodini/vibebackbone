@@ -910,6 +910,22 @@ installation ou configuration provider ne change.
 
 **Author**: Brice (demande explicite), Codex — ADR 0048
 
+### 2026-08-26 — Project-local ADR resolution kept in Core
+
+**Decision**: Keep project-root discovery, explicit `project:`/`vbb:` ADR
+namespaces, ambiguity failure, and path-boundary validation in
+`tools/vbb-gate-check.py`; do not add provider-specific resolution logic.
+
+**Reason**: ADR/POC/integration gating is a generic contract shared by Pi,
+OpenCode, Codex, and Claude. A distribution-local fix would create divergent
+authority and could reproduce the wrong-root defect for other projects.
+
+**Impact**: All four distributions consume the corrected Core tool on their
+next Core refresh. No distribution glue, installed runtime state, Scol_FC
+product/harness, deployment, or OVH state changes.
+
+**Author**: Codex, explicit user mission
+
 ## 9. References
 
 - `README.md` — entry point; "VBB Core vs Distributions" anchors the

@@ -1,0 +1,8 @@
+canon: 3 artifact(s) | vault: 1 entry(ies)
+  PROJECTION_STALE_SUPERSEDED        vbbk_p_stale_A         source dec_A superseded by dec_B
+  PROJECTION_STATUS_DIVERGES         vbbk_p_stale_A         status: memory='active' canon='superseded'
+  REBUILD_DIVERGENCE                 dec_B                  canon artifact has no projection
+  REBUILD_DIVERGENCE                 dec_db                 canon artifact has no projection
+  REBUILD_DIVERGENCE                 dec_A                  projection has no live canon counterpart
+
+VERDICT: FAIL

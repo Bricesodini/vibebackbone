@@ -120,3 +120,129 @@ def test_keyword_fallback_preserved_without_any_explicit_ref(gate_env) -> None:
     assert ok is True
     assert path == accepted
     assert blocker == ""
+
+
+def test_project_local_adr_resolves_from_run_git_root(tmp_path: Path) -> None:
+    gate = _load_gate_module()
+    project = tmp_path / "project"
+    run_dir = project / "docs" / "runs" / "run"
+    adr_dir = project / "docs" / "adr"
+    run_dir.mkdir(parents=True)
+    adr_dir.mkdir()
+    (project / ".git").mkdir()
+    adr = adr_dir / "0026-local.md"
+    adr.write_text("**Status**: ACCEPTED\n", encoding="utf-8")
+    (run_dir / "01_INTAKE.md").write_text(
+        "API contract\nLiée à ADR: docs/adr/0026-local.md\n", encoding="utf-8"
+    )
+    ok, path, blocker = gate.check_adr(run_dir)
+    assert (ok, path, blocker) == (True, adr, "")
+
+
+def test_core_namespace_is_explicit_and_project_namespace_wins_duplicates(tmp_path: Path) -> None:
+    gate = _load_gate_module()
+    project = tmp_path / "project"
+    core = tmp_path / "core"
+    run_dir = project / "docs" / "runs" / "run"
+    for root in (project, core):
+        (root / "docs" / "adr").mkdir(parents=True)
+    (project / ".git").mkdir()
+    project_adr = project / "docs/adr/0026-shared.md"
+    core_adr = core / "docs/adr/0026-shared.md"
+    project_adr.write_text("**Status**: ACCEPTED\n", encoding="utf-8")
+    core_adr.write_text("**Status**: ACCEPTED\n", encoding="utf-8")
+    run_dir.mkdir(parents=True)
+    (run_dir / "01_INTAKE.md").write_text(
+        "Liée à ADR: project:docs/adr/0026-shared.md\n", encoding="utf-8"
+    )
+    assert gate.check_adr(run_dir, core_root=core)[0:2] == (True, project_adr)
+    (run_dir / "01_INTAKE.md").write_text(
+        "Liée à ADR: vbb:docs/adr/0026-shared.md\n", encoding="utf-8"
+    )
+    assert gate.check_adr(run_dir, core_root=core)[0:2] == (True, core_adr)
+
+
+def test_core_missing_and_absolute_authorized_reference(tmp_path: Path) -> None:
+    gate = _load_gate_module()
+    project = tmp_path / "project"
+    core = tmp_path / "core"
+    run_dir = project / "docs/runs/run"
+    (project / "docs/adr").mkdir(parents=True)
+    (core / "docs/adr").mkdir(parents=True)
+    (project / ".git").mkdir()
+    run_dir.mkdir(parents=True)
+    (run_dir / "01_INTAKE.md").write_text(
+        "Liée à ADR: vbb:docs/adr/0099-missing.md\n", encoding="utf-8"
+    )
+    assert gate.check_adr(run_dir, core_root=core)[2] == "ADR_REF_NOT_FOUND"
+    absolute = project / "docs/adr/0026-absolute.md"
+    absolute.write_text("**Status**: ACCEPTED\n", encoding="utf-8")
+    (run_dir / "01_INTAKE.md").write_text(
+        f"Liée à ADR: {absolute}\n", encoding="utf-8"
+    )
+    ok, path, blocker = gate.check_adr(run_dir, core_root=core)
+    assert (ok, path, blocker) == (True, absolute, "")
+
+
+def test_unqualified_duplicate_adr_fails_closed(tmp_path: Path) -> None:
+    gate = _load_gate_module()
+    project = tmp_path / "project"
+    core = tmp_path / "core"
+    run_dir = project / "docs/runs/run"
+    for root in (project, core):
+        (root / "docs/adr").mkdir(parents=True)
+        (root / "docs/adr/0026-shared.md").write_text(
+            "**Status**: ACCEPTED\n", encoding="utf-8"
+        )
+    (project / ".git").mkdir()
+    run_dir.mkdir(parents=True)
+    (run_dir / "01_INTAKE.md").write_text(
+        "Liée à ADR: docs/adr/0026-shared.md\n", encoding="utf-8"
+    )
+    ok, path, blocker = gate.check_adr(run_dir, core_root=core)
+    assert (ok, path, blocker) == (False, None, "AMBIGUOUS_ADR_REF")
+
+
+def test_project_root_unavailable_fails_closed(tmp_path: Path) -> None:
+    gate = _load_gate_module()
+    run_dir = tmp_path / "run"
+    run_dir.mkdir()
+    (run_dir / "01_INTAKE.md").write_text(
+        "Liée à ADR: docs/adr/0026-ghost.md\n", encoding="utf-8"
+    )
+    ok, path, blocker = gate.check_adr(run_dir, project_root=tmp_path / "missing")
+    assert (ok, path, blocker) == (False, None, "PROJECT_ROOT_UNAVAILABLE")
+
+
+def test_traversal_and_symlink_escape_fail_closed(tmp_path: Path) -> None:
+    gate = _load_gate_module()
+    project = tmp_path / "project"
+    outside = tmp_path / "outside"
+    run_dir = project / "docs/runs/run"
+    (project / "docs/adr").mkdir(parents=True)
+    run_dir.mkdir(parents=True)
+    outside.mkdir()
+    (outside / "0026-escape.md").write_text("**Status**: ACCEPTED\n", encoding="utf-8")
+    (project / "docs/adr/0026-link.md").symlink_to(outside / "0026-escape.md")
+    (run_dir / "01_INTAKE.md").write_text(
+        "Liée à ADR: docs/adr/../adr/0026-escape.md\n", encoding="utf-8"
+    )
+    assert gate.check_adr(run_dir, project_root=project)[0] is False
+
+
+def test_malformed_scoped_traversal_cannot_fall_back(tmp_path: Path) -> None:
+    gate = _load_gate_module()
+    project = tmp_path / "project"
+    (project / "docs/adr").mkdir(parents=True)
+    (project / ".git").mkdir()
+    (project / "docs/adr/0001-storage-policy.md").write_text(
+        "**Status**: ACCEPTED\n", encoding="utf-8"
+    )
+    run_dir = project / "docs/runs/run"
+    run_dir.mkdir(parents=True)
+    (run_dir / "01_INTAKE.md").write_text(
+        "storage contract\nproject:../docs/adr/0001-storage-policy.md\n",
+        encoding="utf-8",
+    )
+    ok, path, blocker = gate.check_adr(run_dir)
+    assert (ok, path, blocker) == (False, None, "ADR_PATH_OUTSIDE_AUTHORIZED_ROOT")

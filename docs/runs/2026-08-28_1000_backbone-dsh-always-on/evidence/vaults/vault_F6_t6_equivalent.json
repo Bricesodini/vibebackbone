@@ -1,0 +1,19 @@
+[
+  {
+    "id": "vbbk_p_with_canonical_claim",
+    "class": "projection",
+    "source": "dec_db",
+    "subject_key": "database",
+    "value": "postgresql",
+    "is_canon": true,
+    "production": "yes",
+    "projected": {
+      "status": "active",
+      "final_status": "PASS",
+      "assurance_status": "DESIGN",
+      "certification_status": "NOT_CERTIFIED",
+      "lifecycle": "canonical"
+    },
+    "provenance": {"captured_from": "repo", "run": "adversarial"}
+  }
+]

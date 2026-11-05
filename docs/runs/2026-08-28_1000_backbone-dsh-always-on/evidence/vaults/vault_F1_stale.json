@@ -1,0 +1,17 @@
+[
+  {
+    "id": "vbbk_p_stale_A",
+    "class": "projection",
+    "source": "dec_A",
+    "subject_key": "api_design",
+    "value": "rest_only",
+    "projected": {
+      "status": "active",
+      "final_status": "PASS",
+      "assurance_status": "DESIGN",
+      "certification_status": "NOT_CERTIFIED",
+      "lifecycle": "canonical"
+    },
+    "provenance": {"captured_from": "repo", "run": "stale_vault"}
+  }
+]

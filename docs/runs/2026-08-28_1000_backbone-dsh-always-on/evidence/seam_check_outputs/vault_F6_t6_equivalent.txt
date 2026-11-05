@@ -1,0 +1,6 @@
+canon: 3 artifact(s) | vault: 1 entry(ies)
+  CANONICAL_CLAIM_IN_MEMORY          vbbk_p_with_canonical_claim field is_canon=True
+  CANONICAL_CLAIM_IN_MEMORY          vbbk_p_with_canonical_claim field production='yes'
+  REBUILD_DIVERGENCE                 dec_B                  canon artifact has no projection
+
+VERDICT: FAIL

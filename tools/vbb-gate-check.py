@@ -95,7 +95,14 @@ POC_PIVOT_RE = re.compile(rf"{_POC_VERDICT_LABEL}\s*:\s*PIVOT\b", re.IGNORECASE)
 
 # Patterns to extract ADR reference from 01_INTAKE or 04_PLAN
 ADR_REF_RE = re.compile(
-    r"docs/adr/(\d{4})-([a-z0-9\-]+)\.md|adr/(\d{4})-([a-z0-9\-]+)", re.IGNORECASE
+    r"(?:docs/)?adr/(\d{4})-([a-z0-9\-]+)\.md|"
+    r"(?:docs/)?adr/(\d{4})-([a-z0-9\-]+)",
+    re.IGNORECASE,
+)
+SCOPED_ADR_REF_RE = re.compile(
+    r"(?P<scope>project|vbb|core)\s*:\s*(?P<ref>[^\s)`]+)|"
+    r"(?P<absolute>/[^\s)`]+/docs/adr/[^\s)`]+\.md)",
+    re.IGNORECASE,
 )
 POC_REF_RE = re.compile(
     r"docs/runs/[^\s)]*POC\.md|/\*POC\*\.md|run_id.*?POC", re.IGNORECASE
@@ -237,6 +244,30 @@ def find_adr_ref(text: str) -> Optional[Tuple[str, str]]:
     return None
 
 
+def find_scoped_adr_ref(text: str) -> Optional[Tuple[Optional[str], str, str, str]]:
+    """Return (scope, number, slug, raw reference).
+
+    Unqualified ``docs/adr/...`` references intentionally return scope=None;
+    the caller must check both authorized namespaces and fail on duplicates.
+    ``project:`` and ``vbb:`` are explicit namespace selectors.
+    """
+    # A linkage-labeled ADR outranks consumed/context references.
+    linked_lines = ADR_LINK_LABEL_RE.findall(text)
+    candidates_text = "\n".join(linked_lines) if linked_lines else text
+    for match in SCOPED_ADR_REF_RE.finditer(candidates_text):
+        raw = match.group("absolute") or match.group("ref")
+        parsed = find_adr_ref(raw)
+        if parsed:
+            scope = match.group("scope")
+            if scope and scope.lower() == "core":
+                scope = "vbb"
+            return scope.lower() if scope else None, parsed[0], parsed[1], raw
+    parsed = find_adr_ref(candidates_text)
+    if parsed:
+        return None, parsed[0], parsed[1], f"docs/adr/{parsed[0]}-{parsed[1]}.md"
+    return None
+
+
 # ADR-0027 decision 3 — strict linkage. A run may cite several ADRs (consumed
 # artifacts, historical context); only a LINKAGE-LABELED reference designates
 # "the run's ADR". Labels: "Liée à ADR", "adr_link:", or a "- ADR :" bullet.
@@ -258,7 +289,7 @@ def find_linked_adr_ref(text: str) -> Optional[Tuple[str, str]]:
     return None
 
 
-def find_adr_globally(text: str) -> Optional[Path]:
+def find_adr_globally(text: str, adr_dir: Optional[Path] = None) -> Optional[Path]:
     """Search for the latest ACCEPTED ADR whose slug contains a relevant keyword.
 
     The fallback match requires that at least one ADR_KEYWORD (security, auth,
@@ -267,7 +298,8 @@ def find_adr_globally(text: str) -> Optional[Path]:
     rejected — only keywords that triggered `adr_required=True` in the first
     place may unlock a fallback match.
     """
-    if not ADR_DIR.is_dir():
+    adr_dir = (adr_dir or ADR_DIR).resolve()
+    if not adr_dir.is_dir():
         return None
     # Extract the keywords actually present in the text (the ones that flipped
     # adr_required=True). We restrict fallback matching to those.
@@ -275,7 +307,7 @@ def find_adr_globally(text: str) -> Optional[Path]:
     if not relevant:
         return None
     candidates: List[Tuple[int, Path]] = []
-    for adr in sorted(ADR_DIR.glob("*.md")):
+    for adr in sorted(adr_dir.glob("*.md")):
         if not ADR_ACCEPTED_RE.search(_read(adr)):
             continue
         slug = adr.stem.split("-", 1)[-1] if "-" in adr.stem else adr.stem
@@ -290,7 +322,39 @@ def find_adr_globally(text: str) -> Optional[Path]:
     return candidates[0][1]
 
 
-def check_adr(run_dir: Path) -> Tuple[bool, Optional[Path], str]:
+def _within(path: Path, root: Path) -> bool:
+    try:
+        path.relative_to(root)
+        return True
+    except ValueError:
+        return False
+
+
+def _discover_project_root(run_dir: Path, explicit: Optional[Path]) -> Optional[Path]:
+    if explicit is not None:
+        root = explicit.expanduser().resolve()
+        if not root.is_dir() or not _within(run_dir.resolve(), root):
+            return None
+        return root
+    current = run_dir.resolve()
+    for candidate in (current, *current.parents):
+        if (candidate / ".git").exists():
+            return candidate
+    return None
+
+
+def _safe_adr(root: Path, number: str, slug: str) -> Optional[Path]:
+    candidate = (root / "docs" / "adr" / f"{number}-{slug}.md").resolve()
+    if not _within(candidate, root.resolve()) or not candidate.is_file():
+        return None
+    return candidate
+
+
+def check_adr(
+    run_dir: Path,
+    project_root: Optional[Path] = None,
+    core_root: Optional[Path] = None,
+) -> Tuple[bool, Optional[Path], str]:
     """Check ADR presence+ACCEPTED for the run.
 
     ADR-0027 decision 3 — strict linkage: when an ADR is explicitly
@@ -301,24 +365,68 @@ def check_adr(run_dir: Path) -> Tuple[bool, Optional[Path], str]:
       2. first explicit reference in intake/plan
       3. keyword fallback — ONLY when no explicit reference exists at all
     """
+    run_dir = run_dir.resolve()
+    # Existing unit tests inject ADR_DIR. In production, the project context
+    # is discovered from the run directory or supplied explicitly by CLI.
+    legacy_adr_dir = ADR_DIR != REPO_ROOT / "docs" / "adr"
+    if project_root is None and legacy_adr_dir:
+        project_root = ADR_DIR.parent
+    project_root = _discover_project_root(run_dir, project_root)
+    core_root = (core_root or REPO_ROOT).resolve()
+    if project_root is None:
+        return False, None, "PROJECT_ROOT_UNAVAILABLE"
+    if not _within(project_root, REPO_ROOT.parent.parent) and project_root != REPO_ROOT:
+        # Arbitrary projects are valid; the check above is deliberately not a
+        # repository-name heuristic. The run containment check is the boundary.
+        pass
+
     intake_text = _read(run_dir / "01_INTAKE.md")
     plan_text = (
         _read(run_dir / "04_PLAN.md") if (run_dir / "04_PLAN.md").exists() else ""
     )
     combined = intake_text + "\n" + plan_text
 
-    ref = find_linked_adr_ref(combined) or find_adr_ref(combined)
-    if ref:
-        nnnn, slug = ref
-        candidate = ADR_DIR / f"{nnnn}-{slug}.md"
-        if not candidate.exists():
+    # Reject traversal-looking ADR references before parsing. Otherwise a
+    # malformed scoped reference could be ignored and accidentally rescued by
+    # the historical keyword fallback.
+    if re.search(r"(?:project|vbb|core)\s*:[^\s)`]*\.\.[^\s)`]*|(?:docs/)?adr/[^\s)`]*\.\.[^\s)`]*", combined, re.IGNORECASE):
+        return False, None, "ADR_PATH_OUTSIDE_AUTHORIZED_ROOT"
+
+    scoped = find_scoped_adr_ref(combined)
+    if scoped:
+        scope, nnnn, slug, raw = scoped
+        if raw.startswith("/"):
+            absolute = Path(raw).resolve()
+            candidates = [absolute] if _within(absolute, project_root) or _within(absolute, core_root) else []
+        else:
+            project_adr_dir = ADR_DIR if legacy_adr_dir else project_root / "docs" / "adr"
+            roots = [("project", project_root), ("vbb", core_root)]
+            if legacy_adr_dir and core_root == REPO_ROOT:
+                roots = [("project", project_root)]
+            if scope:
+                roots = [item for item in roots if item[0] == scope]
+            candidates = []
+            for namespace, root in roots:
+                candidate = (
+                    (project_adr_dir / f"{nnnn}-{slug}.md").resolve()
+                    if namespace == "project" and legacy_adr_dir
+                    else _safe_adr(root, nnnn, slug)
+                )
+                if candidate and candidate.is_file():
+                    candidates.append(candidate)
+        if not candidates:
             return False, None, "ADR_REF_NOT_FOUND"
+        if not scope and len(candidates) > 1:
+            return False, None, "AMBIGUOUS_ADR_REF"
+        candidate = candidates[0]
         if ADR_ACCEPTED_RE.search(_read(candidate)):
             return True, candidate, ""
         return False, candidate, "ADR_NOT_ACCEPTED"
 
     # Keyword fallback — reachable only when the run references no ADR at all.
-    matched = find_adr_globally(combined)
+    matched = find_adr_globally(
+        combined, ADR_DIR if legacy_adr_dir else project_root / "docs" / "adr"
+    )
     if matched:
         return True, matched, ""
 
@@ -385,7 +493,7 @@ def check_mode_transition(run_dir: Path) -> Dict:
     }
 
 
-def evaluate(run_dir: Path) -> Dict:
+def evaluate(run_dir: Path, project_root: Optional[Path] = None) -> Dict:
     """Main gate evaluation. Returns dict suitable for JSON output."""
     blockers: List[str] = []
     run_dir = run_dir.resolve()
@@ -407,7 +515,7 @@ def evaluate(run_dir: Path) -> Dict:
     intake_text = _read(intake_path)
     adr_required, poc_required = detect_required(intake_text)
 
-    adr_ok, adr_path, adr_blocker = check_adr(run_dir)
+    adr_ok, adr_path, adr_blocker = check_adr(run_dir, project_root=project_root)
     poc_ok, poc_path, poc_blocker = check_poc(run_dir)
     mode_transition = check_mode_transition(run_dir)
 
@@ -463,6 +571,12 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument(
         "run_dir", help="Path to run directory (containing 01_INTAKE.md)"
     )
+    parser.add_argument(
+        "--project-root",
+        type=Path,
+        default=None,
+        help="Active project root; defaults to the git root containing run_dir",
+    )
     parser.add_argument("--json", action="store_true", help="Emit JSON only")
     args = parser.parse_args(argv)
 
@@ -472,7 +586,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 2
 
     try:
-        report = evaluate(run_dir)
+        report = evaluate(run_dir, args.project_root)
     except Exception as e:  # pragma: no cover - defensive
         sys.stderr.write(f"TOOL_BROKEN: {e}\n")
         return 3

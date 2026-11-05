@@ -1,0 +1,11 @@
+VBB Memory Seam Check — selftest (ADR 0055 T1..T6)
+
+  OK   conformant                         exit=0 codes=[]
+  OK   t1_candidate_contradicts_canon     exit=1 codes=['CANDIDATE_CONTRADICTION_UNFLAGGED']
+  OK   t2_projection_source_superseded    exit=1 codes=['PROJECTION_STALE_SUPERSEDED', 'REBUILD_DIVERGENCE']
+  OK   t3_fact_without_source             exit=1 codes=['PROJECTION_WITHOUT_SOURCE']
+  OK   t4_incompatible_candidates         exit=1 codes=['CONFLICT_AUTO_RESOLVED']
+  OK   t5_vault_destroyed                 exit=1 codes=['REBUILD_DIVERGENCE']
+  OK   t6_direct_production_marking       exit=1 codes=['CANONICAL_CLAIM_IN_MEMORY']
+
+SELFTEST PASS — the conformant vault passes and each of the six adversarial cases fails with its expected code.

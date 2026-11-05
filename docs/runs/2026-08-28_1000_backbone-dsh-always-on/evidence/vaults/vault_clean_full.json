@@ -1,0 +1,32 @@
+[
+  {
+    "id": "vbbk_p_api_design",
+    "class": "projection",
+    "source": "dec_B",
+    "subject_key": "api_design",
+    "value": "rest_plus_websocket",
+    "projected": {
+      "status": "active",
+      "final_status": "PASS",
+      "assurance_status": "CERTIFICATION",
+      "certification_status": "PRE_CERTIFICATION",
+      "lifecycle": "canonical"
+    },
+    "provenance": {"captured_from": "repo", "run": "fresh_rebuild"}
+  },
+  {
+    "id": "vbbk_p_db",
+    "class": "projection",
+    "source": "dec_db",
+    "subject_key": "database",
+    "value": "postgresql",
+    "projected": {
+      "status": "active",
+      "final_status": "PASS",
+      "assurance_status": "DESIGN",
+      "certification_status": "NOT_CERTIFIED",
+      "lifecycle": "canonical"
+    },
+    "provenance": {"captured_from": "repo", "run": "fresh_rebuild"}
+  }
+]
